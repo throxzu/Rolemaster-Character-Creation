@@ -1,0 +1,17 @@
+# Normalize line endings to LF on commit, checkout as CRLF on Windows
+* text=auto eol=crlf
+
+# Force LF for specific file types regardless of platform
+*.sh text eol=lf
+*.bash text eol=lf
+
+# Treat binary files as binary (no line-ending conversion)
+*.png binary
+*.jpg binary
+*.ico binary
+*.gif binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary

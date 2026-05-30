@@ -1,0 +1,192 @@
+@page "/gm/players"
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = Roles.Gamemaster)]
+@using Microsoft.AspNetCore.Identity
+@using RolemasterCharacterCreation.Data
+@inject UserManager<ApplicationUser> UserManager
+@inject AppDbContext Db
+@inject ILogger<Players> Logger
+
+<PageTitle>Players</PageTitle>
+
+<h2>Players</h2>
+
+@if (!string.IsNullOrEmpty(_message))
+{
+    <div class="alert @(_isError ? "alert-danger" : "alert-success") alert-dismissible">
+        @_message
+        <button type="button" class="btn-close" @onclick="() => _message = null"></button>
+    </div>
+}
+
+<button class="btn btn-primary mb-3" @onclick="() => _showCreate = !_showCreate">
+    @(_showCreate ? "Cancel" : "+ New Player")
+</button>
+
+@if (_showCreate)
+{
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Create Player</h5>
+            <EditForm Model="_createModel" OnValidSubmit="CreatePlayerAsync">
+                <DataAnnotationsValidator />
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Display Name</label>
+                        <InputText @bind-Value="_createModel.DisplayName" class="form-control" />
+                        <ValidationMessage For="() => _createModel.DisplayName" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Email</label>
+                        <InputText @bind-Value="_createModel.Email" class="form-control" />
+                        <ValidationMessage For="() => _createModel.Email" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Password</label>
+                        <InputText @bind-Value="_createModel.Password" type="password" class="form-control" />
+                        <ValidationMessage For="() => _createModel.Password" />
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success mt-3">Create</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Display Name</th>
+            <th>Email</th>
+            <th>Characters</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var player in _players)
+        {
+            <tr>
+                <td>@player.DisplayName</td>
+                <td>@player.Email</td>
+                <td>@player.Characters.Count</td>
+                <td class="text-end">
+                    @if (_resetId == player.Id)
+                    {
+                        <div class="d-inline-flex gap-2 align-items-center">
+                            <InputText @bind-Value="_newPassword" placeholder="New password" class="form-control form-control-sm" style="width:180px" />
+                            <button class="btn btn-sm btn-warning" @onclick="() => ResetPasswordAsync(player)">Confirm Reset</button>
+                            <button class="btn btn-sm btn-secondary" @onclick="() => _resetId = null">Cancel</button>
+                        </div>
+                    }
+                    else if (_deleteId == player.Id)
+                    {
+                        <span class="me-2">Delete <strong>@player.DisplayName</strong>?</span>
+                        <button class="btn btn-sm btn-danger" @onclick="() => DeletePlayerAsync(player)">Yes, delete</button>
+                        <button class="btn btn-sm btn-secondary ms-1" @onclick="() => _deleteId = null">Cancel</button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-sm btn-outline-secondary me-1" @onclick="() => { _resetId = player.Id; _newPassword = string.Empty; }">Reset Password</button>
+                        <button class="btn btn-sm btn-outline-danger" @onclick="() => _deleteId = player.Id">Delete</button>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!_players.Any())
+{
+    <p class="text-muted">No players yet. Create one above.</p>
+}
+
+@code {
+    private List<ApplicationUser> _players = [];
+    private bool _showCreate;
+    private string? _message;
+    private bool _isError;
+    private string? _deleteId;
+    private string? _resetId;
+    private string _newPassword = string.Empty;
+    private CreateModel _createModel = new();
+
+    protected override async Task OnInitializedAsync() => await LoadPlayersAsync();
+
+    private async Task LoadPlayersAsync()
+    {
+        var playerIds = (await UserManager.GetUsersInRoleAsync(Roles.Player))
+            .Select(u => u.Id)
+            .ToHashSet();
+
+        _players = await Db.Users
+            .Include(u => u.Characters)
+            .Where(u => playerIds.Contains(u.Id))
+            .OrderBy(u => u.DisplayName)
+            .ToListAsync();
+    }
+
+    private async Task CreatePlayerAsync()
+    {
+        var user = new ApplicationUser
+        {
+            UserName = _createModel.Email,
+            Email = _createModel.Email,
+            DisplayName = _createModel.DisplayName
+        };
+
+        var result = await UserManager.CreateAsync(user, _createModel.Password);
+        if (!result.Succeeded)
+        {
+            SetMessage(string.Join("; ", result.Errors.Select(e => e.Description)), error: true);
+            return;
+        }
+
+        await UserManager.AddToRoleAsync(user, Roles.Player);
+        SetMessage($"Player {user.DisplayName} created.");
+        _createModel = new();
+        _showCreate = false;
+        await LoadPlayersAsync();
+    }
+
+    private async Task DeletePlayerAsync(ApplicationUser player)
+    {
+        var result = await UserManager.DeleteAsync(player);
+        _deleteId = null;
+        SetMessage(result.Succeeded ? $"Player {player.DisplayName} deleted." : "Delete failed.", !result.Succeeded);
+        if (result.Succeeded) await LoadPlayersAsync();
+    }
+
+    private async Task ResetPasswordAsync(ApplicationUser player)
+    {
+        if (string.IsNullOrWhiteSpace(_newPassword))
+        {
+            SetMessage("Password cannot be empty.", error: true);
+            return;
+        }
+
+        var token = await UserManager.GeneratePasswordResetTokenAsync(player);
+        var result = await UserManager.ResetPasswordAsync(player, token, _newPassword);
+        _resetId = null;
+        SetMessage(result.Succeeded ? $"Password reset for {player.DisplayName}." : "Reset failed.", !result.Succeeded);
+    }
+
+    private void SetMessage(string msg, bool error = false)
+    {
+        _message = msg;
+        _isError = error;
+    }
+
+    private sealed class CreateModel
+    {
+        [System.ComponentModel.DataAnnotations.Required]
+        public string DisplayName { get; set; } = "";
+
+        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.EmailAddress]
+        public string Email { get; set; } = "";
+
+        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.MinLength(8)]
+        public string Password { get; set; } = "";
+    }
+}

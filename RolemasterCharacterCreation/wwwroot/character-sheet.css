@@ -1,0 +1,99 @@
+/* ── Dark site theme ───────────────────────────────────────── */
+.rm { color-scheme: dark; background: #0d0d1a; color: #c8c8e8;
+      font-family: "Arial Narrow", Arial, sans-serif;
+      font-size: 8.5pt; max-width: 900px; margin: 0 auto; }
+
+/* ── Shared helpers ────────────────────────────────────────── */
+.t100  { width: 100%; border-collapse: collapse; }
+.tb    { border: 1px solid #2a2a5a; }
+.mb0   { margin-bottom: 0; }
+.mb1   { margin-bottom: 2px; }
+.p1    { padding: 1px 3px; }
+.vt    { vertical-align: top; }
+.tc    { text-align: center; }
+.tr    { text-align: right; }
+.tl    { text-align: left; }
+.fw    { font-weight: bold; color: #e0e0ff; }
+.bb    { border-bottom: 1px solid #2a2a5a; }
+.lbl   { font-size: 6.5pt; color: #7777aa; }
+.val   { min-height: 13px; font-size: 8.5pt; color: #c8c8e8; }
+.muted { color: #6666aa; }
+.pos   { color: #4caf78; }
+.neg   { color: #e05555; }
+.sf    { font-size: 7.5pt; }
+.fhalf { width: 50%; }
+.blank-line { height: 10px; border-bottom: 1px solid #2a2a5a; margin-top: 2px; }
+
+/* ── Section header ────────────────────────────────────────── */
+.hdr { background: #1a1a40; color: #7c9fff; font-weight: bold;
+       font-size: 8pt; padding: 1px 3px; }
+
+/* ── Table sub-header (column heads) ──────────────────────── */
+.sh th { background: #151535; color: #8899dd; font-size: 7pt;
+         padding: 1px 3px; text-align: center;
+         border: 1px solid #2a2a5a; }
+.sh th.tl { text-align: left; }
+
+/* ── Blank form rows ───────────────────────────────────────── */
+.brow { height: 14px; }
+table .brow ~ td { border: 1px solid #2a2a5a; }
+tr:has(.brow) td { border: 1px solid #2a2a5a; height: 14px; }
+
+/* ── Gray cell (DB column for Head/Legs) ───────────────────── */
+.gcell { background: #1a1a35; }
+
+/* ── Armor right panel ─────────────────────────────────────── */
+.arm-side { padding: 2px 3px; border-bottom: 1px solid #2a2a5a;
+            font-size: 8pt; min-height: 18px; }
+.arm-side.gcell { background: #1a1a35; }
+
+/* ── Total row ─────────────────────────────────────────────── */
+.tr-total td { background: #1a1a35; font-weight: bold; color: #e0e0ff; }
+
+/* ── Skills table ──────────────────────────────────────────── */
+.sk-table td { border: 1px solid #2a2a5a; vertical-align: middle; }
+.sk-cat td { background: #1a1a35; color: #8899dd; font-size: 7.5pt;
+             border-top: 1px solid #2a2a5a; border-bottom: 1px solid #2a2a5a; }
+.sk-row td { height: 13px; }
+.sk-pro td  { background: #0f1f3a; }
+.sk-knack td { background: #2a1e06; }
+.sk-stats { font-size: 7pt; }
+.spec-gray { background: #1a1a35; }
+.spec-tag  { color: #6666aa; font-size: 7pt; margin-left: 3px; }
+
+/* ── Page break ────────────────────────────────────────────── */
+.pgbrk { page-break-after: always; height: 20px; }
+
+/* ── Print: reset to clean black-on-white ──────────────────── */
+@media print {
+  .d-print-none { display: none !important; }
+  .sidebar, .top-row, nav { display: none !important; }
+  .page { display: block !important; padding: 0 !important; }
+  main, article, .content { padding: 0 !important; max-width: 100% !important; }
+  body { margin: 0; background: white !important; color: black !important; }
+  .rm  { color-scheme: light !important; background: white !important; color: black !important;
+         font-size: 7.5pt; max-width: 100%; }
+  .hdr { background: #000 !important; color: #fff !important; }
+  .sh th { background: #555 !important; color: #fff !important; border-color: #333 !important; }
+  .tb  { border-color: #000 !important; }
+  .bb  { border-bottom-color: #ccc !important; }
+  .sk-cat td { background: #555 !important; color: #fff !important; border-color: #000 !important; }
+  .sk-pro td   { background: #dce8ff !important; }
+  .sk-knack td { background: #fff8dc !important; }
+  .sk-table td { border-color: #ccc !important; }
+  .tr-total td { background: #ddd !important; color: black !important; }
+  .gcell { background: #bbb !important; }
+  .arm-side.gcell { background: #bbb !important; }
+  .arm-side { border-bottom-color: #ccc !important; }
+  .brow ~ td, tr:has(.brow) td { border-color: #ccc !important; }
+  .pos   { color: #155724 !important; }
+  .neg   { color: #721c24 !important; }
+  .lbl   { color: #555 !important; }
+  .muted { color: #777 !important; }
+  .fw    { color: black !important; }
+  .val   { color: black !important; }
+  .spec-gray { background: #ccc !important; }
+  .spec-tag  { color: #888 !important; }
+  .sk-table { font-size: 7pt; }
+  .pgbrk { page-break-after: always; height: 0; }
+}

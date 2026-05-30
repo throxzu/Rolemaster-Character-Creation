@@ -1,0 +1,8 @@
+<Router AppAssembly="typeof(RolemasterCharacterCreation.Client.UserInfo).Assembly"
+        AdditionalAssemblies="@(new[] { typeof(App).Assembly })"
+        NotFoundPage="typeof(RolemasterCharacterCreation.Client.Pages.NotFound)">
+    <Found Context="routeData">
+        <RouteView RouteData="routeData" DefaultLayout="typeof(RolemasterCharacterCreation.Client.Layout.MainLayout)" />
+        <FocusOnNavigate RouteData="routeData" Selector="h1" />
+    </Found>
+</Router>

@@ -1,0 +1,51 @@
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Rolemaster</a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="nav flex-column">
+
+        <AuthorizeView>
+            <Authorized>
+                <AuthorizeView Roles="Gamemaster" Context="gmCtx">
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="gm/players">
+                            <span class="bi bi-people-fill-nav-menu" aria-hidden="true"></span> Players
+                        </NavLink>
+                    </div>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="gm/characters">
+                            <span class="bi bi-person-badge-fill-nav-menu" aria-hidden="true"></span> Characters
+                        </NavLink>
+                    </div>
+                </AuthorizeView>
+
+                <AuthorizeView Roles="Player" Context="playerCtx">
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="my-character">
+                            <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> My Character
+                        </NavLink>
+                    </div>
+                </AuthorizeView>
+
+                <div class="nav-item px-3 mt-3">
+                    <NavLink class="nav-link" href="account/logout">
+                        <span class="bi bi-box-arrow-left-nav-menu" aria-hidden="true"></span> Log out
+                    </NavLink>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="account/login">
+                        <span class="bi bi-box-arrow-in-right-nav-menu" aria-hidden="true"></span> Log in
+                    </NavLink>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+
+    </nav>
+</div>

@@ -1,0 +1,760 @@
+@page "/character/{Id:int}/wizard"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using RolemasterCharacterCreation.Data
+@using RolemasterCharacterCreation.Models
+@using RolemasterCharacterCreation.Identity
+@using RolemasterCharacterCreation.Rules
+@using RolemasterCharacterCreation.Services
+@inject AppDbContext Db
+@inject UserManager<ApplicationUser> UserManager
+@inject NavigationManager Nav
+@inject AuthenticationStateProvider AuthState
+@inject WizardAgentService AgentService
+@inject CharacterSheetAgentService SheetAgent
+@attribute [Authorize]
+
+<PageTitle>Character Wizard — @(_char?.Name ?? "...")</PageTitle>
+
+@if (_char is null)
+{
+    <p>Loading…</p>
+    return;
+}
+
+@if (!_authorized)
+{
+    <p class="text-danger">Access denied.</p>
+    return;
+}
+
+<div class="container-fluid mt-3">
+    <div class="mb-4">
+        <div class="d-flex justify-content-between small mb-1">
+            @foreach (var (label, idx) in Steps.Select((l, i) => (l, i)))
+            {
+                <span class="@(idx == _step ? "fw-bold text-primary" : idx < _step ? "text-success" : "text-muted")">@label</span>
+            }
+        </div>
+        <div class="progress">
+            <div class="progress-bar" style="width:@((_step * 100) / (Steps.Length - 1))%"></div>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(_error))
+    {
+        <div class="alert alert-danger">@_error</div>
+    }
+    @if (!string.IsNullOrEmpty(_sheetWarnings))
+    {
+        <div class="alert alert-warning alert-dismissible py-2">
+            <strong>Sheet agent:</strong>
+            <span style="white-space:pre-wrap"> @_sheetWarnings</span>
+            <button type="button" class="btn-close" @onclick="() => _sheetWarnings = null"></button>
+        </div>
+    }
+
+    @switch (_step)
+    {
+        case 0: @StepConcept break;
+        case 1: @StepStats break;
+        case 2: @StepProfSkills break;
+        case 3: @StepSkills break;
+        case 4: @StepEquipment break;
+        case 5: @StepSummary break;
+    }
+
+    <div class="d-flex justify-content-between mt-4">
+        <button class="btn btn-secondary" disabled="@(_step == 0)" @onclick="PrevStep">← Back</button>
+        @if (_step < Steps.Length - 1)
+        {
+            <button class="btn btn-primary" @onclick="NextStep">Next →</button>
+        }
+        else
+        {
+            <button class="btn btn-success" @onclick="FinishAsync">Finish</button>
+        }
+    </div>
+
+    <div class="mt-4 border-top pt-3">
+        <button class="btn btn-sm btn-outline-secondary" @onclick="() => _oracleOpen = !_oracleOpen">
+            @(_oracleOpen ? "▾" : "▸") Ask the Oracle (AI)
+        </button>
+        @if (_oracleOpen)
+        {
+            <div class="mt-2">
+                <div class="input-group">
+                    <input class="form-control form-control-sm" placeholder="Ask a rules question…"
+                           @bind="_oracleInput" @bind:event="oninput"
+                           @onkeydown='async e => { if (e.Key == "Enter" && !e.ShiftKey) await AskOracleAsync(); }' />
+                    <button class="btn btn-sm btn-outline-primary" disabled="@(_oracleThinking || string.IsNullOrWhiteSpace(_oracleInput))"
+                            @onclick="AskOracleAsync">
+                        @(_oracleThinking ? "…" : "Ask")
+                    </button>
+                    @if (_oracleThinking)
+                    {
+                        <button class="btn btn-sm btn-outline-danger" @onclick="CancelOracle">Stop</button>
+                    }
+                </div>
+                @if (!string.IsNullOrEmpty(_oracleResponse))
+                {
+                    <div class="mt-2 p-2 bg-light border rounded small" style="white-space:pre-wrap">@_oracleResponse</div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    // ── Render fragments ──────────────────────────────────────────────────────
+
+    static readonly string[] RaceNames = RaceRules.All.Select(r => r.Name).ToArray();
+    static readonly string[] Realms    = ["Channeling", "Essence", "Mentalism"];
+
+    RenderFragment StepConcept => __builder =>
+    {
+        var prof = ProfessionRules.ByName.GetValueOrDefault(_char!.Profession ?? "");
+        var race = _char.Race is not null && RaceRules.ByName.TryGetValue(_char.Race, out var rd) ? rd : null;
+
+        <h4>Step 1: Concept</h4>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Character Name</label>
+                <input class="form-control" value="@_char!.Name"
+                       @oninput="e => _char.Name = e.Value?.ToString() ?? _char.Name" />
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Race</label>
+                <select class="form-select" @onchange="e => OnRaceChanged(e.Value?.ToString())">
+                    <option value="">— select —</option>
+                    @foreach (var r in RaceNames)
+                    {
+                        <option value="@r" selected="@(_char!.Race == r)">@r</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Culture</label>
+                <select class="form-select"
+                        @onchange="e => { _char!.Culture = e.Value?.ToString(); ApplyCulturalRanks(); }">
+                    <option value="">— select —</option>
+                    @foreach (var c in CultureRules.All)
+                    {
+                        <option value="@c.Name" selected="@(_char!.Culture == c.Name)">@c.Name</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Profession</label>
+                <select class="form-select" @onchange="e => OnProfessionChanged(e.Value?.ToString())">
+                    <option value="">— select —</option>
+                    @foreach (var p in ProfessionRules.All)
+                    {
+                        <option value="@p.Name" selected="@(_char!.Profession == p.Name)">
+                            @p.Name — @p.Group@(p.Realm != null ? $" ({p.Realm})" : "")
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">
+                    Realm
+                    @if (prof is { IsSpellcaster: false })
+                    {
+                        <span class="text-muted small ms-1">(+10 RR vs own realm)</span>
+                    }
+                </label>
+                @if (prof?.Realm is { } fixedRealm && !fixedRealm.Contains("+"))
+                {
+                    <input class="form-control" value="@fixedRealm" disabled />
+                }
+                else
+                {
+                    <select class="form-select" @onchange="e => _char!.Realm = e.Value?.ToString()">
+                        <option value="">— select —</option>
+                        @foreach (var rl in Realms)
+                        {
+                            <option value="@rl" selected="@(_char!.Realm == rl)">@rl</option>
+                        }
+                    </select>
+                }
+            </div>
+        </div>
+
+        @if (race is not null)
+        {
+            <div class="alert alert-info mt-3 py-2">
+                <strong>@race.Name</strong>
+                — Size: @race.Size, Base Hits: @race.BaseHits, Bonus DP: @race.BonusDP,
+                  Endurance: @(race.EnduranceBonus >= 0 ? "+" : "")@race.EnduranceBonus,
+                  Recovery: ×@race.RecoveryMult.ToString("0.0#")
+                <div class="mt-1 small">
+                    <strong>Stat mods:</strong>
+                    @foreach (StatName sn in Enum.GetValues<StatName>())
+                    {
+                        int mod = race.GetStatMod(sn);
+                        if (mod != 0)
+                        {
+                            <span class="me-2 @(mod > 0 ? "text-success" : "text-danger")">
+                                @sn: @(mod > 0 ? "+" : "")@mod
+                            </span>
+                        }
+                    }
+                </div>
+                <div class="mt-1 small">
+                    <strong>RR mods:</strong>
+                    <span class="me-2">Ch: @(race.ResistChanneling >= 0 ? "+" : "")@race.ResistChanneling</span>
+                    <span class="me-2">Es: @(race.ResistEssence >= 0 ? "+" : "")@race.ResistEssence</span>
+                    <span class="me-2">Mn: @(race.ResistMentalism >= 0 ? "+" : "")@race.ResistMentalism</span>
+                    <span class="me-2">Ph: @(race.ResistPhysical >= 0 ? "+" : "")@race.ResistPhysical</span>
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(_char!.Culture) && CultureRules.ByName.TryGetValue(_char.Culture, out var cult))
+        {
+            <h6 class="mt-3">Cultural Starting Ranks</h6>
+            <ul class="small mb-2">
+                @foreach (var sk in cult.Skills.Where(s => s.Ranks > 0 && !s.IsPool))
+                {
+                    <li>@sk.Skill: @sk.Ranks rank@(sk.Ranks != 1 ? "s" : "")@(sk.Specialized ? "*" : "")</li>
+                }
+            </ul>
+
+            @foreach (var poolSk in cult.Skills.Where(s => s.IsPool))
+            {
+                int poolUsed = PoolUsed(poolSk.Skill);
+                int poolRemaining = poolSk.Ranks - poolUsed;
+                <div class="card mb-2">
+                    <div class="card-header py-1 d-flex justify-content-between align-items-center">
+                        <strong>@poolSk.Skill pool</strong>
+                        <span class="badge @(poolRemaining > 0 ? "bg-warning text-dark" : "bg-success")">
+                            @poolUsed / @poolSk.Ranks ranks used
+                        </span>
+                    </div>
+                    <div class="card-body py-2">
+                        @if (_poolAllocs.TryGetValue(poolSk.Skill, out var entries) && entries.Any())
+                        {
+                            <ul class="list-unstyled small mb-2">
+                                @foreach (var entry in entries.ToList())
+                                {
+                                    <li class="d-flex align-items-center gap-2 mb-1">
+                                        <span>@entry.SkillName@(entry.Specialization is not null ? $" ({entry.Specialization})" : ""): @entry.Ranks rank@(entry.Ranks != 1 ? "s" : "")</span>
+                                        <button class="btn btn-sm btn-outline-danger py-0 px-1" @onclick="() => RemovePoolEntry(poolSk.Skill, entry)">×</button>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        @if (poolRemaining > 0)
+                        {
+                            @if (_activePoolAdd == poolSk.Skill)
+                            {
+                                <div class="d-flex flex-wrap gap-2 align-items-end">
+                                    <div>
+                                        <label class="form-label form-label-sm mb-0">Skill</label>
+                                        <select class="form-select form-select-sm" style="min-width:180px"
+                                                @onchange="e => { _poolAddSkill = e.Value?.ToString() ?? string.Empty; _poolAddSpec = string.Empty; }">
+                                            <option value="">— select —</option>
+                                            @foreach (var ps in GetPoolSkills(poolSk.Skill))
+                                            {
+                                                <option value="@ps" selected="@(_poolAddSkill == ps)">@ps</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(_poolAddSkill) && PoolSkillNeedsSpec(_poolAddSkill))
+                                    {
+                                        <div>
+                                            <label class="form-label form-label-sm mb-0">Specialization</label>
+                                            <input class="form-control form-control-sm" style="min-width:140px"
+                                                   placeholder="e.g. Common"
+                                                   value="@_poolAddSpec"
+                                                   @oninput="e => _poolAddSpec = e.Value?.ToString() ?? string.Empty" />
+                                        </div>
+                                    }
+                                    <div>
+                                        <label class="form-label form-label-sm mb-0">Ranks</label>
+                                        <input type="number" class="form-control form-control-sm" style="width:70px"
+                                               min="1" max="@poolRemaining"
+                                               value="@_poolAddRanks"
+                                               @onchange="e => _poolAddRanks = int.TryParse(e.Value?.ToString(), out int v) ? v : 1" />
+                                    </div>
+                                    <button class="btn btn-sm btn-success" @onclick="() => AddPoolEntry(poolSk.Skill, poolSk.Ranks)">Add</button>
+                                    <button class="btn btn-sm btn-outline-secondary" @onclick="() => _activePoolAdd = null">Cancel</button>
+                                </div>
+                            }
+                            else
+                            {
+                                <button class="btn btn-sm btn-outline-primary"
+                                        @onclick="() => { _activePoolAdd = poolSk.Skill; _poolAddSkill = string.Empty; _poolAddSpec = string.Empty; _poolAddRanks = 1; }">+ Add</button>
+                            }
+                        }
+                    </div>
+                </div>
+            }
+        }
+    };
+
+    RenderFragment StepStats => __builder =>
+    {
+        var race = _char?.Race is not null && RaceRules.ByName.TryGetValue(_char.Race, out var rd) ? rd : null;
+        <h4>Step 2: Generate Stats</h4>
+        <div class="mb-3">
+            <button class="btn btn-outline-primary me-2" @onclick="RollAllStats">Roll All Stats</button>
+            <span class="text-muted small">Boosts remaining: @_boostsRemaining | Swaps remaining: @_swapsRemaining</span>
+        </div>
+        @if (_pendingBoostType is not null)
+        {
+            <div class="alert alert-warning py-2">
+                @(_pendingBoostType == 0 ? "Click Apply on the stat row you want set to 56/78:" : "Click Apply on the stat row for 2 gain rolls:")
+                <button class="btn btn-sm btn-outline-secondary ms-2" @onclick="() => _pendingBoostType = null">Cancel</button>
+            </div>
+        }
+        @if (_rolls.Any())
+        {
+            <div class="mb-3">
+                <strong>Boosts</strong>
+                <div class="btn-group ms-2">
+                    <button class="btn btn-sm btn-outline-secondary"
+                            disabled="@(_boostsRemaining == 0 || _pendingBoostType is not null)"
+                            @onclick="() => ApplyBoost(0)">56/78 (choose stat)</button>
+                    <button class="btn btn-sm btn-outline-secondary"
+                            disabled="@(_boostsRemaining == 0 || _pendingBoostType is not null)"
+                            @onclick="() => ApplyBoost(1)">Top→90+10pot</button>
+                    <button class="btn btn-sm btn-outline-secondary"
+                            disabled="@(_boostsRemaining == 0 || _pendingBoostType is not null)"
+                            @onclick="() => ApplyBoost(2)">2nd→85+10pot</button>
+                    <button class="btn btn-sm btn-outline-secondary"
+                            disabled="@(_boostsRemaining == 0 || _pendingBoostType is not null)"
+                            @onclick="() => ApplyBoost(3)">2 gain rolls (choose stat)</button>
+                </div>
+            </div>
+        }
+        <table class="table table-sm table-bordered">
+            <thead>
+                <tr>
+                    <th>Stat</th><th>Temp</th><th>Potential</th><th>Racial</th><th>Effective Bonus</th><th>Swap</th>
+                    @if (_pendingBoostType is not null) { <th>Boost</th> }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (StatName sn in Enum.GetValues<StatName>())
+                {
+                    int temp = GetTemp(sn), pot = GetPotential(sn);
+                    int racial = race?.GetStatMod(sn) ?? 0;
+                    int effective = SkillRules.StatBonus(temp) + racial;
+                    <tr class="@(_swapA == sn ? "table-warning" : _pendingBoostType is not null ? "table-active" : "")">
+                        <td>@sn</td>
+                        <td>
+                            <input type="number" class="form-control form-control-sm" style="width:80px" min="1" max="100"
+                                   value="@temp"
+                                   @onchange="e => { int v = int.TryParse(e.Value?.ToString(), out int x) ? x : temp; _rolls[sn] = new StatRoll(v, GetPotential(sn)); }" />
+                        </td>
+                        <td>
+                            <input type="number" class="form-control form-control-sm" style="width:80px" min="1" max="100"
+                                   value="@pot"
+                                   @onchange="e => { int v = int.TryParse(e.Value?.ToString(), out int x) ? x : pot; _rolls[sn] = new StatRoll(GetTemp(sn), v); }" />
+                        </td>
+                        <td class="@(racial > 0 ? "text-success" : racial < 0 ? "text-danger" : "text-muted")">
+                            @(racial == 0 ? "—" : racial > 0 ? $"+{racial}" : racial.ToString())
+                        </td>
+                        <td class="@(effective >= 0 ? "text-success" : "text-danger")">
+                            @(effective >= 0 ? "+" : "")@effective
+                        </td>
+                        <td>
+                            <button class="btn btn-sm @(_swapA == sn ? "btn-warning" : "btn-outline-secondary")"
+                                    disabled="@(_swapsRemaining == 0 && _swapA != sn)"
+                                    @onclick="() => StartSwap(sn)">
+                                @(_swapA == sn ? "Cancel" : "Swap")
+                            </button>
+                        </td>
+                        @if (_pendingBoostType is not null)
+                        {
+                            <td><button class="btn btn-sm btn-primary" @onclick="() => ApplyBoostToStat(sn)">Apply</button></td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <p class="small text-muted">Tip: Click "Swap" on two stats to exchange their Temp/Potential pair.</p>
+    };
+
+    RenderFragment StepProfSkills => __builder =>
+    {
+        var prof = ProfessionRules.ByName.GetValueOrDefault(_char?.Profession ?? "");
+        if (prof is null)
+        {
+            <p class="text-warning">Please select a profession in Step 1 first.</p>
+            return;
+        }
+        <h4>Step 3: Professional Skills</h4>
+        <p class="text-muted">Choose <strong>10 Professional Skills</strong> and <strong>2 Knacks</strong> from the list below.</p>
+        <p>
+            Pro selected: <strong>@_chosenPro.Count / 10</strong> |
+            Knacks selected: <strong>@_chosenKnack.Count / 2</strong>
+        </p>
+        <div class="row row-cols-1 row-cols-md-2 g-2">
+            @foreach (var skillName in prof.ProfessionalSkills)
+            {
+                bool isPro = _chosenPro.Contains(skillName);
+                bool isKnack = _chosenKnack.Contains(skillName);
+                <div class="col">
+                    <div class="card @(isPro || isKnack ? "border-primary" : "") p-2">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span>@skillName</span>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn @(isPro ? "btn-primary" : "btn-outline-primary")"
+                                        @onclick="() => TogglePro(skillName)">Pro</button>
+                                <button class="btn @(isKnack ? "btn-warning" : "btn-outline-warning")"
+                                        @onclick="() => ToggleKnack(skillName)">Knack</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    };
+
+    void TogglePro(string skillName)
+    {
+        if (_chosenPro.Contains(skillName)) { _chosenPro.Remove(skillName); return; }
+        _chosenKnack.Remove(skillName);
+        if (_chosenPro.Count < 10) _chosenPro.Add(skillName);
+    }
+
+    void ToggleKnack(string skillName)
+    {
+        if (_chosenKnack.Contains(skillName)) { _chosenKnack.Remove(skillName); return; }
+        _chosenPro.Remove(skillName);
+        if (_chosenKnack.Count < 2) _chosenKnack.Add(skillName);
+    }
+
+    RenderFragment StepSkills => __builder =>
+    {
+        var prof = ProfessionRules.ByName.GetValueOrDefault(_char?.Profession ?? "");
+        <h4>Step 4: Purchase Skills</h4>
+        <p class="mb-1">
+            DP Budget: <strong>@_dpBudget</strong> |
+            Spent: <strong>@_dpSpent</strong> |
+            Remaining: <strong class="@(_dpBudget - _dpSpent < 0 ? "text-danger" : "text-success")">@(_dpBudget - _dpSpent)</strong>
+        </p>
+
+        @foreach (var cat in SkillRules.Categories)
+        {
+            <div class="mb-3">
+                <h6 class="text-secondary">
+                    @cat.Name
+                    @if (!cat.NoStats)
+                    {
+                        <small class="ms-2 text-muted">(@cat.Stat1 + @cat.Stat2)</small>
+                    }
+                    @if (cat.Name != "Spellcasting")
+                    {
+                        var catKey = ResolveCostKey(cat.Name);
+                        (int f, int s) catCost = prof is not null && prof.Costs.TryGetValue(catKey, out var cc) ? cc : (99, 99);
+                        <small class="ms-2 badge bg-secondary">@catCost.f / @catCost.s DP</small>
+                    }
+                    else
+                    {
+                        <small class="ms-2 badge bg-secondary">varies by list type</small>
+                    }
+                </h6>
+                <table class="table table-sm table-hover">
+                    <thead><tr><th>Skill</th><th>Cultural</th><th>Purchased</th><th>Total</th><th>Bonus</th><th style="width:120px">Ranks</th></tr></thead>
+                    <tbody>
+                        @foreach (var sk in cat.Skills)
+                        {
+                            int cultural  = GetCulturalRanks(sk.Name);
+                            bool isPro    = _chosenPro.Contains(sk.Name);
+                            bool isKnack  = _chosenKnack.Contains(sk.Name);
+
+                            int baseStatBonus = cat.NoStats ? 0
+                                : SkillRules.StatBonus(GetTemp(StatFromName(cat.Stat1)))
+                                  + SkillRules.StatBonus(GetTemp(StatFromName(cat.Stat2)))
+                                  + (sk.SkillStat is "" or "R*" or "St or Ag" ? 0 : SkillRules.StatBonus(GetTemp(StatFromName(sk.SkillStat))));
+                            int racialStatBonus = cat.NoStats ? 0
+                                : GetRacialMod(StatFromName(cat.Stat1))
+                                  + GetRacialMod(StatFromName(cat.Stat2))
+                                  + (sk.SkillStat is "" or "R*" or "St or Ag" ? 0 : GetRacialMod(StatFromName(sk.SkillStat)));
+
+                            if (WeaponRules.BySkill.ContainsKey(sk.Name))
+                            {
+                                int weaponPurchased = GetWeaponPurchased(sk.Name);
+                                int weaponTotal     = cultural + weaponPurchased;
+
+                                <tr>
+                                    <td>
+                                        @sk.Name
+                                        @if (isPro)   { <span class="badge bg-primary ms-1">Pro</span> }
+                                        @if (isKnack) { <span class="badge bg-warning text-dark ms-1">Knack</span> }
+                                    </td>
+                                    <td class="text-muted">@cultural</td>
+                                    <td>@weaponPurchased</td>
+                                    <td><strong>@weaponTotal</strong></td>
+                                    <td class="text-muted">—</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary"
+                                                @onclick="() => { _activeWeaponAdd = _activeWeaponAdd == sk.Name ? null : sk.Name; _weaponAddSpec = string.Empty; _weaponAddRanks = 1; }">
+                                            @(_activeWeaponAdd == sk.Name ? "Cancel" : "+ Add")
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                @foreach (var wa in _weaponAllocs.Where(w => w.SkillName == sk.Name).ToList())
+                                {
+                                    int waSlot    = _weaponAllocs.IndexOf(wa);
+                                    var waKey     = WeaponRules.CostKeyForSlot(waSlot);
+                                    (int wf, int ws) waCost = prof is not null && prof.Costs.TryGetValue(waKey, out var wct) ? wct : (99, 99);
+                                    int waTotal   = cultural + wa.Ranks;
+                                    int waBonus   = baseStatBonus + racialStatBonus
+                                        + SkillRules.RankBonus(waTotal)
+                                        + (isPro ? Math.Min(waTotal, 30) : 0)
+                                        + (isKnack ? 5 : 0);
+                                    <tr class="table-light">
+                                        <td class="ps-4">
+                                            ↳ @wa.Specialization
+                                            <span class="badge bg-secondary ms-1">slot @(waSlot + 1)</span>
+                                            <small class="text-muted ms-1">@waCost.wf / @waCost.ws dp</small>
+                                        </td>
+                                        <td class="text-muted">@(cultural > 0 ? cultural.ToString() : "—")</td>
+                                        <td>@wa.Ranks</td>
+                                        <td><strong>@waTotal</strong></td>
+                                        <td class="@(waBonus >= 0 ? "text-success" : "text-danger")">@(waBonus >= 0 ? "+" : "")@waBonus</td>
+                                        <td>
+                                            <div class="input-group input-group-sm">
+                                                <button class="btn btn-outline-secondary"
+                                                        @onclick="() => AdjWeaponRanks(wa, -1)">−</button>
+                                                <span class="form-control text-center">@wa.Ranks</span>
+                                                <button class="btn btn-outline-secondary"
+                                                        disabled="@(wa.Ranks >= 2 || _dpBudget - _dpSpent < waCost.ws)"
+                                                        @onclick="() => AdjWeaponRanks(wa, 1)">+</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+
+                                @if (_activeWeaponAdd == sk.Name)
+                                {
+                                    var availableWeapons = WeaponRules.BySkill[sk.Name]
+                                        .Where(w => !_weaponAllocs.Any(wa => wa.Specialization == w.Name))
+                                        .ToList();
+                                    int nextSlot = _weaponAllocs.Count;
+                                    (int nf, int ns) nextCost = prof is not null && prof.Costs.TryGetValue(WeaponRules.CostKeyForSlot(nextSlot), out var nct) ? nct : (99, 99);
+                                    <tr>
+                                        <td colspan="6">
+                                            <div class="d-flex flex-wrap gap-2 align-items-end py-1">
+                                                <div>
+                                                    <label class="form-label form-label-sm mb-0">Weapon <small class="text-muted">(slot @(nextSlot+1): @nextCost.nf / @nextCost.ns dp)</small></label>
+                                                    <select class="form-select form-select-sm" style="min-width:200px"
+                                                            @onchange="e => _weaponAddSpec = e.Value?.ToString() ?? string.Empty">
+                                                        <option value="">— select —</option>
+                                                        @foreach (var wd in availableWeapons)
+                                                        {
+                                                            <option value="@wd.Name" selected="@(_weaponAddSpec == wd.Name)">@wd.Name</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label class="form-label form-label-sm mb-0">Ranks</label>
+                                                    <input type="number" class="form-control form-control-sm" style="width:70px"
+                                                           min="1" max="2"
+                                                           value="@_weaponAddRanks"
+                                                           @onchange="e => _weaponAddRanks = int.TryParse(e.Value?.ToString(), out int v) ? v : 1" />
+                                                </div>
+                                                <button class="btn btn-sm btn-success"
+                                                        disabled="@(string.IsNullOrEmpty(_weaponAddSpec))"
+                                                        @onclick="() => AddWeaponAlloc(sk.Name)">Add</button>
+                                                <button class="btn btn-sm btn-outline-secondary"
+                                                        @onclick="() => _activeWeaponAdd = null">Cancel</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                int purchased = GetPurchased(sk.Name);
+                                int total     = cultural + purchased;
+                                int bonus     = baseStatBonus + racialStatBonus
+                                    + SkillRules.RankBonus(total)
+                                    + (isPro ? Math.Min(total, 30) : 0)
+                                    + (isKnack ? 5 : 0);
+
+                                var skCostKey = ResolveCostKey(cat.Name, sk.Name);
+                                (int first, int second) cost = prof is not null && prof.Costs.TryGetValue(skCostKey, out var sc) ? sc : (99, 99);
+
+                                <tr>
+                                    <td>
+                                        @sk.Name
+                                        @if (isPro)   { <span class="badge bg-primary ms-1">Pro</span> }
+                                        @if (isKnack) { <span class="badge bg-warning text-dark ms-1">Knack</span> }
+                                        @if (cat.Name == "Spellcasting")
+                                        {
+                                            <small class="ms-1 text-muted">(@cost.first/@cost.second DP)</small>
+                                        }
+                                    </td>
+                                    <td class="text-muted">@cultural</td>
+                                    <td>@purchased</td>
+                                    <td><strong>@total</strong></td>
+                                    <td class="@(bonus >= 0 ? "text-success" : "text-danger")">@(bonus >= 0 ? "+" : "")@bonus</td>
+                                    <td>
+                                        <div class="input-group input-group-sm">
+                                            <button class="btn btn-outline-secondary"
+                                                    disabled="@(purchased <= 0)"
+                                                    @onclick="() => ChangeRanks(sk.Name, -1)">−</button>
+                                            <span class="form-control text-center">@purchased</span>
+                                            <button class="btn btn-outline-secondary"
+                                                    disabled="@((_dpBudget - _dpSpent < cost.first && purchased == 0) || (_dpBudget - _dpSpent < cost.second && purchased >= 1))"
+                                                    @onclick="() => ChangeRanks(sk.Name, 1)">+</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    };
+
+    void ChangeRanks(string skillName, int delta)
+    {
+        int cur  = GetPurchased(skillName);
+        int next = Math.Max(0, cur + delta);
+        if (next == cur) return;
+
+        if (delta > 0)
+        {
+            var prof = ProfessionRules.ByName.GetValueOrDefault(_char?.Profession ?? "");
+            var cat  = SkillRules.CategoryOf(skillName);
+            if (prof is null || cat is null) return;
+            var costKey = ResolveCostKey(cat.Name, skillName);
+            if (!prof.Costs.TryGetValue(costKey, out var c)) return;
+            int addCost = cur == 0 ? c.First : c.Second;
+            if (_dpBudget - _dpSpent < addCost) return;
+        }
+        SetPurchased(skillName, next);
+    }
+
+    static StatName StatFromName(string s) => s switch
+    {
+        "Ag" => StatName.Ag,
+        "Co" => StatName.Co,
+        "Em" => StatName.Em,
+        "In" => StatName.In,
+        "Me" => StatName.Me,
+        "Pr" => StatName.Pr,
+        "Qu" => StatName.Qu,
+        "Re" => StatName.Re,
+        "SD" => StatName.SD,
+        "St" => StatName.St,
+        _    => StatName.Co
+    };
+
+    RenderFragment StepEquipment => __builder =>
+    {
+        <h4>Step 5: Equipment</h4>
+        <p class="text-muted">Equipment selection is handled by the Gamemaster. Record starting wealth and items below.</p>
+        <div class="mb-3">
+            <label class="form-label">Starting Gold (sp)</label>
+            <input type="number" class="form-control" style="width:200px" min="0" @bind="_startingGold" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Notes / Equipment List</label>
+            <textarea class="form-control" rows="6" @bind="_equipmentNotes"></textarea>
+        </div>
+    };
+
+    int _startingGold;
+    string? _equipmentNotes;
+
+    RenderFragment StepSummary => __builder =>
+    {
+        var race = _char?.Race is not null && RaceRules.ByName.TryGetValue(_char.Race, out var rd) ? rd : null;
+
+        int quBonus = SkillRules.StatBonus(GetTemp(StatName.Qu)) + (race?.GetStatMod(StatName.Qu) ?? 0);
+        int coBonus = SkillRules.StatBonus(GetTemp(StatName.Co)) + (race?.GetStatMod(StatName.Co) ?? 0);
+        int sdBonus = SkillRules.StatBonus(GetTemp(StatName.SD)) + (race?.GetStatMod(StatName.SD) ?? 0);
+        int inBonus = SkillRules.StatBonus(GetTemp(StatName.In)) + (race?.GetStatMod(StatName.In) ?? 0);
+        int emBonus = SkillRules.StatBonus(GetTemp(StatName.Em)) + (race?.GetStatMod(StatName.Em) ?? 0);
+        int prBonus = SkillRules.StatBonus(GetTemp(StatName.Pr)) + (race?.GetStatMod(StatName.Pr) ?? 0);
+
+        int db         = 3 * quBonus;
+        int initiative = quBonus;
+        int bmr        = 20 + (int)Math.Ceiling(quBonus / 2.0);
+
+        var bdSkill = _char?.Skills.FirstOrDefault(s => s.SkillName == "Body Development");
+        int bdTotal = bdSkill is not null ? bdSkill.CulturalRanks + bdSkill.PurchasedRanks : 0;
+        int bdBonus = SkillRules.RankBonus(bdTotal) + coBonus;
+
+        var pdSkill = _char?.Skills.FirstOrDefault(s => s.SkillName == "Power Development");
+        int pdTotal = pdSkill is not null ? pdSkill.CulturalRanks + pdSkill.PurchasedRanks : 0;
+        int pp = SkillRules.RankBonus(pdTotal);
+
+        <h4>Step 6: Summary</h4>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <h6>Stats</h6>
+                <table class="table table-sm">
+                    <thead><tr><th>Stat</th><th>Temp</th><th>Effective Bonus</th></tr></thead>
+                    <tbody>
+                        @foreach (StatName sn in Enum.GetValues<StatName>())
+                        {
+                            int tmp    = GetTemp(sn);
+                            int racial = race?.GetStatMod(sn) ?? 0;
+                            int eff    = SkillRules.StatBonus(tmp) + racial;
+                            <tr>
+                                <td>@sn</td>
+                                <td>@tmp</td>
+                                <td class="@(eff >= 0 ? "text-success" : "text-danger")">@(eff >= 0 ? "+" : "")@eff</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <h6>Derived Values</h6>
+                <table class="table table-sm">
+                    <tbody>
+                        <tr><td>BMR</td><td>@bmr ft/round</td></tr>
+                        <tr><td>DB</td><td>@(db >= 0 ? "+" : "")@db</td></tr>
+                        <tr><td>Initiative</td><td>@(initiative >= 0 ? "+" : "")@initiative</td></tr>
+                        <tr><td>Body Dev Bonus</td><td>@(bdBonus >= 0 ? "+" : "")@bdBonus</td></tr>
+                        <tr><td>Power Points</td><td>@(pp > 0 ? pp.ToString() : "—")</td></tr>
+                        <tr><td>RR (Physical)</td><td>@(coBonus >= 0?"+":"")@coBonus + @(2 * _char!.Level) from level</td></tr>
+                        <tr><td>RR (Fear)</td><td>@(sdBonus >= 0?"+":"")@sdBonus + @(2 * _char!.Level) from level</td></tr>
+                        <tr><td>RR (Channeling)</td><td>@(inBonus >= 0?"+":"")@inBonus + @(2 * _char!.Level) from level</td></tr>
+                        <tr><td>RR (Essence)</td><td>@(emBonus >= 0?"+":"")@emBonus + @(2 * _char!.Level) from level</td></tr>
+                        <tr><td>RR (Mentalism)</td><td>@(prBonus >= 0?"+":"")@prBonus + @(2 * _char!.Level) from level</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <h6 class="mt-3">Skills</h6>
+        <table class="table table-sm table-striped">
+            <thead><tr><th>Skill</th><th>Category</th><th>Ranks</th><th>Pro/Knack</th></tr></thead>
+            <tbody>
+                @foreach (var sk in (_char?.Skills ?? []).Where(s => s.TotalRanks > 0).OrderBy(s => s.Category).ThenBy(s => s.SkillName))
+                {
+                    <tr>
+                        <td>@sk.SkillName@(sk.Specialization is not null ? $" ({sk.Specialization})" : "")</td>
+                        <td class="text-muted">@sk.Category</td>
+                        <td>@sk.TotalRanks</td>
+                        <td>
+                            @if (sk.IsProfessionalSkill) { <span class="badge bg-primary">Pro</span> }
+                            @if (sk.IsKnack) { <span class="badge bg-warning text-dark">Knack</span> }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div class="mt-3">
+            <a class="btn btn-outline-secondary me-2" href="/character/@Id/sheet" target="_blank">Print Sheet</a>
+        </div>
+    };
+}

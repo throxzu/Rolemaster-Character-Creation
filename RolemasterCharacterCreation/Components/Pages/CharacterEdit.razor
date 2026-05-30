@@ -1,0 +1,262 @@
+@page "/character/{Id:int}"
+@page "/my-character"
+@rendermode InteractiveServer
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Identity
+@using RolemasterCharacterCreation.Data
+@using RolemasterCharacterCreation.Rules
+@using System.Security.Claims
+@inject AppDbContext Db
+@inject UserManager<ApplicationUser> UserManager
+@inject AuthenticationStateProvider AuthState
+@inject NavigationManager Navigation
+
+<PageTitle>@(_character?.Name ?? "Character")</PageTitle>
+
+@if (_character is null)
+{
+    <p class="text-muted">Loading…</p>
+}
+else if (_accessDenied)
+{
+    <div class="alert alert-danger">You do not have access to this character.</div>
+}
+else
+{
+    <div class="container-fluid mt-3">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h4 class="mb-0">@_character.Name</h4>
+                <small class="text-muted">
+                    @(_character.Race ?? "—") · @(_character.Profession ?? "—")
+                    @if (_character.Realm is not null) { <span>(@_character.Realm)</span> }
+                    · Level @_character.Level
+                </small>
+            </div>
+            <div>
+                <a class="btn btn-outline-primary me-2" href="/character/@_character.Id/wizard">Character Wizard</a>
+                <a class="btn btn-outline-secondary" href="/character/@_character.Id/sheet" target="_blank">Print Sheet</a>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(_message))
+        {
+            <div class="alert @(_isError ? "alert-danger" : "alert-success") alert-dismissible py-2">
+                @_message
+                <button type="button" class="btn-close" @onclick="() => _message = null"></button>
+            </div>
+        }
+
+        <EditForm Model="_character" OnValidSubmit="SaveAsync">
+            <DataAnnotationsValidator />
+
+            <h6 class="text-secondary mb-2">Concept</h6>
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <label class="form-label">Name</label>
+                    <InputText @bind-Value="_character.Name" class="form-control" />
+                    <ValidationMessage For="() => _character.Name" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Race</label>
+                    <InputText @bind-Value="_character.Race" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Culture</label>
+                    <InputText @bind-Value="_character.Culture" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Profession</label>
+                    <InputText @bind-Value="_character.Profession" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Realm</label>
+                    <InputText @bind-Value="_character.Realm" class="form-control" />
+                </div>
+                <div class="col-md-1">
+                    <label class="form-label">Level</label>
+                    <InputNumber @bind-Value="_character.Level" class="form-control" min="1" />
+                </div>
+            </div>
+
+            <h6 class="text-secondary mb-2">Stats</h6>
+            <table class="table table-sm table-bordered table-hover mb-4">
+                <thead>
+                    <tr>
+                        <th>Stat</th>
+                        <th style="width:130px">Temporary</th>
+                        <th style="width:130px">Potential</th>
+                        <th style="width:100px">Bonus</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var stat in _character.Stats.OrderBy(s => s.Stat.ToString()))
+                    {
+                        int bonus = SkillRules.StatBonus(stat.Temporary);
+                        <tr>
+                            <td class="align-middle"><strong>@stat.Stat</strong></td>
+                            <td>
+                                <InputNumber @bind-Value="stat.Temporary" class="form-control form-control-sm" min="1" max="100" />
+                            </td>
+                            <td>
+                                <InputNumber @bind-Value="stat.Potential" class="form-control form-control-sm" min="1" max="100" />
+                            </td>
+                            <td class="align-middle @(bonus >= 0 ? "text-success" : "text-danger")">
+                                @(bonus >= 0 ? "+" : "")@bonus
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <div class="d-flex justify-content-between mt-4">
+                @if (_isGm)
+                {
+                    <a class="btn btn-secondary" href="/gm/characters">← Characters</a>
+                }
+                else
+                {
+                    <span></span>
+                }
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </EditForm>
+
+        @{
+            var combatCat  = SkillRules.Categories.First(c => c.Name == "Combat Training");
+            var raceInfo   = _character.Race is not null && RaceRules.ByName.TryGetValue(_character.Race, out var rcDef) ? rcDef : null;
+            var weaponSkills = _character.Skills
+                .Where(s => WeaponRules.BySkill.ContainsKey(s.SkillName) && s.Specialization != null && s.PurchasedRanks > 0)
+                .OrderBy(s => s.Id)
+                .ToList();
+        }
+        @if (weaponSkills.Any())
+        {
+            <h6 class="text-secondary mt-4 mb-2">Weapons</h6>
+            <table class="table table-sm table-bordered table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Weapon</th>
+                        <th>Category</th>
+                        <th style="width:80px">Ranks</th>
+                        <th style="width:100px">Skill Bonus</th>
+                        <th style="width:80px">Pro</th>
+                        <th style="width:80px">Knack</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var (ws, slot) in weaponSkills.Select((w, i) => (w, i)))
+                    {
+                        var parentSk   = _character.Skills.FirstOrDefault(s => s.SkillName == ws.SkillName && s.Specialization == null);
+                        int cultural   = parentSk?.CulturalRanks ?? 0;
+                        bool wsPro     = parentSk?.IsProfessionalSkill ?? false;
+                        bool wsKnack   = parentSk?.IsKnack ?? false;
+                        int totalRanks = cultural + ws.PurchasedRanks;
+
+                        int catStat1   = SkillRules.StatBonus(GetStatTemp(StatFromAbbr2(combatCat.Stat1))) + (raceInfo?.GetStatMod(StatFromAbbr2(combatCat.Stat1)) ?? 0);
+                        int catStat2   = SkillRules.StatBonus(GetStatTemp(StatFromAbbr2(combatCat.Stat2))) + (raceInfo?.GetStatMod(StatFromAbbr2(combatCat.Stat2)) ?? 0);
+                        var skd        = combatCat.Skills.FirstOrDefault(s => s.Name == ws.SkillName);
+                        bool hasWepStat = skd?.SkillStat is not (null or "" or "R*" or "St or Ag");
+                        int wepStat    = hasWepStat ? SkillRules.StatBonus(GetStatTemp(StatFromAbbr2(skd!.SkillStat))) + (raceInfo?.GetStatMod(StatFromAbbr2(skd.SkillStat)) ?? 0) : 0;
+
+                        int rankBonus  = SkillRules.RankBonus(totalRanks);
+                        int proBonus   = wsPro   ? Math.Min(totalRanks, 30) : 0;
+                        int knackBonus = wsKnack ? 5 : 0;
+                        int skill      = catStat1 + catStat2 + wepStat + rankBonus + proBonus + knackBonus;
+                        string costKey = WeaponRules.CostKeyForSlot(slot);
+
+                        <tr>
+                            <td>
+                                <strong>@ws.Specialization</strong>
+                                <small class="text-muted ms-1">@costKey</small>
+                            </td>
+                            <td class="text-muted">@ws.SkillName</td>
+                            <td>@totalRanks <small class="text-muted">(+@ws.PurchasedRanks purchased)</small></td>
+                            <td class="@(skill >= 0 ? "text-success" : "text-danger")">@(skill >= 0 ? "+" : "")@skill</td>
+                            <td>@if (wsPro)   { <span class="badge bg-primary">Pro</span> }</td>
+                            <td>@if (wsKnack) { <span class="badge bg-warning text-dark">Knack</span> }</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private Character? _character;
+    private bool _accessDenied;
+    private bool _isGm;
+    private string? _currentUserId;
+    private string? _message;
+    private bool _isError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthState.GetAuthenticationStateAsync();
+        _currentUserId = auth.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        _isGm = auth.User.IsInRole(Roles.Gamemaster);
+
+        if (Id == 0)
+        {
+            _character = await Db.Characters
+                .Include(c => c.Stats)
+                .Include(c => c.Skills)
+                .FirstOrDefaultAsync(c => c.UserId == _currentUserId);
+
+            if (_character is null)
+            {
+                _accessDenied = false;
+                _message = "You have no character assigned yet. Ask the Gamemaster to create one for you.";
+                _isError = false;
+            }
+        }
+        else
+        {
+            _character = await Db.Characters
+                .Include(c => c.Stats)
+                .Include(c => c.Skills)
+                .FirstOrDefaultAsync(c => c.Id == Id);
+
+            if (_character is not null && !_isGm && _character.UserId != _currentUserId)
+                _accessDenied = true;
+        }
+
+        if (_character is not null && !_character.Stats.Any())
+            EnsureStats();
+    }
+
+    private void EnsureStats()
+    {
+        foreach (var statName in Enum.GetValues<StatName>())
+        {
+            if (!_character!.Stats.Any(s => s.Stat == statName))
+                _character.Stats.Add(new CharacterStat { Stat = statName, Temporary = 50, Potential = 50 });
+        }
+    }
+
+    private async Task SaveAsync()
+    {
+        if (_character is null) return;
+
+        Db.WriteAuditLogs(_currentUserId);
+        await Db.SaveChangesAsync();
+        _message = "Saved.";
+        _isError = false;
+    }
+
+    private int GetStatTemp(StatName sn) =>
+        _character?.Stats.FirstOrDefault(s => s.Stat == sn)?.Temporary ?? 50;
+
+    private static StatName StatFromAbbr2(string abbr) => abbr switch
+    {
+        "Ag" => StatName.Ag, "Co" => StatName.Co, "Em" => StatName.Em,
+        "In" => StatName.In, "Me" => StatName.Me, "Pr" => StatName.Pr,
+        "Qu" => StatName.Qu, "Re" => StatName.Re, "SD" => StatName.SD,
+        "St" => StatName.St, _ => StatName.Co
+    };
+}

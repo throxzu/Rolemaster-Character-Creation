@@ -1,0 +1,191 @@
+@page "/gm/characters"
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = Roles.Gamemaster)]
+@using Microsoft.AspNetCore.Identity
+@using RolemasterCharacterCreation.Data
+@using RolemasterCharacterCreation.Rules
+@using System.Linq
+@inject UserManager<ApplicationUser> UserManager
+@inject AppDbContext Db
+@inject ILogger<Characters> Logger
+
+<PageTitle>Characters</PageTitle>
+
+<h2>Characters</h2>
+
+@if (!string.IsNullOrEmpty(_message))
+{
+    <div class="alert @(_isError ? "alert-danger" : "alert-success") alert-dismissible">
+        @_message
+        <button type="button" class="btn-close" @onclick="() => _message = null"></button>
+    </div>
+}
+
+<button class="btn btn-primary mb-3" @onclick="() => _showCreate = !_showCreate">
+    @(_showCreate ? "Cancel" : "+ New Character")
+</button>
+
+@if (_showCreate)
+{
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Create Character</h5>
+            <EditForm Model="_createModel" OnValidSubmit="CreateCharacterAsync">
+                <DataAnnotationsValidator />
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Name</label>
+                        <InputText @bind-Value="_createModel.Name" class="form-control" />
+                        <ValidationMessage For="() => _createModel.Name" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Assign to Player</label>
+                        <InputSelect @bind-Value="_createModel.UserId" class="form-select">
+                            <option value="">— Unassigned —</option>
+                            @foreach (var p in _players)
+                            {
+                                <option value="@p.Id">@p.DisplayName (@p.Email)</option>
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Profession</label>
+                        <InputSelect @bind-Value="_createModel.Profession" class="form-select">
+                            <option value="">— Select —</option>
+                            @foreach (var prof in ProfessionRules.ByName.Keys.OrderBy(k => k))
+                            {
+                                <option value="@prof">@prof</option>
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Race</label>
+                        <InputSelect @bind-Value="_createModel.Race" class="form-select">
+                            <option value="">— Select —</option>
+                            @foreach (var race in _races)
+                            {
+                                <option value="@race">@race</option>
+                            }
+                        </InputSelect>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success mt-3">Create</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Race</th>
+            <th>Profession</th>
+            <th>Level</th>
+            <th>Player</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var ch in _characters)
+        {
+            <tr>
+                <td>@ch.Name</td>
+                <td>@(ch.Race ?? "—")</td>
+                <td>@(ch.Profession ?? "—")</td>
+                <td>@ch.Level</td>
+                <td>@(ch.User?.DisplayName ?? ch.User?.Email ?? "Unassigned")</td>
+                <td class="text-end">
+                    @if (_deleteId == ch.Id)
+                    {
+                        <span class="me-2">Delete <strong>@ch.Name</strong>?</span>
+                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteCharacterAsync(ch)">Yes, delete</button>
+                        <button class="btn btn-sm btn-secondary ms-1" @onclick="() => _deleteId = 0">Cancel</button>
+                    }
+                    else
+                    {
+                        <a class="btn btn-sm btn-outline-success me-1" href="@($"/character/{ch.Id}/wizard")">Wizard</a>
+                        <a class="btn btn-sm btn-outline-primary me-1" href="@($"/character/{ch.Id}/sheet")">Show</a>
+                        <button class="btn btn-sm btn-outline-danger" @onclick="() => _deleteId = ch.Id">Delete</button>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!_characters.Any())
+{
+    <p class="text-muted">No characters yet.</p>
+}
+
+@code {
+    private static readonly string[] _races =
+        RaceRules.All.Select(r => r.Name).ToArray();
+
+    private List<Character> _characters = [];
+    private List<ApplicationUser> _players = [];
+    private bool _showCreate;
+    private string? _message;
+    private bool _isError;
+    private int _deleteId;
+    private CreateModel _createModel = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _players = (await UserManager.GetUsersInRoleAsync(Roles.Player)).ToList();
+        await LoadCharactersAsync();
+    }
+
+    private async Task LoadCharactersAsync()
+    {
+        _characters = await Db.Characters
+            .Include(c => c.User)
+            .OrderBy(c => c.Name)
+            .ToListAsync();
+    }
+
+    private async Task CreateCharacterAsync()
+    {
+        var character = new Character
+        {
+            Name = _createModel.Name,
+            Race = _createModel.Race,
+            Profession = _createModel.Profession,
+            UserId = string.IsNullOrEmpty(_createModel.UserId) ? null : _createModel.UserId,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        Db.Characters.Add(character);
+        await Db.SaveChangesAsync();
+
+        SetMessage($"Character {character.Name} created.");
+        _createModel = new();
+        _showCreate = false;
+        await LoadCharactersAsync();
+    }
+
+    private async Task DeleteCharacterAsync(Character character)
+    {
+        Db.Characters.Remove(character);
+        await Db.SaveChangesAsync();
+        _deleteId = 0;
+        SetMessage($"Character {character.Name} deleted.");
+        await LoadCharactersAsync();
+    }
+
+    private void SetMessage(string msg, bool error = false)
+    {
+        _message = msg;
+        _isError = error;
+    }
+
+    private sealed class CreateModel
+    {
+        [System.ComponentModel.DataAnnotations.Required]
+        public string Name { get; set; } = "";
+        public string? UserId { get; set; }
+        public string? Race { get; set; }
+        public string? Profession { get; set; }
+    }
+}

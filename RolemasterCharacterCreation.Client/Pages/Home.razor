@@ -1,0 +1,21 @@
+@page "/"
+@inject NavigationManager Navigation
+
+<PageTitle>Rolemaster</PageTitle>
+
+@code {
+    [CascadingParameter] private Task<AuthenticationState>? AuthTask { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthTask is null) { Navigation.NavigateTo("/account/login", replace: true); return; }
+
+        var auth = await AuthTask;
+        if (!auth.User.Identity?.IsAuthenticated ?? true)
+            Navigation.NavigateTo("/account/login", replace: true);
+        else if (auth.User.IsInRole("Gamemaster"))
+            Navigation.NavigateTo("/gm/characters", replace: true);
+        else
+            Navigation.NavigateTo("/my-character", replace: true);
+    }
+}
