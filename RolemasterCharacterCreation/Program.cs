@@ -7,8 +7,6 @@ using RolemasterCharacterCreation.Components;
 using RolemasterCharacterCreation.Data;
 using RolemasterCharacterCreation.Identity;
 using RolemasterCharacterCreation.Models;
-using RolemasterCharacterCreation.Services;
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -26,10 +24,6 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
 
 builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme)
     .AddIdentityCookies();
-
-builder.Services.AddHttpClient("Anthropic");
-builder.Services.AddScoped<WizardAgentService>();
-builder.Services.AddScoped<CharacterSheetAgentService>();
 
 builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();

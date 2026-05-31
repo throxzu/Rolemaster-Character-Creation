@@ -61,6 +61,31 @@ tr:has(.brow) td { border: 1px solid #2a2a5a; height: 14px; }
 .spec-gray { background: #1a1a35; }
 .spec-tag  { color: #6666aa; font-size: 7pt; margin-left: 3px; }
 
+/* ── Breakdown tooltip ──────────────────────────────────────── */
+[data-tip] { position: relative; cursor: help; }
+[data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 150px;
+    background: #0e0e2a;
+    color: #c8c8e8;
+    border: 1px solid #3355bb;
+    border-radius: 3px;
+    padding: 4px 8px;
+    font-size: 8pt;
+    font-weight: normal;
+    white-space: pre;
+    z-index: 9999;
+    pointer-events: none;
+    display: none;
+    text-align: left;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.7);
+}
+[data-tip]:hover::after { display: block; }
+
 /* ── Page break ────────────────────────────────────────────── */
 .pgbrk { page-break-after: always; height: 20px; }
 
@@ -96,4 +121,5 @@ tr:has(.brow) td { border: 1px solid #2a2a5a; height: 14px; }
   .spec-tag  { color: #888 !important; }
   .sk-table { font-size: 7pt; }
   .pgbrk { page-break-after: always; height: 0; }
+  [data-tip]::after { display: none !important; }
 }

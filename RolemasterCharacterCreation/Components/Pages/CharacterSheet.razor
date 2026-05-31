@@ -5,12 +5,12 @@
     <link rel="stylesheet" href="character-sheet.css" />
 </HeadContent>
 @using RolemasterCharacterCreation.Data
+@using RolemasterCharacterCreation.Models
 @using RolemasterCharacterCreation.Rules
-@using RolemasterCharacterCreation.Services
 @using System.Security.Claims
 @inject AppDbContext Db
 @inject AuthenticationStateProvider AuthState
-@inject CharacterSheetAgentService SheetAgent
+@inject IJSRuntime JS
 
 <PageTitle>@(_char?.Name ?? "Character") — Sheet</PageTitle>
 
@@ -18,32 +18,6 @@
     <button class="btn btn-primary" onclick="window.print()">Print</button>
     <a class="btn btn-outline-secondary ms-2" href="/character/@Id">← Back</a>
     <a class="btn btn-outline-primary ms-2" href="/character/@Id/wizard">Wizard</a>
-    <button class="btn btn-sm btn-outline-secondary ms-3" @onclick="() => _oracleOpen = !_oracleOpen">
-        @(_oracleOpen ? "▾" : "▸") Ask the Oracle (AI)
-    </button>
-    @if (_oracleOpen)
-    {
-        <div class="mt-2" style="max-width:700px">
-            <div class="input-group">
-                <input class="form-control form-control-sm" placeholder="Ask about this character sheet…"
-                       @bind="_oracleInput" @bind:event="oninput"
-                       @onkeydown='async e => { if (e.Key == "Enter" && !e.ShiftKey) await AskOracleAsync(); }' />
-                <button class="btn btn-sm btn-outline-primary"
-                        disabled="@(_oracleThinking || string.IsNullOrWhiteSpace(_oracleInput))"
-                        @onclick="AskOracleAsync">
-                    @(_oracleThinking ? "…" : "Ask")
-                </button>
-                @if (_oracleThinking)
-                {
-                    <button class="btn btn-sm btn-outline-danger" @onclick="() => _oracleCts?.Cancel()">Stop</button>
-                }
-            </div>
-            @if (!string.IsNullOrEmpty(_oracleResponse))
-            {
-                <div class="mt-2 p-2 bg-light border rounded small" style="white-space:pre-wrap">@_oracleResponse</div>
-            }
-        </div>
-    }
 </div>
 
 @if (_char is null) { <p>Loading…</p> return; }
@@ -83,10 +57,10 @@
   <tr>
     <td class="p1 vt">
       <table class="t100">
-        <tr><td class="fhalf p1"><span class="lbl">Sex:</span></td><td class="fhalf p1"><span class="lbl">Build:</span></td></tr>
-        <tr><td class="fhalf p1"><span class="lbl">Age:</span></td><td class="fhalf p1"><span class="lbl">Skin:</span></td></tr>
-        <tr><td class="fhalf p1"><span class="lbl">Height:</span></td><td class="fhalf p1"><span class="lbl">Hair:</span></td></tr>
-        <tr><td class="fhalf p1"><span class="lbl">Weight:</span></td><td class="fhalf p1"><span class="lbl">Eyes:</span></td></tr>
+        <tr><td class="fhalf p1"><span class="lbl">Sex:</span> @(_char.Gender ?? "")</td><td class="fhalf p1"><span class="lbl">Build:</span> @(_char.Build ?? "")</td></tr>
+        <tr><td class="fhalf p1"><span class="lbl">Age:</span> @(_char.Age.HasValue ? _char.Age.Value.ToString() : "")</td><td class="fhalf p1"><span class="lbl">Skin:</span></td></tr>
+        <tr><td class="fhalf p1"><span class="lbl">Height:</span> @(_char.HeightCm.HasValue ? FmtHeight(_char.HeightCm.Value) : "")</td><td class="fhalf p1"><span class="lbl">Hair:</span> @(_char.HairColor ?? "")</td></tr>
+        <tr><td class="fhalf p1"><span class="lbl">Weight:</span> @(_char.WeightKg.HasValue ? FmtWeight(_char.WeightKg.Value) : "")</td><td class="fhalf p1"><span class="lbl">Eyes:</span> @(_char.EyeColor ?? "")</td></tr>
       </table>
     </td>
     <td class="p1 vt">
@@ -97,21 +71,90 @@
       </table>
     </td>
     <td class="p1 vt">
-      <table class="t100 sf">
-        @foreach (var f in _fos)
+      @{
+        // Table 5-2: FOS — max lift weight at each difficulty for this character
+        // maxWeight = max(0, loadPct + 2×StBonus) % of body weight
+        double _bodyLbs = _char.WeightKg.HasValue ? _char.WeightKg.Value * 2.20462 : 0;
+        string FosWt(int loadPct)
         {
-          <tr><td class="p1 bb">@f.Label</td><td class="p1 bb tr">@f.Formula</td></tr>
+            int adjPct = loadPct + 2 * _stBonus;
+            if (adjPct <= 0) return "—";
+            if (_bodyLbs > 0)
+            {
+                double maxLb = adjPct / 100.0 * _bodyLbs;
+                return $"{maxLb:F0} lb ({adjPct}%)";
+            }
+            return $"{adjPct}% body wt";
         }
-        <tr><td colspan="2" class="p1"><span class="lbl">Size:</span></td></tr>
+      }
+      <table class="t100 sf">
+        <tr class="sh"><th class="tl">Difficulty</th><th>Mod</th><th>Max Weight</th></tr>
+        @foreach (var (lp, lbl, mod) in _fosTable)
+        {
+          <tr>
+            <td class="p1 bb">@lbl</td>
+            <td class="p1 bb tc @(mod >= 0 ? "pos" : "neg")">@(mod >= 0 ? $"+{mod}" : mod.ToString())</td>
+            <td class="p1 bb tr">@FosWt(lp)</td>
+          </tr>
+        }
+        <tr><td colspan="3" class="p1 muted" style="font-size:6pt">Load = obj.wt% − 2×St bonus</td></tr>
+        <tr><td colspan="3" class="p1"><span class="lbl">Size: </span>@(RaceRules.ByName.GetValueOrDefault(_char.Race ?? "")?.Size ?? "")</td></tr>
       </table>
     </td>
     <td class="p1 vt">
+      @{
+        int _waPercent    = Math.Max(0, 15 + 2 * _stBonus);
+        // Armor enc% comes from the armor selection
+        var _encArmorDef  = ArmorRules.ByAT.GetValueOrDefault(_char.ArmorType, ArmorRules.All[0]);
+        double _armorEncPct = (_char.ArmorFullSuit ? _encArmorDef.FullEncPct
+            : _encArmorDef.TorsoEncPct
+              + ArmorRules.Helmet(_char.HelmetGrade).EncPct
+              + ArmorRules.Vambrace(_char.VambracesGrade).EncPct
+              + ArmorRules.Greave(_char.GreavesGrade).EncPct) * 100.0;
+        int _armorEncInt   = (int)Math.Round(_armorEncPct);
+        // Max pace from armor enc alone (items unknown)
+        string _maxPace = _armorEncInt switch
+        {
+            <= 15 => "Dash",
+            <= 30 => "Sprint",
+            <= 45 => "Run",
+            <= 60 => "Jog",
+            <= 90 => "Walk",
+            _     => "Creep",
+        };
+      }
       <table class="t100 sf">
-        <tr><td class="p1 bb">Wt Allowance(%):<br/><span class="muted">15%+2×St</span></td></tr>
+        <tr><td class="p1 bb">
+          Wt Allowance: <span class="fw pos">@_waPercent%</span><br/>
+          <span class="muted">15% + 2×St(@(Fmt(_stBonus)))</span>
+        </td></tr>
         <tr><td class="p1 bb">Carried (lbs): <div class="blank-line"></div></td></tr>
-        <tr><td class="p1 bb">Encumbrance Penalty:<br/><span class="muted">Enc.Percent – WtAllowance</span></td></tr>
-        <tr><td class="p1 bb">Maximum Pace:<br/><span class="muted">Table 5-3</span></td></tr>
-        <tr><td class="p1">Total Maneuver Penalty:<br/><span class="muted">Enc.Pen+ArmorPenalty</span></td></tr>
+        <tr><td class="p1 bb">
+          Armor Enc: <span class="fw @(_armorEncInt > _waPercent ? "neg" : "pos")">@_armorEncInt%</span><br/>
+          <span class="muted">Penalty: @(_armorEncInt > _waPercent ? $"{_armorEncInt - _waPercent}%" : "none")</span>
+        </td></tr>
+        <tr><td class="p1 bb">
+          Max Pace (armor): <span class="fw">@_maxPace</span><br/>
+          <span class="muted">+ carried items reduce further</span>
+        </td></tr>
+        @{
+          var _earlyArmorDef2 = ArmorRules.ByAT.GetValueOrDefault(_char.ArmorType, ArmorRules.All[0]);
+          int _earlyRawManPen = _char.ArmorFullSuit
+              ? _earlyArmorDef2.FullManPen
+              : _earlyArmorDef2.TorsoManPen + ArmorRules.Greave(_char.GreavesGrade).ManPen;
+          var _earlyMiaSk    = _char.Skills.FirstOrDefault(s => s.SkillName == "Maneuvering in Armor");
+          int _earlyMiaRanks = _earlyMiaSk?.TotalRanks ?? 0;
+          int _earlyMiaBonus = SkillRules.RankBonus(_earlyMiaRanks)
+              + ((_earlyMiaSk?.IsProfessionalSkill ?? false) ? Math.Min(_earlyMiaRanks, 30) : 0)
+              + ((_earlyMiaSk?.IsKnack ?? false) ? 5 : 0);
+          int _earlyNetManPen = Math.Min(0, _earlyRawManPen + _earlyMiaBonus);
+          int _earlyEncPen    = Math.Max(0, _armorEncInt - _waPercent);
+          int _earlyTotalPen  = _earlyNetManPen - _earlyEncPen;
+        }
+        <tr><td class="p1">Total Maneuver Penalty:<br/>
+          <span class="fw @(_earlyTotalPen < 0 ? "neg" : "")">@(_earlyTotalPen != 0 ? _earlyTotalPen.ToString() : "—")</span>
+          <span class="muted"> (armor @_earlyNetManPen + enc −@_earlyEncPen)</span>
+        </td></tr>
       </table>
     </td>
   </tr>
@@ -121,9 +164,28 @@
 <table class="tb mb1" style="width:40%">
   <tr>
     <td class="hdr" style="width:30%">Realm(s)</td>
-    <td class="p1">@(_char.Realm ?? "")</td>
+    <td class="p1">@(_effectiveRealm ?? "")</td>
   </tr>
 </table>
+
+<!-- RACIAL TRAITS -->
+@{
+  var _racialTraits = _char.Race is not null ? RaceRules.GetTraits(_char.Race) : (IReadOnlyList<RacialTrait>)[];
+}
+@if (_racialTraits.Any())
+{
+<table class="t100 tb mb1">
+  <tr>
+    <td class="hdr">Racial Traits</td>
+    <td class="p1" style="line-height:1.6">
+      @foreach (var rt in _racialTraits)
+      {
+        <span class="badge @(rt.IsFlaw ? "bg-danger" : "bg-secondary") me-1">@rt.Label</span>
+      }
+    </td>
+  </tr>
+</table>
+}
 
 <!-- STATISTICS | QUICK INFO + MOVEMENT -->
 <table class="t100 mb1" style="border-collapse:collapse">
@@ -145,15 +207,22 @@
             int pot = st?.Potential ?? 0;
             int bon = SkillRules.StatBonus(tmp);
             int racial = statRace?.GetStatMod(sn) ?? 0;
-            int total = bon + racial;
+            int special = st?.Special ?? 0;
+            int total = bon + racial + special;
+            string? statTip = tmp > 0
+                ? $"Temp {tmp} → {Fmt(bon)}" +
+                  (racial  != 0 ? $"\nRacial:  {Fmt(racial)}"  : "") +
+                  (special != 0 ? $"\nSpecial: {Fmt(special)}" : "") +
+                  $"\n──────────\n= {Fmt(total)}"
+                : null;
             <tr>
               <td class="p1">@StatLabel(sn)</td>
               <td class="p1 tr">@(pot > 0 ? pot.ToString() : "")</td>
               <td class="p1 tr">@(tmp > 0 ? tmp.ToString() : "")</td>
               <td class="p1 tr">@(tmp > 0 ? Fmt(bon) : "")</td>
-              <td class="p1 tr">@(racial != 0 ? Fmt(racial) : "")</td>
-              <td class="p1 tr"></td>
-              <td class="p1 tr fw @(tmp > 0 ? (total >= 0 ? "pos" : "neg") : "")">@(tmp > 0 ? Fmt(total) : "")</td>
+              <td class="p1 tr">@(racial  != 0 ? Fmt(racial)  : "")</td>
+              <td class="p1 tr">@(special != 0 ? Fmt(special) : "")</td>
+              <td class="p1 tr fw @(tmp > 0 ? (total >= 0 ? "pos" : "neg") : "")" data-tip="@statTip">@(tmp > 0 ? Fmt(total) : "")</td>
             </tr>
           }
         </tbody>
@@ -165,22 +234,36 @@
         <tr><td colspan="2" class="hdr">Quick Info</td></tr>
         <tr><td class="p1 bb">Base Move Rate (BMR)</td><td class="p1 bb tr fw">@_bmr</td></tr>
         <tr><td class="p1 bb">Initiative</td><td class="p1 bb tr fw">@Fmt(_quBonus)</td></tr>
-        <tr><td class="p1 bb">Hit points</td><td class="p1 bb tr"></td></tr>
-        <tr><td class="p1 bb">Endurance (for Fatigue)</td><td class="p1 bb tr"></td></tr>
-        <tr><td class="p1">Power</td><td class="p1 tr">@(_ppBonus > 0 ? _ppBonus.ToString() : "")</td></tr>
+        <tr><td class="p1 bb">Hit points</td><td class="p1 bb tr fw">@_hits</td></tr>
+        <tr><td class="p1 bb">Endurance (for Fatigue)</td><td class="p1 bb tr fw">@Fmt(_endurance)</td></tr>
+        <tr><td class="p1">Power</td><td class="p1 tr fw">@(_ppBonus > 0 ? _ppBonus.ToString() : "")</td></tr>
       </table>
       <!-- Movement -->
+      @{
+        int bmrCreep  = (int)Math.Round(_bmr * 0.75);
+        int bmrWalk   = _bmr;
+        int bmrJog    = _bmr * 2;
+        int bmrRun    = _bmr * 3;
+        int bmrSprint = _bmr * 4;
+        int bmrDash   = _bmr * 5;
+        int phCreep   = bmrCreep;
+        int phWalk    = bmrCreep;
+        int phJog     = (int)Math.Round(_bmr * 3.5);
+        int phRun     = (int)Math.Round(_bmr * 3.5);
+        int phSprint  = _bmr;
+        int phDash    = (int)Math.Round(_bmr * 1.25);
+      }
       <table class="t100 tb">
         <thead>
           <tr class="sh"><th>Pace</th><th>Per Round</th><th>Per Phase</th><th>Penalty/AP</th><th>Load Limit</th></tr>
         </thead>
         <tbody>
-          <tr><td class="p1">Creep</td><td class="p1 tc">¾ BMR</td><td class="p1 tc">¾ BMR</td><td class="p1 tc">--</td><td class="p1 tc">--</td></tr>
-          <tr><td class="p1">Walk</td><td class="p1 tc">×1 BMR</td><td class="p1 tc">¾ BMR</td><td class="p1 tc">-25 or 1 AP</td><td class="p1 tc">90%</td></tr>
-          <tr><td class="p1">Jog</td><td class="p1 tc">×2 BMR</td><td class="p1 tc">3½ BMR</td><td class="p1 tc">-50 or 2 AP</td><td class="p1 tc">60%</td></tr>
-          <tr><td class="p1">Run</td><td class="p1 tc">×3 BMR</td><td class="p1 tc">3½ BMR</td><td class="p1 tc">-75 or 3 AP</td><td class="p1 tc">45%</td></tr>
-          <tr><td class="p1">Sprint</td><td class="p1 tc">×4 BMR</td><td class="p1 tc">×1 BMR</td><td class="p1 tc">4 AP</td><td class="p1 tc">30%</td></tr>
-          <tr><td class="p1">Dash</td><td class="p1 tc">×5 BMR</td><td class="p1 tc">×1.25 BMR</td><td class="p1 tc">4+ AP</td><td class="p1 tc">15%</td></tr>
+          <tr><td class="p1">Creep</td><td class="p1 tc">@bmrCreep ft</td><td class="p1 tc">@phCreep ft</td><td class="p1 tc">--</td><td class="p1 tc">--</td></tr>
+          <tr><td class="p1">Walk</td><td class="p1 tc">@bmrWalk ft</td><td class="p1 tc">@phWalk ft</td><td class="p1 tc">-25 or 1 AP</td><td class="p1 tc">90%</td></tr>
+          <tr><td class="p1">Jog</td><td class="p1 tc">@bmrJog ft</td><td class="p1 tc">@phJog ft</td><td class="p1 tc">-50 or 2 AP</td><td class="p1 tc">60%</td></tr>
+          <tr><td class="p1">Run</td><td class="p1 tc">@bmrRun ft</td><td class="p1 tc">@phRun ft</td><td class="p1 tc">-75 or 3 AP</td><td class="p1 tc">45%</td></tr>
+          <tr><td class="p1">Sprint</td><td class="p1 tc">@bmrSprint ft</td><td class="p1 tc">@phSprint ft</td><td class="p1 tc">4 AP</td><td class="p1 tc">30%</td></tr>
+          <tr><td class="p1">Dash</td><td class="p1 tc">@bmrDash ft</td><td class="p1 tc">@phDash ft</td><td class="p1 tc">4+ AP</td><td class="p1 tc">15%</td></tr>
         </tbody>
       </table>
     </td>
@@ -221,6 +304,15 @@
     int skill      = catStat1 + catStat2 + wepStat + rankBonus + proBonus + knackBonus;
     int strBonus   = SkillRules.StatBonus(Temp("St")) + (sheetRace?.GetStatMod(StatName.St) ?? 0);
 
+    var wepTipParts = new System.Text.StringBuilder();
+    wepTipParts.AppendLine($"{combatCat.Stat1}: {Fmt(catStat1)}  {combatCat.Stat2}: {Fmt(catStat2)}");
+    if (hasWepStat) wepTipParts.AppendLine($"+{skd!.SkillStat} (weapon): {Fmt(wepStat)}");
+    wepTipParts.AppendLine($"Ranks ({totalRanks}): {Fmt(rankBonus)}");
+    if (proBonus   != 0) wepTipParts.AppendLine($"Prof: {Fmt(proBonus)}");
+    if (knackBonus != 0) wepTipParts.AppendLine("Knack: +5");
+    wepTipParts.Append($"──────────\n= {Fmt(skill)}");
+    string wepTip = wepTipParts.ToString();
+
     <tr>
       <td class="p1">
         @ws.Specialization
@@ -232,7 +324,7 @@
       <td class="p1 tr">@Fmt(strBonus)</td>
       <td class="p1"></td>
       <td class="p1 tr @(skill >= 0 ? "pos" : "neg")">@Fmt(skill)</td>
-      <td class="p1 tr fw">@Fmt(skill)</td>
+      <td class="p1 tr fw" data-tip="@wepTip">@Fmt(skill)</td>
       <td class="p1 tr"></td>
     </tr>
   }
@@ -241,6 +333,57 @@
 </table>
 
 <!-- ARMOR -->
+@{
+  var _armorDef  = ArmorRules.ByAT.GetValueOrDefault(_char.ArmorType, ArmorRules.All[0]);
+  var _helmDef   = ArmorRules.Helmet(_char.HelmetGrade);
+  var _vambDef   = ArmorRules.Vambrace(_char.VambracesGrade);
+  var _greaveDef = ArmorRules.Greave(_char.GreavesGrade);
+  var _shieldDef = ArmorRules.Shield(_char.ShieldType);
+
+  // Torso row values
+  int _torsoManPen = _char.ArmorFullSuit ? _armorDef.FullManPen  : _armorDef.TorsoManPen;
+  int _torsoWeight = _char.ArmorFullSuit ? _armorDef.FullWeight   : _armorDef.TorsoWeight;
+
+  // Piecemeal pieces (zero when full suit — already included above)
+  int _helmWeight   = _char.ArmorFullSuit ? 0 : _helmDef.Weight;
+  int _vambWeight   = _char.ArmorFullSuit ? 0 : _vambDef.Weight;
+  int _greaveWeight = _char.ArmorFullSuit ? 0 : _greaveDef.Weight;
+  int _greaveManPen = _char.ArmorFullSuit ? 0 : _greaveDef.ManPen;
+  int _percPen      = _helmDef.ManPen;    // perception penalty — always from helmet grade
+  int _missilePen   = _vambDef.ManPen;   // ranged penalty — always from vambrace grade
+
+  // Shield DB from Shield skill bonus
+  var _shieldSk    = _char.Skills.FirstOrDefault(s => s.SkillName == "Shield");
+  int _shieldSkRanks = _shieldSk?.TotalRanks ?? 0;
+  // Combat Training stats: Ag+St, skill stat: St
+  int _shAgBonus = SkillRules.StatBonus(Temp("Ag")) + (sheetRace?.GetStatMod(StatName.Ag) ?? 0);
+  int _shStBonus = SkillRules.StatBonus(Temp("St")) + (sheetRace?.GetStatMod(StatName.St) ?? 0);
+  int _shieldDb  = _char.ShieldType is not null and not "None"
+      ? _shAgBonus + _shStBonus + _shStBonus
+        + SkillRules.RankBonus(_shieldSkRanks)
+        + ((_shieldSk?.IsProfessionalSkill ?? false) ? Math.Min(_shieldSkRanks, 30) : 0)
+        + ((_shieldSk?.IsKnack ?? false) ? 5 : 0)
+      : 0;
+
+  // Maneuvering in Armor bonus (reduces movement manpen, but only to 0)
+  var _miaSk     = _char.Skills.FirstOrDefault(s => s.SkillName == "Maneuvering in Armor");
+  int _miaRanks  = _miaSk?.TotalRanks ?? 0;
+  // Battle Expertise: no stats, so MiA bonus = rank bonus + pro + knack only
+  int _miaBonus  = SkillRules.RankBonus(_miaRanks)
+      + ((_miaSk?.IsProfessionalSkill ?? false) ? Math.Min(_miaRanks, 30) : 0)
+      + ((_miaSk?.IsKnack ?? false) ? 5 : 0);
+
+  // Total movement manpen (raw, before MiA)
+  int _rawManPen  = _torsoManPen + _greaveManPen;
+  // Net manpen after MiA (cannot be positive)
+  int _netManPen  = Math.Min(0, _rawManPen + _miaBonus);
+
+  int _totalWeight = _torsoWeight + _helmWeight + _vambWeight + _greaveWeight + _shieldDef.Weight;
+
+  string ManPenFmt(int v) => v == 0 ? "—" : v.ToString();
+  string WtFmt(int v)     => v == 0 ? "—" : $"{v} lb";
+  string AtFmt(int v)     => v <= 1 ? "—" : v.ToString();
+}
 <table class="t100 mb1" style="border-collapse:collapse">
   <tr>
     <td style="width:72%; padding:0; vertical-align:top">
@@ -249,24 +392,101 @@
           <tr class="sh"><th class="tl">Area</th><th>Armor</th><th>AT</th><th>Man.Penalty</th><th>Weight</th><th>STR</th><th>DB</th><th>Casting Penalty</th></tr>
         </thead>
         <tbody>
-          <tr><td class="p1">Torso</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-          <tr><td class="p1">Head</td><td></td><td></td><td></td><td></td><td></td><td class="gcell"></td><td></td></tr>
-          <tr><td class="p1">Arms</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-          <tr><td class="p1">Legs</td><td></td><td></td><td></td><td></td><td></td><td class="gcell"></td><td></td></tr>
-          <tr><td class="p1">Shield</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-          <tr class="tr-total"><td class="p1 fw">Total</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr>
+            <td class="p1">Torso</td>
+            <td class="p1">@(_armorDef.AT > 1 ? _armorDef.Name + (_char.ArmorFullSuit ? " (Full Suit)" : "") : "—")</td>
+            <td class="p1 tc">@AtFmt(_armorDef.AT)</td>
+            <td class="p1 tr">@ManPenFmt(_torsoManPen)</td>
+            <td class="p1 tr">@WtFmt(_torsoWeight)</td>
+            <td class="p1"></td><td class="p1"></td><td class="p1"></td>
+          </tr>
+          <tr>
+            <td class="p1">Head</td>
+            <td class="p1">@(_char.ArmorFullSuit && _armorDef.AT > 1 ? "Included" : (_helmDef.AT > 1 ? _helmDef.Grade + " Helm" : "—"))</td>
+            <td class="p1 tc">@(_char.ArmorFullSuit ? AtFmt(_armorDef.AT) : AtFmt(_helmDef.AT))</td>
+            <td class="p1 tr muted sf">@(ManPenFmt(_percPen))@(_percPen != 0 ? " perc." : "")</td>
+            <td class="p1 tr">@WtFmt(_helmWeight)</td>
+            <td class="p1"></td><td class="p1 gcell"></td><td class="p1"></td>
+          </tr>
+          <tr>
+            <td class="p1">Arms</td>
+            <td class="p1">@(_char.ArmorFullSuit && _armorDef.AT > 1 ? "Included" : (_vambDef.AT > 1 ? _vambDef.Grade + " Vambraces" : "—"))</td>
+            <td class="p1 tc">@(_char.ArmorFullSuit ? AtFmt(_armorDef.AT) : AtFmt(_vambDef.AT))</td>
+            <td class="p1 tr muted sf">@(ManPenFmt(_missilePen))@(_missilePen != 0 ? " ranged" : "")</td>
+            <td class="p1 tr">@WtFmt(_vambWeight)</td>
+            <td class="p1"></td><td class="p1"></td><td class="p1"></td>
+          </tr>
+          <tr>
+            <td class="p1">Legs</td>
+            <td class="p1">@(_char.ArmorFullSuit && _armorDef.AT > 1 ? "Included" : (_greaveDef.AT > 1 ? _greaveDef.Grade + " Greaves" : "—"))</td>
+            <td class="p1 tc">@(_char.ArmorFullSuit ? AtFmt(_armorDef.AT) : AtFmt(_greaveDef.AT))</td>
+            <td class="p1 tr">@ManPenFmt(_greaveManPen)</td>
+            <td class="p1 tr">@WtFmt(_greaveWeight)</td>
+            <td class="p1"></td><td class="p1 gcell"></td><td class="p1"></td>
+          </tr>
+          <tr>
+            <td class="p1">Shield</td>
+            <td class="p1">@(_shieldDef.AT > 1 ? _shieldDef.Type : "—")</td>
+            <td class="p1 tc">@AtFmt(_shieldDef.AT)</td>
+            <td class="p1"></td>
+            <td class="p1 tr">@WtFmt(_shieldDef.Weight)</td>
+            <td class="p1"></td>
+            <td class="p1 tr fw @(_shieldDb > 0 ? "pos" : "")">@(_shieldDb != 0 ? Fmt(_shieldDb) : "")</td>
+            <td class="p1"></td>
+          </tr>
+          <tr class="tr-total">
+            <td class="p1 fw">Total</td>
+            <td class="p1"></td>
+            <td class="p1 tc fw">@AtFmt(_armorDef.AT)</td>
+            <td class="p1 tr fw @(_netManPen < 0 ? "neg" : "")">
+              @ManPenFmt(_netManPen)@(_miaBonus > 0 && _rawManPen < 0 ? $" (raw {_rawManPen}, MiA +{_miaBonus})" : "")
+            </td>
+            <td class="p1 tr fw">@WtFmt(_totalWeight)</td>
+            <td class="p1"></td>
+            <td class="p1 tr fw @(_shieldDb > 0 ? "pos" : "")">@(_shieldDb != 0 ? Fmt(_shieldDb) : "")</td>
+            <td class="p1"></td>
+          </tr>
         </tbody>
       </table>
     </td>
     <td style="width:28%; vertical-align:top; border:1px solid #2a2a5a; padding:2px 4px">
-      <div class="arm-side">Perception Pen:</div>
+      <div class="arm-side">Perception Pen: <span class="fw @(_percPen < 0 ? "neg" : "")">@(_percPen != 0 ? _percPen.ToString() : "—")</span></div>
       <div class="arm-side gcell"></div>
-      <div class="arm-side">Missile Pen:</div>
+      <div class="arm-side">Missile Pen: <span class="fw @(_missilePen < 0 ? "neg" : "")">@(_missilePen != 0 ? _missilePen.ToString() : "—")</span></div>
       <div class="arm-side gcell"></div>
       <div class="arm-side">Num. Attacks:</div>
     </td>
   </tr>
 </table>
+
+<!-- TALENTS & FLAWS -->
+@if (_char.Talents.Any())
+{
+<table class="t100 tb mb1">
+  <tr><td colspan="4" class="hdr">Talents &amp; Flaws</td></tr>
+  <tr class="sh">
+    <th class="tl" style="width:22%">Talent / Flaw</th>
+    <th class="tl" style="width:8%">Tier</th>
+    <th class="tl" style="width:10%">DP Cost</th>
+    <th class="tl">Effect</th>
+  </tr>
+  @foreach (var t in _char.Talents.OrderBy(t => TalentRules.ByName.GetValueOrDefault(t.TalentName)?.IsFlaw))
+  {
+    var tDef = TalentRules.ByName.GetValueOrDefault(t.TalentName);
+    int tCost = TalentRules.TierCost(t.TalentName, t.Tier);
+    string tierLabel = t.Tier > 1 && tDef?.MaxTier != 1
+        ? new[]{"","I","II","III","IV","V","VI","VII","VIII","IX","X"}[Math.Min(t.Tier,10)] : "—";
+    <tr class="@(tDef?.IsFlaw == true ? "neg" : "")">
+      <td class="p1 fw @(tDef?.IsFlaw == true ? "neg" : "pos")">
+        @t.TalentName@(t.Restriction is not null ? $" ({t.Restriction})" : "")
+      </td>
+      <td class="p1 tc">@tierLabel</td>
+      <td class="p1 tr @(tCost < 0 ? "neg" : "pos")">@(tCost > 0 ? $"+{tCost}" : tCost.ToString())</td>
+      <td class="p1 sf muted">@(tDef?.Effect ?? "")</td>
+    </tr>
+  }
+</table>
+}
 
 <!-- DEFENSE | RESISTANCE ROLLS -->
 <table class="t100 tb mb1">
@@ -320,6 +540,47 @@
     <td class="p1 tr fw">@Fmt(_sdBonus+2*_char.Level)</td>
   </tr>
 </table>
+
+<!-- SPELL LISTS -->
+@{
+  var _spellListRows = _char.Skills
+      .Where(s => s.Category == "Spellcasting" && s.Specialization != null && s.PurchasedRanks > 0)
+      .OrderBy(s => s.SkillName).ThenBy(s => s.Specialization)
+      .ToList();
+  int _spellRealmBonus = _effectiveRealm switch {
+      "Channeling"           => _inBonus,
+      "Essence"              => _emBonus,
+      "Mentalism"            => _prBonus,
+      "Channeling+Mentalism" => Math.Min(_inBonus, _prBonus),
+      "Essence+Mentalism"    => Math.Min(_emBonus, _prBonus),
+      "Essence+Channeling"   => Math.Min(_emBonus, _inBonus),
+      _                      => 0
+  };
+}
+@if (_effectiveRealm is not null && _spellListRows.Any())
+{
+<table class="t100 tb mb1">
+  <tr><td colspan="5" class="hdr">Spell Lists — @_effectiveRealm &nbsp;<span style="font-weight:normal;font-size:8pt">(Realm stat bonus: @Fmt(_spellRealmBonus))</span></td></tr>
+  <tr class="sh">
+    <th class="tl" style="width:35%">List Name</th>
+    <th style="width:20%">Type</th>
+    <th style="width:15%">Ranks / Max Level</th>
+    <th style="width:15%">Realm Stat</th>
+    <th style="width:15%">Cast Roll Bonus</th>
+  </tr>
+  @foreach (var sl in _spellListRows)
+  {
+    int castBonus = sl.PurchasedRanks + _spellRealmBonus;
+    <tr>
+      <td class="p1 fw">@sl.Specialization</td>
+      <td class="p1 muted sf">@sl.SkillName.Replace(" Spell Lists", "")</td>
+      <td class="p1 tc fw">@sl.PurchasedRanks</td>
+      <td class="p1 tr">@Fmt(_spellRealmBonus)</td>
+      <td class="p1 tr fw pos">@Fmt(castBonus)</td>
+    </tr>
+  }
+</table>
+}
 
 <!-- MAGIC ITEMS -->
 <div class="hdr mb0">Magic Items</div>
@@ -425,13 +686,30 @@
       int knBon  = isKnack ? 5 : 0;
       int ttlBon = statTotal + rkBon + proBon + knBon;
 
+      string? skTip = null;
+      if (tot > 0 || isKnack)
+      {
+          var sb = new System.Text.StringBuilder();
+          if (!cat.NoStats)
+          {
+              sb.AppendLine($"{cat.Stat1}+{cat.Stat2}: {Fmt(catSum)}");
+              if (skd.SkillStat is not ("" or "R*" or "St or Ag"))
+                  sb.AppendLine($"+{skd.SkillStat}: {Fmt(sskBonus)}");
+          }
+          if (tot > 0) sb.AppendLine($"Ranks ({tot}): {Fmt(rkBon)}");
+          if (proBon != 0) sb.AppendLine($"Prof: {Fmt(proBon)}");
+          if (knBon  != 0) sb.AppendLine("Knack: +5");
+          sb.Append($"──────────\n= {Fmt(ttlBon)}");
+          skTip = sb.ToString();
+      }
+
       string statsCell = cat.NoStats ? "-"
           : (skd.SkillStat is "" or "R*" ? "←" : $"←+{skd.SkillStat}→");
 
       <tr class="sk-row @(isPro ? "sk-pro" : "") @(isKnack ? "sk-knack" : "")">
         <td class="tc">@(isPro ? "■" : "□")</td>
         <td class="p1">
-          @skd.Name
+          <span data-bs-toggle="tooltip" data-bs-title="@skd.Description" data-bs-placement="right">@skd.Name</span>
           @if (skd.Specialized) { <span class="spec-tag">(spec.)</span> }
         </td>
         <td class="@(skd.Specialized ? "spec-gray" : "") p1"></td>
@@ -442,7 +720,7 @@
         <td class="p1 tr">@(tot > 0 ? Fmt(rkBon) : "")</td>
         <td class="p1 tr">@(proBon > 0 ? Fmt(proBon) : "")</td>
         <td class="p1 tr">@(knBon > 0 ? "+5" : "")</td>
-        <td class="p1 tr fw @(tot > 0 || isKnack ? (ttlBon >= 0 ? "pos" : "neg") : "")">
+        <td class="p1 tr fw @(tot > 0 || isKnack ? (ttlBon >= 0 ? "pos" : "neg") : "")" data-tip="@skTip">
           @(tot > 0 || isKnack ? Fmt(ttlBon) : "")
         </td>
         <td class="p1 tc muted">□□</td>
@@ -456,18 +734,54 @@
 <div class="pgbrk"></div>
 
 <!-- ═══════════ EQUIPMENT PAGE ═══════════ -->
+@{
+    var _eqItems = _char!.EquipmentItems.OrderBy(e => e.Name).ToList();
+    int _eqHalf  = Math.Max(14, (_eqItems.Count + 1) / 2);
+}
 <table class="t100" style="border-collapse:collapse">
   <tr>
     <td style="width:50%; vertical-align:top; padding-right:3px">
       <table class="t100 tb">
         <thead><tr class="sh"><th class="tl">Item (Name/Description)</th><th style="width:20px">#</th><th style="width:25px">Wt</th><th style="width:55px">Location</th></tr></thead>
-        <tbody>@for (int i = 0; i < 28; i++) { <tr><td class="brow"></td><td></td><td></td><td></td></tr> }</tbody>
+        <tbody>
+          @for (int i = 0; i < _eqHalf; i++)
+          {
+              if (i < _eqItems.Count)
+              {
+                  var ei = _eqItems[i];
+                  double wt = ItemWeight(ei.Name);
+                  <tr>
+                      <td class="p1">@ei.Name</td>
+                      <td class="p1 tc">@ei.Qty</td>
+                      <td class="p1 tr">@(wt > 0 ? wt.ToString("G", System.Globalization.CultureInfo.InvariantCulture) : "")</td>
+                      <td></td>
+                  </tr>
+              }
+              else { <tr><td class="brow"></td><td></td><td></td><td></td></tr> }
+          }
+        </tbody>
       </table>
     </td>
     <td style="width:50%; vertical-align:top; padding-left:3px">
       <table class="t100 tb">
         <thead><tr class="sh"><th class="tl">Item (Name/Description)</th><th style="width:20px">#</th><th style="width:25px">Wt</th><th style="width:55px">Location</th></tr></thead>
-        <tbody>@for (int i = 0; i < 28; i++) { <tr><td class="brow"></td><td></td><td></td><td></td></tr> }</tbody>
+        <tbody>
+          @for (int i = _eqHalf; i < _eqHalf * 2; i++)
+          {
+              if (i < _eqItems.Count)
+              {
+                  var ei = _eqItems[i];
+                  double wt = ItemWeight(ei.Name);
+                  <tr>
+                      <td class="p1">@ei.Name</td>
+                      <td class="p1 tc">@ei.Qty</td>
+                      <td class="p1 tr">@(wt > 0 ? wt.ToString("G", System.Globalization.CultureInfo.InvariantCulture) : "")</td>
+                      <td></td>
+                  </tr>
+              }
+              else { <tr><td class="brow"></td><td></td><td></td><td></td></tr> }
+          }
+        </tbody>
       </table>
     </td>
   </tr>
@@ -481,56 +795,32 @@
     Character? _char;
     bool _accessDenied;
 
-    // ── Oracle state ─────────────────────────────────────────────────────────
-    bool _oracleOpen;
-    string _oracleInput = "";
-    string _oracleResponse = "";
-    bool _oracleThinking;
-    CancellationTokenSource? _oracleCts;
+    int _quBonus, _coBonus, _inBonus, _emBonus, _prBonus, _sdBonus, _stBonus;
+    int _bmr, _ppBonus, _hits, _endurance;
+    string? _effectiveRealm;
 
-    async Task AskOracleAsync()
-    {
-        if (string.IsNullOrWhiteSpace(_oracleInput) || _oracleThinking || _char is null) return;
-        _oracleCts?.Cancel();
-        _oracleCts = new CancellationTokenSource();
-        _oracleResponse = "";
-        _oracleThinking = true;
-        var question = _oracleInput;
-        _oracleInput = "";
-        StateHasChanged();
-        try
-        {
-            await foreach (var token in SheetAgent.AskAsync(_char, _char.Stats, question, _oracleCts.Token))
-            {
-                _oracleResponse += token;
-                StateHasChanged();
-            }
-        }
-        catch (OperationCanceledException) { }
-        finally
-        {
-            _oracleThinking = false;
-            StateHasChanged();
-        }
-    }
-
-    int _quBonus, _coBonus, _inBonus, _emBonus, _prBonus, _sdBonus;
-    int _bmr, _ppBonus;
-
-    record FosEntry(string Label, string Formula);
-    static readonly FosEntry[] _fos =
+    // Table 5-2: Feats of Strength — (loadPct, difficulty label, modifier)
+    // Load = object weight as % of body weight, minus 2×Str bonus.
+    static readonly (int LoadPct, string Label, int Mod)[] _fosTable =
     [
-        new("Routine +30",    "Wt×0.2"),
-        new("Easy +20",       "Wt×0.3"),
-        new("Light +10",      "Wt×0.4"),
-        new("Medium +0",      "Wt×0.5"),
-        new("Hard -10",       "Wt×0.75"),
-        new("Very Hard -20",  "Wt"),
-        new("Ext.Hard -30",   "Wt×1.5"),
-        new("Sheer Folly -50","Wt×2"),
-        new("Absurd -70",     "Wt×3"),
-        new("Nigh Imp. -100", "Wt×4"),
+        (  5, "Casual",       +70),
+        ( 10, "Simple",       +50),
+        ( 20, "Routine",      +30),
+        ( 30, "Easy",         +20),
+        ( 40, "Light",        +10),
+        ( 50, "Medium",         0),
+        ( 75, "Hard",         -10),
+        (100, "Very Hard",    -20),
+        (150, "Ext. Hard",    -30),
+        (200, "Sheer Folly",  -50),
+        (300, "Absurd",       -70),
+        (400, "Nigh Imp.",   -100),
     ];
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JS.InvokeVoidAsync("initTooltips");
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -541,6 +831,8 @@
         _char = await Db.Characters
             .Include(c => c.Stats)
             .Include(c => c.Skills)
+            .Include(c => c.Talents)
+            .Include(c => c.EquipmentItems)
             .FirstOrDefaultAsync(c => c.Id == Id);
 
         if (_char is null) return;
@@ -549,14 +841,52 @@
         var raceBonus = _char.Race is not null && RaceRules.ByName.TryGetValue(_char.Race, out var rbd) ? rbd : null;
         _quBonus = SkillRules.StatBonus(Temp("Qu")) + (raceBonus?.GetStatMod(StatName.Qu) ?? 0);
         _coBonus = SkillRules.StatBonus(Temp("Co")) + (raceBonus?.GetStatMod(StatName.Co) ?? 0);
+        _stBonus = SkillRules.StatBonus(Temp("St")) + (raceBonus?.GetStatMod(StatName.St) ?? 0);
         _inBonus = SkillRules.StatBonus(Temp("In")) + (raceBonus?.GetStatMod(StatName.In) ?? 0);
         _emBonus = SkillRules.StatBonus(Temp("Em")) + (raceBonus?.GetStatMod(StatName.Em) ?? 0);
         _prBonus = SkillRules.StatBonus(Temp("Pr")) + (raceBonus?.GetStatMod(StatName.Pr) ?? 0);
         _sdBonus = SkillRules.StatBonus(Temp("SD")) + (raceBonus?.GetStatMod(StatName.SD) ?? 0);
-        _bmr     = 20 + (int)Math.Ceiling(_quBonus / 2.0);
+        _bmr = 20 + (int)Math.Ceiling(_quBonus / 2.0);
 
-        var pdSk = _char.Skills.FirstOrDefault(s => s.SkillName == "Power Development");
-        _ppBonus = pdSk is not null ? SkillRules.RankBonus(pdSk.TotalRanks) : 0;
+        // Body Development (Brawn: Co+SD, SkillStat: Co → stat bonus = Co+SD+Co)
+        var bdSk    = _char.Skills.FirstOrDefault(s => s.SkillName == "Body Development");
+        int bdRanks = bdSk?.TotalRanks ?? 0;
+        int bdBonus = _coBonus + _sdBonus + _coBonus
+                      + SkillRules.RankBonus(bdRanks)
+                      + ((bdSk?.IsProfessionalSkill ?? false) ? Math.Min(bdRanks, 30) : 0)
+                      + ((bdSk?.IsKnack ?? false) ? 5 : 0);
+        int baseHits = raceBonus?.BaseHits ?? 25;
+        _hits      = (int)Math.Round((baseHits + bdBonus) * (raceBonus?.HitMultiplier ?? 1.0f));
+        _endurance = bdBonus + (raceBonus?.EnduranceBonus ?? 0);
+
+        // Resolve effective realm: stored value, else derive from profession (Core Law §2.4)
+        _effectiveRealm = _char.Realm
+            ?? ProfessionRules.ByName.GetValueOrDefault(_char.Profession ?? "")?.Realm;
+
+        // Power Development (Power Manipulation: R*+R*, SkillStat: Co)
+        var pdSk    = _char.Skills.FirstOrDefault(s => s.SkillName == "Power Development");
+        int pdRanks = pdSk?.TotalRanks ?? 0;
+        int pdBonus = SkillRules.RankBonus(pdRanks)
+                      + ((pdSk?.IsProfessionalSkill ?? false) ? Math.Min(pdRanks, 30) : 0)
+                      + ((pdSk?.IsKnack ?? false) ? 5 : 0);
+        if (_effectiveRealm is not null)
+        {
+            // Hybrid realm stat = lower of the two; single realm = that realm's stat
+            int realmBonus = _effectiveRealm switch {
+                "Channeling"           => _inBonus,
+                "Essence"              => _emBonus,
+                "Mentalism"            => _prBonus,
+                "Channeling+Mentalism" => Math.Min(_inBonus, _prBonus),
+                "Essence+Mentalism"    => Math.Min(_emBonus, _prBonus),
+                "Essence+Channeling"   => Math.Min(_emBonus, _inBonus),
+                _                      => 0
+            };
+            _ppBonus = realmBonus * 2 + _coBonus + pdBonus;
+        }
+        else
+        {
+            _ppBonus = 0;
+        }
     }
 
     int Temp(string abbr)
@@ -573,6 +903,21 @@
     }
 
     static string Fmt(int v) => v >= 0 ? $"+{v}" : v.ToString();
+
+    static string FmtHeight(int cm)
+    {
+        double totalIn = cm / 2.54;
+        int feet = (int)(totalIn / 12);
+        int inches = (int)Math.Round(totalIn % 12);
+        if (inches == 12) { feet++; inches = 0; }
+        return $"{cm} cm ({feet}'{inches}\")";
+    }
+
+    static string FmtWeight(int kg)
+    {
+        int lb = (int)Math.Round(kg * 2.20462);
+        return $"{kg} kg ({lb} lb)";
+    }
 
     static StatName StatFromAbbr(string abbr) => abbr switch
     {
@@ -596,4 +941,9 @@
         StatName.St => "Strength (St)",
         _ => sn.ToString()
     };
+
+    static double ItemWeight(string name) =>
+        EquipmentRules.General.FirstOrDefault(i => i.Name == name)?.WeightLbs
+        ?? EquipmentRules.Weapons.FirstOrDefault(i => i.Name == name)?.WeightLbs
+        ?? 0;
 }

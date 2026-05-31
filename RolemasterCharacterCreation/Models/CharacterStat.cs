@@ -8,4 +8,5 @@ public class CharacterStat
     public StatName Stat { get; set; }
     public int Temporary { get; set; }
     public int Potential { get; set; }
+    public int Special { get; set; }
 }

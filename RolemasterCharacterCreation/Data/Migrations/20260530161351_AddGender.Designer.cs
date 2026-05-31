@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RolemasterCharacterCreation.Data;
 
@@ -11,9 +12,11 @@ using RolemasterCharacterCreation.Data;
 namespace RolemasterCharacterCreation.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260530161351_AddGender")]
+    partial class AddGender
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -231,41 +234,17 @@ namespace RolemasterCharacterCreation.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("Age")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("ArmorFullSuit")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("ArmorType")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Build")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Culture")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("EyeColor")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Gender")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("GreavesGrade")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("HairColor")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("HeightCm")
                         .HasColumnType("int");
-
-                    b.Property<string>("HelmetGrade")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Level")
                         .HasColumnType("int");
@@ -290,14 +269,8 @@ namespace RolemasterCharacterCreation.Data.Migrations
                     b.Property<string>("Realm")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ShieldType")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("VambracesGrade")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("WeightKg")
                         .HasColumnType("int");
@@ -346,32 +319,6 @@ namespace RolemasterCharacterCreation.Data.Migrations
                     b.HasIndex("CharacterId");
 
                     b.ToTable("CharacterAuditLogs");
-                });
-
-            modelBuilder.Entity("RolemasterCharacterCreation.Models.CharacterEquipmentItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CharacterId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("Qty")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CharacterId", "Name")
-                        .IsUnique();
-
-                    b.ToTable("CharacterEquipmentItems");
                 });
 
             modelBuilder.Entity("RolemasterCharacterCreation.Models.CharacterSkill", b =>
@@ -431,9 +378,6 @@ namespace RolemasterCharacterCreation.Data.Migrations
                     b.Property<int>("Potential")
                         .HasColumnType("int");
 
-                    b.Property<int>("Special")
-                        .HasColumnType("int");
-
                     b.Property<int>("Stat")
                         .HasColumnType("int");
 
@@ -446,34 +390,6 @@ namespace RolemasterCharacterCreation.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("CharacterStats");
-                });
-
-            modelBuilder.Entity("RolemasterCharacterCreation.Models.CharacterTalent", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CharacterId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Restriction")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TalentName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Tier")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CharacterId");
-
-                    b.ToTable("CharacterTalents");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -555,17 +471,6 @@ namespace RolemasterCharacterCreation.Data.Migrations
                     b.Navigation("Character");
                 });
 
-            modelBuilder.Entity("RolemasterCharacterCreation.Models.CharacterEquipmentItem", b =>
-                {
-                    b.HasOne("RolemasterCharacterCreation.Models.Character", "Character")
-                        .WithMany("EquipmentItems")
-                        .HasForeignKey("CharacterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Character");
-                });
-
             modelBuilder.Entity("RolemasterCharacterCreation.Models.CharacterSkill", b =>
                 {
                     b.HasOne("RolemasterCharacterCreation.Models.Character", "Character")
@@ -588,17 +493,6 @@ namespace RolemasterCharacterCreation.Data.Migrations
                     b.Navigation("Character");
                 });
 
-            modelBuilder.Entity("RolemasterCharacterCreation.Models.CharacterTalent", b =>
-                {
-                    b.HasOne("RolemasterCharacterCreation.Models.Character", "Character")
-                        .WithMany("Talents")
-                        .HasForeignKey("CharacterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Character");
-                });
-
             modelBuilder.Entity("RolemasterCharacterCreation.Models.ApplicationUser", b =>
                 {
                     b.Navigation("Characters");
@@ -608,13 +502,9 @@ namespace RolemasterCharacterCreation.Data.Migrations
                 {
                     b.Navigation("AuditLogs");
 
-                    b.Navigation("EquipmentItems");
-
                     b.Navigation("Skills");
 
                     b.Navigation("Stats");
-
-                    b.Navigation("Talents");
                 });
 #pragma warning restore 612, 618
         }

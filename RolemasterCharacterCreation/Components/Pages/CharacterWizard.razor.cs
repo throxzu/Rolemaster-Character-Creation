@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.JSInterop;
 using RolemasterCharacterCreation.Data;
 using RolemasterCharacterCreation.Identity;
 using RolemasterCharacterCreation.Models;
@@ -12,7 +13,88 @@ public partial class CharacterWizard
 {
     [Parameter] public int Id { get; set; }
 
-    static readonly string[] Steps = ["Concept", "Stats", "Prof. Skills", "Skills", "Equipment", "Summary"];
+    [Inject] IJSRuntime JS { get; set; } = default!;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JS.InvokeVoidAsync("initTooltips");
+    }
+
+    static readonly string[] Steps = ["Concept", "Stats", "Prof. Skills", "Skills", "Talents", "Equipment"];
+
+    // ── Height / weight ranges per race ──────────────────────────────────────
+    // HMin in cm, WMin in kg. Step sizes are determined by race size:
+    //   S → h step 2 cm, w step 2 kg  (20 options → range +38 cm / +38 kg)
+    //   M → h step 3 cm, w step 5 kg  (20 options → range +57 cm / +95 kg)
+    //   B → h step 4 cm, w step 5 kg  (20 options → range +76 cm / +95 kg)
+    static readonly Dictionary<string, (int HMin, int WMin)> _raceBuild = new()
+    {
+        // S
+        ["Gnoll"]    = (150, 55),
+        ["Goblin"]   = (100, 28),
+        ["Halfling"] = ( 90, 24),
+        ["Kobold"]   = ( 75, 18),
+        // M
+        ["Avinarc"]          = (158, 48),
+        ["Dwarf"]            = (110, 60),
+        ["Elf, fair"]        = (158, 40),
+        ["Elf, grey"]        = (155, 40),
+        ["Elf, high"]        = (160, 45),
+        ["Elf, wood"]        = (153, 38),
+        ["Gnome"]            = ( 88, 22),
+        ["Gratar"]           = (153, 52),
+        ["Half-Elf"]         = (155, 45),
+        ["Hobgoblin"]        = (155, 62),
+        ["Human, cave"]      = (150, 45),
+        ["Human, common"]    = (153, 45),
+        ["Human, high"]      = (155, 45),
+        ["Human, mixed"]     = (153, 45),
+        ["Idiyva"]           = (153, 48),
+        ["Nycamerith"]       = (153, 45),
+        ["Orc, greater"]     = (172, 82),
+        ["Orc, grey"]        = (163, 72),
+        ["Orc, lesser"]      = (160, 70),
+        ["Orc, vard"]        = (160, 72),
+        ["Plynos"]           = (153, 50),
+        ["Sea-kral"]         = (153, 52),
+        ["Sibbicai"]         = (148, 45),
+        ["Sohleugir"]        = (153, 52),
+        ["Sstoi'isslythi"]   = (150, 45),
+        ["Vulfen"]           = (163, 62),
+        // B
+        ["Hvasstonn"]  = (196, 108),
+        ["Orc, scrug"] = (196, 118),
+        ["Troll"]      = (220, 148),
+    };
+
+    static string FmtHeight(int cm)
+    {
+        double totalIn = cm / 2.54;
+        int feet = (int)(totalIn / 12);
+        int inches = (int)Math.Round(totalIn % 12);
+        if (inches == 12) { feet++; inches = 0; }
+        return $"{cm} cm ({feet}'{inches}\")";
+    }
+
+    static string FmtWeight(int kg)
+    {
+        int lb = (int)Math.Round(kg * 2.20462);
+        return $"{kg} kg ({lb} lb)";
+    }
+
+    static IReadOnlyList<int> HeightOptions(string raceName)
+    {
+        if (!_raceBuild.TryGetValue(raceName, out var b)) return [];
+        int step = RaceRules.ByName.GetValueOrDefault(raceName)?.Size switch { "S" => 2, "B" => 4, _ => 3 };
+        return Enumerable.Range(0, 20).Select(i => b.HMin + i * step).ToArray();
+    }
+
+    static IReadOnlyList<int> WeightOptions(string raceName)
+    {
+        if (!_raceBuild.TryGetValue(raceName, out var b)) return [];
+        int step = RaceRules.ByName.GetValueOrDefault(raceName)?.Size == "S" ? 2 : 5;
+        return Enumerable.Range(0, 20).Select(i => b.WMin + i * step).ToArray();
+    }
 
     Character? _char;
     string? _currentUserId;
@@ -20,45 +102,6 @@ public partial class CharacterWizard
     bool _authorized;
     int _step;
     string? _error;
-    string? _sheetWarnings;
-
-    // ── Oracle (AI assistant) state ───────────────────────────────────────────
-    bool _oracleOpen;
-    string _oracleInput = "";
-    string _oracleResponse = "";
-    bool _oracleThinking;
-    CancellationTokenSource? _oracleCts;
-
-    async Task AskOracleAsync()
-    {
-        if (string.IsNullOrWhiteSpace(_oracleInput) || _oracleThinking || _char is null) return;
-        _oracleCts?.Cancel();
-        _oracleCts = new CancellationTokenSource();
-        _oracleResponse = "";
-        _oracleThinking = true;
-        var question = _oracleInput;
-        _oracleInput = "";
-        StateHasChanged();
-        try
-        {
-            await foreach (var token in AgentService.AskAsync(Steps[_step], _char, _char.Stats, question, _oracleCts.Token))
-            {
-                _oracleResponse += token;
-                StateHasChanged();
-            }
-        }
-        catch (OperationCanceledException) { }
-        finally
-        {
-            _oracleThinking = false;
-            StateHasChanged();
-        }
-    }
-
-    void CancelOracle()
-    {
-        _oracleCts?.Cancel();
-    }
 
     // ── Step 0: pool allocation state ────────────────────────────────────────
     record PoolEntry(string SkillName, string? Specialization, int Ranks);
@@ -90,8 +133,27 @@ public partial class CharacterWizard
     string _weaponAddSpec = "";
     int _weaponAddRanks = 1;
 
+    // spell list purchases (separate from _purchased to allow per-list specialization)
+    record SpellAlloc(string SkillName, string Specialization, int Ranks);
+    List<SpellAlloc> _spellAllocs = new();
+    string? _activeSpellAdd;
+    string _spellAddName = "";
+    int _spellAddRanks = 1;
+
     int _dpBudget;
-    int _dpSpent => CalcDpSpent();
+    int _dpSpent        => CalcDpSpent();
+    int _talentDpSpent  => _char?.Talents.Sum(t => TalentRules.TierCost(t.TalentName, t.Tier)) ?? 0;
+    int _dpRemaining    => _dpBudget - _dpSpent - _talentDpSpent;
+
+    // ── Step 4: talent selection state ───────────────────────────────────────
+    string _talentName        = "";
+    int    _talentTier        = 1;
+    string _talentRestriction = "";
+    string _talentCategory    = "All";
+    bool   _addingTalent;
+
+    // ── Step 5: equipment item quantities (item name → qty) ───────────────────
+    Dictionary<string, int> _equipQty = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -102,6 +164,8 @@ public partial class CharacterWizard
         _char = await Db.Characters
             .Include(c => c.Stats)
             .Include(c => c.Skills)
+            .Include(c => c.Talents)
+            .Include(c => c.EquipmentItems)
             .FirstOrDefaultAsync(c => c.Id == Id);
 
         if (_char is null) return;
@@ -115,7 +179,9 @@ public partial class CharacterWizard
         LoadProfSkillState();
         LoadPurchasedState();
         LoadWeaponAllocsState();
+        LoadSpellAllocsState();
         LoadPoolAllocsState();
+        LoadEquipmentState();
         EnsureStats();
     }
 
@@ -146,6 +212,8 @@ public partial class CharacterWizard
         {
             // Weapon specializations are tracked in _weaponAllocs, not _purchased
             if (WeaponRules.BySkill.ContainsKey(sk.SkillName) && sk.Specialization is not null) continue;
+            // Spell list specializations are tracked in _spellAllocs, not _purchased
+            if (sk.Category == "Spellcasting" && sk.Specialization is not null) continue;
             if (!_purchased.ContainsKey(sk.Category))
                 _purchased[sk.Category] = new();
             _purchased[sk.Category][sk.SkillName] = sk.PurchasedRanks;
@@ -161,6 +229,18 @@ public partial class CharacterWizard
                         && s.PurchasedRanks > 0))
         {
             _weaponAllocs.Add(new WeaponAlloc(sk.SkillName, sk.Specialization!, sk.PurchasedRanks));
+        }
+    }
+
+    void LoadSpellAllocsState()
+    {
+        _spellAllocs.Clear();
+        foreach (var sk in _char!.Skills
+            .Where(s => s.Category == "Spellcasting"
+                        && s.Specialization is not null
+                        && s.PurchasedRanks > 0))
+        {
+            _spellAllocs.Add(new SpellAlloc(sk.SkillName, sk.Specialization!, sk.PurchasedRanks));
         }
     }
 
@@ -207,7 +287,7 @@ public partial class CharacterWizard
         _error = null;
         if (!ValidateStep(_step)) return;
         await SaveStepAsync();
-        Nav.NavigateTo($"/character/{Id}");
+        Nav.NavigateTo($"/character/{Id}/sheet");
     }
 
     bool ValidateStep(int step) => step switch
@@ -242,11 +322,8 @@ public partial class CharacterWizard
             case 1: await SaveStatsAsync(); break;
             case 2: await SaveProfSkillsAsync(); break;
             case 3: await SaveSkillsAsync(); break;
-        }
-        // After concept (step 0) and skills (step 3), ask the sheet agent to validate
-        if (_step is 0 or 1 or 3 && _char is not null)
-        {
-            _sheetWarnings = await SheetAgent.ValidateAsync(_char, _char.Stats);
+            case 4: await Db.SaveChangesAsync(); break;   // talents (EF-tracked entities)
+            case 5: await SaveEquipmentAsync(); break;
         }
     }
 
@@ -348,6 +425,24 @@ public partial class CharacterWizard
             existing.PurchasedRanks = wa.Ranks;
         }
 
+        // Spell list allocs
+        foreach (var sa in _spellAllocs)
+        {
+            var existing = _char!.Skills.FirstOrDefault(s =>
+                s.SkillName == sa.SkillName && s.Specialization == sa.Specialization);
+            if (existing is null)
+            {
+                existing = new CharacterSkill
+                {
+                    CharacterId = _char.Id, Category = "Spellcasting",
+                    SkillName = sa.SkillName, Specialization = sa.Specialization
+                };
+                _char.Skills.Add(existing);
+                Db.CharacterSkills.Add(existing);
+            }
+            existing.PurchasedRanks = sa.Ranks;
+        }
+
         await Db.SaveChangesAsync();
     }
 
@@ -384,6 +479,16 @@ public partial class CharacterWizard
             if (!prof.Costs.TryGetValue(costKey, out var wc)) continue;
             total += wc.First;
             if (wa.Ranks >= 2) total += wc.Second;
+        }
+
+        // Spell list allocs
+        foreach (var sa in _spellAllocs)
+        {
+            if (sa.Ranks <= 0) continue;
+            var costKey = ResolveSpellCostKey(sa.SkillName);
+            if (!prof.Costs.TryGetValue(costKey, out var sc)) continue;
+            total += sc.First;
+            if (sa.Ranks >= 2) total += sc.Second;
         }
 
         return total;
@@ -537,6 +642,8 @@ public partial class CharacterWizard
     void OnRaceChanged(string? raceName)
     {
         _char!.Race = raceName;
+        _char.HeightCm = null;
+        _char.WeightKg = null;
         if (raceName is not null && RaceRules.ByName.TryGetValue(raceName, out var race))
         {
             _char.RaceBonusDp = race.BonusDP;
@@ -600,6 +707,52 @@ public partial class CharacterWizard
             _weaponAllocs.RemoveAt(idx);
         else
             _weaponAllocs[idx] = wa with { Ranks = next };
+    }
+
+    void AddSpellAlloc(string skillName)
+    {
+        if (string.IsNullOrWhiteSpace(_spellAddName)) return;
+        if (_spellAddRanks <= 0) return;
+        string listName = _spellAddName.Trim();
+        if (_spellAllocs.Any(s => s.SkillName == skillName && s.Specialization == listName)) return;
+
+        var prof = ProfessionRules.ByName.GetValueOrDefault(_char?.Profession ?? "");
+        if (prof is null) return;
+
+        var costKey = ResolveSpellCostKey(skillName);
+        if (!prof.Costs.TryGetValue(costKey, out var sc)) return;
+
+        int addCost = sc.First;
+        if (_spellAddRanks >= 2) addCost += sc.Second;
+        if (_dpBudget - _dpSpent < addCost) return;
+
+        _spellAllocs.Add(new SpellAlloc(skillName, listName, _spellAddRanks));
+        _spellAddName = "";
+        _spellAddRanks = 1;
+        _activeSpellAdd = null;
+    }
+
+    void AdjSpellRanks(SpellAlloc sa, int delta)
+    {
+        int idx = _spellAllocs.IndexOf(sa);
+        if (idx < 0) return;
+        int next = Math.Max(0, sa.Ranks + delta);
+        if (next == sa.Ranks) return;
+
+        if (delta > 0)
+        {
+            var prof = ProfessionRules.ByName.GetValueOrDefault(_char?.Profession ?? "");
+            if (prof is null) return;
+            var costKey = ResolveSpellCostKey(sa.SkillName);
+            if (!prof.Costs.TryGetValue(costKey, out var sc)) return;
+            int addCost = sa.Ranks == 0 ? sc.First : sc.Second;
+            if (_dpBudget - _dpSpent < addCost) return;
+        }
+
+        if (next == 0)
+            _spellAllocs.RemoveAt(idx);
+        else
+            _spellAllocs[idx] = sa with { Ranks = next };
     }
 
     void OnProfessionChanged(string? profName)
@@ -709,4 +862,50 @@ public partial class CharacterWizard
         if (_poolAllocs.TryGetValue(poolName, out var entries))
             entries.Remove(entry);
     }
+
+    // ── Equipment helpers ─────────────────────────────────────────────────────
+
+    void LoadEquipmentState()
+    {
+        _equipQty.Clear();
+        foreach (var item in _char!.EquipmentItems)
+            _equipQty[item.Name] = item.Qty;
+    }
+
+    async Task SaveEquipmentAsync()
+    {
+        // Remove all existing items, then re-insert non-zero quantities
+        Db.CharacterEquipmentItems.RemoveRange(_char!.EquipmentItems);
+        _char.EquipmentItems.Clear();
+
+        foreach (var (name, qty) in _equipQty.Where(kv => kv.Value > 0))
+        {
+            var item = new CharacterEquipmentItem { CharacterId = _char.Id, Name = name, Qty = qty };
+            _char.EquipmentItems.Add(item);
+            Db.CharacterEquipmentItems.Add(item);
+        }
+
+        await Db.SaveChangesAsync();
+    }
+
+    int GetEquipQty(string name) => _equipQty.TryGetValue(name, out var q) ? q : 0;
+
+    void AdjEquipQty(string name, int delta)
+    {
+        int current = GetEquipQty(name);
+        int next = Math.Max(0, current + delta);
+        if (next == 0)
+            _equipQty.Remove(name);
+        else
+            _equipQty[name] = next;
+    }
+
+    int TotalEquipWeight =>
+        _equipQty.Sum(kv =>
+        {
+            double wt = EquipmentRules.General.FirstOrDefault(i => i.Name == kv.Key)?.WeightLbs
+                     ?? EquipmentRules.Weapons.FirstOrDefault(i => i.Name == kv.Key)?.WeightLbs
+                     ?? 0;
+            return (int)(wt * kv.Value);
+        });
 }

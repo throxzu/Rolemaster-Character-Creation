@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RolemasterCharacterCreation.Data;
 
@@ -11,9 +12,11 @@ using RolemasterCharacterCreation.Data;
 namespace RolemasterCharacterCreation.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260530183904_AddCharacterTalents")]
+    partial class AddCharacterTalents
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -348,32 +351,6 @@ namespace RolemasterCharacterCreation.Data.Migrations
                     b.ToTable("CharacterAuditLogs");
                 });
 
-            modelBuilder.Entity("RolemasterCharacterCreation.Models.CharacterEquipmentItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CharacterId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("Qty")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CharacterId", "Name")
-                        .IsUnique();
-
-                    b.ToTable("CharacterEquipmentItems");
-                });
-
             modelBuilder.Entity("RolemasterCharacterCreation.Models.CharacterSkill", b =>
                 {
                     b.Property<int>("Id")
@@ -555,17 +532,6 @@ namespace RolemasterCharacterCreation.Data.Migrations
                     b.Navigation("Character");
                 });
 
-            modelBuilder.Entity("RolemasterCharacterCreation.Models.CharacterEquipmentItem", b =>
-                {
-                    b.HasOne("RolemasterCharacterCreation.Models.Character", "Character")
-                        .WithMany("EquipmentItems")
-                        .HasForeignKey("CharacterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Character");
-                });
-
             modelBuilder.Entity("RolemasterCharacterCreation.Models.CharacterSkill", b =>
                 {
                     b.HasOne("RolemasterCharacterCreation.Models.Character", "Character")
@@ -607,8 +573,6 @@ namespace RolemasterCharacterCreation.Data.Migrations
             modelBuilder.Entity("RolemasterCharacterCreation.Models.Character", b =>
                 {
                     b.Navigation("AuditLogs");
-
-                    b.Navigation("EquipmentItems");
 
                     b.Navigation("Skills");
 

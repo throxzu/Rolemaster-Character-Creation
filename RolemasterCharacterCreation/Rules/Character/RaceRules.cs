@@ -54,6 +54,62 @@ public static class RaceRules
 
     public static readonly IReadOnlyDictionary<string, RaceDef> ByName =
         All.ToDictionary(r => r.Name);
+
+    // ── Free racial traits (Tier 0 = flat/untired) ────────────────────────────
+    public static IReadOnlyList<RacialTrait> GetTraits(string raceName) =>
+        _traits.TryGetValue(raceName, out var t) ? t : [];
+
+    static readonly IReadOnlyDictionary<string, RacialTrait[]> _traits =
+        new Dictionary<string, RacialTrait[]>
+    {
+        ["Avinarc"]          = [T("Acute Smell",2), T("Light-Boned",1), T("Natural Weaponry",0), T("Restricted Diet",0), T("Sight, Eagle",0), T("Wings, Vestigial",0)],
+        ["Dwarf"]            = [T("Nightvision",0), T("Darkvision",1), F("Inept",5,"Endurance while swimming")],
+        ["Elf, fair"]        = [T("Efficient Sleeper",2), T("Immune to Disease",1), T("Nightvision",0), T("Defensive Aura",2), T("Golden Throat",1)],
+        ["Elf, grey"]        = [T("Efficient Sleeper",2), T("Immune to Disease",1), T("Nightvision",0)],
+        ["Elf, high"]        = [T("Efficient Sleeper",2), T("Immune to Disease",1), T("Nightvision",0)],
+        ["Elf, wood"]        = [T("Efficient Sleeper",2), T("Immune to Disease",1), T("Nightvision",0), T("Hearing, Cat",0)],
+        ["Gnoll"]            = [T("Nightvision",0), T("Hearing, Hare",0), F("Decreased Size",1,null), F("Light Sensitivity",1,null)],
+        ["Gnome"]            = [T("Nightvision",0)],
+        ["Goblin"]           = [T("Nightvision",0), T("Darkvision",1), F("Decreased Size",1,null), F("Light Sensitivity",3,null)],
+        ["Gratar"]           = [T("Sight, Gecko",0), T("Recurved Musculature",0)],
+        ["Half-Elf"]         = [T("Efficient Sleeper",1), T("Nightvision",0)],
+        ["Halfling"]         = [T("Nightvision",0), F("Decreased Size",1,null)],
+        ["Hobgoblin"]        = [T("Nightvision",0), T("Darkvision",2), F("Light Sensitivity",1,null)],
+        ["Human, cave"]      = [],
+        ["Human, common"]    = [],
+        ["Human, high"]      = [],
+        ["Human, mixed"]     = [],
+        ["Hvasstonn"]        = [T("Increased Size",1), T("Natural Weaponry",0), F("Restricted Diet",0,null)],
+        ["Idiyva"]           = [T("Nightvision",0), T("Hearing, Cat",0), T("Natural Weaponry",0), F("Restricted Diet",0,null)],
+        ["Kobold"]           = [T("Nightvision",0), T("Darkvision",1), T("Natural Weaponry",0), F("Decreased Size",1,null), F("Light Sensitivity",2,null)],
+        ["Nycamerith"]       = [T("Golden Throat",1), T("Hearing, Cat",0), T("Perfect Pitch",1), F("Non-violent",2,null)],
+        ["Orc, greater"]     = [T("Nightvision",0), T("Darkvision",1)],
+        ["Orc, grey"]        = [T("Nightvision",0), T("Darkvision",1), F("Light Sensitivity",1,null)],
+        ["Orc, lesser"]      = [T("Nightvision",0), T("Darkvision",1), F("Light Sensitivity",2,null)],
+        ["Orc, scrug"]       = [T("Nightvision",0), T("Darkvision",1), T("Increased Size",1), F("Light Sensitivity",2,null)],
+        ["Orc, vard"]        = [T("Nightvision",0), T("Darkvision",1), T("Ambidextrous",0)],
+        ["Plynos"]           = [T("Acute Smell",2), T("Hearing, Cat",0), F("Restricted Diet",0,null)],
+        ["Sea-kral"]         = [T("Nightvision",0), T("Extra Joints",0), F("Inept",2,"Swimming")],
+        ["Sibbicai"]         = [T("Acute Smell",3), T("Hearing, Dog",0), T("Natural Weaponry",0)],
+        ["Sohleugir"]        = [T("Natural Armor",3), T("Natural Weaponry",0), T("Sight, Gecko",0), T("Tetrachromatic Vision",0), T("Third Eyelid",0)],
+        ["Sstoi'isslythi"]   = [T("Heatsense",0), T("Natural Weaponry",0), T("Poison Injection",0), T("Strike Reflex",0)],
+        ["Troll"]            = [T("Nightvision",0), T("Darkvision",1), T("Natural Armor",3), T("Natural Weaponry",0),
+                                T("Elemental Resistance",3,"Heat"), T("Elemental Resistance",3,"Cold"),
+                                T("Increased Size",1), F("Light Sensitivity",2,null), F("Inept",5,"Influence")],
+        ["Vulfen"]           = [T("Acute Smell",2), T("Hearing, Dog",0), T("Natural Weaponry",0), T("Frenzy",0), F("Restricted Diet",0,null)],
+    };
+
+    static RacialTrait T(string name, int tier, string? restriction = null) =>
+        new(name, tier, false, restriction);
+    static RacialTrait F(string name, int tier, string? restriction) =>
+        new(name, tier, true, restriction);
+}
+
+public record RacialTrait(string Name, int Tier, bool IsFlaw, string? Restriction = null)
+{
+    public string Label => Tier > 0
+        ? $"{Name} {new[]{"","I","II","III","IV","V","VI","VII","VIII","IX","X"}[Math.Min(Tier,10)]}{(Restriction is not null ? $" ({Restriction})" : "")}"
+        : $"{Name}{(Restriction is not null ? $" ({Restriction})" : "")}";
 }
 
 public record RaceDef(

@@ -11,6 +11,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<Character> Characters => Set<Character>();
     public DbSet<CharacterStat> CharacterStats => Set<CharacterStat>();
     public DbSet<CharacterSkill> CharacterSkills => Set<CharacterSkill>();
+    public DbSet<CharacterTalent> CharacterTalents => Set<CharacterTalent>();
+    public DbSet<CharacterEquipmentItem> CharacterEquipmentItems => Set<CharacterEquipmentItem>();
     public DbSet<CharacterAuditLog> CharacterAuditLogs => Set<CharacterAuditLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -47,6 +49,22 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             .WithMany(c => c.Skills)
             .HasForeignKey(s => s.CharacterId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CharacterTalent>()
+            .HasOne(t => t.Character)
+            .WithMany(c => c.Talents)
+            .HasForeignKey(t => t.CharacterId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CharacterEquipmentItem>()
+            .HasOne(e => e.Character)
+            .WithMany(c => c.EquipmentItems)
+            .HasForeignKey(e => e.CharacterId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CharacterEquipmentItem>()
+            .HasIndex(e => new { e.CharacterId, e.Name })
+            .IsUnique();
 
         modelBuilder.Entity<CharacterAuditLog>()
             .HasOne(a => a.Character)

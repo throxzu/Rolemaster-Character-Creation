@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm:*)",
+      "Bash(python:*)",
+      "Bash(git:*)",
+      "Edit(*)",
+      "Read(*)",
+      "dotnet",
+      "PowerShell(Start-Process:*)",
+      "PowerShell(Get-Process:*)",
+      "PowerShell(Stop-Process:*)",
+      "Bash(dotnet ef*)",
+      "Bash(dotnet build*)"
+    ]
+  }
+}
