@@ -23,6 +23,7 @@
 @if (_char is null) { <p>Loading…</p> return; }
 @if (_accessDenied) { <div class="alert alert-danger">Access denied.</div> return; }
 
+<div class="qp-card">
 <div class="rm">
 
 <!-- ═══════════ PAGE 1 ═══════════ -->
@@ -788,6 +789,7 @@
 </table>
 
 </div><!-- .rm -->
+</div><!-- .qp-card -->
 
 @code {
     [Parameter] public int Id { get; set; }

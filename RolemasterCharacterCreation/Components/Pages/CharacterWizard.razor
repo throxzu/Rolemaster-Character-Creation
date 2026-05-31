@@ -28,22 +28,21 @@
 }
 
 <div class="container-fluid mt-3">
-    <div class="mb-4">
-        <div class="d-flex justify-content-between small mb-1">
-            @foreach (var (label, idx) in Steps.Select((l, i) => (l, i)))
-            {
-                <span class="@(idx == _step ? "fw-bold text-primary" : idx < _step ? "text-success" : "text-muted")">@label</span>
-            }
-        </div>
-        <div class="progress">
-            <div class="progress-bar" style="width:@((_step * 100) / (Steps.Length - 1))%"></div>
-        </div>
+    <div class="qp-tabs mb-3">
+        @foreach (var (label, idx) in Steps.Select((l, i) => (l, i)))
+        {
+            <span class="qp-tab @(idx == _step ? "active" : idx < _step ? "done" : "")">
+                @if (idx < _step) { <span style="color:var(--qp-green);margin-right:3px">✓</span> }
+                @label
+            </span>
+        }
     </div>
 
     @if (!string.IsNullOrEmpty(_error))
     {
         <div class="alert alert-danger">@_error</div>
     }
+    <div class="qp-panel">
     @switch (_step)
     {
         case 0: @StepConcept break;
@@ -53,6 +52,7 @@
         case 4: @StepTalents break;
         case 5: @StepEquipment break;
     }
+    </div>
 
     <div class="d-flex justify-content-between mt-4">
         <button class="btn btn-secondary" disabled="@(_step == 0)" @onclick="PrevStep">← Back</button>
@@ -575,10 +575,10 @@
                                         <td class="@(saBonus >= 0 ? "text-success" : "text-danger")">@(saBonus >= 0 ? "+" : "")@saBonus</td>
                                         <td>
                                             <div class="input-group input-group-sm">
-                                                <button class="btn btn-outline-secondary"
+                                                <button class="btn qp-btn-minus"
                                                         @onclick="() => AdjSpellRanks(sa, -1)">−</button>
                                                 <span class="form-control text-center">@sa.Ranks</span>
-                                                <button class="btn btn-outline-secondary"
+                                                <button class="btn qp-btn-plus"
                                                         disabled="@(sa.Ranks >= 2 || _dpBudget - _dpSpent < slCost.sls)"
                                                         @onclick="() => AdjSpellRanks(sa, 1)">+</button>
                                             </div>
@@ -675,10 +675,10 @@
                                         <td class="@(waBonus >= 0 ? "text-success" : "text-danger")">@(waBonus >= 0 ? "+" : "")@waBonus</td>
                                         <td>
                                             <div class="input-group input-group-sm">
-                                                <button class="btn btn-outline-secondary"
+                                                <button class="btn qp-btn-minus"
                                                         @onclick="() => AdjWeaponRanks(wa, -1)">−</button>
                                                 <span class="form-control text-center">@wa.Ranks</span>
-                                                <button class="btn btn-outline-secondary"
+                                                <button class="btn qp-btn-plus"
                                                         disabled="@(wa.Ranks >= 2 || _dpBudget - _dpSpent < waCost.ws)"
                                                         @onclick="() => AdjWeaponRanks(wa, 1)">+</button>
                                             </div>
@@ -752,11 +752,11 @@
                                     <td class="@(bonus >= 0 ? "text-success" : "text-danger")">@(bonus >= 0 ? "+" : "")@bonus</td>
                                     <td>
                                         <div class="input-group input-group-sm">
-                                            <button class="btn btn-outline-secondary"
+                                            <button class="btn qp-btn-minus"
                                                     disabled="@(purchased <= 0)"
                                                     @onclick="() => ChangeRanks(sk.Name, -1)">−</button>
                                             <span class="form-control text-center">@purchased</span>
-                                            <button class="btn btn-outline-secondary"
+                                            <button class="btn qp-btn-plus"
                                                     disabled="@((_dpBudget - _dpSpent < cost.first && purchased == 0) || (_dpBudget - _dpSpent < cost.second && purchased >= 1))"
                                                     @onclick="() => ChangeRanks(sk.Name, 1)">+</button>
                                         </div>
@@ -1155,9 +1155,9 @@
                                     <td class="text-end">@w.Cost</td>
                                     <td class="text-end">@w.WeightLbs</td>
                                     <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-secondary py-0 px-1" @onclick="() => AdjEquipQty(wName, -1)" disabled="@(wQty == 0)">−</button>
+                                        <button class="btn qp-btn-minus" @onclick="() => AdjEquipQty(wName, -1)" disabled="@(wQty == 0)">−</button>
                                         <span class="mx-1" style="min-width:1.2em;display:inline-block;text-align:center">@wQty</span>
-                                        <button class="btn btn-sm btn-outline-secondary py-0 px-1" @onclick="() => AdjEquipQty(wName, 1)">+</button>
+                                        <button class="btn qp-btn-plus" @onclick="() => AdjEquipQty(wName, 1)">+</button>
                                     </td>
                                     <td class="text-muted small">@w.Notes</td>
                                 </tr>
@@ -1192,9 +1192,9 @@
                                 <td class="text-end">@item.Cost</td>
                                 <td class="text-end">@(item.WeightLbs > 0 ? item.WeightLbs.ToString("G") : "—")</td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-outline-secondary py-0 px-1" @onclick="() => AdjEquipQty(gName, -1)" disabled="@(gQty == 0)">−</button>
+                                    <button class="btn qp-btn-minus" @onclick="() => AdjEquipQty(gName, -1)" disabled="@(gQty == 0)">−</button>
                                     <span class="mx-1" style="min-width:1.2em;display:inline-block;text-align:center">@gQty</span>
-                                    <button class="btn btn-sm btn-outline-secondary py-0 px-1" @onclick="() => AdjEquipQty(gName, 1)">+</button>
+                                    <button class="btn qp-btn-plus" @onclick="() => AdjEquipQty(gName, 1)">+</button>
                                 </td>
                                 <td class="text-muted small">@item.Notes</td>
                             </tr>

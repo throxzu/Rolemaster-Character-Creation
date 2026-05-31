@@ -9,13 +9,13 @@ main {
 }
 
 .sidebar {
-    background-color: #0d0d1a;
-    border-right: 1px solid #2a2a3e;
+    background-color: var(--qp-bg-card);
+    border-right: 1px solid var(--qp-border-card);
 }
 
 .top-row {
-    background-color: #111127;
-    border-bottom: 1px solid #2a2a3e;
+    background-color: var(--qp-bg-panel);
+    border-bottom: 1px solid var(--qp-border-panel);
     justify-content: flex-end;
     height: 3.5rem;
     display: flex;
