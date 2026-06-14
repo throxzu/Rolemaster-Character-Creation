@@ -1,20 +1,12 @@
 @inherits LayoutComponentBase
 
 <div class="page">
-    <div class="sidebar">
+    <header>
         <NavMenu />
-    </div>
+    </header>
 
     <main>
-        <div class="top-row px-4 d-flex justify-content-end align-items-center">
-            <AuthorizeView>
-                <Authorized>
-                    <small class="text-muted">@context.User.Identity?.Name</small>
-                </Authorized>
-            </AuthorizeView>
-        </div>
-
-        <article class="content px-4">
+        <article class="content px-4 py-3">
             @Body
         </article>
     </main>

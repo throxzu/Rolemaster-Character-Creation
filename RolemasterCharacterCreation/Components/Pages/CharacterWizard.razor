@@ -497,26 +497,35 @@
 
         @foreach (var cat in SkillRules.Categories)
         {
-            <div class="mb-3">
-                <h6 class="text-secondary">
+            <div class="skills-section">
+                <div class="qp-cat-header">
                     @cat.Name
                     @if (!cat.NoStats)
                     {
-                        <small class="ms-2 text-muted">(@cat.Stat1 + @cat.Stat2)</small>
+                        <span class="ms-2 text-muted">(@cat.Stat1 + @cat.Stat2)</span>
                     }
                     @if (cat.Name != "Spellcasting")
                     {
                         var catKey = ResolveCostKey(cat.Name);
                         (int f, int s) catCost = prof is not null && prof.Costs.TryGetValue(catKey, out var cc) ? cc : (99, 99);
-                        <small class="ms-2 badge bg-secondary">@catCost.f / @catCost.s DP</small>
+                        <span class="ms-2 badge bg-secondary">@catCost.f / @catCost.s DP</span>
                     }
                     else
                     {
-                        <small class="ms-2 badge bg-secondary">varies by list type</small>
+                        <span class="ms-2 badge bg-secondary">varies by list type</span>
                     }
-                </h6>
-                <table class="table table-sm table-hover">
-                    <thead><tr><th>Skill</th><th>Cultural</th><th>Purchased</th><th>Total</th><th>Bonus</th><th style="width:120px">Ranks</th></tr></thead>
+                </div>
+                <table class="table table-hover mb-0" style="table-layout:fixed">
+                    <thead>
+                        <tr>
+                            <th style="width:30%">Skill</th>
+                            <th class="text-center" style="width:14%">Cultural</th>
+                            <th class="text-center" style="width:14%">Bought</th>
+                            <th class="text-center" style="width:14%">Total</th>
+                            <th class="text-center" style="width:14%">Bonus</th>
+                            <th class="text-center" style="width:14%">Ranks</th>
+                        </tr>
+                    </thead>
                     <tbody>
                         @foreach (var sk in cat.Skills)
                         {
@@ -545,11 +554,11 @@
                                         @if (isPro)   { <span class="badge bg-primary ms-1">Pro</span> }
                                         @if (isKnack) { <span class="badge bg-warning text-dark ms-1">Knack</span> }
                                     </td>
-                                    <td class="text-muted">@cultural</td>
-                                    <td>@totalListRanks</td>
-                                    <td><strong>@(cultural + totalListRanks)</strong></td>
-                                    <td class="text-muted">—</td>
-                                    <td>
+                                    <td class="text-center text-muted">@cultural</td>
+                                    <td class="text-center">@totalListRanks</td>
+                                    <td class="text-center"><strong>@(cultural + totalListRanks)</strong></td>
+                                    <td class="text-center text-muted">—</td>
+                                    <td class="text-center">
                                         <button class="btn btn-sm btn-outline-primary"
                                                 @onclick="() => { _activeSpellAdd = _activeSpellAdd == sk.Name ? null : sk.Name; _spellAddName = string.Empty; _spellAddRanks = 1; }">
                                             @(_activeSpellAdd == sk.Name ? "Cancel" : "+ Add")
@@ -564,24 +573,22 @@
                                         + SkillRules.RankBonus(saTotal)
                                         + (isPro ? Math.Min(saTotal, 30) : 0)
                                         + (isKnack ? 5 : 0);
-                                    <tr class="table-light">
+                                    <tr class="qp-sub-row">
                                         <td class="ps-4">
                                             ↳ @sa.Specialization
                                             <small class="text-muted ms-1">@slCost.slf / @slCost.sls dp</small>
                                         </td>
-                                        <td class="text-muted">—</td>
-                                        <td>@sa.Ranks</td>
-                                        <td><strong>@saTotal</strong></td>
-                                        <td class="@(saBonus >= 0 ? "text-success" : "text-danger")">@(saBonus >= 0 ? "+" : "")@saBonus</td>
-                                        <td>
-                                            <div class="input-group input-group-sm">
-                                                <button class="btn qp-btn-minus"
-                                                        @onclick="() => AdjSpellRanks(sa, -1)">−</button>
-                                                <span class="form-control text-center">@sa.Ranks</span>
-                                                <button class="btn qp-btn-plus"
-                                                        disabled="@(sa.Ranks >= 2 || _dpBudget - _dpSpent < slCost.sls)"
-                                                        @onclick="() => AdjSpellRanks(sa, 1)">+</button>
-                                            </div>
+                                        <td class="text-center text-muted">—</td>
+                                        <td class="text-center">@sa.Ranks</td>
+                                        <td class="text-center"><strong>@saTotal</strong></td>
+                                        <td class="text-center @(saBonus >= 0 ? "text-success" : "text-danger")">@(saBonus >= 0 ? "+" : "")@saBonus</td>
+                                        <td class="text-center" style="white-space:nowrap">
+                                            <button class="btn qp-btn-minus"
+                                                    @onclick="() => AdjSpellRanks(sa, -1)">−</button>
+                                            <span class="mx-1" style="min-width:1.2em;display:inline-block;text-align:center">@sa.Ranks</span>
+                                            <button class="btn qp-btn-plus"
+                                                    disabled="@(sa.Ranks >= 2 || _dpBudget - _dpSpent < slCost.sls)"
+                                                    @onclick="() => AdjSpellRanks(sa, 1)">+</button>
                                         </td>
                                     </tr>
                                 }
@@ -641,11 +648,11 @@
                                         @if (isPro)   { <span class="badge bg-primary ms-1">Pro</span> }
                                         @if (isKnack) { <span class="badge bg-warning text-dark ms-1">Knack</span> }
                                     </td>
-                                    <td class="text-muted">@cultural</td>
-                                    <td>@weaponPurchased</td>
-                                    <td><strong>@weaponTotal</strong></td>
-                                    <td class="text-muted">—</td>
-                                    <td>
+                                    <td class="text-center text-muted">@cultural</td>
+                                    <td class="text-center">@weaponPurchased</td>
+                                    <td class="text-center"><strong>@weaponTotal</strong></td>
+                                    <td class="text-center text-muted">—</td>
+                                    <td class="text-center">
                                         <button class="btn btn-sm btn-outline-primary"
                                                 @onclick="() => { _activeWeaponAdd = _activeWeaponAdd == sk.Name ? null : sk.Name; _weaponAddSpec = string.Empty; _weaponAddRanks = 1; }">
                                             @(_activeWeaponAdd == sk.Name ? "Cancel" : "+ Add")
@@ -663,25 +670,23 @@
                                         + SkillRules.RankBonus(waTotal)
                                         + (isPro ? Math.Min(waTotal, 30) : 0)
                                         + (isKnack ? 5 : 0);
-                                    <tr class="table-light">
+                                    <tr class="qp-sub-row">
                                         <td class="ps-4">
                                             ↳ @wa.Specialization
                                             <span class="badge bg-secondary ms-1">slot @(waSlot + 1)</span>
                                             <small class="text-muted ms-1">@waCost.wf / @waCost.ws dp</small>
                                         </td>
-                                        <td class="text-muted">@(cultural > 0 ? cultural.ToString() : "—")</td>
-                                        <td>@wa.Ranks</td>
-                                        <td><strong>@waTotal</strong></td>
-                                        <td class="@(waBonus >= 0 ? "text-success" : "text-danger")">@(waBonus >= 0 ? "+" : "")@waBonus</td>
-                                        <td>
-                                            <div class="input-group input-group-sm">
-                                                <button class="btn qp-btn-minus"
-                                                        @onclick="() => AdjWeaponRanks(wa, -1)">−</button>
-                                                <span class="form-control text-center">@wa.Ranks</span>
-                                                <button class="btn qp-btn-plus"
-                                                        disabled="@(wa.Ranks >= 2 || _dpBudget - _dpSpent < waCost.ws)"
-                                                        @onclick="() => AdjWeaponRanks(wa, 1)">+</button>
-                                            </div>
+                                        <td class="text-center text-muted">@(cultural > 0 ? cultural.ToString() : "—")</td>
+                                        <td class="text-center">@wa.Ranks</td>
+                                        <td class="text-center"><strong>@waTotal</strong></td>
+                                        <td class="text-center @(waBonus >= 0 ? "text-success" : "text-danger")">@(waBonus >= 0 ? "+" : "")@waBonus</td>
+                                        <td class="text-center" style="white-space:nowrap">
+                                            <button class="btn qp-btn-minus"
+                                                    @onclick="() => AdjWeaponRanks(wa, -1)">−</button>
+                                            <span class="mx-1" style="min-width:1.2em;display:inline-block;text-align:center">@wa.Ranks</span>
+                                            <button class="btn qp-btn-plus"
+                                                    disabled="@(wa.Ranks >= 2 || _dpBudget - _dpSpent < waCost.ws)"
+                                                    @onclick="() => AdjWeaponRanks(wa, 1)">+</button>
                                         </td>
                                     </tr>
                                 }
@@ -746,20 +751,18 @@
                                             <small class="ms-1 text-muted">(@cost.first/@cost.second DP)</small>
                                         }
                                     </td>
-                                    <td class="text-muted">@cultural</td>
-                                    <td>@purchased</td>
-                                    <td><strong>@total</strong></td>
-                                    <td class="@(bonus >= 0 ? "text-success" : "text-danger")">@(bonus >= 0 ? "+" : "")@bonus</td>
-                                    <td>
-                                        <div class="input-group input-group-sm">
-                                            <button class="btn qp-btn-minus"
-                                                    disabled="@(purchased <= 0)"
-                                                    @onclick="() => ChangeRanks(sk.Name, -1)">−</button>
-                                            <span class="form-control text-center">@purchased</span>
-                                            <button class="btn qp-btn-plus"
-                                                    disabled="@((_dpBudget - _dpSpent < cost.first && purchased == 0) || (_dpBudget - _dpSpent < cost.second && purchased >= 1))"
-                                                    @onclick="() => ChangeRanks(sk.Name, 1)">+</button>
-                                        </div>
+                                    <td class="text-center text-muted">@cultural</td>
+                                    <td class="text-center">@purchased</td>
+                                    <td class="text-center"><strong>@total</strong></td>
+                                    <td class="text-center @(bonus >= 0 ? "text-success" : "text-danger")">@(bonus >= 0 ? "+" : "")@bonus</td>
+                                    <td class="text-center" style="white-space:nowrap">
+                                        <button class="btn qp-btn-minus"
+                                                disabled="@(purchased <= 0)"
+                                                @onclick="() => ChangeRanks(sk.Name, -1)">−</button>
+                                        <span class="mx-1" style="min-width:1.2em;display:inline-block;text-align:center">@purchased</span>
+                                        <button class="btn qp-btn-plus"
+                                                disabled="@((_dpBudget - _dpSpent < cost.first && purchased == 0) || (_dpBudget - _dpSpent < cost.second && purchased >= 1))"
+                                                @onclick="() => ChangeRanks(sk.Name, 1)">+</button>
                                     </td>
                                 </tr>
                             }

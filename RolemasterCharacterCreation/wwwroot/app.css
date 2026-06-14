@@ -14,6 +14,9 @@
   --qp-teal:         #00e5cc;
   --qp-blue:         #4f6ef7;
   --qp-blue-link:    #7c9fff;
+  --qp-purple:       #7c3aed;
+  --qp-purple-dark:  #3b1a7a;
+  --qp-purple-light: #a78bfa;
   --qp-red:          #e05555;
   --qp-font:         'Inter', system-ui, -apple-system, sans-serif;
   --qp-radius-card:  16px;
@@ -32,30 +35,113 @@ a, .btn-link {
     color: var(--qp-blue-link);
 }
 
-/* ── Buttons ───────────────────────────────────────────────── */
+/* ── Buttons — global pill shape ───────────────────────────── */
+.btn {
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    padding: 0.35rem 1.1rem;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
+    letter-spacing: 0.01em;
+}
+.btn-sm {
+    border-radius: 16px;
+    padding: 0.2rem 0.75rem;
+    font-size: 0.8rem;
+}
+.btn-lg {
+    border-radius: 24px;
+    padding: 0.5rem 1.5rem;
+}
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus,
+.form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem var(--qp-bg-outer), 0 0 0 0.25rem var(--qp-purple);
+}
+
+/* Primary — QP purple (matches "Sign up") */
 .btn-primary {
+    background-color: var(--qp-purple);
+    border-color: var(--qp-purple);
     color: #fff;
-    background-color: var(--qp-blue);
-    border-color: #3a5ae8;
 }
-.btn-primary:hover {
-    background-color: #3a5ae8;
-    border-color: #2e4fd4;
+.btn-primary:hover { background-color: #6d28d9; border-color: #6d28d9; color: #fff; }
+.btn-primary:disabled { opacity: 0.45; }
+
+/* Outline-primary — purple ghost */
+.btn-outline-primary {
+    border-color: var(--qp-purple);
+    color: var(--qp-purple-light);
+    background: transparent;
 }
+.btn-outline-primary:hover {
+    background-color: rgba(124,58,237,0.15);
+    border-color: var(--qp-purple);
+    color: var(--qp-purple-light);
+}
+
+/* Secondary — dark neutral */
+.btn-secondary {
+    background-color: var(--qp-bg-panel-alt);
+    border-color: var(--qp-border-panel);
+    color: var(--qp-text-primary);
+}
+.btn-secondary:hover { background-color: #373752; border-color: var(--qp-border-panel); color: var(--qp-text-primary); }
+
+/* Outline-secondary — ghost neutral */
+.btn-outline-secondary {
+    border-color: var(--qp-border-panel);
+    color: var(--qp-text-label);
+    background: transparent;
+}
+.btn-outline-secondary:hover { background-color: var(--qp-bg-panel); border-color: var(--qp-border-panel); color: var(--qp-text-primary); }
+
+/* Success — QP green */
 .btn-success {
     background-color: var(--qp-green);
     border-color: var(--qp-green);
     color: #0d1a0d;
 }
-.btn-success:hover {
-    background-color: #2bbf78;
-    border-color: #2bbf78;
-    color: #0d1a0d;
+.btn-success:hover { background-color: #2bbf78; border-color: #2bbf78; color: #0d1a0d; }
+
+/* Outline-success — green ghost */
+.btn-outline-success {
+    border-color: var(--qp-green-dark);
+    color: var(--qp-green);
+    background: transparent;
 }
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus,
-.form-control:focus, .form-check-input:focus {
-    box-shadow: 0 0 0 0.1rem var(--qp-bg-outer), 0 0 0 0.25rem var(--qp-blue);
+.btn-outline-success:hover { background-color: rgba(61,214,140,0.12); border-color: var(--qp-green); color: var(--qp-green); }
+
+/* Danger — QP red */
+.btn-danger {
+    background-color: var(--qp-red);
+    border-color: var(--qp-red);
+    color: #fff;
 }
+.btn-danger:hover { background-color: #c04444; border-color: #c04444; color: #fff; }
+
+/* Outline-danger — red ghost */
+.btn-outline-danger {
+    border-color: var(--qp-red);
+    color: var(--qp-red);
+    background: transparent;
+}
+.btn-outline-danger:hover { background-color: rgba(224,85,85,0.12); border-color: var(--qp-red); color: var(--qp-red); }
+
+/* Warning — amber */
+.btn-warning {
+    background-color: #b07000;
+    border-color: #b07000;
+    color: #f0c040;
+}
+.btn-warning:hover { background-color: #c07800; border-color: #c07800; color: #f0c040; }
+
+/* Outline-warning — amber ghost */
+.btn-outline-warning {
+    border-color: #a07800;
+    color: #f0c040;
+    background: transparent;
+}
+.btn-outline-warning:hover { background-color: rgba(255,193,7,0.10); border-color: #c09000; color: #f0c040; }
 
 /* ── QP Card (outer sheet wrapper) ────────────────────────── */
 .qp-card {
@@ -184,6 +270,15 @@ a, .btn-link {
     margin-bottom: 8px;
 }
 
+/* ── Bootstrap dark-mode variable harmonisation ────────────── */
+[data-bs-theme="dark"] {
+    --bs-body-bg:          var(--qp-bg-outer);
+    --bs-body-color:       var(--qp-text-primary);
+    --bs-secondary-color:  var(--qp-text-label);
+    --bs-border-color:     var(--qp-border-panel);
+    --bs-secondary-bg:     var(--qp-bg-panel-alt);
+}
+
 /* ── Bootstrap Overrides ───────────────────────────────────── */
 .card {
     background-color: var(--qp-bg-panel);
@@ -195,13 +290,31 @@ a, .btn-link {
     color: var(--qp-text-primary);
 }
 .table {
-    --bs-table-color: var(--qp-text-primary);
-    --bs-table-bg: transparent;
+    --bs-table-color:       var(--qp-text-primary);
+    --bs-table-bg:          var(--qp-bg-panel);
     --bs-table-border-color: var(--qp-border-panel);
+    --bs-table-hover-color: var(--qp-text-primary);
+    --bs-table-hover-bg:    rgba(61,214,140,0.05);
+    --bs-table-striped-bg:  var(--qp-bg-panel-alt);
+    --bs-table-active-bg:   rgba(0,229,204,0.07);
 }
-.table-hover > tbody > tr:hover > * {
-    --bs-table-accent-bg: rgba(61,214,140,0.05);
+
+/* Skills page category section headers */
+.qp-cat-header {
+    color: var(--qp-text-label);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 0.75rem 0 0.35rem;
+    border-bottom: 1px solid var(--qp-border-panel);
+    margin-bottom: 0.5rem;
 }
+.qp-cat-header .badge { font-size: 0.7rem; }
+
+/* Skills table section gap */
+.skills-section { margin-bottom: 1.75rem; }
+.skills-section .table { --bs-table-border-color: rgba(255,255,255,0.06); }
 .badge.bg-secondary {
     background-color: var(--qp-border-panel) !important;
     color: var(--qp-text-label);
@@ -239,6 +352,9 @@ a, .btn-link {
     border-radius: 3px;
 }
 .progress-bar { background-color: var(--qp-green); }
+
+/* ── Skills table sub-rows (spell/weapon allocations) ─────── */
+.qp-sub-row td { background: var(--qp-bg-panel) !important; color: var(--qp-text-label); }
 
 /* ── Misc retained rules ───────────────────────────────────── */
 .content { padding-top: 1.1rem; }
