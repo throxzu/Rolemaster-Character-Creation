@@ -55,8 +55,9 @@ npm-debug.log*
 ## dotnet secrets
 **/secrets.json
 
-## appsettings with connection strings — keep Development version out of repo
+## appsettings with connection strings — keep environment-specific files out of repo
 appsettings.Development.json
+appsettings.Production.json
 
 ## EF Core migration bundles
 efbundle

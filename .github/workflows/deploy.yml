@@ -1,0 +1,65 @@
+name: Build and Deploy to Windows Production
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+env:
+  APP_POOL: RolemasterCharacterCreation
+  SITE_PATH: C:\inetpub\wwwroot\RolemasterCharacterCreation
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Publish
+        run: |
+          dotnet publish RolemasterCharacterCreation/RolemasterCharacterCreation.csproj `
+            --configuration Release `
+            --output ./publish
+
+      - name: Setup SSH Key
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.ssh"
+
+          $env:SSH_KEY = @"
+          ${{ secrets.PROD_SSH_KEY }}
+          "@
+          Set-Content -Path "$env:USERPROFILE\.ssh\id_rsa" -Value $env:SSH_KEY -Force
+
+          icacls "$env:USERPROFILE\.ssh\id_rsa" /inheritance:r /grant:r "Network Service:(F)"
+
+      - name: Stop App Pool
+        shell: powershell
+        run: |
+          $remoteUser = "${{ secrets.PROD_USERNAME }}"
+          $remoteHost = "${{ secrets.PROD_HOST }}"
+          ssh -o StrictHostKeyChecking=no -i "$env:USERPROFILE\.ssh\id_rsa" "${remoteUser}@${remoteHost}" `
+            "C:\Windows\System32\inetsrv\appcmd.exe stop apppool /apppool.name:$env:APP_POOL"
+
+      - name: Deploy files via SCP
+        shell: powershell
+        run: |
+          $remoteUser = "${{ secrets.PROD_USERNAME }}"
+          $remoteHost = "${{ secrets.PROD_HOST }}"
+          scp -r -o StrictHostKeyChecking=no -i "$env:USERPROFILE\.ssh\id_rsa" publish\* "${remoteUser}@${remoteHost}:$env:SITE_PATH"
+
+      - name: Start App Pool
+        shell: powershell
+        run: |
+          $remoteUser = "${{ secrets.PROD_USERNAME }}"
+          $remoteHost = "${{ secrets.PROD_HOST }}"
+          ssh -o StrictHostKeyChecking=no -i "$env:USERPROFILE\.ssh\id_rsa" "${remoteUser}@${remoteHost}" `
+            "C:\Windows\System32\inetsrv\appcmd.exe start apppool /apppool.name:$env:APP_POOL"

@@ -36,7 +36,8 @@ builder.Services.AddRazorComponents()
 
 var app = builder.Build();
 
-// Seed roles and GM account on startup.
+// Apply pending EF migrations and seed on every startup.
+await MigrateAsync(app.Services);
 await SeedAsync(app.Services);
 
 // Configure the HTTP request pipeline.
@@ -62,6 +63,13 @@ app.MapRazorComponents<App>()
     .AddAdditionalAssemblies(typeof(RolemasterCharacterCreation.Client._Imports).Assembly);
 
 app.Run();
+
+static async Task MigrateAsync(IServiceProvider services)
+{
+    await using var scope = services.CreateAsyncScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await db.Database.MigrateAsync();
+}
 
 static async Task SeedAsync(IServiceProvider services)
 {
