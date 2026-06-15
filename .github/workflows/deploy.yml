@@ -57,4 +57,11 @@ jobs:
           $remoteUser = "${{ secrets.PROD_USERNAME }}"
           $remoteHost = "${{ secrets.PROD_HOST }}"
           ssh -o StrictHostKeyChecking=no -i "$env:USERPROFILE\.ssh\id_rsa" "${remoteUser}@${remoteHost}" `
-            "C:\Windows\System32\inetsrv\appcmd.exe start apppool /apppool.name:$env:APP_POOL"
+            "C:\Windows\System32\inetsrv\appcmd.exe start apppool /apppool.name:$env:APP_POOL_RCC"
+
+
+
+
+
+
+
