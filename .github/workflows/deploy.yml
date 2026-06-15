@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
 
 env:
-  APP_POOL: RolemasterCharacterCreation
-  SITE_PATH: C:\inetpub\wwwroot\RolemasterCharacterCreation
-
+  APP_POOL: Rolemaster
+  SITE_PATH: C:\inetpub\Rolemaster
+  
 jobs:
   build-and-deploy:
     runs-on: self-hosted
@@ -42,7 +42,7 @@ jobs:
           $remoteUser = "${{ secrets.PROD_USERNAME }}"
           $remoteHost = "${{ secrets.PROD_HOST }}"
           ssh -o StrictHostKeyChecking=no -i "$env:USERPROFILE\.ssh\id_rsa" "${remoteUser}@${remoteHost}" `
-            "C:\Windows\System32\inetsrv\appcmd.exe stop apppool /apppool.name:Rolemaster"
+            "C:\Windows\System32\inetsrv\appcmd.exe stop apppool /apppool.name:$env:APP_POOL"
 
       - name: Deploy files via SCP
         shell: powershell
@@ -57,7 +57,7 @@ jobs:
           $remoteUser = "${{ secrets.PROD_USERNAME }}"
           $remoteHost = "${{ secrets.PROD_HOST }}"
           ssh -o StrictHostKeyChecking=no -i "$env:USERPROFILE\.ssh\id_rsa" "${remoteUser}@${remoteHost}" `
-            "C:\Windows\System32\inetsrv\appcmd.exe start apppool /apppool.name:Rolemaster"
+            "C:\Windows\System32\inetsrv\appcmd.exe start apppool /apppool.name:$env:APP_POOL"
 
 
 
