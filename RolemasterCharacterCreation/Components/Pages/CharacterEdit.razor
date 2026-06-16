@@ -76,7 +76,14 @@ else
                 </div>
                 <div class="col-md-1">
                     <label class="form-label">Level</label>
-                    <InputNumber @bind-Value="_character.Level" class="form-control" min="1" />
+                    @if (_isGm)
+                    {
+                        <InputNumber @bind-Value="_character.Level" class="form-control" min="1" />
+                    }
+                    else
+                    {
+                        <input class="form-control" value="@_character.Level" disabled />
+                    }
                 </div>
             </div>
 

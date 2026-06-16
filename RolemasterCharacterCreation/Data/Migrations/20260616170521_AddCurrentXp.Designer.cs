@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RolemasterCharacterCreation.Data;
 
@@ -11,9 +12,11 @@ using RolemasterCharacterCreation.Data;
 namespace RolemasterCharacterCreation.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260616170521_AddCurrentXp")]
+    partial class AddCurrentXp
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -273,9 +276,6 @@ namespace RolemasterCharacterCreation.Data.Migrations
                     b.Property<int>("Level")
                         .HasColumnType("int");
 
-                    b.Property<string>("LevelUpBaselineJson")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -297,9 +297,6 @@ namespace RolemasterCharacterCreation.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ShieldType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StatBaselineJson")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")

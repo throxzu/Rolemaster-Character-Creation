@@ -9,6 +9,7 @@ public class Character
     public string? Profession { get; set; }
     public string? Realm { get; set; }
     public int Level { get; set; } = 1;
+    public int CurrentXp { get; set; } = 0;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public string? UserId { get; set; }
@@ -34,6 +35,11 @@ public class Character
 
     // Comma-separated chosen professional skill names (10 pro + 2 knacks = 12 entries prefixed "PRO:" or "KNA:")
     public string? ProfessionalSkillData { get; set; }
+
+    // Frozen snapshots set when Level Up is clicked; cleared when wizard finishes.
+    // Prevents gaming DP budget or stat gains by restarting the wizard mid-level-up.
+    public string? LevelUpBaselineJson { get; set; }
+    public string? StatBaselineJson    { get; set; }
 
     public List<CharacterStat> Stats { get; set; } = [];
     public List<CharacterSkill> Skills { get; set; } = [];

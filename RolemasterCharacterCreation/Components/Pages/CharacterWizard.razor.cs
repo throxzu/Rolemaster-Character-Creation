@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +22,7 @@ public partial class CharacterWizard
     }
 
     static readonly string[] Steps = ["Concept", "Stats", "Prof. Skills", "Skills", "Talents", "Equipment"];
+    static readonly (int Index, string Label)[] LevelUpSteps = [(1, "Stat Gains"), (3, "Skills"), (4, "Talents")];
 
     // ── Height / weight ranges per race ──────────────────────────────────────
     // HMin in cm, WMin in kg. Step sizes are determined by race size:
@@ -103,6 +105,22 @@ public partial class CharacterWizard
     int _step;
     string? _error;
 
+    // ── Level-up mode ────────────────────────────────────────────────────────
+    bool _isLevelUp;
+    Dictionary<string, int> _baselinePurchased = new();
+    Dictionary<(string Skill, string Spec), int> _baselineWeaponAllocs = new();
+    Dictionary<(string Skill, string Spec), int> _baselineSpellAllocs = new();
+    HashSet<int> _baselineTalentIds = new();
+    // Stat gain rolls: stat → (roll result, did it succeed)
+    Dictionary<StatName, (int Roll, bool Gained)> _statGainRolls = new();
+    // Baseline stat values so re-rolls don't stack
+    Dictionary<StatName, (int Temp, int Potential)> _statBaseline = new();
+    // Manual roll inputs: stat → text input value
+    Dictionary<StatName, string> _manualRollInputs = new();
+
+    // Used for deserializing the frozen skill-rank snapshot stored in Character.LevelUpBaselineJson
+    record SkillSnap(string SkillName, string? Specialization, string Category, int PurchasedRanks);
+
     // ── Step 0: pool allocation state ────────────────────────────────────────
     record PoolEntry(string SkillName, string? Specialization, int Ranks);
     Dictionary<string, List<PoolEntry>> _poolAllocs = new();
@@ -140,9 +158,18 @@ public partial class CharacterWizard
     string _spellAddName = "";
     int _spellAddRanks = 1;
 
+    // generic specialized skill purchases (Language: Elvish, Administration: Officer, etc.)
+    record GenericAlloc(string SkillName, string Specialization, int Ranks);
+    List<GenericAlloc> _genericAllocs = new();
+    Dictionary<(string Skill, string Spec), int> _baselineGenericAllocs = new();
+    string _genericAddSkill = "";
+    string _genericAddSpec  = "";
+
     int _dpBudget;
     int _dpSpent        => CalcDpSpent();
-    int _talentDpSpent  => _char?.Talents.Sum(t => TalentRules.TierCost(t.TalentName, t.Tier)) ?? 0;
+    int _talentDpSpent  => _isLevelUp
+        ? (_char?.Talents.Where(t => !_baselineTalentIds.Contains(t.Id)).Sum(t => TalentRules.TierCost(t.TalentName, t.Tier)) ?? 0)
+        : (_char?.Talents.Sum(t => TalentRules.TierCost(t.TalentName, t.Tier)) ?? 0);
     int _dpRemaining    => _dpBudget - _dpSpent - _talentDpSpent;
 
     // ── Step 4: talent selection state ───────────────────────────────────────
@@ -150,7 +177,6 @@ public partial class CharacterWizard
     int    _talentTier        = 1;
     string _talentRestriction = "";
     string _talentCategory    = "All";
-    bool   _addingTalent;
 
     // ── Step 5: equipment item quantities (item name → qty) ───────────────────
     Dictionary<string, int> _equipQty = new();
@@ -180,9 +206,70 @@ public partial class CharacterWizard
         LoadPurchasedState();
         LoadWeaponAllocsState();
         LoadSpellAllocsState();
+        LoadGenericAllocsState();
         LoadPoolAllocsState();
         LoadEquipmentState();
         EnsureStats();
+
+        _isLevelUp = _char.Level > 1;
+        if (_isLevelUp)
+        {
+            // Ensure we're on a valid level-up step; any other step falls back to Stat Gains
+            if (!LevelUpSteps.Any(s => s.Index == _step))
+            {
+                _step = 1;
+                _char.WizardStep = 1;
+            }
+
+            // Skill baselines — use the frozen snapshot set when Level Up was clicked.
+            // This prevents a player from restarting the wizard to get a fresh DP budget.
+            var jsonOpts = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            if (!string.IsNullOrEmpty(_char.LevelUpBaselineJson))
+            {
+                var snaps = JsonSerializer.Deserialize<List<SkillSnap>>(_char.LevelUpBaselineJson, jsonOpts) ?? [];
+                _baselinePurchased = snaps
+                    .Where(s => s.Specialization == null
+                             && !WeaponRules.BySkill.ContainsKey(s.SkillName)
+                             && s.Category != "Spellcasting")
+                    .ToDictionary(s => s.SkillName, s => s.PurchasedRanks);
+                _baselineWeaponAllocs = snaps
+                    .Where(s => s.Specialization != null && WeaponRules.BySkill.ContainsKey(s.SkillName))
+                    .ToDictionary(s => (s.SkillName, s.Specialization!), s => s.PurchasedRanks);
+                _baselineSpellAllocs = snaps
+                    .Where(s => s.Specialization != null && s.Category == "Spellcasting")
+                    .ToDictionary(s => (s.SkillName, s.Specialization!), s => s.PurchasedRanks);
+                _baselineGenericAllocs = snaps
+                    .Where(s => s.Specialization != null && IsGenericSpecialized(s.SkillName))
+                    .ToDictionary(s => (s.SkillName, s.Specialization!), s => s.PurchasedRanks);
+            }
+            else
+            {
+                // Fallback for characters that levelled up before snapshot support was added
+                _baselinePurchased = _char.Skills
+                    .Where(s => !(WeaponRules.BySkill.ContainsKey(s.SkillName) && s.Specialization != null)
+                             && !(s.Category == "Spellcasting" && s.Specialization != null))
+                    .GroupBy(s => s.SkillName)
+                    .ToDictionary(g => g.Key, g => g.Sum(s => s.PurchasedRanks));
+                _baselineWeaponAllocs  = _weaponAllocs.ToDictionary(w => (w.SkillName, w.Specialization), w => w.Ranks);
+                _baselineSpellAllocs   = _spellAllocs.ToDictionary(s => (s.SkillName, s.Specialization), s => s.Ranks);
+                _baselineGenericAllocs = _genericAllocs.ToDictionary(g => (g.SkillName, g.Specialization), g => g.Ranks);
+            }
+
+            _baselineTalentIds = _char.Talents.Select(t => t.Id).ToHashSet();
+
+            // Stat baseline — use frozen snapshot so stat gains can't be re-rolled after restart
+            if (!string.IsNullOrEmpty(_char.StatBaselineJson))
+            {
+                var statSnaps = JsonSerializer.Deserialize<Dictionary<string, int[]>>(_char.StatBaselineJson, jsonOpts) ?? new();
+                _statBaseline = statSnaps
+                    .Where(kvp => Enum.TryParse<StatName>(kvp.Key, out _) && kvp.Value.Length >= 2)
+                    .ToDictionary(kvp => Enum.Parse<StatName>(kvp.Key), kvp => (kvp.Value[0], kvp.Value[1]));
+            }
+            else
+            {
+                _statBaseline = _char.Stats.ToDictionary(s => s.Stat, s => (s.Temporary, s.Potential));
+            }
+        }
     }
 
     void EnsureStats()
@@ -214,9 +301,23 @@ public partial class CharacterWizard
             if (WeaponRules.BySkill.ContainsKey(sk.SkillName) && sk.Specialization is not null) continue;
             // Spell list specializations are tracked in _spellAllocs, not _purchased
             if (sk.Category == "Spellcasting" && sk.Specialization is not null) continue;
+            // Generic specialized skills (Language, Lore, Vocation, etc.) tracked in _genericAllocs
+            if (sk.Specialization is not null && IsGenericSpecialized(sk.SkillName)) continue;
             if (!_purchased.ContainsKey(sk.Category))
                 _purchased[sk.Category] = new();
             _purchased[sk.Category][sk.SkillName] = sk.PurchasedRanks;
+        }
+    }
+
+    void LoadGenericAllocsState()
+    {
+        _genericAllocs.Clear();
+        foreach (var sk in _char!.Skills
+            .Where(s => s.Specialization is not null
+                     && IsGenericSpecialized(s.SkillName)
+                     && s.PurchasedRanks > 0))
+        {
+            _genericAllocs.Add(new GenericAlloc(sk.SkillName, sk.Specialization!, sk.PurchasedRanks));
         }
     }
 
@@ -269,7 +370,7 @@ public partial class CharacterWizard
         _error = null;
         if (!ValidateStep(_step)) return;
         await SaveStepAsync();
-        _step++;
+        _step = _isLevelUp ? NextLevelUpStep(_step) : _step + 1;
         _char!.WizardStep = _step;
         await Db.SaveChangesAsync();
     }
@@ -277,7 +378,16 @@ public partial class CharacterWizard
     async Task PrevStep()
     {
         _error = null;
-        _step--;
+        if (_isLevelUp)
+        {
+            int prev = PrevLevelUpStep(_step);
+            if (prev < 0) { Nav.NavigateTo($"/character/{Id}/sheet"); return; }
+            _step = prev;
+        }
+        else
+        {
+            _step--;
+        }
         _char!.WizardStep = _step;
         await Db.SaveChangesAsync();
     }
@@ -287,8 +397,18 @@ public partial class CharacterWizard
         _error = null;
         if (!ValidateStep(_step)) return;
         await SaveStepAsync();
+        if (_isLevelUp)
+        {
+            _char!.WizardStep = 1;           // ready for next level-up
+            _char.LevelUpBaselineJson = null; // clear frozen snapshots
+            _char.StatBaselineJson    = null;
+        }
+        await Db.SaveChangesAsync();
         Nav.NavigateTo($"/character/{Id}/sheet");
     }
+
+    static int NextLevelUpStep(int s) => s switch { 1 => 3, 3 => 4, _ => 99 };
+    static int PrevLevelUpStep(int s) => s switch { 1 => -1, 3 => 1, _ => 3 };
 
     bool ValidateStep(int step) => step switch
     {
@@ -355,14 +475,18 @@ public partial class CharacterWizard
 
     async Task SaveStatsAsync()
     {
-        foreach (var st in _char!.Stats)
+        if (!_isLevelUp)
         {
-            if (_rolls.TryGetValue(st.Stat, out var r))
+            foreach (var st in _char!.Stats)
             {
-                st.Temporary = r.Temp;
-                st.Potential = r.Potential;
+                if (_rolls.TryGetValue(st.Stat, out var r))
+                {
+                    st.Temporary = r.Temp;
+                    st.Potential = r.Potential;
+                }
             }
         }
+        // For level-up, stat objects were already mutated in-place by RollStatGain.
         await Db.SaveChangesAsync();
     }
 
@@ -443,6 +567,38 @@ public partial class CharacterWizard
             existing.PurchasedRanks = sa.Ranks;
         }
 
+        // Generic specialized skill allocs — first remove any zero-rank orphans left from prior sessions
+        var orphanedGeneric = _char!.Skills
+            .Where(s => s.Specialization != null
+                     && IsGenericSpecialized(s.SkillName)
+                     && s.PurchasedRanks == 0
+                     && s.CulturalRanks == 0)
+            .ToList();
+        foreach (var orphan in orphanedGeneric)
+        {
+            _char.Skills.Remove(orphan);
+            Db.CharacterSkills.Remove(orphan);
+        }
+
+        foreach (var ga in _genericAllocs)
+        {
+            if (ga.Ranks == 0) continue; // never persist zero-rank allocs
+            var cat = SkillRules.CategoryOf(ga.SkillName)?.Name ?? "";
+            var existing = _char.Skills.FirstOrDefault(s =>
+                s.SkillName == ga.SkillName && s.Specialization == ga.Specialization);
+            if (existing is null)
+            {
+                existing = new CharacterSkill
+                {
+                    CharacterId = _char.Id, Category = cat,
+                    SkillName = ga.SkillName, Specialization = ga.Specialization
+                };
+                _char.Skills.Add(existing);
+                Db.CharacterSkills.Add(existing);
+            }
+            existing.PurchasedRanks = ga.Ranks;
+        }
+
         await Db.SaveChangesAsync();
     }
 
@@ -463,10 +619,15 @@ public partial class CharacterWizard
             {
                 if (ranks <= 0) continue;
                 if (WeaponRules.BySkill.ContainsKey(skillName)) continue; // handled separately
+                // Level-up: only count ranks added this session
+                int countable = _isLevelUp
+                    ? Math.Max(0, ranks - _baselinePurchased.GetValueOrDefault(skillName, 0))
+                    : ranks;
+                if (countable <= 0) continue;
                 var costKey = ResolveCostKey(catName, skillName);
                 if (!prof.Costs.TryGetValue(costKey, out var costs)) continue;
                 total += costs.First;
-                if (ranks >= 2) total += costs.Second;
+                if (countable >= 2) total += costs.Second;
             }
         }
 
@@ -475,24 +636,68 @@ public partial class CharacterWizard
         {
             var wa = _weaponAllocs[i];
             if (wa.Ranks <= 0) continue;
+            int countable = _isLevelUp
+                ? Math.Max(0, wa.Ranks - _baselineWeaponAllocs.GetValueOrDefault((wa.SkillName, wa.Specialization), 0))
+                : wa.Ranks;
+            if (countable <= 0) continue;
             var costKey = WeaponRules.CostKeyForSlot(i);
             if (!prof.Costs.TryGetValue(costKey, out var wc)) continue;
             total += wc.First;
-            if (wa.Ranks >= 2) total += wc.Second;
+            if (countable >= 2) total += wc.Second;
         }
 
         // Spell list allocs
         foreach (var sa in _spellAllocs)
         {
             if (sa.Ranks <= 0) continue;
+            int countable = _isLevelUp
+                ? Math.Max(0, sa.Ranks - _baselineSpellAllocs.GetValueOrDefault((sa.SkillName, sa.Specialization), 0))
+                : sa.Ranks;
+            if (countable <= 0) continue;
             var costKey = ResolveSpellCostKey(sa.SkillName);
             if (!prof.Costs.TryGetValue(costKey, out var sc)) continue;
             total += sc.First;
-            if (sa.Ranks >= 2) total += sc.Second;
+            if (countable >= 2) total += sc.Second;
+        }
+
+        // Generic specialized skill allocs (Language: X, Administration: Y, etc.)
+        foreach (var ga in _genericAllocs)
+        {
+            if (ga.Ranks <= 0) continue;
+            int countable = _isLevelUp
+                ? Math.Max(0, ga.Ranks - _baselineGenericAllocs.GetValueOrDefault((ga.SkillName, ga.Specialization), 0))
+                : ga.Ranks;
+            if (countable <= 0) continue;
+            var gaCat = SkillRules.CategoryOf(ga.SkillName)?.Name ?? "";
+            var gaCostKey = ResolveCostKey(gaCat, ga.SkillName);
+            if (!prof.Costs.TryGetValue(gaCostKey, out var gc)) continue;
+            total += gc.First;
+            if (countable >= 2) total += gc.Second;
         }
 
         return total;
     }
+
+    // Ranks added during this wizard session (for level-up rank limit and DP cost tracking).
+    int NewRanksThisLevel(string skillName) => _isLevelUp
+        ? Math.Max(0, GetPurchased(skillName) - _baselinePurchased.GetValueOrDefault(skillName, 0))
+        : GetPurchased(skillName);
+
+    int NewWeaponRanksThisLevel(WeaponAlloc wa) => _isLevelUp
+        ? Math.Max(0, wa.Ranks - _baselineWeaponAllocs.GetValueOrDefault((wa.SkillName, wa.Specialization), 0))
+        : wa.Ranks;
+
+    int NewSpellRanksThisLevel(SpellAlloc sa) => _isLevelUp
+        ? Math.Max(0, sa.Ranks - _baselineSpellAllocs.GetValueOrDefault((sa.SkillName, sa.Specialization), 0))
+        : sa.Ranks;
+
+    int NewGenericRanksThisLevel(GenericAlloc ga) => _isLevelUp
+        ? Math.Max(0, ga.Ranks - _baselineGenericAllocs.GetValueOrDefault((ga.SkillName, ga.Specialization), 0))
+        : ga.Ranks;
+
+    int MinPurchasedRanks(string skillName) => _isLevelUp
+        ? _baselinePurchased.GetValueOrDefault(skillName, 0)
+        : 0;
 
     static string ResolveCostKey(string category, string skillName = "") => category switch
     {
@@ -620,6 +825,56 @@ public partial class CharacterWizard
         _     => Math.Max(0, rng.Next(1, 4) - 1)
     };
 
+    // ── Stat gain (level-up only) ─────────────────────────────────────────────
+
+    void RollStatGain(StatName sn)
+    {
+        var stat = _char!.Stats.FirstOrDefault(s => s.Stat == sn);
+        if (stat is null) return;
+        ApplyStatGainRoll(sn, stat, OpenEndedD100(new Random()));
+    }
+
+    void ApplyManualRoll(StatName sn)
+    {
+        var stat = _char!.Stats.FirstOrDefault(s => s.Stat == sn);
+        if (stat is null) return;
+        if (!_manualRollInputs.TryGetValue(sn, out var raw)) return;
+        if (!int.TryParse(raw, out int roll) || roll < 1) return;
+        ApplyStatGainRoll(sn, stat, roll);
+    }
+
+    void ApplyStatGainRoll(StatName sn, CharacterStat stat, int roll)
+    {
+        // Restore to baseline first so re-rolls don't stack gains
+        if (_statBaseline.TryGetValue(sn, out var bl))
+        {
+            stat.Temporary  = bl.Temp;
+            stat.Potential  = bl.Potential;
+        }
+        bool gained = roll > stat.Temporary;
+        if (gained)
+        {
+            stat.Temporary++;
+            if (stat.Temporary >= stat.Potential) stat.Potential++;
+        }
+        _statGainRolls[sn] = (roll, gained);
+    }
+
+    void RollAllStatGains()
+    {
+        foreach (StatName sn in Enum.GetValues<StatName>())
+            if (!_statGainRolls.ContainsKey(sn))
+                RollStatGain(sn);
+    }
+
+    static int OpenEndedD100(Random rng)
+    {
+        int result = 0;
+        int chunk;
+        do { chunk = rng.Next(1, 101); result += chunk; } while (chunk == 100);
+        return result;
+    }
+
     void StartSwap(StatName sn)
     {
         if (_swapA is null) { _swapA = sn; return; }
@@ -690,16 +945,19 @@ public partial class CharacterWizard
     {
         int idx = _weaponAllocs.IndexOf(wa);
         if (idx < 0) return;
-        int next = Math.Max(0, wa.Ranks + delta);
+        int minRanks = _isLevelUp ? _baselineWeaponAllocs.GetValueOrDefault((wa.SkillName, wa.Specialization), 0) : 0;
+        int next = Math.Max(minRanks, wa.Ranks + delta);
         if (next == wa.Ranks) return;
 
         if (delta > 0)
         {
+            int newRanksCur = NewWeaponRanksThisLevel(wa);
+            if (newRanksCur >= 2) return;
             var prof = ProfessionRules.ByName.GetValueOrDefault(_char?.Profession ?? "");
             if (prof is null) return;
             var costKey = WeaponRules.CostKeyForSlot(idx);
             if (!prof.Costs.TryGetValue(costKey, out var wc)) return;
-            int addCost = wa.Ranks == 0 ? wc.First : wc.Second;
+            int addCost = newRanksCur == 0 ? wc.First : wc.Second;
             if (_dpBudget - _dpSpent < addCost) return;
         }
 
@@ -736,16 +994,19 @@ public partial class CharacterWizard
     {
         int idx = _spellAllocs.IndexOf(sa);
         if (idx < 0) return;
-        int next = Math.Max(0, sa.Ranks + delta);
+        int minRanks = _isLevelUp ? _baselineSpellAllocs.GetValueOrDefault((sa.SkillName, sa.Specialization), 0) : 0;
+        int next = Math.Max(minRanks, sa.Ranks + delta);
         if (next == sa.Ranks) return;
 
         if (delta > 0)
         {
+            int newRanksCur = NewSpellRanksThisLevel(sa);
+            if (newRanksCur >= 2) return;
             var prof = ProfessionRules.ByName.GetValueOrDefault(_char?.Profession ?? "");
             if (prof is null) return;
             var costKey = ResolveSpellCostKey(sa.SkillName);
             if (!prof.Costs.TryGetValue(costKey, out var sc)) return;
-            int addCost = sa.Ranks == 0 ? sc.First : sc.Second;
+            int addCost = newRanksCur == 0 ? sc.First : sc.Second;
             if (_dpBudget - _dpSpent < addCost) return;
         }
 
@@ -753,6 +1014,53 @@ public partial class CharacterWizard
             _spellAllocs.RemoveAt(idx);
         else
             _spellAllocs[idx] = sa with { Ranks = next };
+    }
+
+    // ── Generic specialized skill helpers ─────────────────────────────────────
+
+    static bool IsGenericSpecialized(string skillName)
+    {
+        var def = SkillRules.FindSkill(skillName);
+        return def?.Specialized == true
+            && !WeaponRules.BySkill.ContainsKey(skillName)
+            && SkillRules.CategoryOf(skillName)?.Name != "Spellcasting";
+    }
+
+    void AddGenericAlloc()
+    {
+        if (string.IsNullOrWhiteSpace(_genericAddSkill) || string.IsNullOrWhiteSpace(_genericAddSpec)) return;
+        string spec = _genericAddSpec.Trim();
+        if (_genericAllocs.Any(g => g.SkillName == _genericAddSkill && g.Specialization == spec)) return;
+        _genericAllocs.Add(new GenericAlloc(_genericAddSkill, spec, 0));
+        _genericAddSkill = string.Empty;
+        _genericAddSpec  = string.Empty;
+    }
+
+    void AdjGenericRanks(GenericAlloc ga, int delta)
+    {
+        int idx = _genericAllocs.IndexOf(ga);
+        if (idx < 0) return;
+        int minRanks = _isLevelUp ? _baselineGenericAllocs.GetValueOrDefault((ga.SkillName, ga.Specialization), 0) : 0;
+        int next = Math.Max(minRanks, ga.Ranks + delta);
+        if (next == ga.Ranks) return;
+
+        if (delta > 0)
+        {
+            int newRanksCur = NewGenericRanksThisLevel(ga);
+            if (newRanksCur >= 2) return;
+            var prof = ProfessionRules.ByName.GetValueOrDefault(_char?.Profession ?? "");
+            if (prof is null) return;
+            var gaCat = SkillRules.CategoryOf(ga.SkillName)?.Name ?? "";
+            var costKey = ResolveCostKey(gaCat, ga.SkillName);
+            if (!prof.Costs.TryGetValue(costKey, out var gc)) return;
+            int addCost = newRanksCur == 0 ? gc.First : gc.Second;
+            if (_dpBudget - _dpSpent < addCost) return;
+        }
+
+        if (next == 0)
+            _genericAllocs.RemoveAt(idx);
+        else
+            _genericAllocs[idx] = ga with { Ranks = next };
     }
 
     void OnProfessionChanged(string? profName)

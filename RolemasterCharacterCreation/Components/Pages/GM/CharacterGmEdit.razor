@@ -1,0 +1,554 @@
+@page "/character/{Id:int}/gm-edit"
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = Roles.Gamemaster)]
+@using System.Security.Claims
+@using RolemasterCharacterCreation.Data
+@using RolemasterCharacterCreation.Rules
+@inject AppDbContext Db
+@inject AuthenticationStateProvider AuthState
+
+<PageTitle>GM Edit — @(_char?.Name ?? "…")</PageTitle>
+
+@if (_char is null) { <p class="text-muted">Loading…</p> return; }
+
+<div class="d-flex align-items-center gap-2 mb-4">
+    <a class="btn btn-outline-secondary" href="/gm/characters">← Back</a>
+    <h4 class="mb-0 me-auto">GM Edit: @_char.Name</h4>
+    <button class="btn btn-primary" @onclick="SaveAsync">Save All</button>
+    @if (_saved)  { <span class="text-success">✓ Saved</span> }
+    @if (!string.IsNullOrEmpty(_error)) { <span class="text-danger small">@_error</span> }
+</div>
+
+<!-- ── Identity ───────────────────────────────────────────────────── -->
+<h6 class="text-secondary border-bottom pb-1 mb-3">Identity</h6>
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <label class="form-label">Name</label>
+        <input class="form-control" @bind="_char.Name" />
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Race</label>
+        <input class="form-control" list="dl-races" @bind="_char.Race" />
+        <datalist id="dl-races">
+            @foreach (var r in RaceRules.All) { <option value="@r.Name" /> }
+        </datalist>
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Culture</label>
+        <input class="form-control" @bind="_char.Culture" />
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Profession</label>
+        <select class="form-select" @bind="_char.Profession">
+            <option value="">— None —</option>
+            @foreach (var p in ProfessionRules.ByName.Keys.OrderBy(k => k))
+            { <option value="@p">@p</option> }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Realm</label>
+        <input class="form-control" @bind="_char.Realm" />
+    </div>
+    <div class="col-md-1">
+        <label class="form-label">Level</label>
+        <input type="number" class="form-control" @bind="_char.Level" min="1" />
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">XP</label>
+        <input type="number" class="form-control" @bind="_char.CurrentXp" min="0" />
+    </div>
+</div>
+
+<!-- ── Appearance ────────────────────────────────────────────────── -->
+<h6 class="text-secondary border-bottom pb-1 mb-3">Appearance</h6>
+<div class="row g-3 mb-4">
+    <div class="col-md-2">
+        <label class="form-label">Gender</label>
+        <input class="form-control" @bind="_char.Gender" />
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Build</label>
+        <input class="form-control" @bind="_char.Build" />
+    </div>
+    <div class="col-md-1">
+        <label class="form-label">Age</label>
+        <input type="number" class="form-control" @bind="_char.Age" min="1" />
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Height (cm)</label>
+        <input type="number" class="form-control" @bind="_char.HeightCm" min="1" />
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Weight (kg)</label>
+        <input type="number" class="form-control" @bind="_char.WeightKg" min="1" />
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Hair</label>
+        <input class="form-control" @bind="_char.HairColor" />
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Eyes</label>
+        <input class="form-control" @bind="_char.EyeColor" />
+    </div>
+</div>
+
+<!-- ── Statistics ────────────────────────────────────────────────── -->
+<h6 class="text-secondary border-bottom pb-1 mb-3">Statistics</h6>
+<table class="table table-sm table-bordered mb-4" style="max-width:380px">
+    <thead>
+        <tr><th>Stat</th><th>Temporary</th><th>Potential</th></tr>
+    </thead>
+    <tbody>
+        @foreach (var stat in _char.Stats.OrderBy(s => s.Stat.ToString()))
+        {
+            <tr>
+                <td class="align-middle fw-semibold">@stat.Stat</td>
+                <td><input type="number" class="form-control form-control-sm" @bind="stat.Temporary" min="1" max="105" /></td>
+                <td><input type="number" class="form-control form-control-sm" @bind="stat.Potential" min="1" max="105" /></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- ── Skills ────────────────────────────────────────────────────── -->
+<h6 class="text-secondary border-bottom pb-1 mb-3">Skills</h6>
+
+@foreach (var grp in _char.Skills.GroupBy(s => s.Category).OrderBy(g => g.Key))
+{
+    <p class="text-muted small fw-semibold mb-1 mt-2">@grp.Key</p>
+    <table class="table table-sm table-bordered mb-2">
+        <thead>
+            <tr>
+                <th>Skill</th>
+                <th>Specialization</th>
+                <th style="width:105px">Cultural</th>
+                <th style="width:105px">Purchased</th>
+                <th style="width:46px">Pro</th>
+                <th style="width:46px">Knack</th>
+                <th style="width:46px"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var sk in grp.OrderBy(s => s.SkillName).ThenBy(s => s.Specialization))
+            {
+                <tr>
+                    <td class="align-middle">@sk.SkillName</td>
+                    <td class="align-middle text-muted">@(sk.Specialization ?? "")</td>
+                    <td><input type="number" class="form-control form-control-sm" @bind="sk.CulturalRanks"  min="0" /></td>
+                    <td><input type="number" class="form-control form-control-sm" @bind="sk.PurchasedRanks" min="0" /></td>
+                    <td class="text-center align-middle"><input type="checkbox" class="form-check-input" @bind="sk.IsProfessionalSkill" /></td>
+                    <td class="text-center align-middle"><input type="checkbox" class="form-check-input" @bind="sk.IsKnack" /></td>
+                    <td class="text-center align-middle">
+                        <button class="btn btn-sm btn-outline-danger py-0 px-1" @onclick="() => RemoveSkill(sk)">×</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h6 class="card-title mb-3">Add Skill</h6>
+        <div class="row g-2 align-items-end flex-wrap">
+            <div class="col-auto">
+                <label class="form-label">Category</label>
+                <select class="form-select form-select-sm" style="min-width:155px"
+                        value="@_addSkillCat"
+                        @onchange="OnAddCatChanged">
+                    <option value="">— Category —</option>
+                    @foreach (var cat in SkillRules.Categories)
+                    { <option value="@cat.Name">@cat.Name</option> }
+                </select>
+            </div>
+            <div class="col-auto">
+                <label class="form-label">Skill</label>
+                <select class="form-select form-select-sm" style="min-width:155px" @bind="_addSkillName">
+                    <option value="">— Skill —</option>
+                    @foreach (var skd in _addCatSkills)
+                    { <option value="@skd.Name">@skd.Name</option> }
+                </select>
+            </div>
+            @if (AddSkillNeedsSpec)
+            {
+                <div class="col-auto">
+                    <label class="form-label">Specialization</label>
+                    <input class="form-control form-control-sm" style="min-width:120px"
+                           list="dl-spec-add" placeholder="e.g. Common"
+                           @bind="_addSkillSpec" />
+                    @if (SkillRules.SpecializationOptions.TryGetValue(_addSkillName, out var specOpts))
+                    {
+                        <datalist id="dl-spec-add">
+                            @foreach (var o in specOpts) { <option value="@o" /> }
+                        </datalist>
+                    }
+                </div>
+            }
+            <div class="col-auto">
+                <label class="form-label">Cultural</label>
+                <input type="number" class="form-control form-control-sm" style="width:75px" @bind="_addSkillCultural" min="0" />
+            </div>
+            <div class="col-auto">
+                <label class="form-label">Purchased</label>
+                <input type="number" class="form-control form-control-sm" style="width:75px" @bind="_addSkillPurchased" min="0" />
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-sm btn-outline-success" @onclick="AddSkill">+ Add</button>
+            </div>
+        </div>
+        @if (!string.IsNullOrEmpty(_addSkillError))
+        { <div class="text-danger small mt-2">@_addSkillError</div> }
+    </div>
+</div>
+
+<!-- ── Talents & Flaws ────────────────────────────────────────────── -->
+<h6 class="text-secondary border-bottom pb-1 mb-3">Talents &amp; Flaws</h6>
+@if (_char.Talents.Any())
+{
+    <table class="table table-sm table-bordered mb-3" style="max-width:660px">
+        <thead>
+            <tr><th>Name</th><th style="width:90px">Tier</th><th>Restriction</th><th style="width:46px"></th></tr>
+        </thead>
+        <tbody>
+            @foreach (var t in _char.Talents.OrderBy(t => t.TalentName))
+            {
+                var tDef = TalentRules.ByName.GetValueOrDefault(t.TalentName);
+                <tr class="@(tDef?.IsFlaw == true ? "table-danger" : "")">
+                    <td class="align-middle">@t.TalentName</td>
+                    <td>
+                        @if (tDef?.MaxTier != 1)
+                        {
+                            <input type="number" class="form-control form-control-sm"
+                                   @bind="t.Tier" min="1"
+                                   max="@(tDef is { MaxTier: > 0 } ? tDef.MaxTier : 99)" />
+                        }
+                        else { <span class="text-muted align-middle d-inline-block pt-1">—</span> }
+                    </td>
+                    <td>
+                        <input class="form-control form-control-sm" @bind="t.Restriction" placeholder="restriction" />
+                    </td>
+                    <td class="text-center align-middle">
+                        <button class="btn btn-sm btn-outline-danger py-0 px-1" @onclick="() => RemoveTalent(t)">×</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h6 class="card-title mb-3">Add Talent / Flaw</h6>
+        <div class="row g-2 align-items-end flex-wrap">
+            <div class="col-auto">
+                <label class="form-label">Talent / Flaw</label>
+                <select class="form-select form-select-sm" style="min-width:220px" @bind="_addTalentName">
+                    <option value="">— Select —</option>
+                    @foreach (var grp in TalentRules.All.GroupBy(t => t.Category).OrderBy(g => g.Key))
+                    {
+                        <optgroup label="@grp.Key">
+                            @foreach (var td in grp.OrderBy(t => t.Name))
+                            { <option value="@td.Name">@td.Name@(td.IsFlaw ? " (Flaw)" : "")</option> }
+                        </optgroup>
+                    }
+                </select>
+            </div>
+            @{
+                var selTDef = string.IsNullOrEmpty(_addTalentName)
+                    ? null : TalentRules.ByName.GetValueOrDefault(_addTalentName);
+            }
+            @if (selTDef is not null && selTDef.MaxTier != 1)
+            {
+                <div class="col-auto">
+                    <label class="form-label">Tier</label>
+                    <input type="number" class="form-control form-control-sm" style="width:70px"
+                           @bind="_addTalentTier" min="1"
+                           max="@(selTDef.MaxTier > 0 ? selTDef.MaxTier : 99)" />
+                </div>
+            }
+            @if (selTDef?.NeedsSpec == true)
+            {
+                <div class="col-auto">
+                    <label class="form-label">Restriction</label>
+                    <input class="form-control form-control-sm" style="min-width:120px"
+                           placeholder="e.g. Fire" @bind="_addTalentRestriction" />
+                </div>
+            }
+            <div class="col-auto">
+                <button class="btn btn-sm btn-outline-success" @onclick="AddTalent">+ Add</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Equipment ─────────────────────────────────────────────────── -->
+<h6 class="text-secondary border-bottom pb-1 mb-3">Equipment</h6>
+@if (_char.EquipmentItems.Any())
+{
+    <table class="table table-sm table-bordered mb-3" style="max-width:480px">
+        <thead>
+            <tr><th>Item</th><th style="width:90px">Qty</th><th style="width:46px"></th></tr>
+        </thead>
+        <tbody>
+            @foreach (var ei in _char.EquipmentItems.OrderBy(e => e.Name))
+            {
+                <tr>
+                    <td class="align-middle">@ei.Name</td>
+                    <td><input type="number" class="form-control form-control-sm" @bind="ei.Qty" min="1" /></td>
+                    <td class="text-center align-middle">
+                        <button class="btn btn-sm btn-outline-danger py-0 px-1" @onclick="() => RemoveEquipment(ei)">×</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h6 class="card-title mb-3">Add Equipment</h6>
+        <div class="row g-2 align-items-end">
+            <div class="col-auto">
+                <label class="form-label">Item</label>
+                <input class="form-control form-control-sm" style="min-width:200px"
+                       list="dl-equip" placeholder="Item name"
+                       @bind="_addEquipName" />
+                <datalist id="dl-equip">
+                    @foreach (var it in EquipmentRules.General) { <option value="@it.Name" /> }
+                    @foreach (var it in EquipmentRules.Weapons)  { <option value="@it.Name" /> }
+                </datalist>
+            </div>
+            <div class="col-auto">
+                <label class="form-label">Qty</label>
+                <input type="number" class="form-control form-control-sm" style="width:70px" @bind="_addEquipQty" min="1" />
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-sm btn-outline-success" @onclick="AddEquipment">+ Add</button>
+            </div>
+            @if (!string.IsNullOrEmpty(_addEquipError))
+            { <div class="col-12 text-danger small">@_addEquipError</div> }
+        </div>
+    </div>
+</div>
+
+<!-- ── Armor ──────────────────────────────────────────────────────── -->
+<h6 class="text-secondary border-bottom pb-1 mb-3">Armor</h6>
+<div class="row g-3 mb-5">
+    <div class="col-md-3">
+        <label class="form-label">Armor Type</label>
+        <select class="form-select" @bind="_char.ArmorType">
+            @foreach (var a in ArmorRules.All)
+            { <option value="@a.AT">AT @a.AT — @a.Name</option> }
+        </select>
+    </div>
+    <div class="col-md-2 d-flex align-items-end pb-2">
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="chkFullSuit" @bind="_char.ArmorFullSuit" />
+            <label class="form-check-label" for="chkFullSuit">Full Suit</label>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Helmet</label>
+        <select class="form-select"
+                value="@(_char.HelmetGrade ?? "")"
+                @onchange="e => _char.HelmetGrade = NullIfEmpty(e.Value?.ToString())">
+            <option value="">None</option>
+            @foreach (var p in ArmorRules.Helmets.Skip(1))
+            { <option value="@p.Grade">@p.Grade</option> }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Vambraces</label>
+        <select class="form-select"
+                value="@(_char.VambracesGrade ?? "")"
+                @onchange="e => _char.VambracesGrade = NullIfEmpty(e.Value?.ToString())">
+            <option value="">None</option>
+            @foreach (var p in ArmorRules.Vambraces.Skip(1))
+            { <option value="@p.Grade">@p.Grade</option> }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Greaves</label>
+        <select class="form-select"
+                value="@(_char.GreavesGrade ?? "")"
+                @onchange="e => _char.GreavesGrade = NullIfEmpty(e.Value?.ToString())">
+            <option value="">None</option>
+            @foreach (var p in ArmorRules.Greaves.Skip(1))
+            { <option value="@p.Grade">@p.Grade</option> }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Shield</label>
+        <select class="form-select"
+                value="@(_char.ShieldType ?? "")"
+                @onchange="e => _char.ShieldType = NullIfEmpty(e.Value?.ToString())">
+            <option value="">None</option>
+            @foreach (var s in ArmorRules.Shields.Skip(1))
+            { <option value="@s.Type">@s.Type</option> }
+        </select>
+    </div>
+</div>
+
+<div class="mb-5">
+    <button class="btn btn-primary" @onclick="SaveAsync">Save All</button>
+    @if (_saved)  { <span class="text-success ms-2">✓ Saved</span> }
+    @if (!string.IsNullOrEmpty(_error)) { <span class="text-danger ms-2">@_error</span> }
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    Character? _char;
+    string?    _userId;
+    bool       _saved;
+    string?    _error;
+
+    // Add skill form state
+    string  _addSkillCat      = "";
+    string  _addSkillName     = "";
+    string  _addSkillSpec     = "";
+    int     _addSkillCultural  = 0;
+    int     _addSkillPurchased = 0;
+    string? _addSkillError;
+
+    // Add talent form state
+    string  _addTalentName        = "";
+    int     _addTalentTier        = 1;
+    string  _addTalentRestriction = "";
+
+    // Add equipment form state
+    string  _addEquipName  = "";
+    int     _addEquipQty   = 1;
+    string? _addEquipError;
+
+    SkillDef[] _addCatSkills =>
+        SkillRules.CategoryByName.TryGetValue(_addSkillCat, out var cat) ? cat.Skills : [];
+
+    bool AddSkillNeedsSpec =>
+        !string.IsNullOrEmpty(_addSkillName) &&
+        (SkillRules.SkillByName.GetValueOrDefault(_addSkillName)?.Specialized == true);
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthState.GetAuthenticationStateAsync();
+        _userId = auth.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        _char = await Db.Characters
+            .Include(c => c.Stats)
+            .Include(c => c.Skills)
+            .Include(c => c.Talents)
+            .Include(c => c.EquipmentItems)
+            .FirstOrDefaultAsync(c => c.Id == Id);
+    }
+
+    async Task SaveAsync()
+    {
+        if (_char is null) return;
+        _saved = false;
+        _error = null;
+        try
+        {
+            Db.WriteAuditLogs(_userId);
+            await Db.SaveChangesAsync();
+            _saved = true;
+        }
+        catch (Exception ex)
+        {
+            _error = ex.InnerException?.Message ?? ex.Message;
+        }
+    }
+
+    void OnAddCatChanged(ChangeEventArgs e)
+    {
+        _addSkillCat   = e.Value?.ToString() ?? "";
+        _addSkillName  = "";
+        _addSkillSpec  = "";
+        _addSkillError = null;
+    }
+
+    void AddSkill()
+    {
+        _addSkillError = null;
+        if (string.IsNullOrWhiteSpace(_addSkillName)) { _addSkillError = "Select a skill."; return; }
+
+        string? spec = AddSkillNeedsSpec ? _addSkillSpec.Trim() : null;
+        if (AddSkillNeedsSpec && string.IsNullOrWhiteSpace(spec))
+        { _addSkillError = "Specialization is required for this skill."; return; }
+
+        if (_char!.Skills.Any(s => s.SkillName == _addSkillName && s.Specialization == spec))
+        { _addSkillError = "This skill / specialization already exists."; return; }
+
+        _char.Skills.Add(new CharacterSkill
+        {
+            CharacterId    = _char.Id,
+            SkillName      = _addSkillName,
+            Category       = _addSkillCat,
+            Specialization = spec,
+            CulturalRanks  = _addSkillCultural,
+            PurchasedRanks = _addSkillPurchased,
+        });
+
+        _addSkillName      = "";
+        _addSkillSpec      = "";
+        _addSkillCultural  = 0;
+        _addSkillPurchased = 0;
+    }
+
+    void RemoveSkill(CharacterSkill sk)
+    {
+        _char!.Skills.Remove(sk);
+        Db.CharacterSkills.Remove(sk);
+    }
+
+    void AddTalent()
+    {
+        if (string.IsNullOrWhiteSpace(_addTalentName)) return;
+        var tDef = TalentRules.ByName.GetValueOrDefault(_addTalentName);
+        if (tDef is null) return;
+
+        _char!.Talents.Add(new CharacterTalent
+        {
+            CharacterId = _char.Id,
+            TalentName  = _addTalentName,
+            Tier        = tDef.MaxTier == 1 ? 1 : _addTalentTier,
+            Restriction = tDef.NeedsSpec && !string.IsNullOrWhiteSpace(_addTalentRestriction)
+                ? _addTalentRestriction.Trim() : null,
+        });
+
+        _addTalentName        = "";
+        _addTalentTier        = 1;
+        _addTalentRestriction = "";
+    }
+
+    void RemoveTalent(CharacterTalent t)
+    {
+        _char!.Talents.Remove(t);
+        Db.CharacterTalents.Remove(t);
+    }
+
+    void AddEquipment()
+    {
+        _addEquipError = null;
+        if (string.IsNullOrWhiteSpace(_addEquipName)) return;
+        string name = _addEquipName.Trim();
+        if (_char!.EquipmentItems.Any(e => e.Name == name))
+        { _addEquipError = "Item already in list."; return; }
+
+        _char.EquipmentItems.Add(new CharacterEquipmentItem
+        {
+            CharacterId = _char.Id,
+            Name        = name,
+            Qty         = Math.Max(1, _addEquipQty),
+        });
+        _addEquipName = "";
+        _addEquipQty  = 1;
+    }
+
+    void RemoveEquipment(CharacterEquipmentItem ei)
+    {
+        _char!.EquipmentItems.Remove(ei);
+        Db.CharacterEquipmentItems.Remove(ei);
+    }
+
+    static string? NullIfEmpty(string? s) => string.IsNullOrEmpty(s) ? null : s;
+}

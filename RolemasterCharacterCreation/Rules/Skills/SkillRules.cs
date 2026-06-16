@@ -307,6 +307,32 @@ public static class SkillRules
                 Description: "Practice a trade or craft profession commercially; specialized by trade such as farming, smithing, or sailing. Uses Re stat.")),
     };
 
+    public static readonly IReadOnlyDictionary<string, string[]> SpecializationOptions =
+        new Dictionary<string, string[]>
+        {
+            ["Language"]            = ["Common", "Elvish", "Sindarin", "Quenya", "Dwarvish", "Orcish", "Goblin", "Halfling", "Gnomish", "Draconic", "Trollish", "Ancient Elvish"],
+            ["Animal Handling"]     = ["Dog", "Horse", "Pony", "Mule", "Ox", "Wolf", "Eagle", "Hawk", "Cat", "Bear", "War Horse", "Drake"],
+            ["Riding"]              = ["Horse", "Pony", "Mule", "Camel", "Warg", "Elephant", "Griffin", "War Horse"],
+            ["Survival"]            = ["Forest", "Desert", "Mountain", "Arctic/Tundra", "Swamp", "Plains", "Aquatic/Coastal", "Underground", "Urban"],
+            ["Piloting"]            = ["Rowboat", "Sailboat", "Sailing Ship", "Galley", "Longboat", "Raft", "Airship"],
+            ["Creature Lore"]       = ["Orcs", "Trolls", "Dragons", "Undead", "Demons", "Giants", "Insects", "Mammals", "Birds", "Reptiles", "Aquatic Creatures", "Fae/Spirits"],
+            ["Historic Lore"]       = ["Ancient History", "Recent History", "Local History", "Military History", "Religious History", "Magical History"],
+            ["Materials Lore"]      = ["Metals", "Gems", "Herbs", "Poisons", "Minerals", "Cloth/Fabric", "Wood", "Bone/Ivory", "Magical Components"],
+            ["Racial Lore"]         = ["Human", "Elf", "Dwarf", "Halfling", "Orc", "Gnome", "Troll", "Giant", "Goblin", "Dragon"],
+            ["Region Lore"]         = ["Local Region", "Neighboring Lands", "Northern Kingdoms", "Southern Realms", "Eastern Territories", "Western Domains", "Underground Realms"],
+            ["Religion/Philosophy"] = ["Common Faith", "Elemental Cults", "Death Cults", "Nature Worship", "Sun Worship", "Dark Arts", "Order of Light", "Old Ways"],
+            ["Influence"]           = ["Humans", "Elves", "Dwarves", "Halflings", "Orcs/Goblins", "Merchants", "Nobles", "Commoners", "Soldiers", "Clergy"],
+            ["Music"]               = ["Lute", "Flute", "Drum", "Harp", "Horn", "Fiddle", "Lyre", "Pipes", "Voice/Singing", "Tambourine"],
+            ["Directed Spell"]      = ["Fire", "Ice/Cold", "Lightning", "Earth", "Air/Wind", "Light", "Darkness", "Force", "Sound", "Water"],
+            ["Magical Ritual"]      = ["Divination", "Summoning", "Binding", "Protection", "Healing", "Curse/Hex", "Elemental", "Necromancy"],
+            ["Ambush"]              = ["Backstab", "Throat Slash", "Hamstring", "Disabling Strike", "Vital Strike", "Sneak Attack"],
+            ["Mechanics"]           = ["Clockwork", "Siege Weapons", "Locks & Traps", "Water Mills", "Mining Equipment", "Ship Mechanisms"],
+            ["Spell Trickery"]      = ["Misdirection", "Counterspelling", "Absorption", "Reflection", "Masking", "Delay Casting"],
+            ["Administration"]      = ["Bookkeeper", "Librarian", "Officer", "Manager", "Quartermaster", "Seneschal", "Scribe", "Steward"],
+            ["Service"]             = ["Bodyguard", "Bonesetter", "Casino Dealer", "Guardsman", "Guide", "Innkeeper", "Researcher", "Shaman", "Sailor", "Teacher", "Valet"],
+            ["Trade"]               = ["Blacksmith", "Carpenter", "Farmer", "Fence", "Gambler", "Herdsman", "Hunter", "Merchant", "Miner", "Pirate", "Sailor", "Scribe", "Soldier", "Thief", "Tinker", "Trapper", "Weaver"],
+        };
+
     public static readonly IReadOnlyDictionary<string, SkillCategory> CategoryByName =
         Categories.ToDictionary(c => c.Name);
 
@@ -328,6 +354,17 @@ public static class SkillRules
                 if (sk.Name == skillName) return cat;
         return null;
     }
+
+    public static int RealmBonus(string? realm, int inBonus, int emBonus, int prBonus) => realm switch
+    {
+        "Channeling"           => inBonus,
+        "Essence"              => emBonus,
+        "Mentalism"            => prBonus,
+        "Channeling+Mentalism" => Math.Min(inBonus, prBonus),
+        "Essence+Mentalism"    => Math.Min(emBonus, prBonus),
+        "Essence+Channeling"   => Math.Min(emBonus, inBonus),
+        _                      => 0
+    };
 }
 
 public record SkillCategory(string Name, string Stat1, string Stat2, bool NoStats, params SkillDef[] Skills);

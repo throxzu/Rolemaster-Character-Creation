@@ -20,19 +20,8 @@
             <ul class="navbar-nav me-auto mb-2 mb-md-0">
 
                 <AuthorizeView Roles="Player">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button"
-                           data-bs-toggle="dropdown" aria-expanded="false">
-                            Player
-                        </a>
-                        <ul class="dropdown-menu qp-dropdown">
-                            <li>
-                                <NavLink class="dropdown-item" href="my-character">Character List</NavLink>
-                            </li>
-                            <li>
-                                <NavLink class="dropdown-item" href="my-character">Create New Character</NavLink>
-                            </li>
-                        </ul>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="characters">My Characters</NavLink>
                     </li>
                 </AuthorizeView>
 
@@ -47,13 +36,10 @@
                                 <NavLink class="dropdown-item" href="gm/characters">Characters</NavLink>
                             </li>
                             <li>
-                                <NavLink class="dropdown-item" href="gm/characters">Create New Character</NavLink>
-                            </li>
-                            <li>
                                 <hr class="dropdown-divider qp-divider" />
                             </li>
                             <li>
-                                <NavLink class="dropdown-item" href="gm/players">New Player</NavLink>
+                                <NavLink class="dropdown-item" href="gm/players">Players</NavLink>
                             </li>
                         </ul>
                     </li>

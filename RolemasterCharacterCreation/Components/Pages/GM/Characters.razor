@@ -96,7 +96,22 @@
                 <td>@ch.Level</td>
                 <td>@(ch.User?.DisplayName ?? ch.User?.Email ?? "Unassigned")</td>
                 <td class="text-end">
-                    @if (_deleteId == ch.Id)
+                    @if (_assignId == ch.Id)
+                    {
+                        <div class="d-inline-flex gap-1 align-items-center">
+                            <select class="form-select form-select-sm" style="min-width:200px"
+                                    @onchange="e => _assignUserId = e.Value?.ToString()">
+                                <option value="">— Unassigned —</option>
+                                @foreach (var p in _players)
+                                {
+                                    <option value="@p.Id" selected="@(_assignUserId == p.Id)">@p.DisplayName (@p.Email)</option>
+                                }
+                            </select>
+                            <button class="btn btn-sm btn-success" @onclick="() => AssignPlayerAsync(ch)">Save</button>
+                            <button class="btn btn-sm btn-secondary" @onclick="() => _assignId = 0">Cancel</button>
+                        </div>
+                    }
+                    else if (_deleteId == ch.Id)
                     {
                         <span class="me-2">Delete <strong>@ch.Name</strong>?</span>
                         <button class="btn btn-sm btn-danger" @onclick="() => DeleteCharacterAsync(ch)">Yes, delete</button>
@@ -104,8 +119,11 @@
                     }
                     else
                     {
-                        <a class="btn btn-sm btn-outline-success me-1" href="@($"/character/{ch.Id}/wizard")">Wizard</a>
+                        <a class="btn btn-sm @(CanAccessWizard(ch) ? "btn-outline-success" : "btn-outline-secondary") me-1"
+                           href="@($"/character/{ch.Id}/wizard")">Wizard@(ch.LevelUpBaselineJson != null ? " ▶" : "")</a>
                         <a class="btn btn-sm btn-outline-primary me-1" href="@($"/character/{ch.Id}/sheet")">Show</a>
+                        <a class="btn btn-sm btn-outline-warning me-1" href="@($"/character/{ch.Id}/gm-edit")">Edit</a>
+                        <button class="btn btn-sm btn-outline-secondary me-1" @onclick="() => { _assignId = ch.Id; _assignUserId = ch.UserId; }">Assign</button>
                         <button class="btn btn-sm btn-outline-danger" @onclick="() => _deleteId = ch.Id">Delete</button>
                     }
                 </td>
@@ -129,7 +147,14 @@
     private string? _message;
     private bool _isError;
     private int _deleteId;
+    private int _assignId;
+    private string? _assignUserId;
     private CreateModel _createModel = new();
+
+    static bool CanAccessWizard(Character ch) =>
+        (ch.Level == 1 && ch.WizardStep < 5) ||
+        ch.LevelUpBaselineJson != null         ||
+        ch.CurrentXp >= 10000 * ch.Level;
 
     protected override async Task OnInitializedAsync()
     {
@@ -162,6 +187,15 @@
         SetMessage($"Character {character.Name} created.");
         _createModel = new();
         _showCreate = false;
+        await LoadCharactersAsync();
+    }
+
+    private async Task AssignPlayerAsync(Character ch)
+    {
+        ch.UserId = string.IsNullOrEmpty(_assignUserId) ? null : _assignUserId;
+        await Db.SaveChangesAsync();
+        _assignId = 0;
+        SetMessage($"Player assignment updated for {ch.Name}.");
         await LoadCharactersAsync();
     }
 

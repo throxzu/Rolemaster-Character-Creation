@@ -11,13 +11,33 @@
 @inject AppDbContext Db
 @inject AuthenticationStateProvider AuthState
 @inject IJSRuntime JS
+@inject NavigationManager Nav
 
 <PageTitle>@(_char?.Name ?? "Character") — Sheet</PageTitle>
 
-<div class="d-print-none mb-3">
+<div class="d-print-none mb-3 d-flex align-items-center flex-wrap gap-2">
     <button class="btn btn-primary" onclick="window.print()">Print</button>
-    <a class="btn btn-outline-secondary ms-2" href="/character/@Id">← Back</a>
-    <a class="btn btn-outline-primary ms-2" href="/character/@Id/wizard">Wizard</a>
+    <a class="btn btn-outline-secondary" href="@(_isGm ? "/gm/characters" : "/characters")">← Back</a>
+    @if (_isGm || _playerCanAccessWizard)
+    {
+        <a class="btn btn-outline-primary" href="/character/@Id/wizard">Wizard</a>
+    }
+    @if (_isGm && _char is not null)
+    {
+        <span class="d-inline-flex align-items-center gap-1 ms-2">
+            <label class="form-label mb-0 small text-muted">EP:</label>
+            <input type="number" class="form-control form-control-sm" style="width:110px" min="0"
+                   value="@_char.CurrentXp"
+                   @onchange="SaveXpAsync" />
+            <span class="text-muted small">/ @(10000 * _char.Level) for Lv @(_char.Level + 1)</span>
+        </span>
+    }
+    @if (_canLevelUp)
+    {
+        <button class="btn btn-outline-warning" @onclick="LevelUpAsync">
+            Level Up (Lv @_char!.Level → @(_char.Level + 1))
+        </button>
+    }
 </div>
 
 @if (_char is null) { <p>Loading…</p> return; }
@@ -32,14 +52,15 @@
 <table class="t100 tb mb1">
   <tr>
     <td colspan="4" class="hdr tc" style="width:65%">Character</td>
-    <td class="hdr tc" style="width:17%">Level</td>
-    <td class="hdr tc" style="width:18%"></td>
+    <td class="hdr tc" style="width:12%">Level</td>
+    <td class="hdr tc" style="width:23%">EP for next level</td>
   </tr>
   <tr>
     <td colspan="2" class="p1" style="width:30%"><div class="lbl">Character Name</div><div class="val fw">@_char.Name</div></td>
     <td class="p1"><div class="lbl">Player Name:</div><div class="val"></div></td>
-    <td class="p1"><div class="lbl">Current EP</div><div class="val"></div></td>
-    <td class="p1" colspan="2"><div class="lbl">EP for next level</div><div class="val">@(10000 * _char.Level)</div></td>
+    <td class="p1"><div class="lbl">Current EP</div><div class="val">@_char.CurrentXp</div></td>
+    <td class="p1"><div class="lbl">Level</div><div class="val fw">@_char.Level</div></td>
+    <td class="p1"><div class="lbl">EP for next level</div><div class="val">@(10000 * _char.Level)</div></td>
   </tr>
   <tr>
     <td colspan="4" class="p1"><div class="lbl">Campaign:</div><div class="val"></div></td>
@@ -655,8 +676,8 @@
     };
     string dp = profDef is not null && profDef.Costs.TryGetValue(ck, out var ccc)
         ? $"{ccc.First}/{ccc.Second}" : "—";
-    int csb1 = cat.NoStats ? 0 : SkillRules.StatBonus(Temp(cat.Stat1));
-    int csb2 = cat.NoStats ? 0 : (cat.Stat2 == cat.Stat1 ? csb1 : SkillRules.StatBonus(Temp(cat.Stat2)));
+    int csb1 = cat.NoStats ? 0 : (cat.Stat1 == "R*" ? _realmStatBonus : SkillRules.StatBonus(Temp(cat.Stat1)));
+    int csb2 = cat.NoStats ? 0 : (cat.Stat2 == "R*" ? _realmStatBonus : (cat.Stat2 == cat.Stat1 ? csb1 : SkillRules.StatBonus(Temp(cat.Stat2))));
     int catSum = csb1 + csb2;
     string catStatStr = cat.NoStats ? "-" : $"{cat.Stat1}+{cat.Stat2}";
 
@@ -796,9 +817,16 @@
 
     Character? _char;
     bool _accessDenied;
+    bool _isGm;
+    bool _isOwner;
+    bool _canLevelUp => _char is not null && _isOwner && _char.CurrentXp >= 10000 * _char.Level;
+    bool _playerCanAccessWizard => _char is not null &&
+        ((_char.Level == 1 && _char.WizardStep < 5) ||   // initial creation in progress
+         _char.LevelUpBaselineJson != null              ||   // level-up started but not finished
+         _char.CurrentXp >= 10000 * _char.Level);           // enough XP to start a new level-up
 
     int _quBonus, _coBonus, _inBonus, _emBonus, _prBonus, _sdBonus, _stBonus;
-    int _bmr, _ppBonus, _hits, _endurance;
+    int _bmr, _ppBonus, _hits, _endurance, _realmStatBonus;
     string? _effectiveRealm;
 
     // Table 5-2: Feats of Strength — (loadPct, difficulty label, modifier)
@@ -839,6 +867,8 @@
 
         if (_char is null) return;
         if (!isGm && _char.UserId != userId) { _accessDenied = true; return; }
+        _isGm   = isGm;
+        _isOwner = isGm || _char.UserId == userId;
 
         var raceBonus = _char.Race is not null && RaceRules.ByName.TryGetValue(_char.Race, out var rbd) ? rbd : null;
         _quBonus = SkillRules.StatBonus(Temp("Qu")) + (raceBonus?.GetStatMod(StatName.Qu) ?? 0);
@@ -864,6 +894,7 @@
         // Resolve effective realm: stored value, else derive from profession (Core Law §2.4)
         _effectiveRealm = _char.Realm
             ?? ProfessionRules.ByName.GetValueOrDefault(_char.Profession ?? "")?.Realm;
+        _realmStatBonus = SkillRules.RealmBonus(_effectiveRealm, _inBonus, _emBonus, _prBonus);
 
         // Power Development (Power Manipulation: R*+R*, SkillStat: Co)
         var pdSk    = _char.Skills.FirstOrDefault(s => s.SkillName == "Power Development");
@@ -873,22 +904,37 @@
                       + ((pdSk?.IsKnack ?? false) ? 5 : 0);
         if (_effectiveRealm is not null)
         {
-            // Hybrid realm stat = lower of the two; single realm = that realm's stat
-            int realmBonus = _effectiveRealm switch {
-                "Channeling"           => _inBonus,
-                "Essence"              => _emBonus,
-                "Mentalism"            => _prBonus,
-                "Channeling+Mentalism" => Math.Min(_inBonus, _prBonus),
-                "Essence+Mentalism"    => Math.Min(_emBonus, _prBonus),
-                "Essence+Channeling"   => Math.Min(_emBonus, _inBonus),
-                _                      => 0
-            };
+            int realmBonus = _realmStatBonus;
             _ppBonus = realmBonus * 2 + _coBonus + pdBonus;
         }
         else
         {
             _ppBonus = 0;
         }
+    }
+
+    async Task SaveXpAsync(ChangeEventArgs e)
+    {
+        if (_char is null) return;
+        if (int.TryParse(e.Value?.ToString(), out int xp))
+        {
+            _char.CurrentXp = Math.Max(0, xp);
+            await Db.SaveChangesAsync();
+        }
+    }
+
+    async Task LevelUpAsync()
+    {
+        if (_char is null) return;
+        // Freeze skill-rank and stat baselines so the wizard can't be gamed by restarting
+        _char.LevelUpBaselineJson = System.Text.Json.JsonSerializer.Serialize(
+            _char.Skills.Select(s => new { s.SkillName, s.Specialization, s.Category, s.PurchasedRanks }));
+        _char.StatBaselineJson = System.Text.Json.JsonSerializer.Serialize(
+            _char.Stats.ToDictionary(s => s.Stat.ToString(), s => new[] { s.Temporary, s.Potential }));
+        _char.Level++;          // pre-increment so wizard detects _isLevelUp = Level > 1
+        _char.WizardStep = 1;
+        await Db.SaveChangesAsync();
+        Nav.NavigateTo($"/character/{Id}/wizard");
     }
 
     int Temp(string abbr)

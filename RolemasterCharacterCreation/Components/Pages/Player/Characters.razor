@@ -1,0 +1,77 @@
+@page "/characters"
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = Roles.Player)]
+@using System.Security.Claims
+@using RolemasterCharacterCreation.Data
+@using RolemasterCharacterCreation.Rules
+@inject AppDbContext Db
+@inject AuthenticationStateProvider AuthState
+
+<PageTitle>Characters</PageTitle>
+
+<h2>Characters</h2>
+
+@if (!string.IsNullOrEmpty(_message))
+{
+    <div class="alert @(_isError ? "alert-danger" : "alert-success") alert-dismissible">
+        @_message
+        <button type="button" class="btn-close" @onclick="() => _message = null"></button>
+    </div>
+}
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Race</th>
+            <th>Profession</th>
+            <th>Level</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var ch in _characters)
+        {
+            <tr>
+                <td>@ch.Name</td>
+                <td>@(ch.Race ?? "—")</td>
+                <td>@(ch.Profession ?? "—")</td>
+                <td>@ch.Level</td>
+                <td class="text-end">
+                    @if (CanAccessWizard(ch))
+                    {
+                        <a class="btn btn-sm btn-outline-success me-1" href="@($"/character/{ch.Id}/wizard")">Wizard</a>
+                    }
+                    <a class="btn btn-sm btn-outline-primary me-1" href="@($"/character/{ch.Id}/sheet")">Show</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!_characters.Any())
+{
+    <p class="text-muted">No characters assigned to you yet. Ask your Gamemaster to create one.</p>
+}
+
+@code {
+    private List<Character> _characters = [];
+    private string? _message;
+    private bool _isError;
+
+    static bool CanAccessWizard(Character ch) =>
+        (ch.Level == 1 && ch.WizardStep < 5) ||   // initial creation in progress
+        ch.LevelUpBaselineJson != null             ||   // level-up started but not finished
+        ch.CurrentXp >= 10000 * ch.Level;              // enough XP to start a new level-up
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth   = await AuthState.GetAuthenticationStateAsync();
+        var userId = auth.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        _characters = await Db.Characters
+            .Where(c => c.UserId == userId)
+            .OrderBy(c => c.Name)
+            .ToListAsync();
+    }
+}

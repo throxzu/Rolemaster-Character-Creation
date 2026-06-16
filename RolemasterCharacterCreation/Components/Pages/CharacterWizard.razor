@@ -29,12 +29,25 @@
 
 <div class="container-fluid mt-3">
     <div class="qp-tabs mb-3">
-        @foreach (var (label, idx) in Steps.Select((l, i) => (l, i)))
+        @if (_isLevelUp)
         {
-            <span class="qp-tab @(idx == _step ? "active" : idx < _step ? "done" : "")">
-                @if (idx < _step) { <span style="color:var(--qp-green);margin-right:3px">✓</span> }
-                @label
-            </span>
+            @foreach (var (idx, label) in LevelUpSteps)
+            {
+                <span class="qp-tab @(idx == _step ? "active" : idx < _step ? "done" : "")">
+                    @if (idx < _step) { <span style="color:var(--qp-green);margin-right:3px">✓</span> }
+                    @label
+                </span>
+            }
+        }
+        else
+        {
+            @foreach (var (label, idx) in Steps.Select((l, i) => (l, i)))
+            {
+                <span class="qp-tab @(idx == _step ? "active" : idx < _step ? "done" : "")">
+                    @if (idx < _step) { <span style="color:var(--qp-green);margin-right:3px">✓</span> }
+                    @label
+                </span>
+            }
         }
     </div>
 
@@ -46,7 +59,7 @@
     @switch (_step)
     {
         case 0: @StepConcept break;
-        case 1: @StepStats break;
+        case 1: @(_isLevelUp ? StepStatGains : StepStats) break;
         case 2: @StepProfSkills break;
         case 3: @StepSkills break;
         case 4: @StepTalents break;
@@ -55,8 +68,12 @@
     </div>
 
     <div class="d-flex justify-content-between mt-4">
-        <button class="btn btn-secondary" disabled="@(_step == 0)" @onclick="PrevStep">← Back</button>
-        @if (_step < Steps.Length - 1)
+        @{
+            bool isFirstStep = _isLevelUp ? _step == 1 : _step == 0;
+            bool isLastStep  = _isLevelUp ? _step == 4 : _step == Steps.Length - 1;
+        }
+        <button class="btn btn-secondary" @onclick="PrevStep">@(_isLevelUp && _step == 1 ? "← Cancel" : "← Back")</button>
+        @if (!isLastStep)
         {
             <button class="btn btn-primary" @onclick="NextStep">Next →</button>
         }
@@ -309,12 +326,22 @@
                                     </div>
                                     @if (!string.IsNullOrEmpty(_poolAddSkill) && PoolSkillNeedsSpec(_poolAddSkill))
                                     {
+                                        var hasPoolOpts = SkillRules.SpecializationOptions.TryGetValue(_poolAddSkill, out var poolSpecOpts);
+                                        var poolDlId = "pool-spec-" + _poolAddSkill.Replace(" ", "-").Replace("/", "-");
                                         <div>
                                             <label class="form-label form-label-sm mb-0">Specialization</label>
                                             <input class="form-control form-control-sm" style="min-width:140px"
+                                                   list="@(hasPoolOpts ? poolDlId : null)"
                                                    placeholder="@(_poolAddSkill == "Language" ? "e.g. Common, Elvish" : "e.g. Drums, Bounty Hunter")"
                                                    value="@_poolAddSpec"
                                                    @oninput="e => _poolAddSpec = e.Value?.ToString() ?? string.Empty" />
+                                            @if (hasPoolOpts)
+                                            {
+                                                <datalist id="@poolDlId">
+                                                    @foreach (var opt in poolSpecOpts!)
+                                                    { <option value="@opt" /> }
+                                                </datalist>
+                                            }
                                         </div>
                                     }
                                     <div>
@@ -432,6 +459,70 @@
             </tbody>
         </table>
         <p class="small text-muted">Tip: Click "Swap" on two stats to exchange their Temp/Potential pair.</p>
+    };
+
+    RenderFragment StepStatGains => __builder =>
+    {
+        <h6 class="text-secondary mb-3">Level @_char!.Level Stat Gain Rolls</h6>
+        <p class="small text-muted mb-3">
+            Roll open-ended d100 for each stat. If the result exceeds your current Temporary value, the stat gains +1.
+            If Temp reaches Potential, Potential also increases by 1.
+            Use <em>Auto-Roll</em> to let the system roll, or enter your own die result in the input and click <em>Apply</em>.
+        </p>
+        <table class="table table-sm table-bordered align-middle">
+            <thead>
+                <tr>
+                    <th style="width:8%">Stat</th>
+                    <th class="text-center" style="width:10%">Temp</th>
+                    <th class="text-center" style="width:10%">Potential</th>
+                    <th class="text-center" style="width:18%">Auto-Roll</th>
+                    <th class="text-center" style="width:30%">Manual Roll</th>
+                    <th class="text-center">Result</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (StatName sn in Enum.GetValues<StatName>())
+                {
+                    var stat = _char.Stats.FirstOrDefault(s => s.Stat == sn);
+                    if (stat is null) continue;
+                    bool rolled = _statGainRolls.TryGetValue(sn, out var gr);
+                    <tr>
+                        <td><strong>@sn</strong></td>
+                        <td class="text-center">@stat.Temporary</td>
+                        <td class="text-center">@stat.Potential</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-outline-secondary" @onclick="() => RollStatGain(sn)">
+                                @(rolled ? "Re-roll" : "Roll")
+                            </button>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex align-items-center justify-content-center gap-1">
+                                <input type="number" class="form-control form-control-sm" style="width:72px"
+                                       min="1"
+                                       value="@(_manualRollInputs.GetValueOrDefault(sn, string.Empty))"
+                                       @onchange="@(e => _manualRollInputs[sn] = e.Value?.ToString() ?? string.Empty)"
+                                       placeholder="d100" />
+                                <button class="btn btn-sm btn-outline-primary" @onclick="() => ApplyManualRoll(sn)">Apply</button>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            @if (rolled)
+                            {
+                                @if (gr.Gained)
+                                {
+                                    <span class="text-success fw-bold">@gr.Roll ✓ +1</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">@gr.Roll — no gain</span>
+                                }
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <button class="btn btn-sm btn-outline-primary" @onclick="RollAllStatGains">Roll All Remaining</button>
     };
 
     RenderFragment StepProfSkills => __builder =>
@@ -587,7 +678,7 @@
                                                     @onclick="() => AdjSpellRanks(sa, -1)">−</button>
                                             <span class="mx-1" style="min-width:1.2em;display:inline-block;text-align:center">@sa.Ranks</span>
                                             <button class="btn qp-btn-plus"
-                                                    disabled="@(sa.Ranks >= 2 || _dpBudget - _dpSpent < slCost.sls)"
+                                                    disabled="@(NewSpellRanksThisLevel(sa) >= 2 || _dpBudget - _dpSpent < slCost.sls)"
                                                     @onclick="() => AdjSpellRanks(sa, 1)">+</button>
                                         </td>
                                     </tr>
@@ -632,6 +723,107 @@
                                                         @onclick="() => AddSpellAlloc(sk.Name)">Add</button>
                                                 <button class="btn btn-sm btn-outline-secondary"
                                                         @onclick="() => _activeSpellAdd = null">Cancel</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else if (IsGenericSpecialized(sk.Name))
+                            {
+                                var genCostKey = ResolveCostKey(cat.Name, sk.Name);
+                                (int genf, int gens) genCost = prof is not null && prof.Costs.TryGetValue(genCostKey, out var gct) ? gct : (99, 99);
+
+                                var culturalSpecs = _char!.Skills
+                                    .Where(s => s.SkillName == sk.Name && s.Specialization != null)
+                                    .ToList();
+                                var allSpecs = culturalSpecs.Select(s => s.Specialization!)
+                                    .Union(_genericAllocs.Where(g => g.SkillName == sk.Name).Select(g => g.Specialization))
+                                    .Distinct()
+                                    .ToList();
+
+                                int totalCultural  = culturalSpecs.Sum(s => s.CulturalRanks);
+                                int totalPurchased = _genericAllocs.Where(g => g.SkillName == sk.Name).Sum(g => g.Ranks);
+
+                                <tr>
+                                    <td>
+                                        <span data-bs-toggle="tooltip" data-bs-title="@sk.Description" data-bs-placement="right">@sk.Name</span>
+                                        @if (isPro)   { <span class="badge bg-primary ms-1">Pro</span> }
+                                        @if (isKnack) { <span class="badge bg-warning text-dark ms-1">Knack</span> }
+                                        <small class="ms-1 text-muted">(@genCost.genf/@genCost.gens DP)</small>
+                                    </td>
+                                    <td class="text-center text-muted">@totalCultural</td>
+                                    <td class="text-center">@totalPurchased</td>
+                                    <td class="text-center"><strong>@(totalCultural + totalPurchased)</strong></td>
+                                    <td></td>
+                                    <td class="text-center">
+                                        <button class="btn btn-sm btn-outline-primary"
+                                                @onclick="() => { _genericAddSkill = _genericAddSkill == sk.Name ? string.Empty : sk.Name; _genericAddSpec = string.Empty; }">
+                                            @(_genericAddSkill == sk.Name ? "Cancel" : "+ Add")
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                @foreach (var spec in allSpecs)
+                                {
+                                    var specCultural = culturalSpecs.FirstOrDefault(s => s.Specialization == spec)?.CulturalRanks ?? 0;
+                                    var ga = _genericAllocs.FirstOrDefault(g => g.SkillName == sk.Name && g.Specialization == spec);
+                                    int gaPurchased = ga?.Ranks ?? 0;
+                                    int gaTotal = specCultural + gaPurchased;
+                                    int gaNewRanks = ga is not null ? NewGenericRanksThisLevel(ga) : 0;
+                                    int gaMinRanks = _baselineGenericAllocs.GetValueOrDefault((sk.Name, spec), 0);
+                                    int gaBonus = baseStatBonus + racialStatBonus
+                                        + SkillRules.RankBonus(gaTotal)
+                                        + (isPro ? Math.Min(gaTotal, 30) : 0)
+                                        + (isKnack ? 5 : 0);
+
+                                    <tr>
+                                        <td class="ps-4"><small class="text-muted">↳</small> @spec</td>
+                                        <td class="text-center text-muted">@specCultural</td>
+                                        <td class="text-center">@gaPurchased</td>
+                                        <td class="text-center"><strong>@gaTotal</strong></td>
+                                        <td class="text-center @(gaBonus >= 0 ? "text-success" : "text-danger")">@(gaBonus >= 0 ? "+" : "")@gaBonus</td>
+                                        <td class="text-center" style="white-space:nowrap">
+                                            @if (ga is not null)
+                                            {
+                                                <button class="btn qp-btn-minus"
+                                                        disabled="@(gaPurchased <= gaMinRanks)"
+                                                        @onclick="() => AdjGenericRanks(ga, -1)">−</button>
+                                                <span class="mx-1" style="min-width:1.2em;display:inline-block;text-align:center">@gaPurchased</span>
+                                                <button class="btn qp-btn-plus"
+                                                        disabled="@(gaNewRanks >= 2 || (_dpBudget - _dpSpent < (gaNewRanks == 0 ? genCost.genf : genCost.gens)))"
+                                                        @onclick="() => AdjGenericRanks(ga, 1)">+</button>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+
+                                @if (_genericAddSkill == sk.Name)
+                                {
+                                    var hasGenOpts = SkillRules.SpecializationOptions.TryGetValue(sk.Name, out var genOpts);
+                                    var genDlId = "gen-dl-" + sk.Name.Replace(" ", "-").Replace("/", "-");
+                                    <tr>
+                                        <td colspan="6">
+                                            <div class="d-flex gap-2 align-items-end py-1">
+                                                <div>
+                                                    <label class="form-label form-label-sm mb-0">Specialization</label>
+                                                    <input class="form-control form-control-sm" style="min-width:160px"
+                                                           list="@(hasGenOpts ? genDlId : null)"
+                                                           placeholder="@(sk.Name == "Language" ? "e.g. Common, Elvish" : "specialization")"
+                                                           value="@_genericAddSpec"
+                                                           @oninput="e => _genericAddSpec = e.Value?.ToString() ?? string.Empty" />
+                                                    @if (hasGenOpts)
+                                                    {
+                                                        <datalist id="@genDlId">
+                                                            @foreach (var opt in genOpts!)
+                                                            { <option value="@opt" /> }
+                                                        </datalist>
+                                                    }
+                                                </div>
+                                                <button class="btn btn-sm btn-success"
+                                                        disabled="@(string.IsNullOrWhiteSpace(_genericAddSpec) || allSpecs.Contains(_genericAddSpec.Trim()))"
+                                                        @onclick="AddGenericAlloc">Add</button>
+                                                <button class="btn btn-sm btn-outline-secondary"
+                                                        @onclick="() => { _genericAddSkill = string.Empty; _genericAddSpec = string.Empty; }">Cancel</button>
                                             </div>
                                         </td>
                                     </tr>
@@ -685,7 +877,7 @@
                                                     @onclick="() => AdjWeaponRanks(wa, -1)">−</button>
                                             <span class="mx-1" style="min-width:1.2em;display:inline-block;text-align:center">@wa.Ranks</span>
                                             <button class="btn qp-btn-plus"
-                                                    disabled="@(wa.Ranks >= 2 || _dpBudget - _dpSpent < waCost.ws)"
+                                                    disabled="@(NewWeaponRanksThisLevel(wa) >= 2 || _dpBudget - _dpSpent < waCost.ws)"
                                                     @onclick="() => AdjWeaponRanks(wa, 1)">+</button>
                                         </td>
                                     </tr>
@@ -757,11 +949,11 @@
                                     <td class="text-center @(bonus >= 0 ? "text-success" : "text-danger")">@(bonus >= 0 ? "+" : "")@bonus</td>
                                     <td class="text-center" style="white-space:nowrap">
                                         <button class="btn qp-btn-minus"
-                                                disabled="@(purchased <= 0)"
+                                                disabled="@(purchased <= MinPurchasedRanks(sk.Name))"
                                                 @onclick="() => ChangeRanks(sk.Name, -1)">−</button>
                                         <span class="mx-1" style="min-width:1.2em;display:inline-block;text-align:center">@purchased</span>
                                         <button class="btn qp-btn-plus"
-                                                disabled="@((_dpBudget - _dpSpent < cost.first && purchased == 0) || (_dpBudget - _dpSpent < cost.second && purchased >= 1))"
+                                                disabled="@(NewRanksThisLevel(sk.Name) >= 2 || (_dpBudget - _dpSpent < cost.first && NewRanksThisLevel(sk.Name) == 0) || (_dpBudget - _dpSpent < cost.second && NewRanksThisLevel(sk.Name) >= 1))"
                                                 @onclick="() => ChangeRanks(sk.Name, 1)">+</button>
                                     </td>
                                 </tr>
@@ -776,17 +968,20 @@
     void ChangeRanks(string skillName, int delta)
     {
         int cur  = GetPurchased(skillName);
-        int next = Math.Max(0, cur + delta);
+        int min  = MinPurchasedRanks(skillName);
+        int next = Math.Max(min, cur + delta);
         if (next == cur) return;
 
         if (delta > 0)
         {
+            int newRanksCur = NewRanksThisLevel(skillName);
+            if (newRanksCur >= 2) return; // max 2 new ranks per level
             var prof = ProfessionRules.ByName.GetValueOrDefault(_char?.Profession ?? "");
             var cat  = SkillRules.CategoryOf(skillName);
             if (prof is null || cat is null) return;
             var costKey = ResolveCostKey(cat.Name, skillName);
             if (!prof.Costs.TryGetValue(costKey, out var c)) return;
-            int addCost = cur == 0 ? c.First : c.Second;
+            int addCost = newRanksCur == 0 ? c.First : c.Second;
             if (_dpBudget - _dpSpent < addCost) return;
         }
         SetPurchased(skillName, next);
@@ -873,13 +1068,21 @@
                 {
                     var def = TalentRules.ByName.GetValueOrDefault(t.TalentName);
                     int cost = TalentRules.TierCost(t.TalentName, t.Tier);
+                    bool isPrior = _isLevelUp && _baselineTalentIds.Contains(t.Id);
                     <li class="d-flex align-items-center gap-2 mb-1 p-2 border rounded @(def?.IsFlaw == true ? "border-danger bg-dark" : "border-secondary bg-dark")">
-                        <span class="@(def?.IsFlaw == true ? "text-danger" : "text-light")">
+                        <span class="@(def?.IsFlaw == true ? "text-danger" : isPrior ? "text-muted" : "text-light")">
                             <strong>@t.TalentName@(t.Tier > 1 ? $" {new[]{"","I","II","III","IV","V"}[Math.Min(t.Tier,5)]}" : "")@(t.Restriction is not null ? $" ({t.Restriction})" : "")</strong>
                             @if (def is not null) { <span class="text-muted"> — @def.Effect</span> }
                         </span>
-                        <span class="ms-auto badge @(cost < 0 ? "bg-danger" : "bg-primary")">@(cost > 0 ? $"+{cost}" : cost.ToString()) DP</span>
-                        <button class="btn btn-sm btn-outline-danger py-0 px-1" @onclick="() => RemoveTalent(t)">×</button>
+                        @if (isPrior)
+                        {
+                            <span class="ms-auto badge bg-secondary">Permanent</span>
+                        }
+                        else
+                        {
+                            <span class="ms-auto badge @(cost < 0 ? "bg-danger" : "bg-primary")">@(cost > 0 ? $"+{cost}" : cost.ToString()) DP</span>
+                            <button class="btn btn-sm btn-outline-danger py-0 px-1" @onclick="() => RemoveTalent(t)">×</button>
+                        }
                     </li>
                 }
             </ul>
