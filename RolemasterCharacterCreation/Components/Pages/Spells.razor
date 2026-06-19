@@ -1,0 +1,202 @@
+@page "/spells"
+@rendermode InteractiveServer
+@attribute [Authorize]
+@using RolemasterCharacterCreation.Data
+@using RolemasterCharacterCreation.Rules
+@inject AppDbContext Db
+
+<PageTitle>Spells</PageTitle>
+
+<div class="container-fluid mt-3">
+    @if (string.IsNullOrEmpty(_category))
+    {
+        <h2 class="mb-3">Spell Lists</h2>
+        <p class="text-muted">Choose a category from the <strong>Spells</strong> menu to browse its spell lists.</p>
+        <div class="row g-3">
+            @foreach (var realm in _allByRealm)
+            {
+                <div class="col-md-3">
+                    <div class="qp-card p-3 h-100">
+                        <div class="sp-realm mb-2">@realm.Key</div>
+                        @foreach (var cat in realm.Value)
+                        {
+                            <a class="sp-cat-link d-block" href="@($"/spells?category={Uri.EscapeDataString(cat)}")">@cat</a>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="d-flex flex-wrap align-items-baseline gap-2 mb-3">
+            <h2 class="mb-0">@_category</h2>
+            <span class="text-muted">@_realm spell lists</span>
+        </div>
+
+        <div class="row g-3">
+            <!-- ── Left: spell lists ── -->
+            <div class="col-md-3 col-lg-2">
+                <div class="sp-list qp-card p-0">
+                    @foreach (var l in _lists)
+                    {
+                        <div class="sp-list-item @(_selected?.Id == l.Id ? "active" : "")"
+                             @onclick="() => _selected = l">
+                            @l.Name
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- ── Right: selected spell list ── -->
+            <div class="col-md-9 col-lg-10">
+                @if (_selected is { } sl)
+                {
+                    <div class="qp-card p-4">
+                        <h3 class="sp-title mb-3">@sl.Name.ToUpperInvariant()</h3>
+
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered sp-grid mb-4">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">Lvl</th><th>Spell</th><th>Area of Effect</th>
+                                        <th>Duration</th><th>Range</th><th class="text-center">Type</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var s in sl.Spells)
+                                    {
+                                        <tr>
+                                            <td class="text-center sp-lvl">@s.Level</td>
+                                            <td class="sp-name">@SpellName(s)</td>
+                                            <td>@s.AreaOfEffect</td>
+                                            <td>@s.Duration</td>
+                                            <td>@s.Range</td>
+                                            <td class="text-center">@s.Type</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="section-label mb-2">Descriptions</div>
+                        @foreach (var s in sl.Spells.Where(s => !string.IsNullOrWhiteSpace(s.Description)))
+                        {
+                            <p class="sp-desc">
+                                <span class="sp-desc-lvl">@s.Level.</span>
+                                <span class="sp-desc-name">@SpellName(s)</span> — @s.Description
+                            </p>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="qp-card p-4 text-muted text-center">Select a spell list.</div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .sp-realm { font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+                color: var(--qp-teal); border-bottom: 1px solid var(--qp-border-panel); padding-bottom: 4px; }
+    .sp-cat-link { color: var(--qp-text-primary); padding: 3px 0; text-decoration: none; }
+    .sp-cat-link:hover { color: var(--qp-blue); }
+    .sp-list { max-height: calc(100vh - 180px); overflow-y: auto; display: flex; flex-direction: column; }
+    .sp-list-item { padding: 7px 12px; border-bottom: 1px solid var(--qp-border-panel); cursor: pointer;
+                    color: var(--qp-text-primary); transition: background .12s; font-weight: 500; }
+    .sp-list-item:hover  { background: var(--qp-bg-panel-alt); }
+    .sp-list-item.active { background: var(--qp-blue); color: #fff; }
+    .sp-title { color: var(--qp-teal); font-weight: 700; letter-spacing: .04em; }
+    .section-label { font-size: .75rem; font-weight: 600; text-transform: uppercase;
+                     letter-spacing: .08em; color: var(--qp-text-label); }
+    .sp-grid { font-size: .85rem; }
+    .sp-grid th { color: var(--qp-text-label); background: var(--qp-bg-panel);
+                  border-color: var(--qp-border-panel) !important; white-space: nowrap; }
+    .sp-grid td { border-color: var(--qp-border-panel) !important; padding: 3px 8px; }
+    .sp-lvl  { font-weight: 600; color: var(--qp-text-label); }
+    .sp-name { font-weight: 500; }
+    .sp-desc { color: var(--qp-text-primary); line-height: 1.55; margin-bottom: .6rem; font-size: .9rem; }
+    .sp-desc-lvl  { color: var(--qp-text-label); font-weight: 700; margin-right: 2px; }
+    .sp-desc-name { color: var(--qp-teal); font-weight: 600; }
+    .sp-atk { color: inherit; text-decoration: underline dotted var(--qp-blue); text-underline-offset: 2px; }
+    .sp-atk:hover { color: var(--qp-blue); text-decoration-style: solid; }
+    .sp-atk-mark { color: var(--qp-blue); font-size: .8em; }
+</style>
+
+@code {
+    [SupplyParameterFromQuery(Name = "category")]
+    public string? Category { get; set; }
+
+    // A direct link to a single list by name (list names are globally unique).
+    [SupplyParameterFromQuery(Name = "list")]
+    public string? List { get; set; }
+
+    private string _realm = "";
+    private string? _category;
+    private string? _loadedCategory;
+    private List<SpellList> _lists = [];
+    private SpellList? _selected;
+    private Dictionary<string, List<string>> _allByRealm = [];
+
+    private static readonly string[] RealmOrder = ["Channeling", "Essence", "Mentalism", "Hybrid"];
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // A ?list= link resolves to that list's category.
+        var category = Category;
+        if (!string.IsNullOrEmpty(List))
+        {
+            var cat = await Db.SpellLists.AsNoTracking()
+                .Where(l => l.Name == List).Select(l => l.Category).FirstOrDefaultAsync();
+            if (cat is not null) { category = cat; }
+        }
+
+        _category = category;
+        if (string.IsNullOrEmpty(category))
+        {
+            if (_allByRealm.Count == 0)
+            {
+                var cats = await Db.SpellLists.AsNoTracking()
+                    .Select(l => new { l.Realm, l.Category }).Distinct().ToListAsync();
+                _allByRealm = RealmOrder
+                    .Where(r => cats.Any(c => c.Realm == r))
+                    .ToDictionary(r => r, r => cats.Where(c => c.Realm == r)
+                        .Select(c => c.Category).Distinct().OrderBy(c => c).ToList());
+            }
+            return;
+        }
+
+        if (category != _loadedCategory)
+        {
+            _loadedCategory = category;
+            _lists = await Db.SpellLists.AsNoTracking()
+                .Include(l => l.Spells.OrderBy(s => s.Level))
+                .Where(l => l.Category == category)
+                .OrderBy(l => l.Name)
+                .ToListAsync();
+            _realm = _lists.FirstOrDefault()?.Realm ?? "";
+        }
+
+        // Honour ?list= by selecting that list; otherwise keep current or first.
+        _selected = (!string.IsNullOrEmpty(List)
+            ? _lists.FirstOrDefault(l => l.Name == List)
+            : null) ?? _selected ?? _lists.FirstOrDefault();
+    }
+
+    // Renders a spell name, linking elemental attack spells to their attack table.
+    private RenderFragment SpellName(Spell s) => __builder =>
+    {
+        var at = SpellAttackTable.For(s.Name, s.Type, s.Description);
+        if (at is not null)
+        {
+            <a class="sp-atk" target="_blank" title="@($"{at} attack table")"
+               href="@($"/attack-tables?table={Uri.EscapeDataString(at)}")">@s.Name <span class="sp-atk-mark">⚔</span></a>
+        }
+        else
+        {
+            @s.Name
+        }
+    };
+}

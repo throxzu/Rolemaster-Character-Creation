@@ -68,3 +68,6 @@ efbundle.exe
 
 ## macOS
 .DS_Store
+
+## Rules assistant embed cache (large, machine-specific)
+docs/rules/.embed-cache.json

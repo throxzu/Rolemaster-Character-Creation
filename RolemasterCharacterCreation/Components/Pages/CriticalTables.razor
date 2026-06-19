@@ -1,0 +1,147 @@
+@page "/critical-tables"
+@rendermode InteractiveServer
+@attribute [Authorize]
+@using RolemasterCharacterCreation.Data
+@inject AppDbContext Db
+
+<PageTitle>Critical Tables</PageTitle>
+
+<div class="container-fluid mt-3">
+    <h2 class="mb-3">Critical Tables</h2>
+
+    <div class="row g-3">
+        <!-- ── Left: table list ── -->
+        <div class="col-md-3 col-lg-2">
+            <div class="ct-list qp-card p-0">
+                @foreach (var t in _tables)
+                {
+                    <div class="ct-list-item @(_selected?.Id == t.Id ? "active" : "")"
+                         @onclick="() => Select(t)">
+                        @t.Name
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- ── Right: selected table ── -->
+        <div class="col-md-9 col-lg-10">
+            @if (_selected is { } ct)
+            {
+                <div class="qp-card p-4">
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                        <h3 class="ct-title mb-0">@ct.Name.ToUpperInvariant() CRITICAL</h3>
+                        <div class="btn-group btn-group-sm ms-auto" role="group">
+                            @foreach (var s in Severities)
+                            {
+                                <button class="btn @(_severity == s ? "btn-primary" : "btn-outline-secondary")"
+                                        @onclick="() => _severity = s">@s</button>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="ct-grid-wrap">
+                        <table class="table table-sm table-bordered ct-grid mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="ct-roll-col">Roll</th>
+                                    <th class="ct-loc-col">Location</th>
+                                    @foreach (var s in ShownSeverities)
+                                    {
+                                        <th class="text-center">@s</th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var r in ct.Rows)
+                                {
+                                    <tr>
+                                        <td class="ct-roll-col">@RollLabel(r)</td>
+                                        <td class="ct-loc-col">@r.Location</td>
+                                        @foreach (var s in ShownSeverities)
+                                        {
+                                            <td class="ct-cell">@CellFor(r, s)</td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="ct-legend mt-3 mb-0">
+                        <span class="section-label">Effect key:</span>
+                        <code>hits+X</code> extra hits · <code>bleed X</code> hits/round ·
+                        <code>fatigue(-X)</code> · <code>breakage(-X)</code> ·
+                        <code>stun[-X]</code> · <code>stagger</code> · <code>knockback X'</code> ·
+                        <code>prone</code> · <code>grapple X%</code> · <code>KILLED</code> ·
+                        <code>+crit(X)</code> extra crit. A number before a symbol is duration (rounds).
+                    </p>
+                </div>
+            }
+            else
+            {
+                <div class="qp-card p-4 text-muted text-center">Select a critical table.</div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .ct-list { max-height: calc(100vh - 180px); overflow-y: auto; display: flex; flex-direction: column; }
+    .ct-list-item {
+        padding: 8px 14px; border-bottom: 1px solid var(--qp-border-panel);
+        cursor: pointer; color: var(--qp-text-primary); transition: background .12s; font-weight: 500;
+    }
+    .ct-list-item:hover  { background: var(--qp-bg-panel-alt); }
+    .ct-list-item.active { background: var(--qp-blue); color: #fff; }
+    .ct-title { color: var(--qp-teal); font-weight: 700; letter-spacing: .04em; }
+    .section-label { font-size: .75rem; font-weight: 600; text-transform: uppercase;
+                     letter-spacing: .08em; color: var(--qp-text-label); }
+    .ct-grid-wrap { max-height: calc(100vh - 320px); overflow: auto; }
+    .ct-grid { font-size: .82rem; }
+    .ct-grid th { position: sticky; top: 0; z-index: 1; background: var(--qp-bg-panel);
+                  color: var(--qp-text-label); border-color: var(--qp-border-panel) !important; }
+    .ct-grid td { border-color: var(--qp-border-panel) !important; padding: 4px 8px;
+                  vertical-align: top; }
+    .ct-cell { min-width: 150px; line-height: 1.4; }
+    .ct-roll-col { white-space: nowrap; font-weight: 600; color: var(--qp-text-label);
+                   background: var(--qp-bg-panel); position: sticky; left: 0; }
+    .ct-loc-col  { white-space: nowrap; color: var(--qp-text-muted); }
+    .ct-legend   { font-size: .78rem; color: var(--qp-text-muted); line-height: 1.9; }
+    .ct-legend code { background: var(--qp-bg-panel); color: var(--qp-text-primary);
+                      padding: 1px 5px; border-radius: 4px; }
+</style>
+
+@code {
+    private static readonly string[] Severities = ["All", "A", "B", "C", "D", "E"];
+
+    [SupplyParameterFromQuery(Name = "type")]
+    public string? Type { get; set; }
+
+    private List<CriticalTable> _tables = [];
+    private CriticalTable? _selected;
+    private string _severity = "All";
+
+    private IEnumerable<string> ShownSeverities =>
+        _severity == "All" ? ["A", "B", "C", "D", "E"] : [_severity];
+
+    protected override async Task OnInitializedAsync()
+    {
+        _tables = await Db.CriticalTables.AsNoTracking()
+            .Include(t => t.Rows.OrderBy(r => r.RollLow))
+            .OrderBy(t => t.Name)
+            .ToListAsync();
+
+        _selected = (Type is not null
+            ? _tables.FirstOrDefault(t => t.Name.Equals(Type, StringComparison.OrdinalIgnoreCase))
+            : null) ?? _tables.FirstOrDefault();
+    }
+
+    private void Select(CriticalTable t) => _selected = t;
+
+    private static string RollLabel(CriticalTableRow r) =>
+        r.RollLow == r.RollHigh ? r.RollLow.ToString() : $"{r.RollLow}–{r.RollHigh}";
+
+    private static string CellFor(CriticalTableRow r, string s) => s switch
+    {
+        "A" => r.A, "B" => r.B, "C" => r.C, "D" => r.D, "E" => r.E, _ => "",
+    };
+}

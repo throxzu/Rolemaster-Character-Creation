@@ -1,0 +1,545 @@
+[
+  {
+    "name": "Channeling",
+    "columns": [
+      "Elemental",
+      "Force",
+      "Informational",
+      "Utility"
+    ],
+    "rows": [
+      {
+        "rollLow": 1,
+        "rollHigh": 10,
+        "cells": [
+          "Spell goes off, but caster's swell of pride is punished by the loss of twice the normal PP.",
+          "Caster's faith could be stronger. Spell goes off, but RRs have a +20 bonus.",
+          "Perseverance is rewarded. Caster's spell is delayed until next round.",
+          "Caster completes spell, but effort is exhausting. Caster suffers a fatigue penalty."
+        ]
+      },
+      {
+        "rollLow": 11,
+        "rollHigh": 30,
+        "cells": [
+          "Music of the Spheres distracts the caster. Spell must be cast again from the beginning (but no PP are lost).",
+          "Caster falters, losing the spell and half the normal PP (round up).",
+          "Caster's faith wavers for just a moment. The spell is lost, but not the PP.",
+          "Patience, my child. This spell will be cast next round."
+        ]
+      },
+      {
+        "rollLow": 31,
+        "rollHigh": 40,
+        "cells": [
+          "Caster conceives a complex theological argument against casting this spell. Spell and half PP (round down) are lost. Caster is stunned [-50] one round.",
+          "Caster loses the spell and half the normal PP (round down). Frogs rain down in a 10'R around the caster, leaving him stunned [-25] for two rounds.",
+          "Caster learns something, but it has nothing to do with what he was trying to learn.",
+          "The next detail of the spell slips the caster's mind and the caster loses the whole thing (but keeps the PP)."
+        ]
+      },
+      {
+        "rollLow": 41,
+        "rollHigh": 60,
+        "cells": [
+          "Caster loses spell and the normal number of PP; be thankful it was no worse.",
+          "Caster's invocations are not answered. Nothing happens, except that the PP for the spell are gone.",
+          "Instead of the desired information, the caster gets a brief lesson in theology. +10 to next religion-related Lore/ Science maneuver, but spell fails.",
+          "The power of the caster's god is near, though the caster made a minor error. Caster may spend twice the normal PP and save the spell, or lose the spell and spend no PP."
+        ]
+      },
+      {
+        "rollLow": 61,
+        "rollHigh": 75,
+        "cells": [
+          "This reminds me of the parable of the caster who lost his spell and the PP to cast it. Because that is what happens.",
+          "Fate smiles on the target. The spell has no effects, and the caster loses twice the normal number of PP.",
+          "The information comes, but in obscure, symbolic, metaphoric terms.",
+          "The wise are humble. This spell-casting has no effect other than the caster's loss of one PP."
+        ]
+      },
+      {
+        "rollLow": 76,
+        "rollHigh": 90,
+        "cells": [
+          "Spiritual power runs a little wild. Caster takes 1d10 hits and three rounds of stun [-50].",
+          "Caster is enthusiastic, but careless. Spell fails and takes three times the normal number of PP with it.",
+          "The caster learns only of a good place to seek the knowledge through mundane means.",
+          "Caster suffers a moment of existential crisis. Caster loses the spell and half the normal PP (round down). Caster may not cast or prepare any spells for 3 rounds."
+        ]
+      },
+      {
+        "rollLow": 91,
+        "rollHigh": 95,
+        "cells": [
+          "Flowers bloom at the caster's feet, but uncontrolled power also stuns [-50] the caster for three rounds, does 2d10 hits, and turns any non-magical item in the caster's hands to salt.",
+          "Target must have a guardian spirit. Caster is stunned [-50] for seven rounds.",
+          "Caster has a glimpse of coming doom! Caster is stunned [-50] for one round.",
+          "Botched spell creates a sense of nausea. Caster loses the spell and half the normal PP (round up) and suffers a -5 fatigue penalty."
+        ]
+      },
+      {
+        "rollLow": 96,
+        "rollHigh": 100,
+        "cells": [
+          "Caster manages to smite himself, taking a B Holy crit and gets stunned [-50] two rounds by embarrassment.",
+          "Caster accidentally invokes the wrong name. Penance is 4d10 hits and 24 hours of unconsciousness.",
+          "Caster gains the desired information, but has alerted one enemy to his exact location.",
+          "Caster mishandles the spell energies, doing himself 1 hit of damage per PP invested in the spell. Spell and PP are lost. Caster is stunned [-25] for 2-20 rounds."
+        ]
+      },
+      {
+        "rollLow": 101,
+        "rollHigh": 125,
+        "cells": [
+          "Caster accidentally heals himself of 1d10 hits, which stuns [-50] him for three rounds.",
+          "Caster takes 3d10 hits from misdirected energies as spell targets alternative target(s) closest to intended target.",
+          "Nothing can be seen but the caster's ultimate insignificance. Caster is stunned [-50] for 3 rounds.",
+          "Caster loses spell and PP. Caster has no idea why, leaving him stunned [-50] for 3 rounds."
+        ]
+      },
+      {
+        "rollLow": 126,
+        "rollHigh": 150,
+        "cells": [
+          "Caster accidentally does 1d10 hits damage to himself, stunning him [-50] for two rounds.",
+          "Caster accidentally targets (an) alternative target(s) closest to the caster. Caster will be at -5 to all SCRs until he spends a day in religious observations.",
+          "Caster gains information relevant to his power source's interests, but not to his own inquiry. Caster spends two rounds stunned [-25].",
+          "The spell does nothing. Surprise leaves caster stunned [-50] for 2 rounds, then stunned [-25] for 2 more."
+        ]
+      },
+      {
+        "rollLow": 151,
+        "rollHigh": 175,
+        "cells": [
+          "Somehow caster manages to tap into the wrong power source. It burns! Caster takes a C critical and 5d10 hits.",
+          "Spell targets randomly (a) victim(s) within 500' (ignore normal range). Caster will be at -20 to all SCRs until spending an entire day in religious observations.",
+          "Caster sneezes loudly. Spell unravels, taking with it twice the usual PP.",
+          "Caster tries to fix mistakes, making them worse. Caster takes 3d10 hits and is stunned [-75] for 5 rounds."
+        ]
+      },
+      {
+        "rollLow": 176,
+        "rollHigh": 185,
+        "cells": [
+          "Caster's wild treatment of the elements damages his connection to his power source. He will be at -50 and unable to regain PP until he spends a week in religious observances while on sacred ground.",
+          "That was almost blasphemous. Caster takes 1 hit per level of spell, collapses into unconsciousness for 1d10 hours and loses all spell-casting ability until spending a full week in religious observations.",
+          "Caster hears the whispered lies of the spiritual opposition and takes 5d10 minutes taking no action but cleansing his mind of these voices.",
+          "Caster forgets key element of spell and it shatters, leaving the caster at -30 to all actions for 1d10 hours."
+        ]
+      },
+      {
+        "rollLow": 186,
+        "rollHigh": 190,
+        "cells": [
+          "Caster sees too deep into the fathomless cosmos and falls into a two week coma. However, for the week after that he gains a +20 bonus to all Lore & Science skills.",
+          "Caster commits a major faux pas and targets himself. RR applies, but so does -50 “willing target” penalty (and range is touch).",
+          "Caster gains one piece of true, but misleading, information. Any money he is carrying will have disappeared.",
+          "Caster disrupts his own aura. All spells on caster are dispelled, even curses. Caster's RRs are at -50 until he spends a week in religious observances on sacred ground."
+        ]
+      },
+      {
+        "rollLow": 191,
+        "rollHigh": 195,
+        "cells": [
+          "Spell actually goes off as planned, but caster takes an A critical. Saved from far worse by divine grace, the caster is placed under a Quest spell to repay the favor.",
+          "Caster summons more power than he can handle. He bursts into flames, doing an E Heat crit to himself and a C Heat crit to anyone in a 10'R. Caster keeps taking C Heat crits each round until fire is extinguished.",
+          "Caster beholds the glories of his deity. Caster is overwhelmed and falls into a 1d10 day coma.",
+          "Caster is bathed in unmanageable power. Caster takes a B critical and loses all spell-casting ability for 1d10 weeks."
+        ]
+      },
+      {
+        "rollLow": 196,
+        "rollHigh": 200,
+        "cells": [
+          "Caster takes a D crit as he loses control, then takes another 5d10 hits from internalized energies.",
+          "Caster is struck blind, which also causes him five rounds of stun [-50].",
+          "Caster gains a random vision before mishandled energies rebound on him for 6d10 hits, 6 rounds of stun [-50], and 6 days at -40.",
+          "Caster is overcome by sloth. Caster will do nothing but act in self-defense, talk, or move at a walking pace for 1d10 days. Caster has only half normal PP for 1d10 weeks."
+        ]
+      },
+      {
+        "rollLow": 201,
+        "rollHigh": 250,
+        "cells": [
+          "Caster takes an E critical and loses his spell-casting abilities until he spends a month in religious observances on sacred ground.",
+          "Spell exposes stain on the caster's soul. Caster loses all spell-casting ability until he fulfills a quest from his deity or religious superior.",
+          "Caster has a terrible, haunting vision. Caster will be at -30 until he spends a week in religious observances on sacred ground. Also, all his PP are gone.",
+          "Caster is struck dumb for 1d10 weeks as spell energies swirl around his head. He also takes 5d10 hits and 1d10 hours of enchanted sleep."
+        ]
+      },
+      {
+        "rollLow": 251,
+        "rollHigh": 300,
+        "cells": [
+          "Caster burns with too much divine power, taking two E Holy crits. Everyone not of his faith within 50' of the caster takes a C Holy crit. Caster turns to ash. Anyone not of his faith and within 20' of the caster takes an E Holy crit.",
+          "Caster experiences severe strain: -50 Fatigue penalty, loss of all PP, aged one year, and at a -30 penalty that recovers at a rate of -1 per day spent in religious observations. Caster is a mortal servant of the divine. Caster proves it by suffering a heart attack and dropping dead. 41",
+          "Caster's errors lead to damaging the tie to his deity. Caster is at -10 and cannot cast spells until spending two weeks in religious observances. Caster has visions of Armageddon. This results in brain shut-down. Caster is in a coma for 3 months.",
+          "Caster loses connection to his power source. Shock delivers 10d10 hits and 12 rounds stunned [-75]. Spell-casting is impossible until caster spends 1 month in religious observances on sacred ground. Caster offends the higher powers and is struck by a +100 Lightning Bolt."
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Essence",
+    "columns": [
+      "Elemental",
+      "Force",
+      "Informational",
+      "Utility"
+    ],
+    "rows": [
+      {
+        "rollLow": 1,
+        "rollHigh": 10,
+        "cells": [
+          "Caster gets the spell off, but excess power internalizes, doing 3d10 hits.",
+          "Essence swirls aimlessly. Spell may be cast next round.",
+          "Minor ripples in the Essence require more care to achieve success. Spell may be cast next round.",
+          "Spell functions normally, but excess Essence energy does 1d10 hits to the caster."
+        ]
+      },
+      {
+        "rollLow": 11,
+        "rollHigh": 30,
+        "cells": [
+          "Caster's fingertips spark, surprising him. Spell and one PP are lost. Caster is at -50 next round.",
+          "When you push the Essence, sometimes it pushes back. Spell goes off, but caster is stunned [-50] for five rounds.",
+          "The Essence bends to those who remember all the words to a spell. Caster loses the spell (but not the PP).",
+          "Caster's technique is inefficient, but if he devotes another PP to this spell, he can still get it off."
+        ]
+      },
+      {
+        "rollLow": 31,
+        "rollHigh": 40,
+        "cells": [
+          "Minor power backlash. Caster loses the spell and half the normal PP (round down) and is stunned [-50] one round.",
+          "Essence feedback blurs caster's vision, causing him to lose the spell and half the normal PP (round down). Caster is stunned [-50] for one round.",
+          "Confusing, conflicting data leaves caster stunned [-25] next round and still as ignorant as when he started.",
+          "That was not how the caster was taught to execute this spell. Caster loses the spell, but keeps the PP."
+        ]
+      },
+      {
+        "rollLow": 41,
+        "rollHigh": 60,
+        "cells": [
+          "Caster catches a mistake before it becomes catastrophic and aborts the spell, losing the normal number of PP.",
+          "Caster loses his place in the spell and it all unravels taking the PP with it into oblivion.",
+          "Caster picks up the wrong thread of the Essence and gets the right information about a similar, but different, target.",
+          "Caster suddenly realizes he is casting the wrong spell. The spell is lost, but not the PP."
+        ]
+      },
+      {
+        "rollLow": 61,
+        "rollHigh": 75,
+        "cells": [
+          "Caster has a choice to make: finish the spell next round and take 1d10 hits per level of the spell or simply abort the spell and waste the PP.",
+          "Spell has no effect. The caster loses twice the normal PP. The Essence is fickle.",
+          "Caster gains partial information (if possible), but the process is tiring, resulting in a -30 fatigue penalty.",
+          "The Essence twitches slightly. Caster loses the spell and 1 PP."
+        ]
+      },
+      {
+        "rollLow": 76,
+        "rollHigh": 90,
+        "cells": [
+          "Elemental energies ripple across caster's torso, doing 5 hits and three rounds of stun [-50].",
+          "Power backlash! The spell fails completely. Caster is stunned [-50] for 8 rounds.",
+          "Caster obtains information that is mostly incorrect.",
+          "A muscle cramp in the caster's jaw causes the spell to fail. Caster loses the spell and half the normal PP (round down). Caster is stunned [-50] for 2 rounds."
+        ]
+      },
+      {
+        "rollLow": 91,
+        "rollHigh": 95,
+        "cells": [
+          "The elements refuse the caster's call, knocking him back 3 feet, doing 2d10 hits and six rounds of stun [-50].",
+          "Caster is overwhelmed by painful power internalization, collapsing to the ground, taking 1d10 hits, and suffering nine rounds of stun [-50].",
+          "For a moment, caster glimpses the full complexity of the local Essence. Caster is stunned [-50] for two rounds, but gains a +10 to his next SCR made within the next 5 minutes.",
+          "Caster's fingers go all wiggly. Caster loses the spell and half the normal PP (round down). Caster drops anything in his hands."
+        ]
+      },
+      {
+        "rollLow": 96,
+        "rollHigh": 100,
+        "cells": [
+          "Elemental power is summoned, but not properly directed. Caster takes 20 hits and a B critical.",
+          "Essence flows through the caster, carrying away all of his PP.",
+          "Information gained is, so far as possible, exactly the opposite of the truth.",
+          "Caster internalizes the spell. Caster takes 2d10 hits and is stunned for 2d10 rounds. Spell and PP are lost."
+        ]
+      },
+      {
+        "rollLow": 101,
+        "rollHigh": 125,
+        "cells": [
+          "The Essence seems especially stubborn today. Caster is stunned [-50] for two rounds.",
+          "Spell targets the nearest alternative target(s) to the intended target(s). Caster is stunned [-50] one round.",
+          "Information gained is garbled beyond sense. Caster's frustration gives -20 penalties to SCRs for the next hour.",
+          "The spell strays off target and vanishes, leaving the caster stunned [-50] for 2 rounds."
+        ]
+      },
+      {
+        "rollLow": 126,
+        "rollHigh": 150,
+        "cells": [
+          "Caster gets confused by chaotic behavior of the elements and is stunned [-50] for three rounds.",
+          "Spell targets the alternative target(s) nearest to the caster. Caster takes 1d10 hits and 1 round of stun [-50] from mental strain.",
+          "Caster gains useless information about an unknown target. In addition, there is so much information, caster is stunned [-50] for 3 rounds.",
+          "Caster watches spell do nothing and spends three rounds stunned [-50] pondering why."
+        ]
+      },
+      {
+        "rollLow": 151,
+        "rollHigh": 175,
+        "cells": [
+          "Power? Yes. Control? No. Caster takes a B crit this round and an A crit next round.",
+          "Spell target(s) chosen randomly from those within 500' (ignore normal range). Spell backlash causes caster 25 hits and leaves him stunned [-25] for 1d10 hours.",
+          "Caster strains too hard to get the information. Spell fails utterly; caster takes 5 hits and is stunned [-50] for 3 rounds.",
+          "The spell misfires badly. Caster takes 1d10 hits and is stunned [-50] for 1d10 rounds."
+        ]
+      },
+      {
+        "rollLow": 176,
+        "rollHigh": 185,
+        "cells": [
+          "Essence surges and burns the fringes of the caster's aura. Caster cannot regain PP for a month.",
+          "Complete confusion leads caster to cast a random spell at a random target. Shock puts caster into a coma for 1d10 days.",
+          "Caster obtains false, but plausible, information.",
+          "Caster's aura spasms as Essence is mishandled. Caster loses any attunements to magic items, takes 4d10 hits, and is stunned [-50] for 8 rounds."
+        ]
+      },
+      {
+        "rollLow": 186,
+        "rollHigh": 190,
+        "cells": [
+          "Caster manages to cast the spell (centered) on himself. Caster takes normal damage, as does anyone else affected. Caster also falls into a 1 week coma.",
+          "Spell misfires and internalizes inside caster's head. Caster takes 35 hits and loses spell-casting ability for 1d10 weeks. There is a 40% chance of a 1d10 day coma.",
+          "Essence is misdirected by the caster, who takes 3d10 hits and an A critical.",
+          "Severe power feedback knocks caster down, doing 1d10 hits and an A Impact critical. Caster is unable to function for 1d10 hours."
+        ]
+      },
+      {
+        "rollLow": 191,
+        "rollHigh": 195,
+        "cells": [
+          "There seems to be some confusion about which element the caster hoped to command, and he takes 3 different C criticals.",
+          "Caster suffers a massive stroke! This causes 10d10 hits and a month-long coma. At the end of the coma, caster seems fine, but will die 1d10 hours later unless heart has been mended.",
+          "Essence is reshaped around the caster, disrupting his aura and putting his RRs at a -50 penalty for 1d10 hours.",
+          "Caster is drained of all PP, takes 10d10 hits, and is stunned [-75] for 12 rounds, after which exhaustion delivers a -50 fatigue penalty."
+        ]
+      },
+      {
+        "rollLow": 196,
+        "rollHigh": 200,
+        "cells": [
+          "Caster takes 1d10 rounds of stun [-50] and a C crit from wild elemental power, then loses his remaining PP, taking a hit of damage for each one.",
+          "Caster internalizes spell energies; resulting nerve damage causes permanent reduction of PP by 50% (unless entire nervous system is healed).",
+          "Caster peers into the deep mysteries of the Essence. This awesome vision puts caster into a 9 week coma, but he wakes automatically attuned to any magic items on his person.",
+          "Caster sends Essence through his legs, leaving him unable to use them for two weeks. He also takes 30 hits and 3 rounds prone & stunned [-50]."
+        ]
+      },
+      {
+        "rollLow": 201,
+        "rollHigh": 250,
+        "cells": [
+          "Caster takes 3d10 hits and an E critical; caster blinded for 2d10 rounds.",
+          "Spell completely internalizes. Caster loses all spell-casting ability for 1d10 weeks, will be in a coma for 1d10 weeks, and takes 8d10 hits.",
+          "The spell collapses, releasing uncontrolled energies. Caster takes 20 hits, is knocked out for 9 hours, and loses spell-casting ability for 4 weeks.",
+          "Caster internalizes the spell, taking 4d10 hits and spending 2d10 hours knocked out. Caster loses all spell-casting ability for 1d10 weeks."
+        ]
+      },
+      {
+        "rollLow": 251,
+        "rollHigh": 300,
+        "cells": [
+          "Elemental power surges through caster, doing 1-5 E crits and putting caster in a coma for 1d10 weeks. Elemental energies consume the caster, leaving a charred skeleton behind.",
+          "Severe nervous disorder causes caster to lose all spell-casting ability for 1d10 months. Massive internalization of spell causes heart and brain to simultaneously shut down. 42",
+          "Caster gains the desired information. With luck, this will still matter after his month-long coma. Caster appears to have confused Informational magic with Elemental magic and takes 6d10 hits and an E critical.",
+          "Caster is stunned [-50] for 1 round per level of the spell, takes 6d10 hits, falls into a coma for 1d10 days, and has a -50 penalty to all SCRs for 2d10 weeks. Caster's sensitivity to the Essence is damaged, causing a -100 penalty to all Power Manipulation, Delving, and Spellcasting skills (and -50 to SCRs) for one year."
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Mentalism",
+    "columns": [
+      "Elemental",
+      "Force",
+      "Informational",
+      "Utility"
+    ],
+    "rows": [
+      {
+        "rollLow": 1,
+        "rollHigh": 10,
+        "cells": [
+          "Caster's focus wavers, but he can complete the spell next round.",
+          "Target stirs a troubling thought in the caster's mind. Caster loses the spell (and one PP).",
+          "Caster gains the desired information… but so does everyone else in a 20' radius.",
+          "Caster successfully casts the spell, but a low-intensity headache puts caster at -10 for all actions for the next hour."
+        ]
+      },
+      {
+        "rollLow": 11,
+        "rollHigh": 30,
+        "cells": [
+          "Caster loses the spell due to lack of focus. Caster can only take defensive actions for the next two rounds.",
+          "Caster remembers a childhood incident that was traumatizing. Caster loses the spell (but not the PP). Caster operates at -10 for 5 rounds.",
+          "A moment of distraction causes the caster to lose the spell (but not the PP).",
+          "Caster's focus strays. Spell is delayed for one round, but it is cast normally next round."
+        ]
+      },
+      {
+        "rollLow": 31,
+        "rollHigh": 40,
+        "cells": [
+          "Caster loses spell, half the PP (round down), and 1d10 hits to a brief, but intense headache.",
+          "Caster's negative thoughts prevail. Spell is lost along with half the PP (round down). Caster takes 3d10 hits.",
+          "Caster gains partial information (if possible) and cannot attempt to study this subject again until tomorrow.",
+          "A twinge of headache causes caster to lose the spell (but not the PP) and 1 hit."
+        ]
+      },
+      {
+        "rollLow": 41,
+        "rollHigh": 60,
+        "cells": [
+          "Caster realizes he was thinking of a cake recipe, not a spell. Spell is lost, along with the PP.",
+          "Caster seeks the mental state to complete the spell, but cannot find it. Spell and all PP are lost.",
+          "The information gained is erroneous… but so absurd that spell failure is sure to be suspected.",
+          "Caster suddenly remembers some mundane detail he had forgotten. Unfortunately, he loses his spell (but not the PP)."
+        ]
+      },
+      {
+        "rollLow": 61,
+        "rollHigh": 75,
+        "cells": [
+          "Spell was visualized perfectly, but caster forgot to conceptualize a target. The PP vanish without producing an effect.",
+          "Caster strains to save the spell, but it fails. All PP are lost and caster suffers a -20 fatigue penalty.",
+          "The information gained is mostly correct, but some inaccuracy is included.",
+          "The power of the caster's mind recalls a great joke. Caster laughs loudly and the spell is lost (but not the PP)."
+        ]
+      },
+      {
+        "rollLow": 76,
+        "rollHigh": 90,
+        "cells": [
+          "Error literally takes caster's breath away, doing 10 hits, one round stunned [-75], followed by one round stunned [-25].",
+          "Spell has no effect other than triggering an overwhelming headache, leaving the caster at three rounds of stun [-75].",
+          "Caster learns something completely different than what was sought, leaving him stunned [-50] for 1 round.",
+          "Caster relaxes his concentration too soon. The spell and the PP are both lost."
+        ]
+      },
+      {
+        "rollLow": 91,
+        "rollHigh": 95,
+        "cells": [
+          "Caster's mind wanders into obsessive contemplation of elemental physics, resulting in four rounds of stun [-75].",
+          "Caster finds struggle to impose his will exhausting. Caster suffers 2d10 hits, a -40 fatigue penalty, and 4 rounds stunned [-25].",
+          "Caster learns something about himself, leaving him stunned [-25] for two rounds.",
+          "Backlash stuns the caster for 2 rounds. Caster loses the spell and half the normal PP (round up)."
+        ]
+      },
+      {
+        "rollLow": 96,
+        "rollHigh": 100,
+        "cells": [
+          "Caster just cannot bend matter to his will. Trying too hard makes him faint for 1d10 minutes of unconsciousness.",
+          "The spell internalizes. Caster takes 4d10 hits and is knocked unconscious for 12 hours.",
+          "Caster learns one piece of very specific and incorrect information. Power feedback does 1d10 hits as well.",
+          "A major headache leaves caster stunned [-50] for 10 rounds. Spell and PP are lost."
+        ]
+      },
+      {
+        "rollLow": 101,
+        "rollHigh": 125,
+        "cells": [
+          "Caster gets a stress headache, leaving him at -20 for 1d10 minutes.",
+          "Spell targets an alternative target at random from among those not allied to the caster. Confused, the caster spends three rounds stunned [-25].",
+          "Caster's subconscious must want this information kept hidden. Befuddling images stun [-50] caster for two rounds.",
+          "Spell fades away, taking the invested PP with it. This is depressing enough to leave the caster at a -10 penalty for the next five minutes."
+        ]
+      },
+      {
+        "rollLow": 126,
+        "rollHigh": 150,
+        "cells": [
+          "Caster accidentally directs the spell at the alternative target nearest to himself. This stuns [-50] the caster for 1 round.",
+          "Target is selected at random from those friendly to the caster. Embarrassed, the caster also takes two rounds of stun [-50].",
+          "Caster learns what some random target thinks is the truth about what he wanted to know. Caster is stunned [-25] for 3 rounds.",
+          "This spell simply fails, taking the PP to nowhere. Self-doubt gives a -10 to caster's SCRs for the rest of the day."
+        ]
+      },
+      {
+        "rollLow": 151,
+        "rollHigh": 175,
+        "cells": [
+          "Caster pulls elemental energies towards himself too strongly, takes a C critical, and expends twice the normal PP for this spell.",
+          "Mental strain blanks entire spell list from caster's mind. He will recover memory at 1 rank per day. Bewildered, caster is at -50 for 1d10 hours.",
+          "Information comes in garbled and stuns [-50] caster for 5 rounds. However, caster will get the information properly in 1d10 days in a dream.",
+          "Caster manages to stun [-50] himself for 5 rounds and glows for 1d10 minutes."
+        ]
+      },
+      {
+        "rollLow": 176,
+        "rollHigh": 185,
+        "cells": [
+          "The elements cannot be controlled! Caster's brain is fried (loses all spell-casting ability for 1 week). Caster operates at -50 for 3 months (or until brain is repaired).",
+          "Target is selected at random within 500' range (ignore normal range). Caster's brain is scrambled, leaving him at -75 for 1d10 months (or until brain is repaired).",
+          "Caster obtains false, but plausible, information.",
+          "Spell misfires in caster's head. Caster is knocked down, taking 2d10 hits, and is unable to function for one hour."
+        ]
+      },
+      {
+        "rollLow": 186,
+        "rollHigh": 190,
+        "cells": [
+          "Caster mishandles energies badly and takes 9 rounds of stun [-50]. Caster cannot attempt this spell again until gaining another rank in the relevant spell list.",
+          "Brain strain causes complete PP drain. Caster is unable to cast spells for 2d10 weeks and is stunned [-50] for six rounds.",
+          "Caster stumbles onto a revelation of his own character flaws. Caster is at -100 for the next hour.",
+          "As the spell spirals out of control, the spell-casting part of the caster's brain shuts down for self-preservation. Caster is unable to cast spells for 1d10 days."
+        ]
+      },
+      {
+        "rollLow": 191,
+        "rollHigh": 195,
+        "cells": [
+          "Caster takes a D crit, is unable to cast spells for a week, and develops a phobia of whatever he was targeting.",
+          "The spirit is willing, but the body proves weak. Caster's skin splits, causing him to bleed 10 hits/rnd. Meanwhile, caster is stunned [-75] 10 rounds, during which he cannot cast spell subconsciously.",
+          "Caster has a vision of his own death! Caster collapses and is unconscious for 1d10 hours, after which he wakes suffering from paranoia.",
+          "Caster is flung against the nearest solid object for 5d10 hits, is knocked out for 12 hours, and loses spell-casting ability for 1d10 weeks. Caster develops compulsion to never take any penalty to an SCR for this spell."
+        ]
+      },
+      {
+        "rollLow": 196,
+        "rollHigh": 200,
+        "cells": [
+          "Caster overloads his nervous system, taking 10d10 hits and losing the ability to cast Elemental spells for 1 year (or until nerves are repaired). Then the elemental power hits for a D crit.",
+          "The spell completely short circuits caster's nervous system, leaving him paralyzed from the waist down. Caster also goes bald.",
+          "The victim of a mild stroke, the caster takes 4d10 hits and suffers a -50 to any Endurance rolls made for the next week plus 1d10 days.",
+          "Caster suffers a mild stroke, taking 20 hits and a -50 penalty lasting 1d10 days. He also cannot cast spells for 2 weeks."
+        ]
+      },
+      {
+        "rollLow": 201,
+        "rollHigh": 250,
+        "cells": [
+          "Caster gains an incomprehensible glimpse into the elemental planes and retreats into a 1d10 month coma.",
+          "Pain floods through the caster, doing 10d10 hits and 10 rounds of stun [-50]. Caster will be at -25 due to headaches for 1d10 weeks.",
+          "Caster mixes up his own mind and is unable to cast spells, or use Lore/ Science skills other than his native tongue, until he spends a week in undisturbed meditation.",
+          "Caster damages his psyche, giving a -100 penalty to SCRs. Penalty decreases by -1 per day or -2 per day spent in peaceful meditation."
+        ]
+      },
+      {
+        "rollLow": 251,
+        "rollHigh": 300,
+        "cells": [
+          "Caster takes an E crit and 8d10 hits, spends 1d10 minutes stunned [-50], and loses all spell-casting ability for 3 months. Caster demonstrates that spontaneous decapitation is not just a myth.",
+          "Massive feedback strain puts caster into a coma for 1d10 months. Caster's skull explodes, causing instant death. 43",
+          "Caster now has a nervous tic. Caster is stunned 1d10 rounds. Casting from this spell list will have a -20 SCR penalty (until caster is psychologically healed). Caster reveals his mind to everyone within 100'; they can read his thoughts for 1d10 rounds, after which he loses spell-casting ability for 6 months.",
+          "Caster is stunned [-50] for 2d10 rounds and must relearn this spell in order to cast it again. Caster also develops a mild mental illness (GM's option). Caster suffers a severe stroke and drops into a 1d10 month coma."
+        ]
+      }
+    ]
+  }
+]

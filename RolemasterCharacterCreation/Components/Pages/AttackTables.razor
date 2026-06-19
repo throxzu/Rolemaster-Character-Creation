@@ -1,0 +1,537 @@
+@page "/attack-tables"
+@rendermode InteractiveServer
+@attribute [Authorize]
+@using System.Security.Claims
+@using System.Text.RegularExpressions
+@using RolemasterCharacterCreation.Data
+@inject AppDbContext Db
+@inject AuthenticationStateProvider AuthState
+
+<PageTitle>Attack Tables</PageTitle>
+
+<div class="container-fluid mt-3">
+    <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+        <h2 class="mb-0">Attack Tables</h2>
+        <div class="ms-auto" style="min-width: 260px;">
+            <select class="form-select qp-input" @bind="SelectedCharacterId">
+                <option value="0">— Browse only (no character) —</option>
+                @foreach (var c in _characters)
+                {
+                    <option value="@c.Id">@c.Name@(_isGm && c.User is not null ? $" ({c.User.DisplayName})" : "")</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <!-- ── Left: favorites + suggestions + all tables ── -->
+        <div class="col-md-4 col-lg-3">
+            @if (_selectedCharacterId > 0)
+            {
+                <div class="section-label mb-1">★ Favorites</div>
+                <div class="at-list qp-card p-0 mb-3">
+                    @if (_favorites.Count == 0)
+                    {
+                        <div class="p-3 text-muted small">No favorites yet — star a table below.</div>
+                    }
+                    @foreach (var f in _favorites.OrderBy(f => f.SortOrder))
+                    {
+                        var t = TableById(f.AttackTableId);
+                        if (t is null) { continue; }
+                        <div class="at-list-item @(_selectedTableId == t.Id ? "active" : "")"
+                             @onclick="() => SelectTable(t.Id, f.PreferredSize)">
+                            <span class="at-name">@t.Name</span>
+                            <span class="badge at-size-badge">@f.PreferredSize</span>
+                            <button class="at-star on" title="Remove favorite"
+                                    @onclick:stopPropagation="true"
+                                    @onclick="() => ToggleFavorite(t.Id)">★</button>
+                        </div>
+                    }
+                </div>
+
+                @if (_suggestions.Count > 0)
+                {
+                    <div class="section-label mb-1">Suggested from this character</div>
+                    <div class="at-list qp-card p-0 mb-3">
+                        @foreach (var s in _suggestions)
+                        {
+                            <div class="at-list-item" @onclick="() => SelectTable(s.TableId, s.Size)">
+                                <span class="at-name">@s.Name</span>
+                                <span class="badge at-size-badge">@s.Size</span>
+                                <button class="at-star" title="Add to favorites"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="() => AddFavorite(s.TableId, s.Size)">＋</button>
+                            </div>
+                        }
+                    </div>
+                }
+            }
+
+            <div class="section-label mb-1">All tables</div>
+            <input class="form-control qp-input mb-2" placeholder="Search…"
+                   @bind="_search" @bind:event="oninput" />
+            <select class="form-select qp-input mb-2" @bind="_categoryFilter">
+                <option value="">All categories</option>
+                @foreach (var cat in _tables.Select(t => t.Category).Distinct().Order())
+                {
+                    <option value="@cat">@cat</option>
+                }
+            </select>
+            <div class="at-list at-list-tall qp-card p-0">
+                @foreach (var t in FilteredTables)
+                {
+                    <div class="at-list-item @(_selectedTableId == t.Id ? "active" : "")"
+                         @onclick="() => SelectTable(t.Id, null)">
+                        <span class="at-name">@t.Name</span>
+                        <span class="at-cat text-muted small">@t.Category</span>
+                        @if (_selectedCharacterId > 0)
+                        {
+                            <button class="at-star @(IsFavorite(t.Id) ? "on" : "")"
+                                    title="@(IsFavorite(t.Id) ? "Remove favorite" : "Add favorite")"
+                                    @onclick:stopPropagation="true"
+                                    @onclick="() => ToggleFavorite(t.Id)">@(IsFavorite(t.Id) ? "★" : "☆")</button>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- ── Right: selected table detail ── -->
+        <div class="col-md-8 col-lg-9">
+            @if (_selected is { } at)
+            {
+                <div class="qp-card p-4">
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                        <h3 class="at-title mb-0">@at.Name.ToUpperInvariant()</h3>
+                        <span class="badge at-cat-badge">@at.Category</span>
+                        <div class="btn-group ms-auto" role="group">
+                            @foreach (var sz in Sizes)
+                            {
+                                <button class="btn btn-sm @(_size == sz ? "btn-primary" : "btn-outline-secondary")"
+                                        @onclick="() => SetSize(sz)">@sz</button>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- "First quadrant" metadata block -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <table class="table table-sm table-bordered stat-info mb-0">
+                                <tbody>
+                                    <tr>
+                                        <td>Criticals</td>
+                                        <td>
+                                            @{ var parts = CriticalParts(at.CritTypes); }
+                                            @for (var i = 0; i < parts.Count; i++)
+                                            {
+                                                var part = parts[i];
+                                                @(i > 0 ? ", " : "")
+                                                @if (part.Linked)
+                                                {
+                                                    <a href="@($"/critical-tables?type={Uri.EscapeDataString(part.Target)}")">@part.Name</a><text>@part.Suffix</text>
+                                                }
+                                                else
+                                                {
+                                                    <text>@part.Name@part.Suffix</text>
+                                                }
+                                            }
+                                        </td>
+                                    </tr>
+                                    @if (!string.IsNullOrWhiteSpace(at.DisarmMod))  { @MetaRow("Disarm mod.", at.DisarmMod!) }
+                                    @if (!string.IsNullOrWhiteSpace(at.SubdualMod)) { @MetaRow("Subdual mod.", at.SubdualMod!) }
+                                </tbody>
+                            </table>
+                        </div>
+                        @if (at.Weapons.Count > 0)
+                        {
+                            <div class="col-md-6">
+                                <table class="table table-sm table-bordered stat-bonus-table mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Weapon</th><th>Size</th><th>Len</th>
+                                            <th>Str</th><th>Wt</th><th>Fum</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var w in at.Weapons)
+                                        {
+                                            <tr>
+                                                <td>@w.Name</td>
+                                                <td class="text-center">@(w.SizeMod ?? "—")</td>
+                                                <td class="text-center">@(w.Length ?? "—")</td>
+                                                <td class="text-center">@(w.Strength ?? "—")</td>
+                                                <td class="text-center">@(w.Weight ?? "—")</td>
+                                                <td class="text-center">
+                                                    @if (w.Fumble is { } fum)
+                                                    {
+                                                        <a href="@($"/fumble-tables?type={FumbleType(at)}")"
+                                                           title="@($"{FumbleType(at)} Fumbles")">@fum</a>
+                                                    }
+                                                    else { <text>—</text> }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(at.Notes))
+                    {
+                        <p class="at-notes mb-3"><span class="section-label">Notes:</span> @at.Notes</p>
+                    }
+
+                    <!-- Result grid -->
+                    <div class="at-grid-wrap">
+                        <table class="table table-sm table-bordered at-grid mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="at-roll-col">Roll</th>
+                                    @for (var i = 1; i <= 10; i++)
+                                    {
+                                        <th class="text-center">@i</th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var r in _rows)
+                                {
+                                    <tr>
+                                        <td class="at-roll-col">@r.RollHigh–@r.RollLow</td>
+                                        @foreach (var cell in r.Cells)
+                                        {
+                                            <td class="text-center @(cell is null ? "at-empty" : "")">@cell</td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="qp-card p-4 text-muted text-center">
+                    Select an attack table from the list.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .at-list { max-height: 360px; overflow-y: auto; display: flex; flex-direction: column; }
+    .at-list-tall { max-height: calc(100vh - 430px); }
+    .at-list-item {
+        display: flex; align-items: center; gap: 8px;
+        padding: 7px 12px; border: none; border-bottom: 1px solid var(--qp-border-panel);
+        background: transparent; color: var(--qp-text-primary); cursor: pointer; text-align: left;
+        transition: background .12s;
+    }
+    .at-list-item:hover  { background: var(--qp-bg-panel-alt); }
+    .at-list-item.active { background: var(--qp-blue); color: #fff; }
+    .at-name { font-weight: 500; flex: 1 1 auto; }
+    .at-cat  { flex: 0 0 auto; }
+    .at-size-badge { background: var(--qp-bg-panel); color: var(--qp-text-label); flex: 0 0 auto; }
+    .at-star {
+        border: none; background: transparent; cursor: pointer; font-size: 1.05rem;
+        line-height: 1; color: var(--qp-text-muted); flex: 0 0 auto; padding: 0 2px;
+    }
+    .at-star.on { color: var(--qp-gold, #e0b040); }
+    .at-title    { color: var(--qp-teal); font-weight: 700; letter-spacing: .04em; }
+    .at-cat-badge   { background: var(--qp-bg-panel); color: var(--qp-text-label); }
+    .section-label  { font-size: .75rem; font-weight: 600; text-transform: uppercase;
+                      letter-spacing: .08em; color: var(--qp-text-label); }
+    .stat-info td   { border-color: var(--qp-border-panel) !important; padding: 4px 10px; }
+    .stat-info td:first-child {
+        color: var(--qp-text-label); font-size: .8rem; font-weight: 600; text-transform: uppercase;
+        letter-spacing: .05em; width: 120px; background: var(--qp-bg-panel);
+    }
+    .stat-bonus-table { font-size: .82rem; }
+    .stat-bonus-table th { color: var(--qp-text-label); font-weight: 600; background: var(--qp-bg-panel);
+                           border-color: var(--qp-border-panel) !important; }
+    .stat-bonus-table td { background: var(--qp-bg-panel-alt); border-color: var(--qp-border-panel) !important; }
+    .at-notes { color: var(--qp-text-muted); font-size: .85rem; line-height: 1.5; }
+    .at-grid-wrap { max-height: calc(100vh - 360px); overflow: auto; }
+    .at-grid { font-size: .82rem; font-variant-numeric: tabular-nums; }
+    .at-grid th { position: sticky; top: 0; z-index: 1; background: var(--qp-bg-panel);
+                  color: var(--qp-text-label); border-color: var(--qp-border-panel) !important; }
+    .at-grid td { border-color: var(--qp-border-panel) !important; padding: 2px 6px; white-space: nowrap; }
+    .at-roll-col { font-weight: 600; color: var(--qp-text-label); background: var(--qp-bg-panel);
+                   position: sticky; left: 0; }
+    .at-empty { color: transparent; }
+</style>
+
+@code {
+    private static readonly string[] Sizes = ["Small", "Medium", "Big"];
+
+    // Deep link to a specific table by name (e.g. from a weapon on the character sheet).
+    [SupplyParameterFromQuery(Name = "table")]
+    public string? Table { get; set; }
+
+    private bool _isGm;
+    private List<Character> _characters = [];
+    private int _selectedCharacterId;
+
+    private List<AttackTable> _tables = [];                 // headers + weapons, no rows
+    private HashSet<string> _critNames = new(StringComparer.OrdinalIgnoreCase);
+    private List<CharacterFavoriteAttack> _favorites = [];
+    private List<Suggestion> _suggestions = [];
+
+    private int _selectedTableId;
+    private AttackTable? _selected;
+    private string _size = "Medium";
+    private List<AttackTableRow> _rows = [];
+
+    private string _search = "";
+    private string _categoryFilter = "";
+
+    private int SelectedCharacterId
+    {
+        get => _selectedCharacterId;
+        set { _selectedCharacterId = value; _ = OnCharacterChangedAsync(); }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthState.GetAuthenticationStateAsync();
+        _isGm = auth.User.IsInRole(Roles.Gamemaster);
+        var userId = auth.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        var q = Db.Characters.AsNoTracking().Include(c => c.User).AsQueryable();
+        if (!_isGm) { q = q.Where(c => c.UserId == userId); }
+        _characters = await q.OrderBy(c => c.Name).ToListAsync();
+
+        _tables = await Db.AttackTables.AsNoTracking()
+            .Include(t => t.Weapons)
+            .OrderBy(t => t.Name)
+            .ToListAsync();
+
+        _critNames = (await Db.CriticalTables.AsNoTracking().Select(t => t.Name).ToListAsync())
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        // Deep link: ?table=<name> opens straight to that attack table.
+        if (!string.IsNullOrEmpty(Table) &&
+            _tables.FirstOrDefault(t => t.Name.Equals(Table, StringComparison.OrdinalIgnoreCase)) is { } dl)
+        {
+            await SelectTable(dl.Id, null);
+        }
+    }
+
+    // Attack tables name crit types adjectivally ("Unbalancing") while the table is
+    // named for the noun ("Unbalance"); map the few that differ to their table.
+    private static readonly Dictionary<string, string> CritAliases = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["Grappling"]      = "Grapple",
+        ["Striking"]       = "Strike",
+        ["Sweeps & Throws"] = "Sweeps",
+        ["Unbalancing"]    = "Unbalance",
+    };
+
+    // Splits the crit-types string ("Puncture(P), Slash(S), Krush(K)") into parts,
+    // flagging each known critical type so the markup can link it to its table.
+    private List<CritPart> CriticalParts(string critTypes) =>
+        critTypes.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(seg =>
+            {
+                var p = seg.IndexOf('(');
+                var name = (p >= 0 ? seg[..p] : seg).Trim();
+                var suffix = p >= 0 ? " " + seg[p..] : "";
+                var target = CritAliases.GetValueOrDefault(name, name);
+                return new CritPart(name, suffix, target, _critNames.Contains(target));
+            })
+            .ToList();
+
+    private sealed record CritPart(string Name, string Suffix, string Target, bool Linked);
+
+    // Ranged/thrown attacks use the Ranged Fumbles table; everything else (melee
+    // weapons and natural attacks) uses Melee Fumbles.
+    private static readonly HashSet<string> RangedAttacks = new(StringComparer.OrdinalIgnoreCase)
+        { "Bow, Long", "Bow, Short", "Crossbow", "Sling", "Bola", "Rock" };
+
+    private static string FumbleType(AttackTable at) =>
+        at.Category == "Spell" || RangedAttacks.Contains(at.Name) ? "Ranged" : "Melee";
+
+    private async Task OnCharacterChangedAsync()
+    {
+        _favorites = _selectedCharacterId == 0
+            ? []
+            : await Db.CharacterFavoriteAttacks.AsNoTracking()
+                .Where(f => f.CharacterId == _selectedCharacterId)
+                .ToListAsync();
+        await BuildSuggestionsAsync();
+        StateHasChanged();
+    }
+
+    // ── Selection / size ────────────────────────────────────────────────────
+    private async Task SelectTable(int tableId, string? preferredSize)
+    {
+        _selectedTableId = tableId;
+        _selected = TableById(tableId);
+        // Prefer an explicit size, else the favorite's saved size, else current.
+        _size = preferredSize
+            ?? _favorites.FirstOrDefault(f => f.AttackTableId == tableId)?.PreferredSize
+            ?? _size;
+        await LoadRowsAsync();
+    }
+
+    private async Task SetSize(string size)
+    {
+        _size = size;
+        await LoadRowsAsync();
+
+        // Persist the choice when this table is a favorite.
+        var fav = await Db.CharacterFavoriteAttacks
+            .FirstOrDefaultAsync(f => f.CharacterId == _selectedCharacterId
+                                   && f.AttackTableId == _selectedTableId);
+        if (fav is not null && fav.PreferredSize != size)
+        {
+            fav.PreferredSize = size;
+            await Db.SaveChangesAsync();
+            var local = _favorites.FirstOrDefault(f => f.AttackTableId == _selectedTableId);
+            if (local is not null) { local.PreferredSize = size; }
+        }
+    }
+
+    private async Task LoadRowsAsync()
+    {
+        _rows = _selectedTableId == 0 ? [] : await Db.AttackTableRows.AsNoTracking()
+            .Where(r => r.AttackTableId == _selectedTableId && r.Size == _size)
+            .OrderByDescending(r => r.RollHigh)
+            .ToListAsync();
+    }
+
+    // ── Favorites ───────────────────────────────────────────────────────────
+    private bool IsFavorite(int tableId) => _favorites.Any(f => f.AttackTableId == tableId);
+
+    private async Task ToggleFavorite(int tableId)
+    {
+        if (_selectedCharacterId == 0) { return; }
+        if (IsFavorite(tableId))
+        {
+            var existing = await Db.CharacterFavoriteAttacks
+                .Where(f => f.CharacterId == _selectedCharacterId && f.AttackTableId == tableId)
+                .ToListAsync();
+            Db.CharacterFavoriteAttacks.RemoveRange(existing);
+            await Db.SaveChangesAsync();
+            _favorites.RemoveAll(f => f.AttackTableId == tableId);
+            await BuildSuggestionsAsync();
+        }
+        else
+        {
+            await AddFavorite(tableId, _selected?.Id == tableId ? _size : DefaultSizeFor(tableId));
+        }
+    }
+
+    private async Task AddFavorite(int tableId, string size)
+    {
+        if (_selectedCharacterId == 0 || IsFavorite(tableId)) { return; }
+        var fav = new CharacterFavoriteAttack
+        {
+            CharacterId = _selectedCharacterId,
+            AttackTableId = tableId,
+            PreferredSize = size,
+            SortOrder = _favorites.Count == 0 ? 0 : _favorites.Max(f => f.SortOrder) + 1,
+        };
+        Db.CharacterFavoriteAttacks.Add(fav);
+        await Db.SaveChangesAsync();
+        _favorites.Add(fav);
+        await BuildSuggestionsAsync();
+    }
+
+    // ── Auto-suggest from the character's weapons & spells ───────────────────
+    private async Task BuildSuggestionsAsync()
+    {
+        _suggestions = [];
+        if (_selectedCharacterId == 0) { return; }
+
+        var skills = await Db.CharacterSkills.AsNoTracking()
+            .Where(s => s.CharacterId == _selectedCharacterId)
+            .Select(s => s.Specialization)
+            .ToListAsync();
+        var equip = await Db.CharacterEquipmentItems.AsNoTracking()
+            .Where(e => e.CharacterId == _selectedCharacterId)
+            .Select(e => e.Name)
+            .ToListAsync();
+
+        var terms = skills.Concat(equip)
+            .Where(t => !string.IsNullOrWhiteSpace(t))
+            .Select(t => t!)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        // Candidate names → (table, sizeMod): each table's own name plus its
+        // weapon-stat-group entries (e.g. "Short Sword" → Arming Sword table, -1).
+        var seen = new HashSet<int>();
+        foreach (var term in terms)
+        {
+            var termTokens = Tokens(term);
+            if (termTokens.Count == 0) { continue; }
+
+            foreach (var t in _tables)
+            {
+                if (IsFavorite(t.Id) || seen.Contains(t.Id)) { continue; }
+
+                string? sizeMod;
+                if (NameMatches(termTokens, Tokens(t.Name)))
+                {
+                    sizeMod = t.Weapons.FirstOrDefault()?.SizeMod;
+                }
+                else if (t.Weapons.FirstOrDefault(w => NameMatches(termTokens, Tokens(w.Name))) is { } w)
+                {
+                    sizeMod = w.SizeMod;
+                }
+                else { continue; }
+
+                seen.Add(t.Id);
+                _suggestions.Add(new Suggestion(t.Id, t.Name, SizeFromMod(sizeMod)));
+            }
+        }
+        _suggestions = _suggestions.OrderBy(s => s.Name).ToList();
+    }
+
+    private string DefaultSizeFor(int tableId)
+    {
+        var t = TableById(tableId);
+        return SizeFromMod(t?.Weapons.FirstOrDefault()?.SizeMod);
+    }
+
+    private static string SizeFromMod(string? mod) => mod switch
+    {
+        "-1" or "-2" => "Small",
+        "+1" or "+2" => "Big",
+        _ => "Medium",
+    };
+
+    private static readonly Regex NonWord = new(@"[^a-z0-9]+", RegexOptions.Compiled);
+    private static readonly HashSet<string> StopTokens = new(StringComparer.Ordinal)
+        { "the", "of", "a", "1h", "2h" };
+
+    private static HashSet<string> Tokens(string s) =>
+        NonWord.Split(s.ToLowerInvariant())
+            .Where(t => t.Length >= 2 && !StopTokens.Contains(t))
+            .ToHashSet();
+
+    // Match when one token set is a subset of the other (handles "Fire Bolt" ↔
+    // "Bolt, Fire" and "Long Bow" ↔ "Long Bow (2H)") with a shared token.
+    private static bool NameMatches(HashSet<string> a, HashSet<string> b)
+    {
+        if (a.Count == 0 || b.Count == 0) { return false; }
+        return a.IsSubsetOf(b) || b.IsSubsetOf(a);
+    }
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+    private AttackTable? TableById(int id) => _tables.FirstOrDefault(t => t.Id == id);
+
+    private IEnumerable<AttackTable> FilteredTables =>
+        _tables.Where(t =>
+            (string.IsNullOrEmpty(_categoryFilter) || t.Category == _categoryFilter) &&
+            (string.IsNullOrEmpty(_search) || t.Name.Contains(_search, StringComparison.OrdinalIgnoreCase)));
+
+    private RenderFragment MetaRow(string label, string value) => __builder =>
+    {
+        <tr><td>@label</td><td>@value</td></tr>
+    };
+
+    private sealed record Suggestion(int TableId, string Name, string Size);
+}

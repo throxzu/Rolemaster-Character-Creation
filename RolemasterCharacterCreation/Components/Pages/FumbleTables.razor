@@ -1,0 +1,142 @@
+@page "/fumble-tables"
+@rendermode InteractiveServer
+@attribute [Authorize]
+@using RolemasterCharacterCreation.Data
+@inject AppDbContext Db
+
+<PageTitle>Fumble Tables</PageTitle>
+
+<div class="container-fluid mt-3">
+    <h2 class="mb-3">Fumble Tables</h2>
+
+    <div class="row g-3">
+        <!-- ── Left: table list ── -->
+        <div class="col-md-3 col-lg-2">
+            <div class="ft-list qp-card p-0">
+                @foreach (var t in _tables)
+                {
+                    <div class="ft-list-item @(_selected?.Id == t.Id ? "active" : "")"
+                         @onclick="() => Select(t)">
+                        @t.Name
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- ── Right: selected table ── -->
+        <div class="col-md-9 col-lg-10">
+            @if (_selected is { } ft)
+            {
+                <div class="qp-card p-4">
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                        <h3 class="ft-title mb-0">@ft.Name.ToUpperInvariant()</h3>
+                        <div class="ms-auto" style="min-width: 200px;">
+                            <select class="form-select form-select-sm qp-input" @bind="_column">
+                                <option value="">All columns</option>
+                                @foreach (var c in ft.ColumnNames)
+                                {
+                                    <option value="@c">@c</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="ft-grid-wrap">
+                        <table class="table table-sm table-bordered ft-grid mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="ft-roll-col">Roll</th>
+                                    @foreach (var (name, _) in ShownColumns(ft))
+                                    {
+                                        <th>@name</th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var r in ft.Rows)
+                                {
+                                    <tr>
+                                        <td class="ft-roll-col">@RollLabel(r)</td>
+                                        @foreach (var (_, idx) in ShownColumns(ft))
+                                        {
+                                            <td class="ft-cell">@r.Cells[idx]</td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="ft-legend mt-3 mb-0">
+                        <span class="section-label">Effect key:</span>
+                        <code>hits+X</code> extra hits · <code>bleed X</code> hits/round ·
+                        <code>fatigue(-X)</code> · <code>breakage(-X)</code> ·
+                        <code>stun[-X]</code> · <code>stagger</code> · <code>knockback X'</code> ·
+                        <code>prone</code> · <code>grapple X%</code> · <code>KILLED</code>.
+                        A number before a symbol is duration (rounds).
+                    </p>
+                </div>
+            }
+            else
+            {
+                <div class="qp-card p-4 text-muted text-center">Select a fumble table.</div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .ft-list { display: flex; flex-direction: column; }
+    .ft-list-item {
+        padding: 8px 14px; border-bottom: 1px solid var(--qp-border-panel);
+        cursor: pointer; color: var(--qp-text-primary); transition: background .12s; font-weight: 500;
+    }
+    .ft-list-item:hover  { background: var(--qp-bg-panel-alt); }
+    .ft-list-item.active { background: var(--qp-blue); color: #fff; }
+    .ft-title { color: var(--qp-teal); font-weight: 700; letter-spacing: .04em; }
+    .section-label { font-size: .75rem; font-weight: 600; text-transform: uppercase;
+                     letter-spacing: .08em; color: var(--qp-text-label); }
+    .ft-grid-wrap { max-height: calc(100vh - 320px); overflow: auto; }
+    .ft-grid { font-size: .82rem; }
+    .ft-grid th { position: sticky; top: 0; z-index: 1; background: var(--qp-bg-panel);
+                  color: var(--qp-text-label); border-color: var(--qp-border-panel) !important;
+                  white-space: nowrap; }
+    .ft-grid td { border-color: var(--qp-border-panel) !important; padding: 4px 8px; vertical-align: top; }
+    .ft-cell { min-width: 170px; line-height: 1.4; }
+    .ft-roll-col { white-space: nowrap; font-weight: 600; color: var(--qp-text-label);
+                   background: var(--qp-bg-panel); position: sticky; left: 0; }
+    .ft-legend { font-size: .78rem; color: var(--qp-text-muted); line-height: 1.9; }
+    .ft-legend code { background: var(--qp-bg-panel); color: var(--qp-text-primary);
+                      padding: 1px 5px; border-radius: 4px; }
+</style>
+
+@code {
+    [SupplyParameterFromQuery(Name = "type")]
+    public string? Type { get; set; }
+
+    private List<FumbleTable> _tables = [];
+    private FumbleTable? _selected;
+    private string _column = "";
+
+    // Column name + its index (0-4); honours the focus filter.
+    private IEnumerable<(string Name, int Index)> ShownColumns(FumbleTable ft) =>
+        ft.ColumnNames
+            .Select((n, i) => (Name: n, Index: i))
+            .Where(c => string.IsNullOrEmpty(_column) || c.Name == _column);
+
+    protected override async Task OnInitializedAsync()
+    {
+        _tables = await Db.FumbleTables.AsNoTracking()
+            .Include(t => t.Rows.OrderBy(r => r.RollLow))
+            .OrderBy(t => t.Name)
+            .ToListAsync();
+
+        _selected = (Type is not null
+            ? _tables.FirstOrDefault(t => t.Name.Contains(Type, StringComparison.OrdinalIgnoreCase))
+            : null) ?? _tables.FirstOrDefault();
+    }
+
+    private void Select(FumbleTable t) { _selected = t; _column = ""; }
+
+    private static string RollLabel(FumbleTableRow r) =>
+        r.RollLow == r.RollHigh ? r.RollLow.ToString() : $"{r.RollLow}–{r.RollHigh}";
+}

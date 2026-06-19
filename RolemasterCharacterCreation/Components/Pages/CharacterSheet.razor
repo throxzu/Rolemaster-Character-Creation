@@ -7,11 +7,13 @@
 @using RolemasterCharacterCreation.Data
 @using RolemasterCharacterCreation.Models
 @using RolemasterCharacterCreation.Rules
+@using RolemasterCharacterCreation.Services
 @using System.Security.Claims
 @inject AppDbContext Db
 @inject AuthenticationStateProvider AuthState
 @inject IJSRuntime JS
 @inject NavigationManager Nav
+@inject ReferenceTableService RefTables
 
 <PageTitle>@(_char?.Name ?? "Character") — Sheet</PageTitle>
 
@@ -335,14 +337,27 @@
     wepTipParts.Append($"──────────\n= {Fmt(skill)}");
     string wepTip = wepTipParts.ToString();
 
+    var atk = WeaponAttackTable.For(ws.Specialization);
+    int? effFumble = atk is null ? null : Math.Max(1, atk.Fumble - totalRanks / 5);
+    string fumbleTip = atk is null ? "" :
+        $"{atk.Table} attack table — fumbles on a roll of 1–{atk.Fumble}.\n−1 per 5 weapon ranks ({totalRanks} ranks) → 1–{effFumble}.";
     <tr>
       <td class="p1">
-        @ws.Specialization
+        @if (atk is not null)
+        {
+          <a class="sl-link fw" target="_blank"
+             href="@($"/attack-tables?table={Uri.EscapeDataString(atk.Table)}")">@ws.Specialization</a>
+        }
+        else { @ws.Specialization }
         <span class="muted" style="font-size:7pt"> (@ws.SkillName)</span>
         @if (wsPro)   { <span class="muted" style="font-size:7pt"> Pro</span> }
         @if (wsKnack) { <span class="muted" style="font-size:7pt"> Knack</span> }
       </td>
-      <td class="p1 tc muted">—</td>
+      @if (atk is not null)
+      {
+        <td class="p1 tc fw" data-tip="@fumbleTip">@effFumble</td>
+      }
+      else { <td class="p1 tc muted">—</td> }
       <td class="p1 tr">@Fmt(strBonus)</td>
       <td class="p1"></td>
       <td class="p1 tr @(skill >= 0 ? "pos" : "neg")">@Fmt(skill)</td>
@@ -594,7 +609,10 @@
   {
     int castBonus = sl.PurchasedRanks + _spellRealmBonus;
     <tr>
-      <td class="p1 fw">@sl.Specialization</td>
+      <td class="p1 fw">
+        <a class="sl-link" target="_blank"
+           href="@($"/spells?list={Uri.EscapeDataString(sl.Specialization ?? string.Empty)}")">@sl.Specialization</a>
+      </td>
       <td class="p1 muted sf">@sl.SkillName.Replace(" Spell Lists", "")</td>
       <td class="p1 tc fw">@sl.PurchasedRanks</td>
       <td class="p1 tr">@Fmt(_spellRealmBonus)</td>
@@ -731,7 +749,16 @@
       <tr class="sk-row @(isPro ? "sk-pro" : "") @(isKnack ? "sk-knack" : "")">
         <td class="tc">@(isPro ? "■" : "□")</td>
         <td class="p1">
-          <span data-bs-toggle="tooltip" data-bs-title="@skd.Description" data-bs-placement="right">@skd.Name</span>
+          @{ var refTbl = RefTables.TableForSkill(skd.Name); }
+          @if (refTbl is not null)
+          {
+            <a class="sk-table-link" href="@($"/reference-tables?table={Uri.EscapeDataString(refTbl.Name)}")" target="_blank"
+               data-bs-toggle="tooltip" data-bs-title="@($"{skd.Description}\nManeuver table: {refTbl.Name}")" data-bs-placement="right">@skd.Name</a>
+          }
+          else
+          {
+            <span data-bs-toggle="tooltip" data-bs-title="@skd.Description" data-bs-placement="right">@skd.Name</span>
+          }
           @if (skd.Specialized) { <span class="spec-tag">(spec.)</span> }
         </td>
         <td class="@(skd.Specialized ? "spec-gray" : "") p1"></td>

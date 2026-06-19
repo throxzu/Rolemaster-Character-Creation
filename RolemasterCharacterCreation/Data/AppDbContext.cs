@@ -14,6 +14,19 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<CharacterTalent> CharacterTalents => Set<CharacterTalent>();
     public DbSet<CharacterEquipmentItem> CharacterEquipmentItems => Set<CharacterEquipmentItem>();
     public DbSet<CharacterAuditLog> CharacterAuditLogs => Set<CharacterAuditLog>();
+    public DbSet<CreatureDescription> CreatureDescriptions => Set<CreatureDescription>();
+    public DbSet<AttackTable> AttackTables => Set<AttackTable>();
+    public DbSet<AttackTableWeapon> AttackTableWeapons => Set<AttackTableWeapon>();
+    public DbSet<AttackTableRow> AttackTableRows => Set<AttackTableRow>();
+    public DbSet<CharacterFavoriteAttack> CharacterFavoriteAttacks => Set<CharacterFavoriteAttack>();
+    public DbSet<CriticalTable> CriticalTables => Set<CriticalTable>();
+    public DbSet<CriticalTableRow> CriticalTableRows => Set<CriticalTableRow>();
+    public DbSet<FumbleTable> FumbleTables => Set<FumbleTable>();
+    public DbSet<FumbleTableRow> FumbleTableRows => Set<FumbleTableRow>();
+    public DbSet<SpellFailureTable> SpellFailureTables => Set<SpellFailureTable>();
+    public DbSet<SpellFailureTableRow> SpellFailureTableRows => Set<SpellFailureTableRow>();
+    public DbSet<SpellList> SpellLists => Set<SpellList>();
+    public DbSet<Spell> Spells => Set<Spell>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -77,6 +90,129 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             .WithMany()
             .HasForeignKey(a => a.ChangedByUserId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<CreatureDescription>()
+            .Property(c => c.Name)
+            .HasMaxLength(200)
+            .IsRequired();
+
+        modelBuilder.Entity<CreatureDescription>()
+            .HasIndex(c => c.Name)
+            .IsUnique();
+
+        modelBuilder.Entity<AttackTable>()
+            .Property(a => a.Name)
+            .HasMaxLength(100)
+            .IsRequired();
+
+        modelBuilder.Entity<AttackTable>()
+            .HasIndex(a => a.Name)
+            .IsUnique();
+
+        modelBuilder.Entity<AttackTableWeapon>()
+            .HasOne(w => w.AttackTable)
+            .WithMany(a => a.Weapons)
+            .HasForeignKey(w => w.AttackTableId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<AttackTableRow>()
+            .HasOne(r => r.AttackTable)
+            .WithMany(a => a.Rows)
+            .HasForeignKey(r => r.AttackTableId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<AttackTableRow>()
+            .HasIndex(r => new { r.AttackTableId, r.Size });
+
+        modelBuilder.Entity<AttackTableRow>()
+            .Ignore(r => r.Cells);
+
+        modelBuilder.Entity<CharacterFavoriteAttack>()
+            .HasOne(f => f.Character)
+            .WithMany(c => c.FavoriteAttacks)
+            .HasForeignKey(f => f.CharacterId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CharacterFavoriteAttack>()
+            .HasOne(f => f.AttackTable)
+            .WithMany()
+            .HasForeignKey(f => f.AttackTableId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CharacterFavoriteAttack>()
+            .HasIndex(f => new { f.CharacterId, f.AttackTableId })
+            .IsUnique();
+
+        modelBuilder.Entity<CriticalTable>()
+            .Property(c => c.Name)
+            .HasMaxLength(50)
+            .IsRequired();
+
+        modelBuilder.Entity<CriticalTable>()
+            .HasIndex(c => c.Name)
+            .IsUnique();
+
+        modelBuilder.Entity<CriticalTableRow>()
+            .HasOne(r => r.CriticalTable)
+            .WithMany(c => c.Rows)
+            .HasForeignKey(r => r.CriticalTableId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<FumbleTable>()
+            .Property(f => f.Name)
+            .HasMaxLength(50)
+            .IsRequired();
+
+        modelBuilder.Entity<FumbleTable>()
+            .HasIndex(f => f.Name)
+            .IsUnique();
+
+        modelBuilder.Entity<FumbleTable>()
+            .Ignore(f => f.ColumnNames);
+
+        modelBuilder.Entity<FumbleTableRow>()
+            .HasOne(r => r.FumbleTable)
+            .WithMany(f => f.Rows)
+            .HasForeignKey(r => r.FumbleTableId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<FumbleTableRow>()
+            .Ignore(r => r.Cells);
+
+        modelBuilder.Entity<SpellFailureTable>()
+            .Property(f => f.Name)
+            .HasMaxLength(50)
+            .IsRequired();
+
+        modelBuilder.Entity<SpellFailureTable>()
+            .HasIndex(f => f.Name)
+            .IsUnique();
+
+        modelBuilder.Entity<SpellFailureTable>()
+            .Ignore(f => f.ColumnNames);
+
+        modelBuilder.Entity<SpellFailureTableRow>()
+            .HasOne(r => r.SpellFailureTable)
+            .WithMany(f => f.Rows)
+            .HasForeignKey(r => r.SpellFailureTableId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<SpellFailureTableRow>()
+            .Ignore(r => r.Cells);
+
+        modelBuilder.Entity<SpellList>()
+            .Property(s => s.Name)
+            .HasMaxLength(100)
+            .IsRequired();
+
+        modelBuilder.Entity<SpellList>()
+            .HasIndex(s => new { s.Category, s.Name });
+
+        modelBuilder.Entity<Spell>()
+            .HasOne(s => s.SpellList)
+            .WithMany(l => l.Spells)
+            .HasForeignKey(s => s.SpellListId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 
     // Writes audit log entries for tracked Character changes.

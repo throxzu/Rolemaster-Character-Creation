@@ -1,0 +1,173 @@
+@page "/reference-tables"
+@rendermode InteractiveServer
+@attribute [Authorize]
+@using RolemasterCharacterCreation.Identity
+@using RolemasterCharacterCreation.Models
+@using RolemasterCharacterCreation.Services
+@inject ReferenceTableService Tables
+@inject AuthenticationStateProvider AuthState
+
+<PageTitle>Reference Tables</PageTitle>
+
+<div class="container-fluid mt-3">
+    <h2 class="mb-3">Reference Tables</h2>
+
+    <div class="row g-3">
+        <!-- ── Left: searchable, grouped list ── -->
+        <div class="col-md-4 col-lg-3">
+            <div class="qp-card p-2 mb-2">
+                <input class="form-control form-control-sm" placeholder="Search tables…"
+                       @bind="_search" @bind:event="oninput" />
+            </div>
+            <div class="rt-list qp-card p-0">
+                @foreach (var grp in Filtered.GroupBy(t => t.Category).OrderBy(g => g.Key))
+                {
+                    <div class="rt-group-header">@grp.Key</div>
+                    @foreach (var tbl in grp.OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase))
+                    {
+                        <div class="rt-list-item @(_selected == tbl ? "active" : "")"
+                             @onclick="() => _selected = tbl">
+                            @tbl.Name
+                            @if (tbl.GmOnly)
+                            {
+                                <span class="rt-gm-tag" title="Gamemaster only">GM</span>
+                            }
+                        </div>
+                    }
+                }
+                @if (!Filtered.Any())
+                {
+                    <div class="p-3 text-muted">No tables match.</div>
+                }
+            </div>
+        </div>
+
+        <!-- ── Right: selected table ── -->
+        <div class="col-md-8 col-lg-9">
+            @if (_selected is { } t)
+            {
+                <div class="qp-card p-4">
+                    <div class="d-flex flex-wrap align-items-baseline gap-2 mb-3">
+                        <h3 class="rt-title mb-0">@t.Name</h3>
+                        <span class="rt-meta">@t.Book</span>
+                        @if (t.GmOnly)
+                        {
+                            <span class="rt-gm-tag">GM only</span>
+                        }
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(t.Notes))
+                    {
+                        <div class="rt-notes mb-3">@t.Notes</div>
+                    }
+
+                    <div class="rt-grid-wrap">
+                        <table class="table table-sm table-bordered rt-grid mb-0">
+                            <thead>
+                                <tr>
+                                    @foreach (var c in t.Columns)
+                                    {
+                                        <th>@c</th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var row in t.Rows)
+                                {
+                                    <tr>
+                                        @for (var i = 0; i < t.Columns.Count; i++)
+                                        {
+                                            <td>@(i < row.Count ? row[i] : "")</td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    @foreach (var sub in t.Subtables)
+                    {
+                        <h4 class="rt-subtitle mt-4 mb-2">@(string.IsNullOrWhiteSpace(sub.Title) ? "Modifiers" : sub.Title)</h4>
+                        <div class="rt-grid-wrap">
+                            <table class="table table-sm table-bordered rt-grid mb-0">
+                                <thead>
+                                    <tr>
+                                        @foreach (var c in sub.Columns)
+                                        {
+                                            <th>@c</th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var row in sub.Rows)
+                                    {
+                                        <tr>
+                                            @for (var i = 0; i < sub.Columns.Count; i++)
+                                            {
+                                                <td>@(i < row.Count ? row[i] : "")</td>
+                                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="qp-card p-4 text-muted text-center">Select a reference table.</div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .rt-list { max-height: calc(100vh - 230px); overflow-y: auto; display: flex; flex-direction: column; }
+    .rt-group-header { padding: 8px 14px 4px; font-size: .72rem; font-weight: 700;
+                       text-transform: uppercase; letter-spacing: .06em; color: var(--qp-teal);
+                       background: var(--qp-bg-panel-alt); border-bottom: 1px solid var(--qp-border-panel); }
+    .rt-list-item { padding: 7px 14px; border-bottom: 1px solid var(--qp-border-panel);
+                    cursor: pointer; color: var(--qp-text-primary); transition: background .12s; }
+    .rt-list-item:hover  { background: var(--qp-bg-panel-alt); }
+    .rt-list-item.active { background: var(--qp-blue); color: #fff; }
+    .rt-title { color: var(--qp-teal); font-weight: 700; letter-spacing: .03em; }
+    .rt-meta { color: var(--qp-text-muted); font-size: .82rem; }
+    .rt-gm-tag { display: inline-block; margin-left: 6px; padding: 0 5px; border-radius: 3px;
+                 font-size: .62rem; font-weight: 700; letter-spacing: .04em; vertical-align: middle;
+                 background: var(--qp-red, #b3402e); color: #fff; text-transform: uppercase; }
+    .rt-subtitle { color: var(--qp-text-label); font-weight: 700; font-size: .95rem;
+                   text-transform: uppercase; letter-spacing: .05em; }
+    .rt-notes { color: var(--qp-text-muted); font-size: .88rem; line-height: 1.6;
+                white-space: pre-line; }
+    .rt-grid-wrap { max-height: calc(100vh - 320px); overflow: auto; }
+    .rt-grid { font-size: .85rem; }
+    .rt-grid th { position: sticky; top: 0; z-index: 1; background: var(--qp-bg-panel);
+                  color: var(--qp-text-label); border-color: var(--qp-border-panel) !important;
+                  white-space: nowrap; }
+    .rt-grid td { border-color: var(--qp-border-panel) !important; padding: 4px 10px;
+                  vertical-align: top; line-height: 1.4; }
+</style>
+
+@code {
+    [SupplyParameterFromQuery(Name = "table")]
+    public string? TableName { get; set; }
+
+    private string _search = "";
+    private bool _isGm;
+    private ReferenceTable? _selected;
+
+    private IEnumerable<ReferenceTable> Filtered =>
+        Tables.Search(_search).Where(t => _isGm || !t.GmOnly);
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthState.GetAuthenticationStateAsync();
+        _isGm = auth.User.IsInRole(Roles.Gamemaster);
+
+        var requested = TableName is not null ? Tables.ByName(TableName) : null;
+        if (requested is not null && requested.GmOnly && !_isGm) { requested = null; }
+
+        _selected = requested ?? Filtered.FirstOrDefault();
+    }
+}

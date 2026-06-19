@@ -1,0 +1,140 @@
+@page "/spell-failures"
+@rendermode InteractiveServer
+@attribute [Authorize]
+@using RolemasterCharacterCreation.Data
+@inject AppDbContext Db
+
+<PageTitle>Spell Failures</PageTitle>
+
+<div class="container-fluid mt-3">
+    <h2 class="mb-3">Spell Failure Tables</h2>
+
+    <div class="row g-3">
+        <!-- ── Left: realm list ── -->
+        <div class="col-md-3 col-lg-2">
+            <div class="sf-list qp-card p-0">
+                @foreach (var t in _tables)
+                {
+                    <div class="sf-list-item @(_selected?.Id == t.Id ? "active" : "")"
+                         @onclick="() => Select(t)">
+                        @t.Name
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- ── Right: selected table ── -->
+        <div class="col-md-9 col-lg-10">
+            @if (_selected is { } sf)
+            {
+                <div class="qp-card p-4">
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                        <h3 class="sf-title mb-0">@sf.Name.ToUpperInvariant() SPELL FAILURE</h3>
+                        <div class="ms-auto" style="min-width: 200px;">
+                            <select class="form-select form-select-sm qp-input" @bind="_column">
+                                <option value="">All columns</option>
+                                @foreach (var c in sf.ColumnNames)
+                                {
+                                    <option value="@c">@c</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="sf-grid-wrap">
+                        <table class="table table-sm table-bordered sf-grid mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="sf-roll-col">Roll</th>
+                                    @foreach (var (name, _) in ShownColumns(sf))
+                                    {
+                                        <th>@name</th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var r in sf.Rows)
+                                {
+                                    <tr>
+                                        <td class="sf-roll-col">@RollLabel(r)</td>
+                                        @foreach (var (_, idx) in ShownColumns(sf))
+                                        {
+                                            <td class="sf-cell">@r.Cells[idx]</td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="sf-legend mt-3 mb-0">
+                        <span class="section-label">Effect key:</span>
+                        <code>hits+X</code> extra hits · <code>bleed X</code> hits/round ·
+                        <code>fatigue(-X)</code> · <code>stun[-X]</code> · <code>stagger</code> ·
+                        <code>prone</code> · <code>KILLED</code>.
+                        Columns are by spell-list type; roll on the column matching the failed spell's list.
+                    </p>
+                </div>
+            }
+            else
+            {
+                <div class="qp-card p-4 text-muted text-center">Select a realm.</div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .sf-list { display: flex; flex-direction: column; }
+    .sf-list-item {
+        padding: 8px 14px; border-bottom: 1px solid var(--qp-border-panel);
+        cursor: pointer; color: var(--qp-text-primary); transition: background .12s; font-weight: 500;
+    }
+    .sf-list-item:hover  { background: var(--qp-bg-panel-alt); }
+    .sf-list-item.active { background: var(--qp-blue); color: #fff; }
+    .sf-title { color: var(--qp-teal); font-weight: 700; letter-spacing: .04em; }
+    .section-label { font-size: .75rem; font-weight: 600; text-transform: uppercase;
+                     letter-spacing: .08em; color: var(--qp-text-label); }
+    .sf-grid-wrap { max-height: calc(100vh - 320px); overflow: auto; }
+    .sf-grid { font-size: .82rem; }
+    .sf-grid th { position: sticky; top: 0; z-index: 1; background: var(--qp-bg-panel);
+                  color: var(--qp-text-label); border-color: var(--qp-border-panel) !important;
+                  white-space: nowrap; }
+    .sf-grid td { border-color: var(--qp-border-panel) !important; padding: 4px 8px; vertical-align: top; }
+    .sf-cell { min-width: 190px; line-height: 1.4; }
+    .sf-roll-col { white-space: nowrap; font-weight: 600; color: var(--qp-text-label);
+                   background: var(--qp-bg-panel); position: sticky; left: 0; }
+    .sf-legend { font-size: .78rem; color: var(--qp-text-muted); line-height: 1.9; }
+    .sf-legend code { background: var(--qp-bg-panel); color: var(--qp-text-primary);
+                      padding: 1px 5px; border-radius: 4px; }
+</style>
+
+@code {
+    [SupplyParameterFromQuery(Name = "type")]
+    public string? Type { get; set; }
+
+    private List<SpellFailureTable> _tables = [];
+    private SpellFailureTable? _selected;
+    private string _column = "";
+
+    private IEnumerable<(string Name, int Index)> ShownColumns(SpellFailureTable sf) =>
+        sf.ColumnNames
+            .Select((n, i) => (Name: n, Index: i))
+            .Where(c => string.IsNullOrEmpty(_column) || c.Name == _column);
+
+    protected override async Task OnInitializedAsync()
+    {
+        _tables = await Db.SpellFailureTables.AsNoTracking()
+            .Include(t => t.Rows.OrderBy(r => r.RollLow))
+            .OrderBy(t => t.Name)
+            .ToListAsync();
+
+        _selected = (Type is not null
+            ? _tables.FirstOrDefault(t => t.Name.Equals(Type, StringComparison.OrdinalIgnoreCase))
+            : null) ?? _tables.FirstOrDefault();
+    }
+
+    private void Select(SpellFailureTable t) { _selected = t; _column = ""; }
+
+    private static string RollLabel(SpellFailureTableRow r) =>
+        r.RollLow == r.RollHigh ? r.RollLow.ToString() : $"{r.RollLow}–{r.RollHigh}";
+}

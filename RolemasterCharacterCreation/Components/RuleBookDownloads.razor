@@ -1,0 +1,21 @@
+@* Download buttons for the four Rolemaster rule book PDFs (served from wwwroot/rules). *@
+
+<div class="mt-5 pt-4 border-top">
+    <h5 class="mb-3">Rule Books</h5>
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-outline-secondary" href="/rules/Rolemaster_Core_Law.pdf" download>
+            &#128196; Core Law
+        </a>
+        <a class="btn btn-outline-secondary" href="/rules/Rolemaster_Spell_Law.pdf" download>
+            &#128196; Spell Law
+        </a>
+        <AuthorizeView Roles="Gamemaster">
+            <a class="btn btn-outline-secondary" href="/rules/Rolemaster_Treasure_Law.pdf" download>
+                &#128196; Treasure Law
+            </a>
+            <a class="btn btn-outline-secondary" href="/rules/Rolemaster_Creature_Law_I.pdf" download>
+                &#128196; Creature Law I
+            </a>
+        </AuthorizeView>
+    </div>
+</div>

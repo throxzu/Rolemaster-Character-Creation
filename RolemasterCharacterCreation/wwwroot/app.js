@@ -3,3 +3,7 @@ window.initTooltips = function () {
         bootstrap.Tooltip.getOrCreateInstance(el, { trigger: 'hover focus', html: false });
     });
 };
+
+window.scrollToBottom = function (el) {
+    if (el) el.scrollTop = el.scrollHeight;
+};

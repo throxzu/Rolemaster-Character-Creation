@@ -46,4 +46,5 @@ public class Character
     public List<CharacterTalent> Talents { get; set; } = [];
     public List<CharacterEquipmentItem> EquipmentItems { get; set; } = [];
     public List<CharacterAuditLog> AuditLogs { get; set; } = [];
+    public List<CharacterFavoriteAttack> FavoriteAttacks { get; set; } = [];
 }

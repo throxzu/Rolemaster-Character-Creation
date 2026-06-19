@@ -200,7 +200,7 @@ public partial class CharacterWizard
         if (!_authorized) return;
 
         _step = _char.WizardStep;
-        _dpBudget = 60 + _char.RaceBonusDp;
+        _dpBudget = 60 + Math.Min(25, _char.RaceBonusDp);
 
         LoadProfSkillState();
         LoadPurchasedState();
@@ -397,9 +397,15 @@ public partial class CharacterWizard
         _error = null;
         if (!ValidateStep(_step)) return;
         await SaveStepAsync();
+
+        // Consume bonus DPs from the racial pool (capped at 25 per level).
+        int bonusDpAvailable = Math.Min(25, _char!.RaceBonusDp);
+        int bonusDpConsumed  = Math.Max(0, Math.Min(bonusDpAvailable, _dpSpent + _talentDpSpent - 60));
+        _char.RaceBonusDp   -= bonusDpConsumed;
+
         if (_isLevelUp)
         {
-            _char!.WizardStep = 1;           // ready for next level-up
+            _char.WizardStep = 1;           // ready for next level-up
             _char.LevelUpBaselineJson = null; // clear frozen snapshots
             _char.StatBaselineJson    = null;
         }
@@ -902,7 +908,7 @@ public partial class CharacterWizard
         if (raceName is not null && RaceRules.ByName.TryGetValue(raceName, out var race))
         {
             _char.RaceBonusDp = race.BonusDP;
-            _dpBudget = 60 + race.BonusDP;
+            _dpBudget = 60 + Math.Min(25, race.BonusDP);
         }
         else
         {

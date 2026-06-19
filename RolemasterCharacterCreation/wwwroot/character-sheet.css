@@ -86,6 +86,14 @@ tr:has(.brow) td { border: 1px solid var(--qp-border-panel); height: 14px; }
 }
 [data-tip]:hover::after { display: block; }
 
+/* ── Spell-list link (jumps to the full list) ─────────────────── */
+.sl-link { color: inherit; text-decoration: none; }
+.sl-link:hover { text-decoration: underline; cursor: pointer; }
+
+/* ── Skill-table link (jumps to the skill's maneuver table) ────── */
+.sk-table-link { color: var(--qp-teal); text-decoration: none; }
+.sk-table-link:hover { text-decoration: underline; cursor: pointer; }
+
 /* ── Page break ────────────────────────────────────────────── */
 .pgbrk { page-break-after: always; height: 20px; }
 
@@ -117,6 +125,7 @@ tr:has(.brow) td { border: 1px solid var(--qp-border-panel); height: 14px; }
   .pos   { color: #155724 !important; }
   .neg   { color: #721c24 !important; }
   .lbl   { color: #555 !important; }
+  .sk-table-link { color: black !important; text-decoration: none !important; }
   .muted { color: #777 !important; }
   .fw    { color: black !important; }
   .val   { color: black !important; }

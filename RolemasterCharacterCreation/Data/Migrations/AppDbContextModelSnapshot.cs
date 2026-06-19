@@ -223,6 +223,142 @@ namespace RolemasterCharacterCreation.Data.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.AttackTable", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CritTypes")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DisarmMod")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Signature")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SubdualMod")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("AttackTables");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.AttackTableRow", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("At1")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("At10")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("At2")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("At3")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("At4")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("At5")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("At6")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("At7")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("At8")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("At9")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("AttackTableId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RollHigh")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RollLow")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Size")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AttackTableId", "Size");
+
+                    b.ToTable("AttackTableRows");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.AttackTableWeapon", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AttackTableId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Fumble")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Length")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SizeMod")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Strength")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Weight")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AttackTableId");
+
+                    b.ToTable("AttackTableWeapons");
+                });
+
             modelBuilder.Entity("RolemasterCharacterCreation.Models.Character", b =>
                 {
                     b.Property<int>("Id")
@@ -383,6 +519,37 @@ namespace RolemasterCharacterCreation.Data.Migrations
                     b.ToTable("CharacterEquipmentItems");
                 });
 
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.CharacterFavoriteAttack", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AttackTableId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CharacterId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PreferredSize")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AttackTableId");
+
+                    b.HasIndex("CharacterId", "AttackTableId")
+                        .IsUnique();
+
+                    b.ToTable("CharacterFavoriteAttacks");
+                });
+
             modelBuilder.Entity("RolemasterCharacterCreation.Models.CharacterSkill", b =>
                 {
                     b.Property<int>("Id")
@@ -485,6 +652,352 @@ namespace RolemasterCharacterCreation.Data.Migrations
                     b.ToTable("CharacterTalents");
                 });
 
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.CreatureDescription", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("CreatureDescriptions");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.CriticalTable", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Signature")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("CriticalTables");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.CriticalTableRow", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("A")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("B")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("C")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("CriticalTableId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("D")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("E")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Location")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RollHigh")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RollLow")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CriticalTableId");
+
+                    b.ToTable("CriticalTableRows");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.FumbleTable", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Col1Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Col2Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Col3Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Col4Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Col5Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Signature")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("FumbleTables");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.FumbleTableRow", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Col1")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Col2")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Col3")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Col4")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Col5")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("FumbleTableId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RollHigh")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RollLow")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FumbleTableId");
+
+                    b.ToTable("FumbleTableRows");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.Spell", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AreaOfEffect")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Duration")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Level")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Range")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SpellListId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SpellListId");
+
+                    b.ToTable("Spells");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.SpellFailureTable", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Col1Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Col2Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Col3Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Col4Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Signature")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("SpellFailureTables");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.SpellFailureTableRow", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Col1")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Col2")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Col3")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Col4")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RollHigh")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RollLow")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SpellFailureTableId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SpellFailureTableId");
+
+                    b.ToTable("SpellFailureTableRows");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.SpellList", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Code")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Profession")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Realm")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Signature")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Category", "Name");
+
+                    b.ToTable("SpellLists");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -536,6 +1049,28 @@ namespace RolemasterCharacterCreation.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.AttackTableRow", b =>
+                {
+                    b.HasOne("RolemasterCharacterCreation.Models.AttackTable", "AttackTable")
+                        .WithMany("Rows")
+                        .HasForeignKey("AttackTableId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AttackTable");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.AttackTableWeapon", b =>
+                {
+                    b.HasOne("RolemasterCharacterCreation.Models.AttackTable", "AttackTable")
+                        .WithMany("Weapons")
+                        .HasForeignKey("AttackTableId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AttackTable");
+                });
+
             modelBuilder.Entity("RolemasterCharacterCreation.Models.Character", b =>
                 {
                     b.HasOne("RolemasterCharacterCreation.Models.ApplicationUser", "User")
@@ -575,6 +1110,25 @@ namespace RolemasterCharacterCreation.Data.Migrations
                     b.Navigation("Character");
                 });
 
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.CharacterFavoriteAttack", b =>
+                {
+                    b.HasOne("RolemasterCharacterCreation.Models.AttackTable", "AttackTable")
+                        .WithMany()
+                        .HasForeignKey("AttackTableId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RolemasterCharacterCreation.Models.Character", "Character")
+                        .WithMany("FavoriteAttacks")
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AttackTable");
+
+                    b.Navigation("Character");
+                });
+
             modelBuilder.Entity("RolemasterCharacterCreation.Models.CharacterSkill", b =>
                 {
                     b.HasOne("RolemasterCharacterCreation.Models.Character", "Character")
@@ -608,9 +1162,60 @@ namespace RolemasterCharacterCreation.Data.Migrations
                     b.Navigation("Character");
                 });
 
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.CriticalTableRow", b =>
+                {
+                    b.HasOne("RolemasterCharacterCreation.Models.CriticalTable", "CriticalTable")
+                        .WithMany("Rows")
+                        .HasForeignKey("CriticalTableId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CriticalTable");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.FumbleTableRow", b =>
+                {
+                    b.HasOne("RolemasterCharacterCreation.Models.FumbleTable", "FumbleTable")
+                        .WithMany("Rows")
+                        .HasForeignKey("FumbleTableId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FumbleTable");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.Spell", b =>
+                {
+                    b.HasOne("RolemasterCharacterCreation.Models.SpellList", "SpellList")
+                        .WithMany("Spells")
+                        .HasForeignKey("SpellListId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SpellList");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.SpellFailureTableRow", b =>
+                {
+                    b.HasOne("RolemasterCharacterCreation.Models.SpellFailureTable", "SpellFailureTable")
+                        .WithMany("Rows")
+                        .HasForeignKey("SpellFailureTableId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SpellFailureTable");
+                });
+
             modelBuilder.Entity("RolemasterCharacterCreation.Models.ApplicationUser", b =>
                 {
                     b.Navigation("Characters");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.AttackTable", b =>
+                {
+                    b.Navigation("Rows");
+
+                    b.Navigation("Weapons");
                 });
 
             modelBuilder.Entity("RolemasterCharacterCreation.Models.Character", b =>
@@ -619,11 +1224,33 @@ namespace RolemasterCharacterCreation.Data.Migrations
 
                     b.Navigation("EquipmentItems");
 
+                    b.Navigation("FavoriteAttacks");
+
                     b.Navigation("Skills");
 
                     b.Navigation("Stats");
 
                     b.Navigation("Talents");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.CriticalTable", b =>
+                {
+                    b.Navigation("Rows");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.FumbleTable", b =>
+                {
+                    b.Navigation("Rows");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.SpellFailureTable", b =>
+                {
+                    b.Navigation("Rows");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.SpellList", b =>
+                {
+                    b.Navigation("Spells");
                 });
 #pragma warning restore 612, 618
         }

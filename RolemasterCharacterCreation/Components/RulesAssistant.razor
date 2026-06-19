@@ -1,0 +1,113 @@
+@rendermode InteractiveServer
+@inject RulesIndexService IndexService
+@inject IJSRuntime JS
+
+@if (_open)
+{
+    <div class="ra-panel">
+        <div class="ra-header">
+            <span>&#x1F4DC; Rules Assistant</span>
+            <button @onclick="Close" title="Close">&times;</button>
+        </div>
+
+        <div class="ra-messages" @ref="_messagesEl">
+            @if (_history.Count == 0 && !_streaming)
+            {
+                <div class="ra-status">Ask any question about the Rolemaster rules.</div>
+            }
+            @foreach (var msg in _history)
+            {
+                <div class="ra-bubble @(msg.Role == "user" ? "ra-user" : "ra-assistant")">@msg.Content</div>
+            }
+            @if (_streaming)
+            {
+                <div class="ra-bubble ra-assistant">@_streamBuffer<span class="ra-cursor">|</span></div>
+            }
+        </div>
+
+        @if (IndexService.StartupError is { } err)
+        {
+            <div class="ra-status" style="color: var(--qp-red);">@err</div>
+        }
+        else if (!IndexService.IsReady)
+        {
+            <div class="ra-status">Indexing rules&hellip; please wait.</div>
+        }
+
+        <div class="ra-input-row">
+            <input @bind="_input"
+                   @bind:event="oninput"
+                   @onkeydown="OnKeyDown"
+                   placeholder="Ask a rules question…"
+                   disabled="@(!IndexService.IsReady || _streaming || IndexService.StartupError is not null)"
+                   maxlength="500" />
+            <button class="btn btn-sm btn-outline-info"
+                    @onclick="SendAsync"
+                    disabled="@(!CanSend)">
+                Send
+            </button>
+        </div>
+    </div>
+}
+
+<button class="ra-fab" @onclick="Toggle" title="Rules Assistant">?</button>
+
+@code {
+    bool _open;
+    bool _streaming;
+    string _input = "";
+    string _streamBuffer = "";
+    readonly List<RulesChatMessage> _history = [];
+    ElementReference _messagesEl;
+    CancellationTokenSource? _cts;
+
+    bool CanSend => IndexService.IsReady
+        && !_streaming
+        && IndexService.StartupError is null
+        && !string.IsNullOrWhiteSpace(_input);
+
+    void Toggle() => _open = !_open;
+    void Close()  => _open = false;
+
+    async Task OnKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !e.ShiftKey && CanSend)
+            await SendAsync();
+    }
+
+    async Task SendAsync()
+    {
+        var question = _input.Trim();
+        if (string.IsNullOrWhiteSpace(question)) return;
+
+        _input = "";
+        _history.Add(new RulesChatMessage("user", question));
+        _streaming = true;
+        _streamBuffer = "";
+        _cts = new CancellationTokenSource();
+
+        try
+        {
+            await foreach (var token in IndexService.AskAsync(question, _history, _cts.Token))
+            {
+                _streamBuffer += token;
+                await InvokeAsync(StateHasChanged);
+                await JS.InvokeVoidAsync("scrollToBottom", _messagesEl);
+            }
+            _history.Add(new RulesChatMessage("assistant", _streamBuffer));
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception ex)
+        {
+            _history.Add(new RulesChatMessage("assistant", $"Error: {ex.Message}"));
+        }
+        finally
+        {
+            _streaming = false;
+            _streamBuffer = "";
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    public void Dispose() => _cts?.Cancel();
+}

@@ -1,0 +1,334 @@
+[
+  {
+    "name": "Melee Fumbles",
+    "columns": [
+      "1-Handed Melee",
+      "2-Handed Melee",
+      "Animals",
+      "Mounted Arms",
+      "Unarmed"
+    ],
+    "rows": [
+      {
+        "rollLow": 1,
+        "rollHigh": 20,
+        "cells": [
+          "Your palm is sweaty. Maybe you will improve.",
+          "My that weapon is heavy! You lose the opportunity to take a swing.",
+          "Odd smell distracts you. You can try to attack next round.",
+          "Lack of coordination between you and your mount costs you, but not your mount, the opportunity to attack.",
+          "Foe is too quick, and you lose your chance to attack."
+        ]
+      },
+      {
+        "rollLow": 21,
+        "rollHigh": 30,
+        "cells": [
+          "You lose your grip on your weapon; it flies 2d10 feet in a random direction. Next time wipe your hands first.",
+          "One hand slips from your weapon and it moves out of position; you lose the rest of the round recovering.",
+          "Try to look like you meant to do that. You make no attack this round.",
+          "Use the column for your weapon to determine the result of this fumble.",
+          "You trip over your own feet and lose the chance to attack."
+        ]
+      },
+      {
+        "rollLow": 31,
+        "rollHigh": 40,
+        "cells": [
+          "Overenthusiastic attack puts you off balance. You suffer a -5 initiative penalty next round.",
+          "You mind wanders, and you partly lose control of your weapon. Suffer a -8 initiative penalty next round.",
+          "You slip, but keep your feet. Suffer a -3 initiative penalty next round.",
+          "You and your mount are of different minds as to what your direction meant. You both suffer a -10 initiative penalty next round.",
+          "Your mighty yell fails to impress your foes, but it leaves you a bit breathless. Take a -5 Fatigue penalty."
+        ]
+      },
+      {
+        "rollLow": 41,
+        "rollHigh": 50,
+        "cells": [
+          "Fighting sure is tiring! Take a -5 Fatigue penalty. fatigue(-5)",
+          "You stumble over an imaginary, invisible, deceased turtle. This leaves you Stunned for two rounds. 2 stun[-25]",
+          "Somehow, you manage to strike yourself for 1d10 hits. hits+1d10",
+          "Your mount shies suddenly. You lose your attack and are at -10 next round. Your mount loses its attack as well.",
+          "That move only works in a saga. Take 1d5 hits damage and suffer a -7 initiative penalty next round. hits+1d5"
+        ]
+      },
+      {
+        "rollLow": 51,
+        "rollHigh": 60,
+        "cells": [
+          "You try to impress your opponent with a spin maneuver. Too bad. Spend two rounds Stunned. 2 stun[-25]",
+          "You launch a furious, but poorly-executed series of strikes that your opponent avoids easily. You only tire yourself. Take a -10 Fatigue penalty. fatigue(-10)",
+          "Suddenly, the world just seems too confusing. Spend the next round Stunned. stun[-25]",
+          "Your poor communication of your desires confuses your mount, which will be Dazed for the rest of this round and all of the next. 2 stun[-25]",
+          "You lost your weapon! Wait, you weren't using one. Spend the next round Stunned. stun[-25]"
+        ]
+      },
+      {
+        "rollLow": 61,
+        "rollHigh": 65,
+        "cells": [
+          "You hit an innocent inanimate object. Both it and your weapon must make breakage checks. breakage(-0)",
+          "You manage to completely lose your grip on your weapon, which ends up 1d10 feet away in a random direction.",
+          "Instinct is not always as reliable as it is made out to be. Your attacks are at -30 for the next three rounds. 3(-30)",
+          "Use the column for your weapon to determine the result of this fumble.",
+          "Your move is acrobatic, but misjudged. You end up flat on your back and are Stunned for one round. stun[-50]"
+        ]
+      },
+      {
+        "rollLow": 66,
+        "rollHigh": 66,
+        "cells": [
+          "Execute the declared attack on the nearest ally, whoops! If no ally is in reach, an innocent bystander will do. Failing that, attack an imaginary friend.",
+          "Execute the declared attack on the nearest ally, whoops! If no ally is in reach, an innocent bystander will do. Failing that, attack an imaginary friend.",
+          "Execute the declared attack on the nearest ally, whoops! If no ally is in reach, an innocent bystander will do. Failing that, attack an imaginary friend.",
+          "Execute the declared attack on the nearest ally, whoops! If you can only attack your mount, and your weapon is not suitable, do 2d10 hits and two rounds of Stun to your mount with a sloppy blow. hits+2d10, stun[-50]",
+          "Execute the declared attack on the nearest ally, whoops! If no ally is in reach, an innocent bystander will do. Failing that, attack an imaginary friend."
+        ]
+      },
+      {
+        "rollLow": 67,
+        "rollHigh": 70,
+        "cells": [
+          "Your weapon's balance seems off somehow. Spend two rounds attacking at -25 before you realize your grip is wrong. 2(-25)",
+          "The good news is that you successfully hit, delivering an 'A' Subdual critical. The bad news is, the target was yourself. +crit(A)",
+          "Such an itch! Spend the next two rounds Concentrating on scratching. Hope that it is not fleas.",
+          "Use the column for your weapon to determine the result of this fumble.",
+          "You have trouble believing that your awesome kill move did not work at all. Spend two rounds Stunned by your failure. 2 stun[-50]"
+        ]
+      },
+      {
+        "rollLow": 71,
+        "rollHigh": 80,
+        "cells": [
+          "You are distracted and overwhelmed. You may not initiate an attack for two rounds (you may full parry if attacked).",
+          "You strain your shoulders in a mighty swing (that misses). Take a -20 penalty. (-20)",
+          "Survival of the fittest, right? That might not be you. The fight is going out of you as you take a -15 Fatigue penalty. fatigue(-15)",
+          "You nearly fall off your mount and must Concentrate for the next two rounds to regain your seat. This distracts your mount, leaving it at -30 during this time. 2(-30)",
+          "The problem with using your body is a weapon is that sometime you hit something hard. You take 2d10 hits and are Stunned two rounds. hits+2d10, 2 stun[-50]"
+        ]
+      },
+      {
+        "rollLow": 81,
+        "rollHigh": 85,
+        "cells": [
+          "You are suddenly very winded. Take a -20 Fatigue penalty. fatigue(-20)",
+          "You confuse yourself and get your limbs all crossed. You are -50 for three rounds. 3(-50)",
+          "Bite the inside of your own mouth for 1d10 hits and a round of Stunned unable to parry followed by a round of Stun. The good news is that foes within 10' of you must save versus a level 1 Fear effect. hits+1d10, stun[-75], stun[-50]",
+          "Make a Hard riding maneuver or fall off your mount. If successful, you still suffer one round Dazed and a -5 penalty from a groin pull. stun[-25], (-5)",
+          "You execute a perfect blow, but your foe blocks it casually, perhaps accidentally; you are Stunned for two rounds by the shock of this. 2 stun[-50]"
+        ]
+      },
+      {
+        "rollLow": 86,
+        "rollHigh": 90,
+        "cells": [
+          "You clip yourself with your own weapon. You are Stunned this round and Dazed next round. stun[-50], stun[-25]",
+          "Your lower back screams as you twist too far and pull a muscle. You are Stunned two rounds and suffer a -25 penalty for the injury. 2 stun[-50], (-25)",
+          "You take a tumble, traveling 2d10 feet in a random direction. You are also Stunned for the rest of this round and the whole of the next. Hope that your foe is just as surprised. 2 stun[-50], knockback2d10'",
+          "You get tangled in your mount's tack. It will take 10 Action Points to get free. Until then, all actions are at -100 except Riding maneuvers. 10x stagger, (-100)",
+          "Your foot slips out from under you as you begin your attack. You fall and Stun yourself for two rounds. 2 stun[-50]"
+        ]
+      },
+      {
+        "rollLow": 91,
+        "rollHigh": 95,
+        "cells": [
+          "You trip and fall prone as your swing goes wide. You are Stunned for two rounds, then Dazed in the third. 2 stun[-50], stun[-25]",
+          "You go down hard on one knee. The pain leaves you Stunned for one round, then Dazed for the next. The knee injury is a -15 flesh wound. You also drop your weapon. stun[-50], stun[-25], (-15)",
+          "You got your target's tail! Wait, no, that was your own tail. Take 2d10 hits and a round of Stunned followed by a round of Dazed. hits+2d10, stun[-50], stun[-25]",
+          "Your poorly expressed directives cost both you and your mount not only your attacks for the round, but also a -50 penalty to all actions for the next three rounds. 3(-50)",
+          "Your balance is a little off while requiring one foot to support your full weight. You suffer a -20 ankle sprain. -20"
+        ]
+      },
+      {
+        "rollLow": 96,
+        "rollHigh": 99,
+        "cells": [
+          "The excitement is just too much! Your momentary frenzy leaves you Stunned unable to parry this round, Stunned next round, and Dazed the third round. stun[-75], stun[-50], stun[-25]",
+          "Your shoulder should not bend that way! You are Stunned for two rounds. The pulled muscle provides a -25 injury. 2 stun[-50], -25",
+          "You look in one direction, move in another, and therefore fail to spot the obstacle in your path. You not only lose your attack, but take an 'A' Unbalancing critical. +crit(A)",
+          "Use the column for your weapon to determine the result of this fumble.",
+          "You miss and overextend, pulling something in your back. Pulled muscle is a -20 injury. Take 2d10 hits and a round of Stun from the pain. hits+2d10, stun[-50], -20"
+        ]
+      },
+      {
+        "rollLow": 100,
+        "rollHigh": 100,
+        "cells": [
+          "Execute the declared attack on yourself, with no parry DB. Ow! hits, bleed X: Bleed, X hits/rd, knockback X’: Knocked back,",
+          "Worst move seen in ages! You are Stunned and unable to parry for five rounds and are at -30 with a pulled groin muscle. There is a 50% chance your foes will be out for 3 rounds, laughing. 5 stun[-75], -30 fatigue (-X): Fatigue penalty, breakage (-X): prone: Knocked down/prone, grapple:",
+          "Where did he go? You managed to get turned around. Your foe is now behind you and gets a free attack on your back. Breakage roll, -X: Injury +crit(X): Grappled X%, Additional 240",
+          "You drop your weapon. Trying to recover it, you fall from your mount. This shocking turn of affairs leaves your mount at -30 for two rounds. 2(-30) penalty, X stun [-xx]: Stunned for X criticals, : Target is dying KILLED",
+          "You execute a textbook headbutt... to the ground. You are prone, Stunned for three rounds, and bleeding 1/rnd. 3 stun[-50], 1 bleed rounds @ xx, stagger: Staggered, or defeated"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Ranged Fumbles",
+    "columns": [
+      "Bows",
+      "Slings",
+      "Thrown",
+      "Elemental Bolts",
+      "Elemental Balls/Cones"
+    ],
+    "rows": [
+      {
+        "rollLow": 1,
+        "rollHigh": 20,
+        "cells": [
+          "Sweat gets in your eye. You lose this round's attack to wipe it off.",
+          "Not enough spin. Hold your attack until next round.",
+          "Your grip is weak. You elect not to attack because of lack of control.",
+          "The element is unruly. If you choose to not act for the rest of the round, you may “hold” the bolt and roll your attack next round without recasting.",
+          "The element is unruly. If you choose to not act for the rest of the round, you may “hold” your attack until next round without recasting."
+        ]
+      },
+      {
+        "rollLow": 21,
+        "rollHigh": 30,
+        "cells": [
+          "What should be automatic with practice becomes clumsy as you overthink it. You fail to attack this round.",
+          "You lose your grip. The stone still goes flying off to make a +0 attack on the target, but your sling goes along for the ride.",
+          "You lose control as you release the weapon and it falls harmlessly to the ground halfway to your target.",
+          "The element loses focus and bits spray harmlessly off the bolt. Reroll attack with the Size of the attack reduced by one.",
+          "The energies resist direction. If you choose to not act for the rest of this round, and all of the following round, you may attack the round after that without recasting."
+        ]
+      },
+      {
+        "rollLow": 31,
+        "rollHigh": 40,
+        "cells": [
+          "You spill your ammunition on the ground. Did you do something to offend the gods recently?",
+          "You partly lose your grip. The stone goes skipping off harmlessly along the ground, but you retain your sling.",
+          "You trip over your own feet. You land face down, but hang on to your weapon.",
+          "Bolt goes flying off at an angle 90 degrees left of the intended line of attack. Roll a +0 attack on each target along the new path until it hits someone, strikes a solid obstruction, or runs out of range.",
+          "Attack is launched along a line at an angle 90 degrees left of that intended. Roll +0 attacks on those in the new attack zone. When a ball hits someone (or something) or reaches its range limit, it will detonate normally."
+        ]
+      },
+      {
+        "rollLow": 41,
+        "rollHigh": 50,
+        "cells": [
+          "The projectile breaks, but half is still caught on the string. It requires 8 Action Points to clear it.",
+          "You have been overdoing it. Take a -5 Fatigue penalty. fatigue(-5)",
+          "You begin juggling your weapon because of a bad grip and smack yourself in the head. You are Stunned for 2 rounds. 2 stun[-50]",
+          "Bolt appears as a fist sized ball of appropriate material, which gently floats at 10' per round in the direction intended. If anyone runs into it, or it otherwise makes physical contact, resolve attack",
+          "Elements appear as a head-sized ball, which gently floats at 10' per round in the direction intended. If it strikes anything solid, resolve attack as a ball attack centered on that point (use cone terminal"
+        ]
+      },
+      {
+        "rollLow": 51,
+        "rollHigh": 60,
+        "cells": [
+          "\"Twang!\" The projectile drives into the ground between your feet. It breaks.",
+          "You spin your sling so fast that you almost lose control of it. Suffer a -10 initiative penalty next round.",
+          "Poor release. If there is someone else within 15' of the intended target, roll a +0 attack on the closest.",
+          "at +0 OB. As 31-40 above, except that bolt is launched at 90 degrees right of the intended path.",
+          "radius for ball radius). As 31-40 above, except that attack is launched at 90 degrees right of the intended path."
+        ]
+      },
+      {
+        "rollLow": 61,
+        "rollHigh": 65,
+        "cells": [
+          "Bow slips from your sweaty hands and falls at your feet.",
+          "You are sure it is the perfect sling until you tire of waiting for your target to fall and notice the stone is on the ground near your feet. Your next action is at -20. 1(-20)",
+          "You throw very poorly. The weapon ends up 10 +1d10 feet away in a random direction and must make a breakage check.",
+          "As 31-40 above, except that bolt is launched straight down.",
+          "As 31-40 above, except that attack is launched straight down."
+        ]
+      },
+      {
+        "rollLow": 66,
+        "rollHigh": 66,
+        "cells": [
+          "Execute the declared attack on the nearest ally, whoops! (If no ally in range, put projectile through your own foot for 2d10 hits and a -20 flesh wound.) hits+2d10, -20",
+          "Execute the declared attack on the nearest ally, whoops! (If no ally in range, you do yourself an 'A' Unbalancing crit.) +crit(A)",
+          "Execute the declared attack on the nearest ally, whoops! (If no ally in range, weapon bounces off an object, comes back at you as a +0 surprise attack.)",
+          "Execute the declared attack on the nearest ally, whoops! (If no ally in range, attack is lost, and you are probably in enough trouble already.)",
+          "Execute the declared attack centered on the nearest ally, whoops! (If no ally in range, execute attack centered on self.)"
+        ]
+      },
+      {
+        "rollLow": 67,
+        "rollHigh": 70,
+        "cells": [
+          "You mishandle your weapon, causing yourself pain. Take one round Stunned. stun[-50]",
+          "The stone drops on your foot. Take 1d5 hits of damage. hits+1d5",
+          "What a throw! The weapon flies out twenty feet beyond its normal maximum range past the intended target. If someone is there, roll a +0 attack. You take a -10 Fatigue penalty from your exertion. fatigue(-10)",
+          "As 31-40 above, except that bolt is launched at 180 degrees from the intended path (i.e., in the direction opposite the intended target).",
+          "As 31-40 above, except that attack is launched at 180 degrees from the intended path (i.e., in the direction opposite the intended target)."
+        ]
+      },
+      {
+        "rollLow": 71,
+        "rollHigh": 80,
+        "cells": [
+          "The bowstring snaps. Draw another weapon or restring your bow.",
+          "You put too much body into it, and you fall down before you can release your attack. You are Dazed one round. stun[-25]",
+          "Just as you are about to release, you slip and fall prone, and are Stunned[-50] for one round. stun[-50]",
+          "As 31-40 above, except that bolt is launched at 45 degrees left of the intended path.",
+          "As 31-40 above, except that attack is launched at 45 degrees left of the intended path."
+        ]
+      },
+      {
+        "rollLow": 81,
+        "rollHigh": 85,
+        "cells": [
+          "You managed to hold your thumb in the way of the string. Your shot misses, and you are Stunned for two rounds. stun[-50]",
+          "You clip the side of your head and suffer one round Stunned. stun[-50]",
+          "Your weapon drops to the ground, hitting your foot on the way for 1d10 hits. hits+1d10",
+          "As 31-40 above, except that bolt is launched at 45 degrees right of the intended path.",
+          "As 31-40 above, except that attack is launched at 45 degrees right of the intended path."
+        ]
+      },
+      {
+        "rollLow": 86,
+        "rollHigh": 90,
+        "cells": [
+          "Your shot goes wild, landing 3d10 feet from target in a random direction. If someone is there, roll a +0 attack.",
+          "You clip the side of your head and suffer two rounds Stunned. 2 stun[-50]",
+          "Your poor and weak release sends the weapon up two feet. It immediately comes down and hits you. You take no damage, but are Stunned for one round. stun[-50]",
+          "As 31-40 above, except that bolt is launched at 45 degrees above the intended path.",
+          "As 31-40 above, except that attack is launched at 45 degrees above the intended path."
+        ]
+      },
+      {
+        "rollLow": 91,
+        "rollHigh": 95,
+        "cells": [
+          "You slip and fall as you fire. Your shot goes astray. You are now prone and Stunned[-50] for two rounds. 2 stun[-50]",
+          "You injure a tendon in the wrist of your slinging hand. This results in a -15 injury penalty. -15",
+          "You manage to throw your weapon 4d10 feet behind you. Anyone in the way takes a +0 attack. You are Dazed one round. stun[-50]",
+          "As 31-40 above, except that bolt is launched at 45 degrees below the intended path.",
+          "As 31-40 above, except that attack is launched at 45 degrees below the intended path."
+        ]
+      },
+      {
+        "rollLow": 96,
+        "rollHigh": 99,
+        "cells": [
+          "Make a breakage check. If it fails, the bow snaps and you take an 'A' Puncture from a flying splinter; if it is passed, the string snaps and lashes you, doing an 'A' Slash critical. +crit(A)",
+          "You pull a muscle in your slinging arm, resulting in a -20 penalty injury. -20",
+          "You trip as you release your weapon, which flies off to make a +0 attack on the nearest creature. You are Stunned[-50] for two rounds. 2 stun[-50]",
+          "As 31-40 above, except that bolt is launched straight up.",
+          "As 31-40 above, except that attack is launched straight up."
+        ]
+      },
+      {
+        "rollLow": 100,
+        "rollHigh": 100,
+        "cells": [
+          "You shoot yourself in the foot. Your foot is pinned to the ground (6 Action Points to free yourself). You are Stunned[-50] for two rounds, bleeding at 1 hit/round, and have a -30 flesh wound. +crit(A), 2 stun[-50], 1 bleed, -30, stagger(6) hits, bleed X: Bleed, X hits/rd, knockback X’: Knocked back,",
+          "The sling becomes a melee weapon as you manage to hit yourself for an 'A' Krush critical. +crit(A) fatigue (-X): Fatigue penalty, breakage (-X): prone: Knocked down/prone, grapple:",
+          "You throw the weapon straight up and it comes down as a +50 attack on yourself. Breakage roll, -X: Injury Grappled X%, +crit(X): Additional 241",
+          "Element misfires as it leaves your hand. You take an 'A' critical of the appropriate type. +crit(A) penalty, stun [-xx]: Stunned for X X criticals, : Target is dying KILLED",
+          "Elements explode in your face. You take a 'C' critical of the appropriate type. +crit(C) rounds @ xx, stagger: Staggered, or defeated"
+        ]
+      }
+    ]
+  }
+]

@@ -36,11 +36,64 @@
                                 <NavLink class="dropdown-item" href="gm/characters">Characters</NavLink>
                             </li>
                             <li>
+                                <NavLink class="dropdown-item" href="gm/creatures">Creatures</NavLink>
+                            </li>
+                            <li>
                                 <hr class="dropdown-divider qp-divider" />
                             </li>
                             <li>
                                 <NavLink class="dropdown-item" href="gm/players">Players</NavLink>
                             </li>
+                        </ul>
+                    </li>
+                </AuthorizeView>
+
+                <AuthorizeView>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            Tables
+                        </a>
+                        <ul class="dropdown-menu qp-dropdown">
+                            <li>
+                                <NavLink class="dropdown-item" href="attack-tables">Attack Tables</NavLink>
+                            </li>
+                            <li>
+                                <NavLink class="dropdown-item" href="critical-tables">Critical Tables</NavLink>
+                            </li>
+                            <li>
+                                <NavLink class="dropdown-item" href="fumble-tables">Fumble Tables</NavLink>
+                            </li>
+                            <li>
+                                <NavLink class="dropdown-item" href="spell-failures">Spell Failures</NavLink>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider qp-divider" />
+                            </li>
+                            <li>
+                                <NavLink class="dropdown-item" href="reference-tables">Reference Tables</NavLink>
+                            </li>
+                        </ul>
+                    </li>
+                </AuthorizeView>
+
+                <AuthorizeView>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            Spells
+                        </a>
+                        <ul class="dropdown-menu qp-dropdown qp-dropdown-scroll">
+                            @foreach (var realm in SpellMenu)
+                            {
+                                <li><h6 class="dropdown-header qp-dropdown-header">@realm.Realm</h6></li>
+                                @foreach (var cat in realm.Categories)
+                                {
+                                    <li>
+                                        <NavLink class="dropdown-item" href="@($"spells?category={Uri.EscapeDataString(cat)}")">@cat</NavLink>
+                                    </li>
+                                }
+                            }
                         </ul>
                     </li>
                 </AuthorizeView>
@@ -74,3 +127,25 @@
         </div>
     </div>
 </nav>
+
+<style>
+    .qp-dropdown-scroll { max-height: 70vh; overflow-y: auto; }
+    .qp-dropdown-header { color: var(--qp-teal); font-weight: 700; text-transform: uppercase;
+                          letter-spacing: .06em; font-size: .72rem; padding: .35rem 1rem .15rem; }
+</style>
+
+@code {
+    private record RealmMenu(string Realm, string[] Categories);
+
+    // Categories grouped by realm, matching the seeded Spell Law data.
+    private static readonly RealmMenu[] SpellMenu =
+    [
+        new("Channeling", ["Open Channeling", "Closed Channeling", "Cleric Base", "Druid Base",
+                           "Paladin Base", "Ranger Base", "Evil Channeling"]),
+        new("Essence", ["Open Essence", "Closed Essence", "Bard Base", "Dabbler Base",
+                        "Illusionist Base", "Magician Base", "Evil Essence"]),
+        new("Mentalism", ["Open Mentalism", "Closed Mentalism", "Lay Healer Base", "Magent Base",
+                          "Mentalist Base", "Monk Base", "Evil Mentalism"]),
+        new("Hybrid", ["Healer Base", "Mystic Base", "Sorcerer Base"]),
+    ];
+}
