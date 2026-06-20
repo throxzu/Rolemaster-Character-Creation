@@ -17,7 +17,7 @@
     <HeadOutlet />
 </head>
 
-<body>
+<body class="@BodyClass">
     <RolemasterCharacterCreation.Components.Routes />
     <RulesAssistant />
     <ReconnectModal />
@@ -27,3 +27,22 @@
 </body>
 
 </html>
+
+@code {
+    [Inject] private IHttpContextAccessor Http { get; set; } = default!;
+
+    // Tags the page for phone players so the site nav can be hidden (they are chat-only).
+    private string? BodyClass
+    {
+        get
+        {
+            var user = Http.HttpContext?.User;
+            var isPhonePlayer = user?.Identity?.IsAuthenticated == true
+                && user.IsInRole(RolemasterCharacterCreation.Identity.Roles.Player)
+                && !user.IsInRole(RolemasterCharacterCreation.Identity.Roles.Gamemaster)
+                && RolemasterCharacterCreation.Services.MobileDetection.IsPhone(
+                    Http.HttpContext?.Request.Headers.UserAgent.ToString());
+            return isPhonePlayer ? "phone-chat-only" : null;
+        }
+    }
+}

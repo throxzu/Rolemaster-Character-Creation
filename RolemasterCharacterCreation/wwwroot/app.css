@@ -24,6 +24,12 @@
   --qp-radius-tab:   20px;
 }
 
+/* ── Phone chat-only lockdown ──────────────────────────────── */
+/* Players on a phone are confined to the chat app (enforced server-side); hide the site
+   menus and brand link, but keep the right-side Log out button reachable. */
+.phone-chat-only .navbar-nav.me-auto { display: none !important; }
+.phone-chat-only .qp-brand { pointer-events: none; }
+
 /* ── Global ────────────────────────────────────────────────── */
 html, body {
     font-family: var(--qp-font);
@@ -439,6 +445,30 @@ h1:focus  { outline: none; }
     padding: 0;
 }
 .ra-header button:hover { color: var(--qp-text-primary); }
+.ra-lang {
+    display: flex;
+    gap: 0.25rem;
+    margin-left: auto;
+    margin-right: 0.5rem;
+}
+.ra-flag {
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.05rem;
+    line-height: 1;
+    padding: 0.1rem 0.25rem;
+    opacity: 0.45;
+    filter: grayscale(0.6);
+    transition: opacity 0.12s, filter 0.12s, border-color 0.12s;
+}
+.ra-flag:hover { opacity: 0.85; filter: grayscale(0.2); }
+.ra-flag-active {
+    opacity: 1;
+    filter: none;
+    border-color: var(--qp-teal);
+}
 .ra-messages {
     flex: 1;
     overflow-y: auto;

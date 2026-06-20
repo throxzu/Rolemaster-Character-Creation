@@ -46,6 +46,9 @@ builder.Services.AddHostedService(sp => sp.GetRequiredService<RulesIndexService>
 // Real-time chat broker (in-memory pub/sub + presence; persistence is done by pages)
 builder.Services.AddSingleton<ChatService>();
 
+// Needed so App.razor can detect a phone player during SSR (chat-only lockdown).
+builder.Services.AddHttpContextAccessor();
+
 // Creature lookup
 builder.Services.AddSingleton<CreatureService>();
 
@@ -135,6 +138,26 @@ app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages:
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Chat-only lockdown for phones: an authenticated Player (not the GM) on a phone is
+// confined to the chat app — any other request is redirected to /chat. This both lands
+// them in chat right after login and blocks every other route. Tablets/desktops are
+// unaffected, and so is the GM.
+app.Use(async (context, next) =>
+{
+    var user = context.User;
+    if (user.Identity?.IsAuthenticated == true
+        && user.IsInRole(Roles.Player)
+        && !user.IsInRole(Roles.Gamemaster)
+        && MobileDetection.IsPhone(context.Request.Headers.UserAgent.ToString())
+        && !PhoneAllowedPath(context.Request.Path))
+    {
+        context.Response.Redirect("/chat");
+        return;
+    }
+    await next();
+});
+
 app.UseAntiforgery();
 
 app.MapStaticAssets();
@@ -150,6 +173,21 @@ static async Task MigrateAsync(IServiceProvider services)
     await using var scope = services.CreateAsyncScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await db.Database.MigrateAsync();
+}
+
+// Paths a locked-down phone player may still reach: the chat app itself, auth endpoints,
+// Blazor/framework plumbing, error pages, and static asset files (those carry a '.').
+static bool PhoneAllowedPath(PathString path)
+{
+    var p = path.HasValue ? path.Value! : "/";
+    return p.StartsWith("/chat", StringComparison.OrdinalIgnoreCase)
+        || p.StartsWith("/account", StringComparison.OrdinalIgnoreCase)
+        || p.StartsWith("/_blazor", StringComparison.OrdinalIgnoreCase)
+        || p.StartsWith("/_framework", StringComparison.OrdinalIgnoreCase)
+        || p.StartsWith("/_content", StringComparison.OrdinalIgnoreCase)
+        || p.StartsWith("/Error", StringComparison.OrdinalIgnoreCase)
+        || p.StartsWith("/not-found", StringComparison.OrdinalIgnoreCase)
+        || p.Contains('.');
 }
 
 static async Task SeedAsync(IServiceProvider services)

@@ -151,6 +151,7 @@ public sealed class RulesIndexService : IHostedService
         string question,
         IReadOnlyList<RulesChatMessage> history,
         bool includeGmContent,
+        string language,
         [EnumeratorCancellation] CancellationToken ct)
     {
         var qVec = await _embeddings.EmbedQueryAsync(question, ct);
@@ -173,8 +174,26 @@ public sealed class RulesIndexService : IHostedService
             ? "The current user is the Gamemaster; GM-only material (treasure, bestiary) may be included.\n\n"
             : "The current user is a player; do not reveal GM-only material such as monster stats or treasure contents.\n\n";
 
+        // The GM can pick a reply language. Danish applies to creative/general answers only —
+        // rules/mechanics answers drawn from the rulebook excerpts must stay in English so the
+        // book's wording, section names, terms and numbers are preserved verbatim.
+        var langNote = language == "da"
+            ? "RESPONSE LANGUAGE: Reply in Danish (på dansk). EXCEPTION: any answer drawn from the " +
+              "RULEBOOK EXCERPTS — rules, mechanics, stats, tables, spells, costs — must be written " +
+              "ENTIRELY in English. Keep the rulebook's wording, section names, terms and numbers; do " +
+              "NOT translate rules content into Danish. Only creative/world-building and general " +
+              "(non-rules) answers are in Danish.\n\n"
+            : "RESPONSE LANGUAGE: Reply in English.\n\n";
+
+        // Keep non-rules answers extremely tight; rules answers may run longer to cite the mechanics.
+        var lengthNote =
+            "LENGTH — for answers that are NOT rules/mechanics (creative, world-building, NPCs, " +
+            "general questions): answer in AT MOST 2–3 short sentences, as a single plain-prose " +
+            "paragraph. No markdown headings, no bold labels, no lists or sections. Give only the " +
+            "essentials; do not pad. Expand ONLY if the user explicitly asks for more detail.\n\n";
+
         var systemPrompt =
-            LoadPersona() + "\n\n" + roleNote +
+            LoadPersona() + "\n\n" + roleNote + langNote + lengthNote +
             "--- RULEBOOK EXCERPTS (use these for rules/mechanics questions; cite the section) ---\n" +
             excerpts;
 

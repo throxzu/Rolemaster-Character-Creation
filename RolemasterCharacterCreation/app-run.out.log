@@ -5,7 +5,7 @@ info: Microsoft.EntityFrameworkCore.Database.Command[20101]
 info: Microsoft.EntityFrameworkCore.Migrations[20411]
       Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long.
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (38ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (17ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
       DECLARE @result int;
       EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive';
       SELECT @result
@@ -26,19 +26,19 @@ info: Microsoft.EntityFrameworkCore.Database.Command[20101]
       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
       SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
       SELECT [MigrationId], [ProductVersion]
       FROM [__EFMigrationsHistory]
       ORDER BY [MigrationId];
 info: Microsoft.EntityFrameworkCore.Migrations[20405]
       No migrations were applied. The database is already up to date.
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (5ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
       DECLARE @result int;
       EXEC @result = sp_releaseapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session';
       SELECT @result
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (16ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (9ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
       SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
       FROM [AspNetRoles] AS [a]
       WHERE [a].[NormalizedName] = @normalizedName
@@ -48,59 +48,59 @@ info: Microsoft.EntityFrameworkCore.Database.Command[20101]
       FROM [AspNetRoles] AS [a]
       WHERE [a].[NormalizedName] = @normalizedName
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (8ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (0ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
       SELECT TOP(2) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[DisplayName], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
       FROM [AspNetUsers] AS [a]
       WHERE [a].[NormalizedEmail] = @normalizedEmail
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (6ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
       SELECT [c].[Id], [c].[Description], [c].[Name]
       FROM [CreatureDescriptions] AS [c]
 warn: Microsoft.EntityFrameworkCore.Query[20504]
       Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (112ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (97ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
       SELECT [a].[Id], [a].[Category], [a].[CritTypes], [a].[DisarmMod], [a].[Name], [a].[Notes], [a].[Signature], [a].[SubdualMod], [a0].[Id], [a0].[AttackTableId], [a0].[Fumble], [a0].[Length], [a0].[Name], [a0].[SizeMod], [a0].[Strength], [a0].[Weight], [a1].[Id], [a1].[At1], [a1].[At10], [a1].[At2], [a1].[At3], [a1].[At4], [a1].[At5], [a1].[At6], [a1].[At7], [a1].[At8], [a1].[At9], [a1].[AttackTableId], [a1].[RollHigh], [a1].[RollLow], [a1].[Size]
       FROM [AttackTables] AS [a]
       LEFT JOIN [AttackTableWeapons] AS [a0] ON [a].[Id] = [a0].[AttackTableId]
       LEFT JOIN [AttackTableRows] AS [a1] ON [a].[Id] = [a1].[AttackTableId]
       ORDER BY [a].[Id], [a0].[Id]
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (20ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
       SELECT [c].[Id], [c].[Name], [c].[Signature], [c0].[Id], [c0].[A], [c0].[B], [c0].[C], [c0].[CriticalTableId], [c0].[D], [c0].[E], [c0].[Location], [c0].[RollHigh], [c0].[RollLow]
       FROM [CriticalTables] AS [c]
       LEFT JOIN [CriticalTableRows] AS [c0] ON [c].[Id] = [c0].[CriticalTableId]
       ORDER BY [c].[Id]
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (14ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
       SELECT [f].[Id], [f].[Col1Name], [f].[Col2Name], [f].[Col3Name], [f].[Col4Name], [f].[Col5Name], [f].[Name], [f].[Signature], [f0].[Id], [f0].[Col1], [f0].[Col2], [f0].[Col3], [f0].[Col4], [f0].[Col5], [f0].[FumbleTableId], [f0].[RollHigh], [f0].[RollLow]
       FROM [FumbleTables] AS [f]
       LEFT JOIN [FumbleTableRows] AS [f0] ON [f].[Id] = [f0].[FumbleTableId]
       ORDER BY [f].[Id]
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (16ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
       SELECT [s].[Id], [s].[Col1Name], [s].[Col2Name], [s].[Col3Name], [s].[Col4Name], [s].[Name], [s].[Signature], [s0].[Id], [s0].[Col1], [s0].[Col2], [s0].[Col3], [s0].[Col4], [s0].[RollHigh], [s0].[RollLow], [s0].[SpellFailureTableId]
       FROM [SpellFailureTables] AS [s]
       LEFT JOIN [SpellFailureTableRows] AS [s0] ON [s].[Id] = [s0].[SpellFailureTableId]
       ORDER BY [s].[Id]
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (33ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (14ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
       SELECT [s].[Id], [s].[Category], [s].[Code], [s].[Name], [s].[Profession], [s].[Realm], [s].[Signature], [s0].[Id], [s0].[AreaOfEffect], [s0].[Description], [s0].[Duration], [s0].[Level], [s0].[Name], [s0].[Range], [s0].[SpellListId], [s0].[Type]
       FROM [SpellLists] AS [s]
       LEFT JOIN [Spells] AS [s0] ON [s].[Id] = [s0].[SpellListId]
       ORDER BY [s].[Id]
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (4ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
       SELECT [m].[Id], [m].[ColorHex], [m].[IsBuiltIn], [m].[Name], [m].[SortOrder]
       FROM [MapCategories] AS [m]
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (18ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
       SELECT [m].[Id], [m].[ColorHex], [m].[IsBuiltIn], [m].[Name], [m].[SortOrder], [m0].[Id], [m0].[MapCategoryId], [m0].[Name]
       FROM [MapCategories] AS [m]
       LEFT JOIN [MapCategoryNames] AS [m0] ON [m].[Id] = [m0].[MapCategoryId]
       ORDER BY [m].[Id]
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (7ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
       SELECT CASE
           WHEN EXISTS (
               SELECT 1
@@ -108,13 +108,13 @@ info: Microsoft.EntityFrameworkCore.Database.Command[20101]
           ELSE CAST(0 AS bit)
       END
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (16ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
       SELECT [v].[Id], [v].[ColorHex], [v].[IsBuiltIn], [v].[Name], [v].[SortOrder], [v0].[Id], [v0].[Name], [v0].[VillageCategoryId]
       FROM [VillageCategories] AS [v]
       LEFT JOIN [VillageCategoryNames] AS [v0] ON [v].[Id] = [v0].[VillageCategoryId]
       ORDER BY [v].[Id]
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (9ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
       SELECT CASE
           WHEN EXISTS (
               SELECT 1
@@ -122,13 +122,13 @@ info: Microsoft.EntityFrameworkCore.Database.Command[20101]
           ELSE CAST(0 AS bit)
       END
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (17ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
       SELECT [d].[Id], [d].[ColorHex], [d].[IsBuiltIn], [d].[IsHidden], [d].[Name], [d].[SortOrder], [d0].[Id], [d0].[DungeonCategoryId], [d0].[Name]
       FROM [DungeonCategories] AS [d]
       LEFT JOIN [DungeonCategoryNames] AS [d0] ON [d].[Id] = [d0].[DungeonCategoryId]
       ORDER BY [d].[Id]
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (6ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
       SELECT CASE
           WHEN EXISTS (
               SELECT 1
@@ -136,13 +136,13 @@ info: Microsoft.EntityFrameworkCore.Database.Command[20101]
           ELSE CAST(0 AS bit)
       END
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (14ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
       SELECT [c].[Id], [c].[ColorHex], [c].[IsBuiltIn], [c].[IsHidden], [c].[Name], [c].[SortOrder], [c0].[Id], [c0].[CaveCategoryId], [c0].[Name]
       FROM [CaveCategories] AS [c]
       LEFT JOIN [CaveCategoryNames] AS [c0] ON [c].[Id] = [c0].[CaveCategoryId]
       ORDER BY [c].[Id]
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (6ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
       SELECT CASE
           WHEN EXISTS (
               SELECT 1
@@ -150,13 +150,13 @@ info: Microsoft.EntityFrameworkCore.Database.Command[20101]
           ELSE CAST(0 AS bit)
       END
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (14ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
       SELECT [b].[Id], [b].[ColorHex], [b].[IsBuiltIn], [b].[IsHidden], [b].[Name], [b].[SortOrder], [b0].[Id], [b0].[BuildingCategoryId], [b0].[Name]
       FROM [BuildingCategories] AS [b]
       LEFT JOIN [BuildingCategoryNames] AS [b0] ON [b].[Id] = [b0].[BuildingCategoryId]
       ORDER BY [b].[Id]
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (7ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
       SELECT CASE
           WHEN EXISTS (
               SELECT 1
@@ -171,10 +171,10 @@ info: Microsoft.Hosting.Lifetime[0]
       Hosting environment: Development
 info: Microsoft.Hosting.Lifetime[0]
       Content root path: c:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation
-info: RolemasterCharacterCreation.Services.RulesIndexService[0]
-      Parsed 543 chunks from Rolemaster_Core_Law_(RMU).md
 warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]
       Failed to determine the https port for redirect.
+info: RolemasterCharacterCreation.Services.RulesIndexService[0]
+      Parsed 543 chunks from Rolemaster_Core_Law_(RMU).md
 info: RolemasterCharacterCreation.Services.RulesIndexService[0]
       Parsed 638 chunks from Rolemaster_Spell_Law_(RMU).md
 info: RolemasterCharacterCreation.Services.RulesIndexService[0]
@@ -200,320 +200,372 @@ info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 3078.2101ms - 200
+      Received HTTP response headers after 20541.5208ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 3085.5235ms - 200
+      End processing HTTP request after 20549.7285ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 726.1567ms - 200
+      Received HTTP response headers after 3863.3919ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 726.2872ms - 200
+      End processing HTTP request after 3863.5038ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 2153.682ms - 200
+      Received HTTP response headers after 4163.1096ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 2153.7941ms - 200
+      End processing HTTP request after 4163.2119ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 4047.0816ms - 200
+      Received HTTP response headers after 650.8873ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 4047.18ms - 200
+      End processing HTTP request after 650.9721ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 1007.4123ms - 200
+      Received HTTP response headers after 925.2965ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 1007.5158ms - 200
+      End processing HTTP request after 925.3948ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 1283.3103ms - 200
+      Received HTTP response headers after 3734.8813ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 1283.4082ms - 200
+      End processing HTTP request after 3734.9774ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 1279.6592ms - 200
+      Received HTTP response headers after 7842.9474ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 1279.7553ms - 200
+      End processing HTTP request after 7843.0397ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 779.116ms - 200
+      Received HTTP response headers after 5068.7391ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 779.2225ms - 200
+      End processing HTTP request after 5068.8341ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 963.1364ms - 200
+      Received HTTP response headers after 1037.3285ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 963.2339ms - 200
+      End processing HTTP request after 1037.426ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 634.3527ms - 200
+      Received HTTP response headers after 814.8602ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 634.4369ms - 200
+      End processing HTTP request after 814.9492ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 1037.5499ms - 200
+      Received HTTP response headers after 789.4433ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 1037.6316ms - 200
+      End processing HTTP request after 789.527ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 2785.8878ms - 200
+      Received HTTP response headers after 1864.8494ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 2785.9719ms - 200
+      End processing HTTP request after 1864.9326ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 3971.8326ms - 200
+      Received HTTP response headers after 7643.1818ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 3971.9211ms - 200
+      End processing HTTP request after 7643.2697ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 3519.5174ms - 200
+      Received HTTP response headers after 2963.9179ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 3519.5936ms - 200
+      End processing HTTP request after 2963.995ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 1963.3038ms - 200
+      Received HTTP response headers after 2978.1436ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 1963.381ms - 200
+      End processing HTTP request after 2978.2193ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 711.3405ms - 200
+      Received HTTP response headers after 1053.7651ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 711.4237ms - 200
+      End processing HTTP request after 1053.8588ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 939.3443ms - 200
+      Received HTTP response headers after 760.3717ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 939.559ms - 200
+      End processing HTTP request after 760.5807ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 886.2116ms - 200
+      Received HTTP response headers after 734.6407ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 886.2931ms - 200
+      End processing HTTP request after 734.7073ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 736.1564ms - 200
+      Received HTTP response headers after 680.5297ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 736.2166ms - 200
+      End processing HTTP request after 680.5983ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 859.5892ms - 200
+      Received HTTP response headers after 621.7991ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 859.6654ms - 200
+      End processing HTTP request after 621.8658ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 511.5666ms - 200
+      Received HTTP response headers after 443.1917ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 511.6566ms - 200
+      End processing HTTP request after 443.2792ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 884.2099ms - 200
+      Received HTTP response headers after 681.9565ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 884.2965ms - 200
+      End processing HTTP request after 682.0313ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 710.9213ms - 200
+      Received HTTP response headers after 955.9261ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 710.9875ms - 200
+      End processing HTTP request after 956.0018ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 696.4973ms - 200
+      Received HTTP response headers after 1142.4473ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 696.5683ms - 200
+      End processing HTTP request after 1142.5278ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 1503.3098ms - 200
+      Received HTTP response headers after 561.8725ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 1503.385ms - 200
+      End processing HTTP request after 561.9548ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 1175.4767ms - 200
+      Received HTTP response headers after 2001.14ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 1175.5462ms - 200
+      End processing HTTP request after 2001.2201ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 635.9121ms - 200
+      Received HTTP response headers after 816.9495ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 635.9799ms - 200
+      End processing HTTP request after 817.0205ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 1065.5944ms - 200
+      Received HTTP response headers after 1927.4136ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 1065.6659ms - 200
+      End processing HTTP request after 1927.4836ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 882.2838ms - 200
+      Received HTTP response headers after 1220.66ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 882.3481ms - 200
+      End processing HTTP request after 1220.721ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 730.2118ms - 200
+      Received HTTP response headers after 981.5517ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 730.2884ms - 200
+      End processing HTTP request after 981.6168ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 674.1506ms - 200
+      Received HTTP response headers after 675.6522ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 674.246ms - 200
+      End processing HTTP request after 675.7454ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 859.7446ms - 200
+      Received HTTP response headers after 718.4604ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 859.8059ms - 200
+      End processing HTTP request after 718.5205ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 1227.3379ms - 200
+      Received HTTP response headers after 878.3412ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 1227.3853ms - 200
+      End processing HTTP request after 878.3867ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 910.3553ms - 200
+      Received HTTP response headers after 713.3844ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 910.4206ms - 200
+      End processing HTTP request after 713.4393ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 2382.8453ms - 200
+      Received HTTP response headers after 853.1402ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 2382.887ms - 200
+      End processing HTTP request after 853.1946ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 5564.3679ms - 200
+      Received HTTP response headers after 691.6626ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 5564.4218ms - 200
+      End processing HTTP request after 691.7108ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 3335.4672ms - 200
+      Received HTTP response headers after 654.9722ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 3335.5103ms - 200
+      End processing HTTP request after 655.0219ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 1322.1243ms - 200
+      Received HTTP response headers after 711.8064ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 1322.1769ms - 200
+      End processing HTTP request after 711.858ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 880.4765ms - 200
+      Received HTTP response headers after 1078.7685ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 880.5313ms - 200
+      End processing HTTP request after 1078.8138ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
       Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
       Sending HTTP request POST https://api.voyageai.com/v1/embeddings
 info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
-      Received HTTP response headers after 540.7052ms - 200
+      Received HTTP response headers after 754.373ms - 200
 info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
-      End processing HTTP request after 540.7493ms - 200
+      End processing HTTP request after 754.4269ms - 200
 info: RolemasterCharacterCreation.Services.RulesIndexService[0]
-      Rules indexed: 2519 chunks in 82739ms
+      Rules indexed: 2519 chunks in 120239ms
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (23ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[DisplayName], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (7ms) [Parameters=[@user_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[Id], [a].[ClaimType], [a].[ClaimValue], [a].[UserId]
+      FROM [AspNetUserClaims] AS [a]
+      WHERE [a].[UserId] = @user_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (13ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (8ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: RolemasterCharacterCreation.Components.Account.Login[0]
+      User gamemaster@rolemaster.local logged in.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[@p='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[DisplayName], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[Id] = @p
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[100]
+      Start processing HTTP request POST https://api.voyageai.com/v1/embeddings
+info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[100]
+      Sending HTTP request POST https://api.voyageai.com/v1/embeddings
+info: System.Net.Http.HttpClient.IEmbeddingClient.ClientHandler[101]
+      Received HTTP response headers after 942.2563ms - 200
+info: System.Net.Http.HttpClient.IEmbeddingClient.LogicalHandler[101]
+      End processing HTTP request after 942.3193ms - 200
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (17ms) [Parameters=[@p='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[DisplayName], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[Id] = @p

@@ -1,16 +1,425 @@
 Using launch settings from RolemasterCharacterCreation\Properties\launchSettings.json...
 Building...
-C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation\Services\MarkdownParser.cs(14,13): warning CS0219: The variable 'frontmatterDone' is assigned but its value is never used [C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation\RolemasterCharacterCreation.csproj]
-C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation\Components\Pages\Player\Characters.razor(62,18): warning CS0649: Field 'Characters._isError' is never assigned to, and will always have its default value false [C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation\RolemasterCharacterCreation.csproj]
-C:\Program Files\dotnet\sdk\10.0.301\Microsoft.Common.CurrentVersion.targets(5096,5): warning MSB3026: Could not copy "C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation.Client\bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll" to "bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll". Beginning retry 1 in 1000ms. The process cannot access the file 'C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation\bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll' because it is being used by another process. The file is locked by: "RolemasterCharacterCreation (46404)" [C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation\RolemasterCharacterCreation.csproj]
-C:\Program Files\dotnet\sdk\10.0.301\Microsoft.Common.CurrentVersion.targets(5096,5): warning MSB3026: Could not copy "C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation.Client\bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll" to "bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll". Beginning retry 2 in 1000ms. The process cannot access the file 'C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation\bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll' because it is being used by another process. The file is locked by: "RolemasterCharacterCreation (46404)" [C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation\RolemasterCharacterCreation.csproj]
-C:\Program Files\dotnet\sdk\10.0.301\Microsoft.Common.CurrentVersion.targets(5096,5): warning MSB3026: Could not copy "C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation.Client\bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll" to "bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll". Beginning retry 3 in 1000ms. The process cannot access the file 'C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation\bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll' because it is being used by another process. The file is locked by: "RolemasterCharacterCreation (46404)" [C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation\RolemasterCharacterCreation.csproj]
-C:\Program Files\dotnet\sdk\10.0.301\Microsoft.Common.CurrentVersion.targets(5096,5): warning MSB3026: Could not copy "C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation.Client\bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll" to "bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll". Beginning retry 4 in 1000ms. The process cannot access the file 'C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation\bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll' because it is being used by another process. The file is locked by: "RolemasterCharacterCreation (46404)" [C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation\RolemasterCharacterCreation.csproj]
-C:\Program Files\dotnet\sdk\10.0.301\Microsoft.Common.CurrentVersion.targets(5096,5): warning MSB3026: Could not copy "C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation.Client\bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll" to "bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll". Beginning retry 5 in 1000ms. The process cannot access the file 'C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation\bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll' because it is being used by another process. The file is locked by: "RolemasterCharacterCreation (46404)" [C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation\RolemasterCharacterCreation.csproj]
-C:\Program Files\dotnet\sdk\10.0.301\Microsoft.Common.CurrentVersion.targets(5096,5): warning MSB3026: Could not copy "C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation.Client\bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll" to "bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll". Beginning retry 6 in 1000ms. The process cannot access the file 'C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation\bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll' because it is being used by another process. The file is locked by: "RolemasterCharacterCreation (46404)" [C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation\RolemasterCharacterCreation.csproj]
-C:\Program Files\dotnet\sdk\10.0.301\Microsoft.Common.CurrentVersion.targets(5096,5): warning MSB3026: Could not copy "C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation.Client\bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll" to "bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll". Beginning retry 7 in 1000ms. The process cannot access the file 'C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation\bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll' because it is being used by another process. The file is locked by: "RolemasterCharacterCreation (46404)" [C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation\RolemasterCharacterCreation.csproj]
-C:\Program Files\dotnet\sdk\10.0.301\Microsoft.Common.CurrentVersion.targets(5096,5): warning MSB3026: Could not copy "C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation.Client\bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll" to "bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll". Beginning retry 8 in 1000ms. The process cannot access the file 'C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation\bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll' because it is being used by another process. The file is locked by: "RolemasterCharacterCreation (46404)" [C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation\RolemasterCharacterCreation.csproj]
-C:\Program Files\dotnet\sdk\10.0.301\Microsoft.Common.CurrentVersion.targets(5096,5): warning MSB3026: Could not copy "C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation.Client\bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll" to "bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll". Beginning retry 9 in 1000ms. The process cannot access the file 'C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation\bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll' because it is being used by another process. The file is locked by: "RolemasterCharacterCreation (46404)" [C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation\RolemasterCharacterCreation.csproj]
-C:\Program Files\dotnet\sdk\10.0.301\Microsoft.Common.CurrentVersion.targets(5096,5): warning MSB3026: Could not copy "C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation.Client\bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll" to "bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll". Beginning retry 10 in 1000ms. The process cannot access the file 'C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation\bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll' because it is being used by another process. The file is locked by: "RolemasterCharacterCreation (46404)" [C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation\RolemasterCharacterCreation.csproj]
-C:\Program Files\dotnet\sdk\10.0.301\Microsoft.Common.CurrentVersion.targets(5096,5): error MSB3027: Could not copy "C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation.Client\bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll" to "bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll". Exceeded retry count of 10. Failed. The file is locked by: "RolemasterCharacterCreation (46404)" [C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation\RolemasterCharacterCreation.csproj]
-C:\Program Files\dotnet\sdk\10.0.301\Microsoft.Common.CurrentVersion.targets(5096,5): error MSB3021: Unable to copy file "C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation.Client\bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll" to "bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll". The process cannot access the file 'C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation\bin\Debug\net10.0\RolemasterCharacterCreation.Client.dll' because it is being used by another process. [C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation\RolemasterCharacterCreation.csproj]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (22ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Migrations[20411]
+      Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (19ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      DECLARE @result int;
+      EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive';
+      SELECT @result
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+      BEGIN
+          CREATE TABLE [__EFMigrationsHistory] (
+              [MigrationId] nvarchar(150) NOT NULL,
+              [ProductVersion] nvarchar(32) NOT NULL,
+              CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+          );
+      END;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [MigrationId], [ProductVersion]
+      FROM [__EFMigrationsHistory]
+      ORDER BY [MigrationId];
+info: Microsoft.EntityFrameworkCore.Migrations[20405]
+      No migrations were applied. The database is already up to date.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      DECLARE @result int;
+      EXEC @result = sp_releaseapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session';
+      SELECT @result
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (9ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[DisplayName], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Description], [c].[Name]
+      FROM [CreatureDescriptions] AS [c]
+warn: Microsoft.EntityFrameworkCore.Query[20504]
+      Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (53ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[Id], [a].[Category], [a].[CritTypes], [a].[DisarmMod], [a].[Name], [a].[Notes], [a].[Signature], [a].[SubdualMod], [a0].[Id], [a0].[AttackTableId], [a0].[Fumble], [a0].[Length], [a0].[Name], [a0].[SizeMod], [a0].[Strength], [a0].[Weight], [a1].[Id], [a1].[At1], [a1].[At10], [a1].[At2], [a1].[At3], [a1].[At4], [a1].[At5], [a1].[At6], [a1].[At7], [a1].[At8], [a1].[At9], [a1].[AttackTableId], [a1].[RollHigh], [a1].[RollLow], [a1].[Size]
+      FROM [AttackTables] AS [a]
+      LEFT JOIN [AttackTableWeapons] AS [a0] ON [a].[Id] = [a0].[AttackTableId]
+      LEFT JOIN [AttackTableRows] AS [a1] ON [a].[Id] = [a1].[AttackTableId]
+      ORDER BY [a].[Id], [a0].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Name], [c].[Signature], [c0].[Id], [c0].[A], [c0].[B], [c0].[C], [c0].[CriticalTableId], [c0].[D], [c0].[E], [c0].[Location], [c0].[RollHigh], [c0].[RollLow]
+      FROM [CriticalTables] AS [c]
+      LEFT JOIN [CriticalTableRows] AS [c0] ON [c].[Id] = [c0].[CriticalTableId]
+      ORDER BY [c].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [f].[Id], [f].[Col1Name], [f].[Col2Name], [f].[Col3Name], [f].[Col4Name], [f].[Col5Name], [f].[Name], [f].[Signature], [f0].[Id], [f0].[Col1], [f0].[Col2], [f0].[Col3], [f0].[Col4], [f0].[Col5], [f0].[FumbleTableId], [f0].[RollHigh], [f0].[RollLow]
+      FROM [FumbleTables] AS [f]
+      LEFT JOIN [FumbleTableRows] AS [f0] ON [f].[Id] = [f0].[FumbleTableId]
+      ORDER BY [f].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Col1Name], [s].[Col2Name], [s].[Col3Name], [s].[Col4Name], [s].[Name], [s].[Signature], [s0].[Id], [s0].[Col1], [s0].[Col2], [s0].[Col3], [s0].[Col4], [s0].[RollHigh], [s0].[RollLow], [s0].[SpellFailureTableId]
+      FROM [SpellFailureTables] AS [s]
+      LEFT JOIN [SpellFailureTableRows] AS [s0] ON [s].[Id] = [s0].[SpellFailureTableId]
+      ORDER BY [s].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (10ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[Category], [s].[Code], [s].[Name], [s].[Profession], [s].[Realm], [s].[Signature], [s0].[Id], [s0].[AreaOfEffect], [s0].[Description], [s0].[Duration], [s0].[Level], [s0].[Name], [s0].[Range], [s0].[SpellListId], [s0].[Type]
+      FROM [SpellLists] AS [s]
+      LEFT JOIN [Spells] AS [s0] ON [s].[Id] = [s0].[SpellListId]
+      ORDER BY [s].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [m].[Id], [m].[ColorHex], [m].[IsBuiltIn], [m].[Name], [m].[SortOrder]
+      FROM [MapCategories] AS [m]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [m].[Id], [m].[ColorHex], [m].[IsBuiltIn], [m].[Name], [m].[SortOrder], [m0].[Id], [m0].[MapCategoryId], [m0].[Name]
+      FROM [MapCategories] AS [m]
+      LEFT JOIN [MapCategoryNames] AS [m0] ON [m].[Id] = [m0].[MapCategoryId]
+      ORDER BY [m].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [VillageCategories] AS [v]) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [v].[Id], [v].[ColorHex], [v].[IsBuiltIn], [v].[Name], [v].[SortOrder], [v0].[Id], [v0].[Name], [v0].[VillageCategoryId]
+      FROM [VillageCategories] AS [v]
+      LEFT JOIN [VillageCategoryNames] AS [v0] ON [v].[Id] = [v0].[VillageCategoryId]
+      ORDER BY [v].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [DungeonCategories] AS [d]) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [d].[Id], [d].[ColorHex], [d].[IsBuiltIn], [d].[IsHidden], [d].[Name], [d].[SortOrder], [d0].[Id], [d0].[DungeonCategoryId], [d0].[Name]
+      FROM [DungeonCategories] AS [d]
+      LEFT JOIN [DungeonCategoryNames] AS [d0] ON [d].[Id] = [d0].[DungeonCategoryId]
+      ORDER BY [d].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [CaveCategories] AS [c]) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[ColorHex], [c].[IsBuiltIn], [c].[IsHidden], [c].[Name], [c].[SortOrder], [c0].[Id], [c0].[CaveCategoryId], [c0].[Name]
+      FROM [CaveCategories] AS [c]
+      LEFT JOIN [CaveCategoryNames] AS [c0] ON [c].[Id] = [c0].[CaveCategoryId]
+      ORDER BY [c].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [BuildingCategories] AS [b]) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [b].[Id], [b].[ColorHex], [b].[IsBuiltIn], [b].[IsHidden], [b].[Name], [b].[SortOrder], [b0].[Id], [b0].[BuildingCategoryId], [b0].[Name]
+      FROM [BuildingCategories] AS [b]
+      LEFT JOIN [BuildingCategoryNames] AS [b0] ON [b].[Id] = [b0].[BuildingCategoryId]
+      ORDER BY [b].[Id]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [WorldCategories] AS [w]) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+warn: RolemasterCharacterCreation.Services.RulesIndexService[0]
+      Rules assistant disabled: Rules assistant disabled — set ANTHROPIC_API_KEY and VOYAGE_API_KEY
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:5224
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Development
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: C:\Projects\Rolemaster\Character_Creation\RolemasterCharacterCreation
+warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]
+      Failed to determine the https port for redirect.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedRoleName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedRoleName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Id], [a0].[AccessFailedCount], [a0].[ConcurrencyStamp], [a0].[DisplayName], [a0].[Email], [a0].[EmailConfirmed], [a0].[LockoutEnabled], [a0].[LockoutEnd], [a0].[NormalizedEmail], [a0].[NormalizedUserName], [a0].[PasswordHash], [a0].[PhoneNumber], [a0].[PhoneNumberConfirmed], [a0].[SecurityStamp], [a0].[TwoFactorEnabled], [a0].[UserName]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetUsers] AS [a0] ON [a].[UserId] = [a0].[Id]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Age], [c].[ArmorFullSuit], [c].[ArmorType], [c].[Build], [c].[CreatedAt], [c].[Culture], [c].[CurrentXp], [c].[EyeColor], [c].[Gender], [c].[GreavesGrade], [c].[HairColor], [c].[HeightCm], [c].[HelmetGrade], [c].[Level], [c].[LevelUpBaselineJson], [c].[Name], [c].[Profession], [c].[ProfessionalSkillData], [c].[Race], [c].[RaceBonusDp], [c].[Realm], [c].[ShieldType], [c].[StatBaselineJson], [c].[UserId], [c].[VambracesGrade], [c].[WeightKg], [c].[WizardStep], [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[DisplayName], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [Characters] AS [c]
+      LEFT JOIN [AspNetUsers] AS [a] ON [c].[UserId] = [a].[Id]
+      ORDER BY [c].[Name]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@p='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[DisplayName], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[Id] = @p
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@p='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[DisplayName], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[Id] = @p
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedRoleName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedRoleName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Id], [a0].[AccessFailedCount], [a0].[ConcurrencyStamp], [a0].[DisplayName], [a0].[Email], [a0].[EmailConfirmed], [a0].[LockoutEnabled], [a0].[LockoutEnd], [a0].[NormalizedEmail], [a0].[NormalizedUserName], [a0].[PasswordHash], [a0].[PhoneNumber], [a0].[PhoneNumberConfirmed], [a0].[SecurityStamp], [a0].[TwoFactorEnabled], [a0].[UserName]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetUsers] AS [a0] ON [a].[UserId] = [a0].[Id]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Age], [c].[ArmorFullSuit], [c].[ArmorType], [c].[Build], [c].[CreatedAt], [c].[Culture], [c].[CurrentXp], [c].[EyeColor], [c].[Gender], [c].[GreavesGrade], [c].[HairColor], [c].[HeightCm], [c].[HelmetGrade], [c].[Level], [c].[LevelUpBaselineJson], [c].[Name], [c].[Profession], [c].[ProfessionalSkillData], [c].[Race], [c].[RaceBonusDp], [c].[Realm], [c].[ShieldType], [c].[StatBaselineJson], [c].[UserId], [c].[VambracesGrade], [c].[WeightKg], [c].[WizardStep], [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[DisplayName], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [Characters] AS [c]
+      LEFT JOIN [AspNetUsers] AS [a] ON [c].[UserId] = [a].[Id]
+      ORDER BY [c].[Name]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[DisplayName], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@user_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[Id], [a].[ClaimType], [a].[ClaimValue], [a].[UserId]
+      FROM [AspNetUserClaims] AS [a]
+      WHERE [a].[UserId] = @user_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: RolemasterCharacterCreation.Components.Account.Login[0]
+      User gamemaster@rolemaster.local logged in.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedRoleName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedRoleName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Id], [a0].[AccessFailedCount], [a0].[ConcurrencyStamp], [a0].[DisplayName], [a0].[Email], [a0].[EmailConfirmed], [a0].[LockoutEnabled], [a0].[LockoutEnd], [a0].[NormalizedEmail], [a0].[NormalizedUserName], [a0].[PasswordHash], [a0].[PhoneNumber], [a0].[PhoneNumberConfirmed], [a0].[SecurityStamp], [a0].[TwoFactorEnabled], [a0].[UserName]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetUsers] AS [a0] ON [a].[UserId] = [a0].[Id]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Age], [c].[ArmorFullSuit], [c].[ArmorType], [c].[Build], [c].[CreatedAt], [c].[Culture], [c].[CurrentXp], [c].[EyeColor], [c].[Gender], [c].[GreavesGrade], [c].[HairColor], [c].[HeightCm], [c].[HelmetGrade], [c].[Level], [c].[LevelUpBaselineJson], [c].[Name], [c].[Profession], [c].[ProfessionalSkillData], [c].[Race], [c].[RaceBonusDp], [c].[Realm], [c].[ShieldType], [c].[StatBaselineJson], [c].[UserId], [c].[VambracesGrade], [c].[WeightKg], [c].[WizardStep], [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[DisplayName], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [Characters] AS [c]
+      LEFT JOIN [AspNetUsers] AS [a] ON [c].[UserId] = [a].[Id]
+      ORDER BY [c].[Name]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[DisplayName], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[Id] = @p
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[DisplayName], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[DisplayName], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[DisplayName], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[DisplayName], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[DisplayName], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@user_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[Id], [a].[ClaimType], [a].[ClaimValue], [a].[UserId]
+      FROM [AspNetUserClaims] AS [a]
+      WHERE [a].[UserId] = @user_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: RolemasterCharacterCreation.Components.Account.Login[0]
+      User player@rolemaster.local logged in.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@p='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[DisplayName], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[Id] = @p
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (12ms) [Parameters=[@_myId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[ConversationKey], [c].[LastReadAt], [c].[UserId]
+      FROM [ChatReads] AS [c]
+      WHERE [c].[UserId] = @_myId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@normalizedRoleName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedRoleName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Id], [a0].[AccessFailedCount], [a0].[ConcurrencyStamp], [a0].[DisplayName], [a0].[Email], [a0].[EmailConfirmed], [a0].[LockoutEnabled], [a0].[LockoutEnd], [a0].[NormalizedEmail], [a0].[NormalizedUserName], [a0].[PasswordHash], [a0].[PhoneNumber], [a0].[PhoneNumberConfirmed], [a0].[SecurityStamp], [a0].[TwoFactorEnabled], [a0].[UserName]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetUsers] AS [a0] ON [a].[UserId] = [a0].[Id]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@normalizedRoleName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedRoleName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Id], [a0].[AccessFailedCount], [a0].[ConcurrencyStamp], [a0].[DisplayName], [a0].[Email], [a0].[EmailConfirmed], [a0].[LockoutEnabled], [a0].[LockoutEnd], [a0].[NormalizedEmail], [a0].[NormalizedUserName], [a0].[PasswordHash], [a0].[PhoneNumber], [a0].[PhoneNumberConfirmed], [a0].[SecurityStamp], [a0].[TwoFactorEnabled], [a0].[UserName]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetUsers] AS [a0] ON [a].[UserId] = [a0].[Id]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (39ms) [Parameters=[@_myId='?' (Size = 4000), @since='?' (DbType = DateTimeOffset)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM [ChatMessages] AS [c]
+      WHERE [c].[RecipientId] IS NULL AND [c].[SenderId] <> @_myId AND [c].[SentAt] > @since
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (11ms) [Parameters=[@_myId='?' (Size = 450), @other='?' (Size = 4000), @since='?' (DbType = DateTimeOffset)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM [ChatMessages] AS [c]
+      WHERE [c].[RecipientId] = @_myId AND [c].[SenderId] = @other AND [c].[SentAt] > @since
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[DisplayName], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[Id] = @p
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (9ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Age], [c].[ArmorFullSuit], [c].[ArmorType], [c].[Build], [c].[CreatedAt], [c].[Culture], [c].[CurrentXp], [c].[EyeColor], [c].[Gender], [c].[GreavesGrade], [c].[HairColor], [c].[HeightCm], [c].[HelmetGrade], [c].[Level], [c].[LevelUpBaselineJson], [c].[Name], [c].[Profession], [c].[ProfessionalSkillData], [c].[Race], [c].[RaceBonusDp], [c].[Realm], [c].[ShieldType], [c].[StatBaselineJson], [c].[UserId], [c].[VambracesGrade], [c].[WeightKg], [c].[WizardStep]
+      FROM [Characters] AS [c]
+      WHERE [c].[UserId] = @userId
+      ORDER BY [c].[Name]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[DisplayName], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[Id] = @p
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Age], [c].[ArmorFullSuit], [c].[ArmorType], [c].[Build], [c].[CreatedAt], [c].[Culture], [c].[CurrentXp], [c].[EyeColor], [c].[Gender], [c].[GreavesGrade], [c].[HairColor], [c].[HeightCm], [c].[HelmetGrade], [c].[Level], [c].[LevelUpBaselineJson], [c].[Name], [c].[Profession], [c].[ProfessionalSkillData], [c].[Race], [c].[RaceBonusDp], [c].[Realm], [c].[ShieldType], [c].[StatBaselineJson], [c].[UserId], [c].[VambracesGrade], [c].[WeightKg], [c].[WizardStep]
+      FROM [Characters] AS [c]
+      WHERE [c].[UserId] = @userId
+      ORDER BY [c].[Name]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@p='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[DisplayName], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[Id] = @p
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId

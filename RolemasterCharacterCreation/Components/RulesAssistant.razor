@@ -11,6 +11,17 @@
     <div class="ra-panel">
         <div class="ra-header">
             <span>&#x1F4DC; Rules Assistant</span>
+            @if (_isGm)
+            {
+                <div class="ra-lang">
+                    <button class="ra-flag @(_language == "en" ? "ra-flag-active" : "")"
+                            @onclick='() => _language = "en"'
+                            title="Answer in English">&#x1F1EC;&#x1F1E7;</button>
+                    <button class="ra-flag @(_language == "da" ? "ra-flag-active" : "")"
+                            @onclick='() => _language = "da"'
+                            title="Svar på dansk (regler forbliver på engelsk)">&#x1F1E9;&#x1F1F0;</button>
+                </div>
+            }
             <button @onclick="Close" title="Close">&times;</button>
         </div>
 
@@ -60,6 +71,8 @@
 @code {
     bool _open;
     bool _authenticated;
+    bool _isGm;
+    string _language = "en";
     bool _streaming;
     string _input = "";
     string _streamBuffer = "";
@@ -76,11 +89,22 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        _authenticated = AuthState is not null
-            && (await AuthState).User.Identity?.IsAuthenticated == true;
+        if (AuthState is null)
+        {
+            _authenticated = false;
+            _isGm = false;
+            _open = false;
+            return;
+        }
+
+        var user = (await AuthState).User;
+        _authenticated = user.Identity?.IsAuthenticated == true;
+        _isGm = user.IsInRole(Roles.Gamemaster);
 
         if (!_authenticated)
             _open = false;
+        if (!_isGm)
+            _language = "en"; // language toggle is GM-only; players always get English
     }
 
     void Toggle() => _open = !_open;
@@ -105,10 +129,11 @@
 
         // Resolved server-side from the authenticated circuit; gates GM-only rules content.
         bool isGm = AuthState is not null && (await AuthState).User.IsInRole(Roles.Gamemaster);
+        string language = isGm ? _language : "en";
 
         try
         {
-            await foreach (var token in IndexService.AskAsync(question, _history, isGm, _cts.Token))
+            await foreach (var token in IndexService.AskAsync(question, _history, isGm, language, _cts.Token))
             {
                 _streamBuffer += token;
                 await InvokeAsync(StateHasChanged);
