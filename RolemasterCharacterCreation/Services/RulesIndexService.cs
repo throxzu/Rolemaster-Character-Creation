@@ -257,7 +257,7 @@ public sealed class RulesIndexService : IHostedService
         catch { return false; }
     }
 
-    private static void SaveCache(string path, string hash, List<RulesChunk> chunks)
+    private void SaveCache(string path, string hash, List<RulesChunk> chunks)
     {
         try
         {
@@ -275,23 +275,28 @@ public sealed class RulesIndexService : IHostedService
             var json = JsonSerializer.Serialize(cache);
             File.WriteAllText(path, json);
         }
-        catch { /* non-fatal — next restart re-embeds */ }
+        catch (Exception ex)
+        {
+            // Non-fatal, but in production an unwritable cache means a re-embed on every start —
+            // surface it so the app-pool identity can be granted write to the docs folder.
+            _logger.LogWarning(ex, "Could not write embed cache to {Path}; will re-embed on next start", path);
+        }
     }
 
     private static string ComputeSourceHash(IEnumerable<string> paths, string embeddingModel)
     {
-        using var sha = SHA256.Create();
         var sb = new StringBuilder();
         // Vector space depends on the embedding model, so it's part of the cache identity.
         sb.Append("model=").Append(embeddingModel).Append(';');
         foreach (var p in paths)
         {
             if (!File.Exists(p)) continue;
-            var info = new FileInfo(p);
-            sb.Append(p).Append('|').Append(info.Length).Append('|').Append(info.LastWriteTimeUtc.Ticks).Append(';');
+            // Hash file content (by name, not full path or timestamp) so the cache stays valid
+            // when the docs are copied to a new location/host during a deploy.
+            var contentHash = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(p)));
+            sb.Append(Path.GetFileName(p)).Append('|').Append(contentHash).Append(';');
         }
-        var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(sb.ToString()));
-        return Convert.ToHexString(bytes);
+        return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(sb.ToString())));
     }
 
     // ── Similarity ────────────────────────────────────────────────────────

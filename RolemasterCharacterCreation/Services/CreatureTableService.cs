@@ -23,7 +23,7 @@ public sealed class CreatureTableService
     public CreatureTableService(IWebHostEnvironment env)
     {
         var path = Path.GetFullPath(
-            Path.Combine(env.ContentRootPath, "../docs/game-data/creature-tables.json"));
+            Path.Combine(DocsLocator.Root(env.ContentRootPath), "game-data/creature-tables.json"));
 
         All = File.Exists(path)
             ? JsonSerializer.Deserialize<List<ReferenceTable>>(File.ReadAllText(path), JsonOpts) ?? []

@@ -24,7 +24,7 @@ public sealed class ReferenceTableService
     public ReferenceTableService(IWebHostEnvironment env)
     {
         var path = Path.GetFullPath(
-            Path.Combine(env.ContentRootPath, "../docs/game-data/reference-tables.json"));
+            Path.Combine(DocsLocator.Root(env.ContentRootPath), "game-data/reference-tables.json"));
 
         All = File.Exists(path)
             ? JsonSerializer.Deserialize<List<ReferenceTable>>(File.ReadAllText(path), JsonOpts) ?? []

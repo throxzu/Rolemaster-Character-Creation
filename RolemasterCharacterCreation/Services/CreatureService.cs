@@ -65,7 +65,7 @@ public sealed class CreatureService
     public CreatureService(IWebHostEnvironment env)
     {
         var path = Path.GetFullPath(
-            Path.Combine(env.ContentRootPath, "../docs/rules/Rolemaster_Creature_Law_I.md"));
+            Path.Combine(DocsLocator.Root(env.ContentRootPath), "rules/Rolemaster_Creature_Law_I.md"));
 
         All = File.Exists(path) ? Parse(path) : [];
         CategoryGroups = All.Select(c => c.CategoryGroup).Distinct().Order().ToList();

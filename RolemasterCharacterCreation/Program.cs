@@ -178,7 +178,7 @@ static async Task SeedAsync(IServiceProvider services)
 
 // Path to the curated description file, relative to the content root.
 static string CreatureDescriptionsPath(IWebHostEnvironment env) =>
-    Path.GetFullPath(Path.Combine(env.ContentRootPath, "../docs/game-data/creature-descriptions.json"));
+    Path.GetFullPath(Path.Combine(DocsLocator.Root(env.ContentRootPath), "game-data/creature-descriptions.json"));
 
 // Dev tool: serialise the parser's descriptions to JSON for manual review/cleanup.
 static void ExportCreatureDescriptions(IServiceProvider services)
@@ -260,7 +260,7 @@ static async Task SeedAttackTablesAsync(IServiceProvider services)
 {
     var env = services.GetRequiredService<IWebHostEnvironment>();
     var path = Path.GetFullPath(Path.Combine(
-        env.ContentRootPath, "../docs/game-data/attack-tables.json"));
+        DocsLocator.Root(env.ContentRootPath), "game-data/attack-tables.json"));
     if (!File.Exists(path)) return;
 
     var opts = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
@@ -338,7 +338,7 @@ static async Task SeedCriticalTablesAsync(IServiceProvider services)
 {
     var env = services.GetRequiredService<IWebHostEnvironment>();
     var path = Path.GetFullPath(Path.Combine(
-        env.ContentRootPath, "../docs/game-data/critical-tables.json"));
+        DocsLocator.Root(env.ContentRootPath), "game-data/critical-tables.json"));
     if (!File.Exists(path)) return;
 
     var opts = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
@@ -393,7 +393,7 @@ static async Task SeedFumbleTablesAsync(IServiceProvider services)
 {
     var env = services.GetRequiredService<IWebHostEnvironment>();
     var path = Path.GetFullPath(Path.Combine(
-        env.ContentRootPath, "../docs/game-data/fumble-tables.json"));
+        DocsLocator.Root(env.ContentRootPath), "game-data/fumble-tables.json"));
     if (!File.Exists(path)) return;
 
     var opts = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
@@ -455,7 +455,7 @@ static async Task SeedSpellFailureTablesAsync(IServiceProvider services)
 {
     var env = services.GetRequiredService<IWebHostEnvironment>();
     var path = Path.GetFullPath(Path.Combine(
-        env.ContentRootPath, "../docs/game-data/spell-failure-tables.json"));
+        DocsLocator.Root(env.ContentRootPath), "game-data/spell-failure-tables.json"));
     if (!File.Exists(path)) return;
 
     var opts = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
@@ -517,7 +517,7 @@ static async Task SeedSpellListsAsync(IServiceProvider services)
 {
     var env = services.GetRequiredService<IWebHostEnvironment>();
     var path = Path.GetFullPath(Path.Combine(
-        env.ContentRootPath, "../docs/game-data/spell-lists.json"));
+        DocsLocator.Root(env.ContentRootPath), "game-data/spell-lists.json"));
     if (!File.Exists(path)) return;
 
     var opts = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
@@ -640,7 +640,7 @@ static async Task SeedMapCategoryNamesAsync(IServiceProvider services)
 {
     var env = services.GetRequiredService<IWebHostEnvironment>();
     var path = Path.GetFullPath(Path.Combine(
-        env.ContentRootPath, "../docs/game-data/map-category-names.json"));
+        DocsLocator.Root(env.ContentRootPath), "game-data/map-category-names.json"));
     if (!File.Exists(path)) return;
 
     var byCategory = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, List<string>>>(
@@ -716,7 +716,7 @@ static async Task SeedVillageCategoryNamesAsync(IServiceProvider services)
 {
     var env = services.GetRequiredService<IWebHostEnvironment>();
     var path = Path.GetFullPath(Path.Combine(
-        env.ContentRootPath, "../docs/game-data/village-category-names.json"));
+        DocsLocator.Root(env.ContentRootPath), "game-data/village-category-names.json"));
     if (!File.Exists(path)) return;
 
     var byCategory = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, List<string>>>(
@@ -797,7 +797,7 @@ static async Task SeedDungeonCategoryNamesAsync(IServiceProvider services)
 {
     var env = services.GetRequiredService<IWebHostEnvironment>();
     var path = Path.GetFullPath(Path.Combine(
-        env.ContentRootPath, "../docs/game-data/dungeon-category-names.json"));
+        DocsLocator.Root(env.ContentRootPath), "game-data/dungeon-category-names.json"));
     if (!File.Exists(path)) return;
 
     var byCategory = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, List<string>>>(
@@ -878,7 +878,7 @@ static async Task SeedCaveCategoryNamesAsync(IServiceProvider services)
 {
     var env = services.GetRequiredService<IWebHostEnvironment>();
     var path = Path.GetFullPath(Path.Combine(
-        env.ContentRootPath, "../docs/game-data/cave-category-names.json"));
+        DocsLocator.Root(env.ContentRootPath), "game-data/cave-category-names.json"));
     if (!File.Exists(path)) return;
 
     var byCategory = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, List<string>>>(
@@ -959,7 +959,7 @@ static async Task SeedBuildingCategoryNamesAsync(IServiceProvider services)
 {
     var env = services.GetRequiredService<IWebHostEnvironment>();
     var path = Path.GetFullPath(Path.Combine(
-        env.ContentRootPath, "../docs/game-data/building-category-names.json"));
+        DocsLocator.Root(env.ContentRootPath), "game-data/building-category-names.json"));
     if (!File.Exists(path)) return;
 
     var byCategory = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, List<string>>>(

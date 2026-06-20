@@ -24,4 +24,16 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.8" />
   </ItemGroup>
 
+  <!-- Ship the docs the app reads at runtime (rule text, game-data, prompts) into the published
+       output under ./docs so they resolve under the site's content root in production. Only .md
+       and .json are included — the large PDFs and the regenerated embedding cache are excluded.
+       Not copied to the dev build output (dev reads ../docs via DocsLocator). -->
+  <ItemGroup>
+    <None Include="..\docs\**\*.md;..\docs\**\*.json"
+          Exclude="..\docs\**\.embed-cache.json"
+          Link="docs\%(RecursiveDir)%(Filename)%(Extension)"
+          CopyToOutputDirectory="Never"
+          CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
