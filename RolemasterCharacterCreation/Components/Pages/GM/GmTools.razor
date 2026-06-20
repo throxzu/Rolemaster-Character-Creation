@@ -1,0 +1,488 @@
+@page "/gm/tools"
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = Roles.Gamemaster)]
+@using RolemasterCharacterCreation.Rules
+@inject CreatureService CreatureSvc
+
+<PageTitle>GM Tools</PageTitle>
+
+<div class="container-fluid mt-3">
+    <h2 class="mb-1">GM Tools</h2>
+    <p class="text-muted mb-4">At-the-table aids. State lives only for this page session.</p>
+
+    <!-- ══════════════ Combat / Initiative Tracker ══════════════ -->
+    <div class="qp-card p-4 mb-4">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+            <h4 class="tool-heading mb-0">⚔️ Combat &amp; Initiative Tracker</h4>
+            <div class="d-flex align-items-center gap-2">
+                <span class="round-badge">Round @_round</span>
+                <button class="btn btn-sm btn-primary" @onclick="NextTurn"
+                        disabled="@(_combatants.Count == 0)">Next turn →</button>
+                <button class="btn btn-sm btn-outline-secondary" @onclick="RollAllInitiative"
+                        disabled="@(_combatants.Count == 0)">Roll all init</button>
+                <button class="btn btn-sm btn-outline-danger" @onclick="ResetEncounter"
+                        disabled="@(_combatants.Count == 0)">Reset</button>
+            </div>
+        </div>
+
+        <!-- Add combatant -->
+        <div class="row g-2 mb-3 align-items-end">
+            <div class="col-sm-4">
+                <label class="form-label small mb-1">Name</label>
+                <input class="form-control qp-input" placeholder="Combatant name"
+                       @bind="_newName" @bind:event="oninput"
+                       @onkeydown="@(e => { if (e.Key == "Enter") AddCombatant(); })" />
+            </div>
+            <div class="col-sm-3">
+                <label class="form-label small mb-1">Initiative</label>
+                <div class="input-group">
+                    <input type="number" class="form-control qp-input" @bind="_newInit" />
+                    <button class="btn btn-outline-secondary" @onclick="() => _newInit = OpenEndedD100()"
+                            title="Open-ended d100">🎲</button>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <label class="form-label small mb-1">Max hits</label>
+                <input type="number" class="form-control qp-input" @bind="_newHits" />
+            </div>
+            <div class="col-sm-2">
+                <button class="btn btn-primary w-100" @onclick="AddCombatant"
+                        disabled="@string.IsNullOrWhiteSpace(_newName)">Add</button>
+            </div>
+        </div>
+
+        @if (_combatants.Count == 0)
+        {
+            <p class="text-muted mb-0">No combatants yet. Add some above.</p>
+        }
+        else
+        {
+            <table class="table table-hover align-middle qp-table mb-0">
+                <thead>
+                    <tr>
+                        <th style="width:48px">Init</th>
+                        <th>Name</th>
+                        <th style="width:160px">Hits</th>
+                        <th style="width:230px">Adjust</th>
+                        <th>Note</th>
+                        <th style="width:40px"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var c in Ordered)
+                    {
+                        <tr class="@(c.Id == _activeId ? "active-turn" : "") @(c.MaxHits > 0 && c.CurrentHits <= 0 ? "downed" : "")">
+                            <td class="init-cell">@c.Initiative</td>
+                            <td>
+                                @if (c.Id == _activeId)
+                                {
+                                    <span class="turn-marker">▶</span>
+                                }
+                                <span class="fw-semibold">@c.Name</span>
+                            </td>
+                            <td>
+                                @if (c.MaxHits > 0)
+                                {
+                                    <span class="@HitClass(c)">@c.CurrentHits</span>
+                                    <span class="text-muted">/ @c.MaxHits</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="input-group input-group-sm">
+                                    <input type="number" class="form-control qp-input" style="max-width:80px"
+                                           @bind="c.PendingAdjust" />
+                                    <button class="btn btn-outline-danger" @onclick="() => ApplyDamage(c)"
+                                            title="Apply as damage">− Dmg</button>
+                                    <button class="btn btn-outline-success" @onclick="() => ApplyHeal(c)"
+                                            title="Apply as healing">+ Heal</button>
+                                </div>
+                            </td>
+                            <td>
+                                <input class="form-control form-control-sm qp-input"
+                                       placeholder="status / condition…" @bind="c.Note" @bind:event="oninput" />
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-link text-danger p-0"
+                                        @onclick="() => RemoveCombatant(c)" title="Remove">✕</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+
+    <!-- ══════════════ Random Encounter Generator ══════════════ -->
+    <div class="qp-card p-4 mb-4">
+        <h4 class="tool-heading mb-3">🐾 Random Encounter Generator</h4>
+
+        <div class="row g-2 mb-3 align-items-end">
+            <div class="col-sm-5">
+                <label class="form-label small mb-1">Category</label>
+                <select class="form-select qp-input" @bind="_encGroup">
+                    <option value="">Any category</option>
+                    @foreach (var g in CreatureSvc.CategoryGroups)
+                    {
+                        <option value="@g">@g</option>
+                    }
+                </select>
+            </div>
+            <div class="col-sm-3">
+                <label class="form-label small mb-1">How many</label>
+                <input type="number" class="form-control qp-input" min="1" max="12" @bind="_encCount" />
+            </div>
+            <div class="col-sm-4">
+                <button class="btn btn-primary w-100" @onclick="GenerateEncounter">Generate encounter</button>
+            </div>
+        </div>
+
+        @if (_encounter.Count > 0)
+        {
+            <table class="table table-hover align-middle qp-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Creature</th>
+                        <th>Category</th>
+                        <th style="width:80px">Size</th>
+                        <th style="width:90px">Armor</th>
+                        <th style="width:130px">Treasure</th>
+                        <th style="width:120px"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var c in _encounter)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@c.Name</td>
+                            <td class="text-muted">@c.Category</td>
+                            <td>@c.Size</td>
+                            <td>@c.Armor</td>
+                            <td>@(string.IsNullOrWhiteSpace(c.Treasure) ? "—" : c.Treasure)</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-secondary"
+                                        @onclick="() => AddCreatureToCombat(c)">+ To combat</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <a class="small d-inline-block mt-2" href="gm/creatures">Open full creature stat blocks →</a>
+        }
+        else if (_encounterRolled)
+        {
+            <p class="text-muted mb-0">No creatures matched that category.</p>
+        }
+    </div>
+
+    <!-- ══════════════ NPC & Name Generator ══════════════ -->
+    <div class="qp-card p-4 mb-4">
+        <h4 class="tool-heading mb-3">🧑 NPC &amp; Name Generator</h4>
+
+        <div class="row g-4">
+            <!-- NPC -->
+            <div class="col-lg-7">
+                <button class="btn btn-primary mb-3" @onclick="GenerateNpc">
+                    @(_npc is null ? "Generate NPC" : "Regenerate NPC")
+                </button>
+
+                @if (_npc is { } npc)
+                {
+                    <div class="npc-card">
+                        <div class="npc-title">
+                            <span class="npc-name">@npc.Name</span>
+                            <span class="text-muted">@npc.Race · @npc.Profession</span>
+                        </div>
+                        <table class="table table-sm table-bordered stat-grid mb-0">
+                            <thead>
+                                <tr>
+                                    @foreach (var s in StatNames)
+                                    {
+                                        <th class="text-center">@s</th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    @foreach (var v in npc.Stats)
+                                    {
+                                        <td class="text-center fw-semibold">@v</td>
+                                    }
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+
+            <!-- Names -->
+            <div class="col-lg-5">
+                <div class="row g-2 mb-3 align-items-end">
+                    <div class="col-7">
+                        <label class="form-label small mb-1">Name style</label>
+                        <select class="form-select qp-input" @bind="_nameStyle">
+                            @foreach (var k in NameStyles.Keys)
+                            {
+                                <option value="@k">@k</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-5">
+                        <button class="btn btn-outline-secondary w-100" @onclick="GenerateNames">Names</button>
+                    </div>
+                </div>
+                @if (_names.Count > 0)
+                {
+                    <div class="name-list">
+                        @foreach (var n in _names)
+                        {
+                            <span class="name-chip">@n</span>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .tool-heading { color: var(--qp-teal); font-weight: 700; letter-spacing: .02em; }
+    .round-badge  { background: var(--qp-bg-panel); border: 1px solid var(--qp-border-panel);
+                    border-radius: 6px; padding: 4px 12px; font-weight: 600; color: var(--qp-text-primary); }
+    .qp-table th  { color: var(--qp-text-label); font-weight: 600; font-size: .78rem;
+                    text-transform: uppercase; letter-spacing: .05em; }
+    .init-cell    { font-weight: 700; color: var(--qp-teal); }
+    tr.active-turn { background: rgba(0, 229, 204, .08) !important; }
+    tr.downed      { opacity: .55; }
+    tr.downed .fw-semibold { text-decoration: line-through; }
+    .turn-marker  { color: var(--qp-teal); margin-right: 6px; }
+    .hits-ok      { color: var(--qp-green); font-weight: 700; }
+    .hits-hurt    { color: #e0b755; font-weight: 700; }
+    .hits-crit    { color: var(--qp-red); font-weight: 700; }
+    .npc-card     { background: var(--qp-bg-panel); border: 1px solid var(--qp-border-panel);
+                    border-radius: 10px; padding: 16px; }
+    .npc-title    { display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px; }
+    .npc-name     { font-size: 1.25rem; font-weight: 700; color: var(--qp-text-primary); }
+    .stat-grid th { color: var(--qp-text-label); background: var(--qp-bg-panel);
+                    border-color: var(--qp-border-panel) !important; font-size: .8rem; }
+    .stat-grid td { background: var(--qp-bg-panel-alt); border-color: var(--qp-border-panel) !important; }
+    .name-list    { display: flex; flex-wrap: wrap; gap: 8px; }
+    .name-chip    { background: var(--qp-bg-panel); border: 1px solid var(--qp-border-panel);
+                    border-radius: 6px; padding: 5px 12px; color: var(--qp-text-primary); font-weight: 500; }
+</style>
+
+@code {
+    // ── Open-ended d100 (RMU): 96+ rolls up & adds; 01–05 rolls down & subtracts ──
+    private static int RollD100() => Random.Shared.Next(1, 101);
+
+    private static int OpenEndedD100()
+    {
+        int first = RollD100();
+        if (first >= 96)
+        {
+            int total = first, r = first;
+            while (r >= 96) { r = RollD100(); total += r; }
+            return total;
+        }
+        if (first <= 5)
+        {
+            int total = first, r = first;
+            while (r <= 5) { r = RollD100(); total -= r; }
+            return total;
+        }
+        return first;
+    }
+
+    // ══════════════ Combat tracker ══════════════
+    private sealed class Combatant
+    {
+        public Guid Id { get; } = Guid.NewGuid();
+        public string Name { get; set; } = "";
+        public int Initiative { get; set; }
+        public int MaxHits { get; set; }
+        public int CurrentHits { get; set; }
+        public int PendingAdjust { get; set; }
+        public string Note { get; set; } = "";
+    }
+
+    private readonly List<Combatant> _combatants = new();
+    private Guid? _activeId;
+    private int _round = 1;
+
+    private string _newName = "";
+    private int _newInit;
+    private int _newHits;
+
+    private IEnumerable<Combatant> Ordered =>
+        _combatants.OrderByDescending(c => c.Initiative).ThenBy(c => c.Name);
+
+    private void AddCombatant()
+    {
+        if (string.IsNullOrWhiteSpace(_newName)) return;
+        _combatants.Add(new Combatant
+        {
+            Name = _newName.Trim(),
+            Initiative = _newInit,
+            MaxHits = Math.Max(0, _newHits),
+            CurrentHits = Math.Max(0, _newHits)
+        });
+        _newName = "";
+        _newInit = 0;
+        _newHits = 0;
+    }
+
+    private void RemoveCombatant(Combatant c)
+    {
+        _combatants.Remove(c);
+        if (_activeId == c.Id) _activeId = null;
+    }
+
+    private void ApplyDamage(Combatant c)
+    {
+        c.CurrentHits = Math.Max(0, c.CurrentHits - Math.Abs(c.PendingAdjust));
+        c.PendingAdjust = 0;
+    }
+
+    private void ApplyHeal(Combatant c)
+    {
+        c.CurrentHits = Math.Min(c.MaxHits, c.CurrentHits + Math.Abs(c.PendingAdjust));
+        c.PendingAdjust = 0;
+    }
+
+    private static string HitClass(Combatant c)
+    {
+        if (c.MaxHits <= 0) return "";
+        var pct = (double)c.CurrentHits / c.MaxHits;
+        return pct <= 0 ? "hits-crit" : pct <= 0.33 ? "hits-crit" : pct <= 0.66 ? "hits-hurt" : "hits-ok";
+    }
+
+    private void RollAllInitiative()
+    {
+        foreach (var c in _combatants) c.Initiative = OpenEndedD100();
+    }
+
+    private void NextTurn()
+    {
+        var order = Ordered.ToList();
+        if (order.Count == 0) return;
+
+        if (_activeId is null)
+        {
+            _activeId = order[0].Id;
+            return;
+        }
+
+        var idx = order.FindIndex(c => c.Id == _activeId);
+        var next = idx + 1;
+        if (idx < 0 || next >= order.Count)
+        {
+            next = 0;
+            _round++;
+        }
+        _activeId = order[next].Id;
+    }
+
+    private void ResetEncounter()
+    {
+        _combatants.Clear();
+        _activeId = null;
+        _round = 1;
+    }
+
+    // ══════════════ Encounter generator ══════════════
+    private string _encGroup = "";
+    private int _encCount = 3;
+    private bool _encounterRolled;
+    private readonly List<CreatureEntry> _encounter = new();
+
+    private void GenerateEncounter()
+    {
+        _encounterRolled = true;
+        _encounter.Clear();
+
+        var pool = CreatureSvc.All
+            .Where(c => string.IsNullOrEmpty(_encGroup) || c.CategoryGroup == _encGroup)
+            .ToList();
+        if (pool.Count == 0) return;
+
+        var count = Math.Clamp(_encCount, 1, 12);
+        for (var i = 0; i < count; i++)
+            _encounter.Add(pool[Random.Shared.Next(pool.Count)]);
+    }
+
+    private void AddCreatureToCombat(CreatureEntry c)
+    {
+        _combatants.Add(new Combatant
+        {
+            Name = c.Name,
+            Initiative = OpenEndedD100()
+        });
+    }
+
+    // ══════════════ NPC & name generator ══════════════
+    private static readonly string[] StatNames = ["AG", "CO", "EM", "IN", "ME", "PR", "QU", "RE", "SD", "ST"];
+
+    private sealed record Npc(string Name, string Race, string Profession, int[] Stats);
+
+    private Npc? _npc;
+
+    private void GenerateNpc()
+    {
+        var race = RaceRules.All[Random.Shared.Next(RaceRules.All.Count)];
+        var prof = ProfessionRules.All[Random.Shared.Next(ProfessionRules.All.Count)];
+
+        var stats = new int[10];
+        for (var i = 0; i < 10; i++)
+        {
+            // Roll a temp stat in a sane NPC band, then apply the racial modifier.
+            var rolled = Math.Clamp(OpenEndedD100(), 20, 100);
+            stats[i] = Math.Clamp(rolled + race.GetStatMod((StatName)i), 1, 105);
+        }
+
+        var style = race.Name.Contains("Elf", StringComparison.OrdinalIgnoreCase) ? "Elvish"
+            : race.Name.Contains("Dwar", StringComparison.OrdinalIgnoreCase)
+              || race.Name.Contains("Orc", StringComparison.OrdinalIgnoreCase) ? "Harsh"
+            : "Common";
+
+        _npc = new Npc(MakeName(style), race.Name, prof.Name, stats);
+    }
+
+    private string _nameStyle = "Common";
+    private readonly List<string> _names = new();
+
+    private void GenerateNames()
+    {
+        _names.Clear();
+        for (var i = 0; i < 8; i++) _names.Add(MakeName(_nameStyle));
+    }
+
+    private static readonly Dictionary<string, (string[] Start, string[] Mid, string[] End)> NameStyles = new()
+    {
+        ["Common"] = (
+            ["Al", "Bran", "Cor", "Dar", "El", "Gar", "Hal", "Mer", "Rolf", "Ser", "Tham", "Wil"],
+            ["a", "e", "o", "an", "or", "el", "in", "ar"],
+            ["wyn", "ric", "don", "ton", "mund", "gar", "beth", "lyn", "well", "fred"]),
+        ["Elvish"] = (
+            ["Ae", "Cael", "El", "Fae", "Il", "Lue", "My", "Sil", "Thal", "Va", "Ya"],
+            ["la", "ri", "the", "lo", "na", "ae", "wi", "ya"],
+            ["riel", "wen", "dir", "loth", "mir", "thas", "anor", "iel", "sariel"]),
+        ["Harsh"] = (
+            ["Brak", "Drok", "Grum", "Karg", "Mor", "Nazh", "Rok", "Thur", "Ug", "Vorg", "Zhar"],
+            ["ak", "uz", "og", "ar", "ud", "gor", "nak"],
+            ["nash", "thar", "dug", "grim", "gash", "mok", "rok", "zug", "kar"]),
+    };
+
+    private static string MakeName(string style)
+    {
+        var s = NameStyles.TryGetValue(style, out var parts) ? parts : NameStyles["Common"];
+        var name = Pick(s.Start);
+        if (Random.Shared.Next(2) == 0) name += Pick(s.Mid);
+        name += Pick(s.End);
+        return name;
+    }
+
+    private static string Pick(string[] arr) => arr[Random.Shared.Next(arr.Length)];
+}

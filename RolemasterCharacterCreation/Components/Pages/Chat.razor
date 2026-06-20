@@ -1,0 +1,337 @@
+@page "/chat"
+@rendermode InteractiveServer
+@attribute [Authorize]
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Identity
+@using RolemasterCharacterCreation.Data
+@using RolemasterCharacterCreation.Identity
+@using RolemasterCharacterCreation.Models
+@using RolemasterCharacterCreation.Services
+@inject AppDbContext Db
+@inject AuthenticationStateProvider AuthState
+@inject UserManager<ApplicationUser> UserManager
+@inject ChatService Broker
+@inject IJSRuntime JS
+@implements IDisposable
+
+<PageTitle>Chat</PageTitle>
+
+<div class="chat-shell @(_mobileShowThread ? "show-thread" : "")">
+
+    <!-- ── Conversation list ── -->
+    <aside class="chat-list">
+        <div class="chat-list-head">Conversations</div>
+        @foreach (var c in _conversations)
+        {
+            <button class="chat-conv @(c == _active ? "active" : "")" @onclick="() => OpenAsync(c)">
+                <span class="chat-conv-icon">@(c.IsParty ? "🛡" : "💬")</span>
+                <span class="chat-conv-name">
+                    @if (!c.IsParty && c.OtherUserId is not null && Broker.IsOnline(c.OtherUserId))
+                    {
+                        <span class="presence-dot" title="Online"></span>
+                    }
+                    @c.Title
+                </span>
+                @if (c.Unread > 0)
+                {
+                    <span class="chat-unread">@c.Unread</span>
+                }
+            </button>
+        }
+    </aside>
+
+    <!-- ── Active thread ── -->
+    <section class="chat-thread">
+        @if (_active is null)
+        {
+            <div class="chat-empty">Pick a conversation to start chatting.</div>
+        }
+        else
+        {
+            <div class="chat-thread-head">
+                <button class="chat-back" @onclick="() => _mobileShowThread = false" title="Back">←</button>
+                <span class="chat-thread-title">@_active.Title</span>
+                @if (!_active.IsParty && _active.OtherUserId is not null)
+                {
+                    <span class="chat-thread-status">
+                        @(Broker.IsOnline(_active.OtherUserId) ? "online" : "offline")
+                    </span>
+                }
+            </div>
+
+            <div class="chat-messages" @ref="_threadRef">
+                @if (_messages.Count == 0)
+                {
+                    <div class="chat-empty">No messages yet. Say hello!</div>
+                }
+                @foreach (var m in _messages)
+                {
+                    var mine = m.SenderId == _myId;
+                    <div class="chat-row @(mine ? "mine" : "theirs")">
+                        <div class="chat-bubble">
+                            @if (!mine)
+                            {
+                                <div class="chat-sender">@m.SenderName</div>
+                            }
+                            <div class="chat-text">@m.Text</div>
+                            <div class="chat-time">@m.SentAt.ToLocalTime().ToString("HH:mm")</div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="chat-composer">
+                <input class="form-control qp-input" placeholder="Type a message…" maxlength="4000"
+                       @bind="_draft" @bind:event="oninput"
+                       @onkeydown="@(e => { if (e.Key == "Enter") return SendAsync(); return Task.CompletedTask; })" />
+                <button class="btn btn-primary" @onclick="SendAsync"
+                        disabled="@string.IsNullOrWhiteSpace(_draft)">Send</button>
+            </div>
+        }
+    </section>
+</div>
+
+<style>
+    .chat-shell { display: flex; gap: 12px; height: calc(100vh - 150px); min-height: 420px; }
+    .chat-list { width: 260px; flex: 0 0 260px; display: flex; flex-direction: column;
+                 background: var(--qp-bg-card, #1e1e2d); border: 1px solid var(--qp-border-panel, #333);
+                 border-radius: 10px; overflow-y: auto; }
+    .chat-list-head { padding: 12px 14px; font-size: .72rem; text-transform: uppercase;
+                      letter-spacing: .06em; color: var(--qp-text-label, #9aa); font-weight: 700; }
+    .chat-conv { display: flex; align-items: center; gap: 8px; width: 100%; border: 0;
+                 background: transparent; color: var(--qp-text-primary, #e6e6f0); text-align: left;
+                 padding: 10px 14px; cursor: pointer; border-left: 3px solid transparent; }
+    .chat-conv:hover { background: var(--qp-bg-panel, #252535); }
+    .chat-conv.active { background: var(--qp-bg-panel, #252535); border-left-color: var(--qp-teal, #00e5cc); }
+    .chat-conv-icon { opacity: .8; }
+    .chat-conv-name { flex: 1; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+    .chat-unread { background: var(--qp-teal, #00e5cc); color: #07221f; font-weight: 700;
+                   border-radius: 10px; padding: 1px 8px; font-size: .75rem; }
+    .presence-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--qp-green, #3dd68c);
+                    display: inline-block; box-shadow: 0 0 4px var(--qp-green, #3dd68c); }
+
+    .chat-thread { flex: 1; display: flex; flex-direction: column; min-width: 0;
+                   background: var(--qp-bg-card, #1e1e2d); border: 1px solid var(--qp-border-panel, #333);
+                   border-radius: 10px; overflow: hidden; }
+    .chat-thread-head { display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+                        border-bottom: 1px solid var(--qp-border-panel, #333); }
+    .chat-thread-title { font-weight: 700; color: var(--qp-text-primary, #e6e6f0); }
+    .chat-thread-status { font-size: .75rem; color: var(--qp-text-label, #9aa); }
+    .chat-back { display: none; border: 0; background: transparent; font-size: 1.3rem;
+                 color: var(--qp-teal, #00e5cc); cursor: pointer; line-height: 1; }
+
+    .chat-messages { flex: 1; overflow-y: auto; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+    .chat-row { display: flex; }
+    .chat-row.mine { justify-content: flex-end; }
+    .chat-bubble { max-width: 78%; padding: 8px 12px; border-radius: 12px;
+                   background: var(--qp-bg-panel, #252535); color: var(--qp-text-primary, #e6e6f0); }
+    .chat-row.mine .chat-bubble { background: var(--qp-teal, #00e5cc); color: #07221f; }
+    .chat-sender { font-size: .72rem; font-weight: 700; color: var(--qp-teal, #00e5cc); margin-bottom: 2px; }
+    .chat-text { white-space: pre-wrap; word-break: break-word; }
+    .chat-time { font-size: .66rem; opacity: .65; text-align: right; margin-top: 2px; }
+
+    .chat-composer { display: flex; gap: 8px; padding: 12px 16px;
+                     border-top: 1px solid var(--qp-border-panel, #333); }
+    .chat-empty { flex: 1; display: flex; align-items: center; justify-content: center;
+                  color: var(--qp-text-label, #9aa); padding: 24px; }
+
+    /* Phone: single pane — show the list, swap to the thread when one is opened. */
+    @@media (max-width: 767.98px) {
+        .chat-shell { height: calc(100vh - 120px); }
+        .chat-list { width: 100%; flex-basis: 100%; }
+        .chat-thread { display: none; }
+        .chat-shell.show-thread .chat-list { display: none; }
+        .chat-shell.show-thread .chat-thread { display: flex; }
+        .chat-back { display: inline; }
+    }
+</style>
+
+@code {
+    private sealed class Conversation
+    {
+        public required string Key { get; init; }       // "party" or "dm:{otherUserId}"
+        public required string Title { get; init; }
+        public string? OtherUserId { get; init; }        // null for the party channel
+        public bool IsParty => OtherUserId is null;
+        public int Unread { get; set; }
+    }
+
+    private string _myId = "";
+    private string _myName = "";
+    private readonly List<Conversation> _conversations = [];
+    private Conversation? _active;
+    private readonly List<ChatMessage> _messages = [];
+    private readonly Dictionary<string, DateTimeOffset> _reads = [];
+    private string _draft = "";
+    private bool _mobileShowThread;
+    private bool _scrollPending;
+    private bool _connected;
+    private ElementReference _threadRef;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthState.GetAuthenticationStateAsync();
+        _myId = auth.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
+        var me = await UserManager.FindByIdAsync(_myId);
+        _myName = me?.DisplayName ?? auth.User.Identity?.Name ?? "Unknown";
+
+        // Load my read markers so unread counts start from the right point.
+        foreach (var r in await Db.ChatReads.Where(r => r.UserId == _myId).ToListAsync())
+            _reads[r.ConversationKey] = r.LastReadAt;
+
+        // Roster: everyone else (GM first, then players), each a DM conversation; plus Party.
+        var players = await UserManager.GetUsersInRoleAsync(Roles.Player);
+        var gms = await UserManager.GetUsersInRoleAsync(Roles.Gamemaster);
+        var others = players.Concat(gms)
+            .DistinctBy(u => u.Id)
+            .Where(u => u.Id != _myId)
+            .OrderByDescending(u => gms.Any(g => g.Id == u.Id))
+            .ThenBy(u => u.DisplayName);
+
+        _conversations.Add(new Conversation { Key = "party", Title = "Party", OtherUserId = null });
+        foreach (var u in others)
+            _conversations.Add(new Conversation
+            {
+                Key = $"dm:{u.Id}",
+                Title = u.DisplayName ?? u.Email ?? "Unknown",
+                OtherUserId = u.Id,
+            });
+
+        foreach (var c in _conversations)
+            c.Unread = await CountUnreadAsync(c);
+
+        Broker.MessagePosted += OnMessage;
+        Broker.PresenceChanged += OnPresence;
+    }
+
+    private DateTimeOffset Since(string key) =>
+        _reads.TryGetValue(key, out var t) ? t : DateTimeOffset.MinValue;
+
+    private Task<int> CountUnreadAsync(Conversation c)
+    {
+        var since = Since(c.Key);
+        if (c.IsParty)
+            return Db.ChatMessages.CountAsync(m =>
+                m.RecipientId == null && m.SenderId != _myId && m.SentAt > since);
+
+        var other = c.OtherUserId;
+        return Db.ChatMessages.CountAsync(m =>
+            m.RecipientId == _myId && m.SenderId == other && m.SentAt > since);
+    }
+
+    private async Task OpenAsync(Conversation c)
+    {
+        _active = c;
+        _mobileShowThread = true;
+        await LoadMessagesAsync(c);
+        await MarkReadAsync(c);
+        _scrollPending = true;
+    }
+
+    private async Task LoadMessagesAsync(Conversation c)
+    {
+        _messages.Clear();
+        IQueryable<ChatMessage> q = c.IsParty
+            ? Db.ChatMessages.Where(m => m.RecipientId == null)
+            : Db.ChatMessages.Where(m => m.RecipientId != null &&
+                ((m.SenderId == _myId && m.RecipientId == c.OtherUserId) ||
+                 (m.SenderId == c.OtherUserId && m.RecipientId == _myId)));
+
+        var recent = await q.OrderByDescending(m => m.Id).Take(200).ToListAsync();
+        recent.Reverse();
+        _messages.AddRange(recent);
+    }
+
+    private async Task MarkReadAsync(Conversation c)
+    {
+        var now = DateTimeOffset.UtcNow;
+        var marker = await Db.ChatReads
+            .FirstOrDefaultAsync(r => r.UserId == _myId && r.ConversationKey == c.Key);
+        if (marker is null)
+        {
+            marker = new ChatRead { UserId = _myId, ConversationKey = c.Key };
+            Db.ChatReads.Add(marker);
+        }
+        marker.LastReadAt = now;
+        await Db.SaveChangesAsync();
+        _reads[c.Key] = now;
+        c.Unread = 0;
+    }
+
+    private async Task SendAsync()
+    {
+        var text = _draft?.Trim();
+        if (string.IsNullOrEmpty(text) || _active is null) return;
+
+        var msg = new ChatMessage
+        {
+            SenderId = _myId,
+            SenderName = _myName,
+            RecipientId = _active.OtherUserId,   // null for party
+            Text = text,
+            SentAt = DateTimeOffset.UtcNow,
+        };
+        Db.ChatMessages.Add(msg);
+        await Db.SaveChangesAsync();
+
+        _draft = "";
+        await MarkReadAsync(_active);   // my own message counts as read
+        Broker.Publish(msg);              // OnMessage appends it for me and every other circuit
+    }
+
+    // Conversation key this message belongs to *from my perspective*, or null if it isn't
+    // mine to see (this is what keeps other players' private DMs hidden from the GM).
+    private string? ConversationKeyFor(ChatMessage m)
+    {
+        if (m.RecipientId is null) return "party";
+        if (m.SenderId == _myId) return $"dm:{m.RecipientId}";
+        if (m.RecipientId == _myId) return $"dm:{m.SenderId}";
+        return null;
+    }
+
+    private void OnMessage(ChatMessage m)
+    {
+        var key = ConversationKeyFor(m);
+        if (key is null) return;
+
+        // Marshal onto this circuit's dispatcher — the event fires on the sender's thread.
+        _ = InvokeAsync(async () =>
+        {
+            if (_active is not null && _active.Key == key)
+            {
+                _messages.Add(m);
+                _scrollPending = true;
+                if (m.SenderId != _myId) await MarkReadAsync(_active);
+            }
+            else
+            {
+                var conv = _conversations.FirstOrDefault(c => c.Key == key);
+                if (conv is not null && m.SenderId != _myId) conv.Unread++;
+            }
+            StateHasChanged();
+        });
+    }
+
+    private void OnPresence() => _ = InvokeAsync(StateHasChanged);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !string.IsNullOrEmpty(_myId))
+        {
+            Broker.Connect(_myId);
+            _connected = true;
+        }
+        if (_scrollPending)
+        {
+            _scrollPending = false;
+            await JS.InvokeVoidAsync("scrollToBottom", _threadRef);
+        }
+    }
+
+    public void Dispose()
+    {
+        Broker.MessagePosted -= OnMessage;
+        Broker.PresenceChanged -= OnPresence;
+        if (_connected) Broker.Disconnect(_myId);
+    }
+}

@@ -59,6 +59,8 @@
                             @StatInfoRow("Archetype", cr.Archetype)
                             @StatInfoRow("Size",      cr.Size)
                             @StatInfoRow("Armor",     cr.Armor)
+                            @if (!string.IsNullOrWhiteSpace(cr.Heal))
+                            { @StatInfoRow("Heal", cr.Heal) }
                             @if (!string.IsNullOrWhiteSpace(cr.Treasure) && cr.Treasure != "-")
                             { @StatInfoRow("Treasure", cr.Treasure) }
                             @StatInfoRow("Realm", cr.Realm)
@@ -91,6 +93,52 @@
                             </tbody>
                         </table>
                     </div>
+
+                    <!-- Spells -->
+                    @{ var spellInfo = CreatureSpells.Parse(cr.Spells); }
+                    @if (spellInfo.HasContent)
+                    {
+                        <div class="mb-3">
+                            <div class="section-label mb-1">Spells</div>
+                            @if (!string.IsNullOrWhiteSpace(spellInfo.Note))
+                            {
+                                <p class="creature-spell-note mb-2">@spellInfo.Note</p>
+                            }
+                            @foreach (var g in spellInfo.Groups)
+                            {
+                                <div class="spell-group">
+                                    @if (!string.IsNullOrWhiteSpace(g.Label))
+                                    {
+                                        <div class="spell-group-label">@g.Label</div>
+                                    }
+                                    <div class="spell-chips">
+                                        @foreach (var s in g.Lists)
+                                        {
+                                            <span class="spell-chip">
+                                                @if (!string.IsNullOrEmpty(s.Range))
+                                                {
+                                                    <span class="spell-range">@s.Range</span>
+                                                }
+                                                @{ var href = SpellListLink(s.Name); }
+                                                @if (href is not null)
+                                                {
+                                                    <a class="spell-link" href="@href" target="_blank">@s.Name</a>
+                                                }
+                                                else
+                                                {
+                                                    <span class="spell-name">@s.Name</span>
+                                                }
+                                                @if (!string.IsNullOrWhiteSpace(s.Meta))
+                                                {
+                                                    <span class="spell-meta">@s.Meta</span>
+                                                }
+                                            </span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
 
                     <!-- Talents / Flaws -->
                     @if (!string.IsNullOrWhiteSpace(cr.TalentsFlaws))
@@ -175,9 +223,27 @@
     .talent-chip  { background: var(--qp-bg-panel); border: 1px solid var(--qp-border-panel);
                     border-radius: 6px; padding: 3px 8px; font-size: .82rem; color: var(--qp-text-primary); }
     .creature-desc { color: var(--qp-text-primary); line-height: 1.7; }
+    .creature-spell-note { color: var(--qp-text-muted); font-size: .85rem; font-style: italic; line-height: 1.5; }
+    .spell-group { margin-bottom: 10px; }
+    .spell-group-label { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em;
+                         color: var(--qp-teal); margin-bottom: 4px; }
+    .spell-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .spell-chip  { display: inline-flex; align-items: baseline; gap: 5px;
+                   background: var(--qp-bg-panel); border: 1px solid var(--qp-border-panel);
+                   border-radius: 6px; padding: 3px 9px; font-size: .85rem; }
+    .spell-range { font-size: .72rem; font-weight: 600; color: var(--qp-text-label);
+                   background: var(--qp-bg-panel-alt); border-radius: 4px; padding: 0 5px; }
+    .spell-link  { color: var(--qp-blue); font-weight: 500; text-decoration: none; }
+    .spell-link:hover { text-decoration: underline; }
+    .spell-name  { color: var(--qp-text-primary); font-weight: 500; }
+    .spell-meta  { color: var(--qp-text-muted); font-size: .75rem; }
 </style>
 
 @code {
+    // Deep-link target, e.g. /gm/creatures?name=Basilisk (used by the Creature Tables page).
+    [SupplyParameterFromQuery(Name = "name")]
+    public string? CreatureName { get; set; }
+
     private string _search      = "";
     private string _groupFilter = "";
     private CreatureEntry? _selected;
@@ -185,12 +251,46 @@
     // Curated descriptions seeded from docs/game-data/creature-descriptions.json.
     private Dictionary<string, string> _descriptions = new(StringComparer.OrdinalIgnoreCase);
 
+    // Maps a normalised spell-list name → its canonical name, for deep-linking
+    // creature spell lists to the /spells page (list names are globally unique).
+    private Dictionary<string, string> _spellListNames = new();
+
     protected override async Task OnInitializedAsync()
     {
         _descriptions = await Db.CreatureDescriptions
             .AsNoTracking()
             .ToDictionaryAsync(c => c.Name, c => c.Description, StringComparer.OrdinalIgnoreCase);
+
+        var names = await Db.SpellLists.AsNoTracking().Select(l => l.Name).ToListAsync();
+        _spellListNames = names
+            .GroupBy(NormalizeListName)
+            .ToDictionary(g => g.Key, g => g.First());
+
+        // Deep-link: pre-select the requested creature. Try an exact (case-insensitive)
+        // match first, then a loose match (ignore spaces/commas/apostrophes) to tolerate
+        // OCR naming differences; otherwise drop the term into the search box as a hint.
+        if (!string.IsNullOrWhiteSpace(CreatureName))
+        {
+            var target = NormalizeCreatureName(CreatureName);
+            _selected = CreatureSvc.All.FirstOrDefault(c =>
+                            c.Name.Equals(CreatureName, StringComparison.OrdinalIgnoreCase))
+                     ?? CreatureSvc.All.FirstOrDefault(c =>
+                            NormalizeCreatureName(c.Name) == target);
+            if (_selected is null) { _search = CreatureName; }
+        }
     }
+
+    private static string NormalizeCreatureName(string name) =>
+        new string(name.Where(char.IsLetterOrDigit).ToArray()).ToLowerInvariant();
+
+    // Apostrophe styles differ between the creature source (') and the spell data (’).
+    private static string NormalizeListName(string name) =>
+        name.Replace('’', '\'').Trim().ToLowerInvariant();
+
+    private string? SpellListLink(string name) =>
+        _spellListNames.TryGetValue(NormalizeListName(name), out var canonical)
+            ? $"/spells?list={Uri.EscapeDataString(canonical)}"
+            : null;
 
     // Prefer the curated DB text; fall back to the parser's extraction if absent.
     private string DescriptionFor(CreatureEntry c) =>

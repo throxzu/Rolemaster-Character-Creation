@@ -1,0 +1,221 @@
+@page "/campaign/towns"
+@rendermode InteractiveServer
+@attribute [Authorize]
+@using System.Security.Claims
+@using RolemasterCharacterCreation.Data
+@inject AppDbContext Db
+@inject TownMapService Maps
+@inject AuthenticationStateProvider AuthState
+@inject NavigationManager Nav
+
+<PageTitle>Towns</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Towns &amp; Cities</h2>
+</div>
+
+@if (!string.IsNullOrEmpty(_message))
+{
+    <div class="alert @(_isError ? "alert-danger" : "alert-success") alert-dismissible">
+        @_message
+        <button type="button" class="btn-close" @onclick="() => _message = null"></button>
+    </div>
+}
+
+@if (_isGm)
+{
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Upload a new town</h5>
+            <p class="text-muted small mb-3">
+                Upload a city generator export (Watabou / MFCG <code>.json</code>). It will be
+                drawn as an interactive map you can color-code.
+            </p>
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Town name</label>
+                    <input class="form-control" @bind="_uploadName" placeholder="e.g. Newrock" />
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label">Map file (.json)</label>
+                    <InputFile class="form-control" accept=".json,application/json" OnChange="OnFileSelected" />
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-success" disabled="@(!_canUpload)" @onclick="UploadAsync">
+                        Upload Town
+                    </button>
+                </div>
+            </div>
+            @if (_pendingJson is not null)
+            {
+                <div class="small text-success mt-2">Map file loaded &mdash; ready to upload.</div>
+            }
+        </div>
+    </div>
+}
+
+@if (_towns.Count == 0)
+{
+    <p class="text-muted">No towns yet.@(_isGm ? " Upload one above." : " Ask your Gamemaster to add one.")</p>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var t in _towns)
+        {
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body d-flex flex-column">
+                        @if (_editId == t.Id)
+                        {
+                            <input class="form-control form-control-sm mb-2" @bind="_editName" placeholder="Town name" />
+                            <textarea class="form-control form-control-sm mb-2" rows="2" @bind="_editDescription"
+                                      placeholder="Description (optional)"></textarea>
+                            <div class="mt-auto d-flex gap-2">
+                                <button class="btn btn-sm btn-primary" @onclick="() => SaveEditAsync(t)">Save</button>
+                                <button class="btn btn-sm btn-secondary" @onclick="() => _editId = null">Cancel</button>
+                            </div>
+                        }
+                        else
+                        {
+                            <h5 class="card-title mb-1">@t.Name</h5>
+                            <div class="text-muted small mb-2">
+                                @t.Locations.Count location@(t.Locations.Count == 1 ? "" : "s") marked
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(t.Description))
+                            {
+                                <p class="card-text small">@t.Description</p>
+                            }
+                            <div class="mt-auto d-flex justify-content-between align-items-center">
+                                <a class="btn btn-sm btn-primary" href="/campaign/towns/@t.Id">Open Map</a>
+                                @if (_isGm)
+                                {
+                                    @if (_deleteId == t.Id)
+                                    {
+                                        <span>
+                                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteAsync(t)">Delete?</button>
+                                            <button class="btn btn-sm btn-secondary" @onclick="() => _deleteId = null">No</button>
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="d-flex gap-1">
+                                            <button class="btn btn-sm btn-outline-secondary" @onclick="() => BeginEdit(t)">Rename</button>
+                                            <button class="btn btn-sm btn-outline-danger" @onclick="() => _deleteId = t.Id">Delete</button>
+                                        </span>
+                                    }
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private const long MaxBytes = 5 * 1024 * 1024;
+
+    private List<Town> _towns = [];
+    private bool _isGm;
+    private string? _currentUserId;
+    private string _uploadName = "";
+    private string? _pendingJson;
+    private int? _deleteId;
+    private int? _editId;
+    private string _editName = "";
+    private string _editDescription = "";
+    private string? _message;
+    private bool _isError;
+
+    private bool _canUpload => !string.IsNullOrWhiteSpace(_uploadName) && _pendingJson is not null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthState.GetAuthenticationStateAsync();
+        _currentUserId = auth.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        _isGm = auth.User.IsInRole(Roles.Gamemaster);
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _towns = await Db.Towns
+            .Include(t => t.Locations)
+            .OrderBy(t => t.Name)
+            .ToListAsync();
+    }
+
+    private async Task OnFileSelected(InputFileChangeEventArgs e)
+    {
+        _pendingJson = null;
+        _message = null;
+        try
+        {
+            using var reader = new StreamReader(e.File.OpenReadStream(MaxBytes));
+            var json = await reader.ReadToEndAsync();
+            if (!Maps.IsValid(json, out var error))
+            {
+                SetMessage(error ?? "Unrecognized map file.", error: true);
+                return;
+            }
+            _pendingJson = json;
+            if (string.IsNullOrWhiteSpace(_uploadName))
+                _uploadName = Path.GetFileNameWithoutExtension(e.File.Name);
+        }
+        catch (IOException)
+        {
+            SetMessage("That file is too large (max 5 MB).", error: true);
+        }
+    }
+
+    private async Task UploadAsync()
+    {
+        if (!_isGm || !_canUpload) return;
+
+        var town = new Town
+        {
+            Name = _uploadName.Trim(),
+            RawJson = _pendingJson!,
+            CreatedByUserId = _currentUserId,
+        };
+        Db.Towns.Add(town);
+        await Db.SaveChangesAsync();
+        Nav.NavigateTo($"/campaign/towns/{town.Id}");
+    }
+
+    private void BeginEdit(Town town)
+    {
+        _editId = town.Id;
+        _editName = town.Name;
+        _editDescription = town.Description ?? "";
+        _deleteId = null;
+    }
+
+    private async Task SaveEditAsync(Town town)
+    {
+        if (!_isGm || string.IsNullOrWhiteSpace(_editName)) return;
+        town.Name = _editName.Trim();
+        town.Description = string.IsNullOrWhiteSpace(_editDescription) ? null : _editDescription.Trim();
+        await Db.SaveChangesAsync();
+        _editId = null;
+        SetMessage($"Renamed to {town.Name}.");
+    }
+
+    private async Task DeleteAsync(Town town)
+    {
+        if (!_isGm) return;
+        Db.Towns.Remove(town);
+        await Db.SaveChangesAsync();
+        _deleteId = null;
+        SetMessage($"Deleted {town.Name}.");
+        await LoadAsync();
+    }
+
+    private void SetMessage(string msg, bool error = false)
+    {
+        _message = msg;
+        _isError = error;
+    }
+}

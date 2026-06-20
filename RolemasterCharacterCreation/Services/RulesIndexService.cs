@@ -2,39 +2,47 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using Anthropic;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using OllamaSharp;
-using OllamaSharp.Models.Chat;
 
 namespace RolemasterCharacterCreation.Services;
 
 public sealed class RulesIndexService : IHostedService
 {
-    private readonly OllamaOptions _options;
+    private readonly RulesAssistantOptions _options;
+    private readonly IEmbeddingClient _embeddings;
+    private readonly IChatClient _chat;
+    private readonly IConfiguration _config;
     private readonly IWebHostEnvironment _env;
     private readonly ILogger<RulesIndexService> _logger;
-    private readonly OllamaApiClient _embedClient;
-    private readonly OllamaApiClient _chatClient;
     private List<RulesChunk> _chunks = [];
-    private List<(string FileName, string Text)> _fullInjectTexts = [];
 
     public bool IsReady { get; private set; }
     public string? StartupError { get; private set; }
 
-    public RulesIndexService(IOptions<OllamaOptions> options, IWebHostEnvironment env, ILogger<RulesIndexService> logger)
+    public RulesIndexService(
+        IEmbeddingClient embeddings,
+        AnthropicClient anthropic,
+        IOptions<RulesAssistantOptions> options,
+        IConfiguration config,
+        IWebHostEnvironment env,
+        ILogger<RulesIndexService> logger)
     {
         _options = options.Value;
+        _embeddings = embeddings;
+        _config = config;
         _env = env;
         _logger = logger;
-        _embedClient = new OllamaApiClient(new Uri(_options.BaseUrl), _options.EmbeddingModel);
-        _chatClient  = new OllamaApiClient(new Uri(_options.BaseUrl), _options.ChatModel);
+        _chat = anthropic.AsIChatClient(_options.ChatModel);
     }
 
-    public async Task StartAsync(CancellationToken cancellationToken)
+    public Task StartAsync(CancellationToken cancellationToken)
     {
         _ = Task.Run(() => IndexAsync(cancellationToken), cancellationToken);
+        return Task.CompletedTask;
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
@@ -43,7 +51,16 @@ public sealed class RulesIndexService : IHostedService
     {
         try
         {
-            // Resolve all source file paths
+            // API keys must be present (env var or user-secret). Fail soft — disable the assistant.
+            if (string.IsNullOrWhiteSpace(_config["ANTHROPIC_API_KEY"]) ||
+                string.IsNullOrWhiteSpace(_config["VOYAGE_API_KEY"]))
+            {
+                StartupError = "Rules assistant disabled — set ANTHROPIC_API_KEY and VOYAGE_API_KEY";
+                _logger.LogWarning("Rules assistant disabled: {Error}", StartupError);
+                return;
+            }
+
+            // Resolve all source file paths.
             var root = _env.ContentRootPath;
             var primary = Path.GetFullPath(Path.Combine(root, _options.RulesFilePath));
             if (!File.Exists(primary))
@@ -58,53 +75,38 @@ public sealed class RulesIndexService : IHostedService
                 .Where(File.Exists)
                 .ToList();
 
-            var allPaths = new[] { primary }.Concat(additionalPaths).ToList();
-
-            var fullInjectPaths = (_options.FullInjectPaths ?? [])
+            var gmOnlyPaths = (_options.GmOnlyKnowledgePaths ?? [])
                 .Select(p => Path.GetFullPath(Path.Combine(root, p)))
                 .Where(File.Exists)
                 .ToList();
 
-            _fullInjectTexts = fullInjectPaths
-                .Select(p => (Path.GetFileName(p), File.ReadAllText(p)))
+            // (path, gmOnly) for every source — player-facing material first, GM-only after.
+            var sources = new[] { primary }.Concat(additionalPaths)
+                .Select(p => (Path: p, GmOnly: false))
+                .Concat(gmOnlyPaths.Select(p => (Path: p, GmOnly: true)))
                 .ToList();
-
-            // Ping Ollama
-            using var pingCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-            pingCts.CancelAfter(TimeSpan.FromSeconds(8));
-            try
-            {
-                await _embedClient.ListLocalModelsAsync(pingCts.Token);
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException { CancellationToken.IsCancellationRequested: true })
-            {
-                StartupError = $"Ollama not reachable at {_options.BaseUrl} — rules assistant disabled";
-                _logger.LogWarning("Rules assistant disabled: {Error}", StartupError);
-                return;
-            }
 
             var sw = System.Diagnostics.Stopwatch.StartNew();
 
-            // Try loading from cache
+            // Try loading from cache. The hash includes the embedding model so a provider/model
+            // switch (different vector space) forces a re-embed rather than reusing stale vectors.
             var cachePath = _options.CachePath is { } cp
                 ? Path.GetFullPath(Path.Combine(root, cp))
                 : null;
 
-            var sourceHash = ComputeSourceHash(allPaths.Concat(fullInjectPaths));
+            var sourceHash = ComputeSourceHash(sources.Select(s => s.Path), _options.EmbeddingModel);
 
             if (cachePath is not null && TryLoadCache(cachePath, sourceHash, out var cached))
             {
                 _chunks = cached!;
                 IsReady = true;
                 _logger.LogInformation("Rules loaded from cache: {Count} chunks in {Elapsed}ms", _chunks.Count, sw.ElapsedMilliseconds);
-                _logger.LogInformation("Full-inject files: {Names}", string.Join(", ", _fullInjectTexts.Select(f => f.FileName)));
                 return;
             }
 
-            // Parse and embed all source files
-            var embedded = new List<RulesChunk>();
-
-            foreach (var path in allPaths)
+            // Parse all source files into chunks, carrying each source's GM-only flag.
+            var raw = new List<(string Heading, string Text, bool GmOnly)>();
+            foreach (var (path, gmOnly) in sources)
             {
                 if (ct.IsCancellationRequested) return;
 
@@ -115,23 +117,26 @@ public sealed class RulesIndexService : IHostedService
                     _     => RulesParser.ParseChunks(path, _options.MaxChunkWords),
                 };
 
-                _logger.LogInformation("Parsed {Count} chunks from {File}, embedding…",
-                    rawChunks.Count, Path.GetFileName(path));
-
-                foreach (var (heading, text) in rawChunks)
-                {
-                    if (ct.IsCancellationRequested) return;
-                    var resp = await _embedClient.EmbedAsync(text, ct);
-                    embedded.Add(new RulesChunk { Heading = heading, Text = text, Embedding = resp.Embeddings[0] });
-                }
+                _logger.LogInformation("Parsed {Count} chunks from {File}{Gm}",
+                    rawChunks.Count, Path.GetFileName(path), gmOnly ? " (GM-only)" : "");
+                raw.AddRange(rawChunks.Select(rc => (rc.Heading, rc.Text, gmOnly)));
             }
 
-            _chunks = embedded;
+            // Embed every chunk in one batched pass via the cloud embedding provider.
+            _logger.LogInformation("Embedding {Count} chunks via {Model}…", raw.Count, _options.EmbeddingModel);
+            var vectors = await _embeddings.EmbedDocumentsAsync(raw.Select(r => r.Text).ToList(), ct);
+
+            _chunks = raw.Zip(vectors, (r, v) => new RulesChunk
+            {
+                Heading = r.Heading,
+                Text = r.Text,
+                Embedding = v,
+                GmOnly = r.GmOnly,
+            }).ToList();
+
             IsReady = true;
             _logger.LogInformation("Rules indexed: {Count} chunks in {Elapsed}ms", _chunks.Count, sw.ElapsedMilliseconds);
-            _logger.LogInformation("Full-inject files: {Names}", string.Join(", ", _fullInjectTexts.Select(f => f.FileName)));
 
-            // Save cache
             if (cachePath is not null)
                 SaveCache(cachePath, sourceHash, _chunks);
         }
@@ -145,12 +150,15 @@ public sealed class RulesIndexService : IHostedService
     public async IAsyncEnumerable<string> AskAsync(
         string question,
         IReadOnlyList<RulesChatMessage> history,
+        bool includeGmContent,
         [EnumeratorCancellation] CancellationToken ct)
     {
-        var qResp = await _embedClient.EmbedAsync(question, ct);
-        var qVec = qResp.Embeddings[0];
+        var qVec = await _embeddings.EmbedQueryAsync(question, ct);
 
-        var topChunks = _chunks
+        // Non-GM users never see GM-only chunks — filter before scoring so they can't surface.
+        var candidates = includeGmContent ? _chunks : _chunks.Where(c => !c.GmOnly);
+
+        var topChunks = candidates
             .Select(c => (Chunk: c, Score: CosineSimilarity(c.Embedding, qVec)))
             .Where(x => x.Score > 0.2f)
             .OrderByDescending(x => x.Score)
@@ -161,32 +169,60 @@ public sealed class RulesIndexService : IHostedService
         var excerpts = string.Join("\n\n", topChunks.Select(c =>
             $"[Section: {c.Heading}]\n{c.Text}"));
 
-        var fullInjectBlock = _fullInjectTexts.Count > 0
-            ? "--- REFERENCE DATA (complete, authoritative) ---\n" +
-              string.Join("\n\n", _fullInjectTexts.Select(f => $"[File: {f.FileName}]\n{f.Text}")) +
-              "\n\n"
-            : "";
+        var roleNote = includeGmContent
+            ? "The current user is the Gamemaster; GM-only material (treasure, bestiary) may be included.\n\n"
+            : "The current user is a player; do not reveal GM-only material such as monster stats or treasure contents.\n\n";
 
         var systemPrompt =
-            "You are a Rolemaster rules assistant. Answer questions based ONLY on the following rulebook excerpts. " +
-            "Be specific and cite the section name. If a table is present in the excerpts, read it carefully — " +
-            "the first row is column headers, subsequent rows are data. " +
-            "If the answer is not in the excerpts, say so clearly.\n\n" +
-            fullInjectBlock +
-            "--- RULEBOOK EXCERPTS ---\n" + excerpts;
+            LoadPersona() + "\n\n" + roleNote +
+            "--- RULEBOOK EXCERPTS (use these for rules/mechanics questions; cite the section) ---\n" +
+            excerpts;
 
-        var chat = new Chat(_chatClient, systemPrompt);
-        chat.Model = _options.ChatModel;
-
+        // History already ends with the current question (added by the UI before calling).
+        var messages = new List<ChatMessage> { new(ChatRole.System, systemPrompt) };
         foreach (var msg in history.TakeLast(8))
-        {
-            var role = msg.Role == "user" ? ChatRole.User : ChatRole.Assistant;
-            chat.Messages.Add(new Message(role, msg.Content));
-        }
+            messages.Add(new ChatMessage(msg.Role == "user" ? ChatRole.User : ChatRole.Assistant, msg.Content));
 
-        await foreach (var token in chat.SendAsync(question, ct))
-            yield return token;
+        // Haiku 4.5 does not accept thinking/effort — plain streaming completion only.
+        var chatOptions = new ChatOptions { MaxOutputTokens = _options.MaxTokens };
+
+        await foreach (var update in _chat.GetStreamingResponseAsync(messages, chatOptions, ct))
+        {
+            if (!string.IsNullOrEmpty(update.Text))
+                yield return update.Text;
+        }
     }
+
+    // ── Persona ───────────────────────────────────────────────────────────
+
+    // Behaviour governed by an editable .md file, read fresh on each question so edits take
+    // effect on the next message with no restart. Falls back to a built-in default if the file
+    // is missing or unreadable, so the assistant never breaks on a bad/absent persona file.
+    private string LoadPersona()
+    {
+        try
+        {
+            var path = Path.GetFullPath(Path.Combine(_env.ContentRootPath, _options.SystemPromptPath));
+            if (File.Exists(path))
+            {
+                var text = File.ReadAllText(path);
+                if (!string.IsNullOrWhiteSpace(text))
+                    return text.Trim();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Could not read persona file; using default persona");
+        }
+        return DefaultPersona;
+    }
+
+    private const string DefaultPersona =
+        "You are an assisting gamemaster for a Rolemaster (RMU) campaign. Answer rules and " +
+        "mechanics questions ONLY from the rulebook excerpts below and cite the section name; if " +
+        "the excerpts don't cover it, say so and do not invent rules or numbers. For creative " +
+        "requests (NPC backstories, descriptions, names, plot hooks), improvise freely and " +
+        "in-character, keeping it short and usable at the table. Be concise and practical.";
 
     // ── Cache ─────────────────────────────────────────────────────────────
 
@@ -201,6 +237,7 @@ public sealed class RulesIndexService : IHostedService
         public string Heading { get; set; } = "";
         public string Text { get; set; } = "";
         public float[] Embedding { get; set; } = [];
+        public bool GmOnly { get; set; }
     }
 
     private static bool TryLoadCache(string path, string hash, out List<RulesChunk>? chunks)
@@ -213,7 +250,7 @@ public sealed class RulesIndexService : IHostedService
             var cache = JsonSerializer.Deserialize<CacheFile>(json);
             if (cache is null || cache.Hash != hash) return false;
             chunks = cache.Chunks
-                .Select(c => new RulesChunk { Heading = c.Heading, Text = c.Text, Embedding = c.Embedding })
+                .Select(c => new RulesChunk { Heading = c.Heading, Text = c.Text, Embedding = c.Embedding, GmOnly = c.GmOnly })
                 .ToList();
             return true;
         }
@@ -231,7 +268,8 @@ public sealed class RulesIndexService : IHostedService
                 {
                     Heading   = c.Heading,
                     Text      = c.Text,
-                    Embedding = c.Embedding
+                    Embedding = c.Embedding,
+                    GmOnly    = c.GmOnly
                 }).ToList()
             };
             var json = JsonSerializer.Serialize(cache);
@@ -240,10 +278,12 @@ public sealed class RulesIndexService : IHostedService
         catch { /* non-fatal — next restart re-embeds */ }
     }
 
-    private static string ComputeSourceHash(IEnumerable<string> paths)
+    private static string ComputeSourceHash(IEnumerable<string> paths, string embeddingModel)
     {
         using var sha = SHA256.Create();
         var sb = new StringBuilder();
+        // Vector space depends on the embedding model, so it's part of the cache identity.
+        sb.Append("model=").Append(embeddingModel).Append(';');
         foreach (var p in paths)
         {
             if (!File.Exists(p)) continue;

@@ -1,0 +1,189 @@
+.town-map-frame {
+    position: relative;
+    background: #3a5f7d; /* sea around the land */
+    border: 1px solid var(--bs-border-color, #444);
+    border-radius: .5rem;
+    overflow: hidden;
+    cursor: grab;
+    touch-action: none; /* let the JS handle pan/zoom gestures */
+}
+
+.town-map-frame.tm-panning { cursor: grabbing; }
+
+.town-map {
+    display: block;
+    width: 100%;
+    height: auto;
+    transform-origin: 0 0;
+}
+
+.town-zoom-controls {
+    position: absolute;
+    top: .5rem;
+    right: .5rem;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+}
+
+.town-zoom-controls .btn {
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    font-weight: 700;
+    line-height: 1;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+
+/* Base layers */
+.town-water   { fill: #3a5f7d; }
+.town-earth   { fill: #efe6d0; stroke: #c9bfa3; stroke-width: 2; }
+.town-district { fill: rgba(0,0,0,0.02); stroke: rgba(120,100,60,0.25); stroke-width: 1.5; }
+/* District/sector name labels are styled inline in TownMap.razor (DistrictLabelStyle). */
+.town-road    { fill: none; stroke: #d8c9a8; stroke-linecap: round; stroke-linejoin: round; }
+.town-plank   { fill: none; stroke: #b59a6a; stroke-linecap: round; }
+.town-wall    { fill: none; stroke: #6b5d44; stroke-linejoin: round; }
+
+/* Clickable features */
+.town-square,
+.town-building,
+.town-prism {
+    fill: #cdb892;
+    stroke: #8a795d;
+    stroke-width: 1.2;
+    cursor: pointer;
+    transition: filter .08s ease;
+}
+
+.town-square { fill: #e0d4b0; }
+.town-prism  { fill: #b9a079; }
+
+.town-building:hover,
+.town-square:hover,
+.town-prism:hover {
+    filter: brightness(0.85);
+    stroke: #1a1a1a;
+    stroke-width: 2;
+}
+
+.town-marked {
+    stroke: #2b2b2b;
+    stroke-width: 1.4;
+}
+
+/* A place linked to a building map — double-click opens its floor plan. */
+.town-linked {
+    stroke: #1f6feb;
+    stroke-width: 2;
+    cursor: alias;
+}
+
+/* Legend / brush swatches */
+.town-swatch {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 1px solid rgba(0,0,0,0.55);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.35) inset;
+    vertical-align: -4px;
+    margin-right: 6px;
+}
+
+/* ── Context menu + editor popovers ─────────────────────────────── */
+.ctx-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: transparent;
+}
+
+.ctx-menu,
+.ctx-editor {
+    position: fixed;
+    z-index: 2001;
+    min-width: 220px;
+    max-height: 80vh;
+    background: var(--bs-body-bg, #fff);
+    border: 1px solid var(--bs-border-color, #555);
+    border-radius: .5rem;
+    box-shadow: 0 .5rem 1.5rem rgba(0,0,0,0.45);
+    padding: .35rem;
+}
+
+.ctx-editor {
+    width: 270px;
+    padding: .75rem;
+    overflow-y: auto;
+}
+
+.ctx-title {
+    font-weight: 700;
+    font-size: .8rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--bs-secondary-color, #888);
+    padding: .25rem .5rem .4rem;
+}
+
+.ctx-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .35rem .5rem;
+    border-radius: .35rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.ctx-item:hover {
+    background: var(--bs-secondary-bg, rgba(125,125,125,0.18));
+}
+
+.ctx-label { flex: 1 1 auto; }
+.ctx-arrow { opacity: .55; font-size: .8rem; }
+
+.ctx-danger { color: var(--bs-danger, #d9534f); }
+
+.ctx-sep {
+    height: 1px;
+    margin: .3rem .25rem;
+    background: var(--bs-border-color, rgba(125,125,125,0.4));
+}
+
+/* Fly-out submenu of place-names */
+.ctx-sub {
+    display: none;
+    position: absolute;
+    left: 100%;
+    top: 0;
+    margin-left: .15rem;
+    min-width: 200px;
+    max-height: 320px;
+    overflow-y: auto;
+    background: var(--bs-body-bg, #fff);
+    border: 1px solid var(--bs-border-color, #555);
+    border-radius: .5rem;
+    box-shadow: 0 .5rem 1.5rem rgba(0,0,0,0.45);
+    padding: .25rem;
+}
+
+.ctx-item:hover > .ctx-sub { display: block; }
+
+.ctx-subitem {
+    padding: .3rem .5rem;
+    border-radius: .35rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.ctx-subitem:hover { background: var(--bs-secondary-bg, rgba(125,125,125,0.18)); }
+.ctx-muted { color: var(--bs-secondary-color, #888); font-style: italic; }
+
+/* GM-only notes field tint, so it's visually distinct from the public description */
+.ctx-gmnotes {
+    background: rgba(220,170,40,0.10);
+    border-color: rgba(220,170,40,0.55);
+}

@@ -1,0 +1,210 @@
+.dgn-frame {
+    position: relative;
+    background: #ffffff; /* paper */
+    border: 1px solid var(--bs-border-color, #444);
+    border-radius: .5rem;
+    overflow: hidden;
+    cursor: grab;
+    touch-action: none;
+}
+
+.dgn-frame.tm-panning { cursor: grabbing; }
+
+.dgn-map {
+    display: block;
+    width: 100%;
+    height: auto;
+    transform-origin: 0 0;
+}
+
+.town-zoom-controls {
+    position: absolute;
+    top: .5rem;
+    right: .5rem;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+}
+
+.town-zoom-controls .btn {
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    font-weight: 700;
+    line-height: 1;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+
+/* Floor rooms (display only) */
+.dgn-room { fill: #ffffff; stroke: none; pointer-events: none; }
+
+/* Legend markers — a small coloured circle on a square (a room can hold several) */
+.dgn-marker        { stroke: #1a1a1a; stroke-width: 0.6; }
+.dgn-marker-hidden { stroke-dasharray: 1.4 1; }
+/* GM cue: a legend the GM has revealed to players gets a bright ring. */
+.dgn-marker-shown  { stroke: #1f9d55; stroke-width: 1.3; }
+
+/* Clickable squares (GM, Edit rooms mode) */
+.dgn-cell       { fill: transparent; pointer-events: all; cursor: pointer; }
+.dgn-cell:hover { fill: rgba(0,0,0,0.07); }
+
+/* Decoration — never intercepts clicks meant for the floor. */
+.dgn-decor    { pointer-events: none; }
+.dgn-water    { fill: #a9cddd; opacity: .8; pointer-events: none; }
+.dgn-wall     { stroke: #111111; stroke-width: 3; stroke-linecap: square; pointer-events: none; }
+.dgn-doorgap  { stroke: #ffffff; stroke-width: 4.5; stroke-linecap: butt; pointer-events: none; } /* erases wall under a door */
+.dgn-door     { stroke: #111111; stroke-width: 1.4; stroke-linecap: round; pointer-events: none; } /* door leaf */
+.dgn-column   { fill: #2a2a2a; pointer-events: none; }
+
+/* Keyed-note number markers (descriptions live in the side panel) */
+.dgn-note-marker { fill: #ffffff; stroke: #111; stroke-width: 0.8; pointer-events: none; }
+/* GM cue: a note the GM has revealed to players (shown as a star) gets a gold ring. */
+.dgn-note-shown  { stroke: #d4a017; stroke-width: 1.4; }
+/* GM: the note dot is hoverable to reveal its keyed description. */
+.dgn-note-hot    { pointer-events: all; cursor: help; }
+
+/* Fog of war (light, to suit the paper map) */
+.dgn-fog-player { fill: #c9c4b6; pointer-events: none; }            /* opaque parchment for players */
+.dgn-fog-gm     { fill: #6b7280; opacity: 0.25; pointer-events: none; } /* faint dim for the GM */
+
+/* Fog-paint cells (GM fog mode) — class names match the shared fogPaint JS. */
+.wm-fc-off { fill: rgba(20,30,60,0.20); stroke: rgba(255,255,255,0.25); stroke-width: 0.4; cursor: pointer; }
+.wm-fc-on  { fill: rgba(70,170,90,0.12); stroke: rgba(40,120,50,0.45); stroke-width: 0.4; cursor: pointer; }
+.wm-fc-off:hover,
+.wm-fc-on:hover { fill: rgba(255,235,140,0.35); }
+
+/* Legend swatch */
+.town-swatch {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 1px solid rgba(0,0,0,0.55);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.35) inset;
+    vertical-align: -4px;
+    margin-right: 6px;
+}
+
+/* Legend hover hint */
+.dgn-legend-row { cursor: help; border-radius: .35rem; outline: none; }
+.dgn-legend-row:hover,
+.dgn-legend-row:focus-visible { background: var(--bs-secondary-bg, rgba(125,125,125,0.18)); }
+
+.dgn-tip {
+    position: fixed;
+    z-index: 2002;
+    width: 280px;
+    background: var(--bs-body-bg, #fff);
+    border: 1px solid var(--bs-border-color, #555);
+    border-radius: .5rem;
+    box-shadow: 0 .5rem 1.5rem rgba(0,0,0,0.45);
+    padding: .6rem .7rem;
+    pointer-events: none; /* never steals the hover from the legend row */
+}
+
+.dgn-tip-head {
+    font-weight: 700;
+    margin-bottom: .35rem;
+    display: flex;
+    align-items: center;
+    gap: .15rem;
+}
+
+.dgn-tip-body {
+    font-size: .82rem;
+    line-height: 1.4;
+    color: var(--bs-secondary-color, #555);
+}
+
+.dgn-tip-item { padding-left: .9rem; position: relative; }
+.dgn-tip-item::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    opacity: .6;
+}
+
+/* ── Context menu + editor popovers (shared look with the other maps) ── */
+.ctx-backdrop { position: fixed; inset: 0; z-index: 2000; background: transparent; }
+
+.ctx-menu,
+.ctx-editor {
+    position: fixed;
+    z-index: 2001;
+    min-width: 220px;
+    max-height: 80vh;
+    background: var(--bs-body-bg, #fff);
+    border: 1px solid var(--bs-border-color, #555);
+    border-radius: .5rem;
+    box-shadow: 0 .5rem 1.5rem rgba(0,0,0,0.45);
+    padding: .35rem;
+}
+
+.ctx-editor { width: 270px; padding: .75rem; overflow-y: auto; }
+
+.ctx-title {
+    font-weight: 700;
+    font-size: .8rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--bs-secondary-color, #888);
+    padding: .25rem .5rem .4rem;
+}
+
+/* Bounded, scrollable list so the popup always fits on screen. Names now expand inline
+   (no side fly-out), so vertical clipping is fine. */
+.ctx-scroll { max-height: 60vh; overflow-y: auto; }
+.ctx-subitem.ctx-indent { padding-left: 1.7rem; }
+
+.ctx-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .35rem .5rem;
+    border-radius: .35rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.ctx-item:hover { background: var(--bs-secondary-bg, rgba(125,125,125,0.18)); }
+
+.ctx-label { flex: 1 1 auto; }
+.ctx-arrow { opacity: .55; font-size: .8rem; }
+.ctx-danger { color: var(--bs-danger, #d9534f); }
+
+.ctx-sep { height: 1px; margin: .3rem .25rem; background: var(--bs-border-color, rgba(125,125,125,0.4)); }
+
+.ctx-sub {
+    display: none;
+    position: absolute;
+    left: 100%;
+    top: 0;
+    margin-left: .15rem;
+    min-width: 200px;
+    max-height: 320px;
+    overflow-y: auto;
+    background: var(--bs-body-bg, #fff);
+    border: 1px solid var(--bs-border-color, #555);
+    border-radius: .5rem;
+    box-shadow: 0 .5rem 1.5rem rgba(0,0,0,0.45);
+    padding: .25rem;
+}
+
+.ctx-item:hover > .ctx-sub { display: block; }
+
+.ctx-subitem {
+    padding: .3rem .5rem;
+    border-radius: .35rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.ctx-subitem:hover { background: var(--bs-secondary-bg, rgba(125,125,125,0.18)); }
+.ctx-muted { color: var(--bs-secondary-color, #888); font-style: italic; }
+
+.ctx-gmnotes {
+    background: rgba(220,170,40,0.10);
+    border-color: rgba(220,170,40,0.55);
+}

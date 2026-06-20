@@ -1,0 +1,222 @@
+@page "/campaign/caves"
+@rendermode InteractiveServer
+@attribute [Authorize]
+@using System.Security.Claims
+@using RolemasterCharacterCreation.Data
+@inject AppDbContext Db
+@inject CaveMapService Maps
+@inject AuthenticationStateProvider AuthState
+@inject NavigationManager Nav
+
+<PageTitle>Caves</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Caves</h2>
+</div>
+
+@if (!string.IsNullOrEmpty(_message))
+{
+    <div class="alert @(_isError ? "alert-danger" : "alert-success") alert-dismissible">
+        @_message
+        <button type="button" class="btn-close" @onclick="() => _message = null"></button>
+    </div>
+}
+
+@if (_isGm)
+{
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Upload a new cave</h5>
+            <p class="text-muted small mb-3">
+                Upload a <a href="https://watabou.itch.io/caves" target="_blank" rel="noopener">Watabou
+                Caves</a> export (<code>.svg</code>). It's shown exactly as drawn, with an interactive grid
+                overlaid so you can mark legends and reveal it square by square.
+            </p>
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Cave name</label>
+                    <input class="form-control" @bind="_uploadName" placeholder="e.g. Sorrowlake Hollows" />
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label">Map file (.svg)</label>
+                    <InputFile class="form-control" accept=".svg,image/svg+xml" OnChange="OnFileSelected" />
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-success" disabled="@(!_canUpload)" @onclick="UploadAsync">
+                        Upload Cave
+                    </button>
+                </div>
+            </div>
+            @if (_pendingSvg is not null)
+            {
+                <div class="small text-success mt-2">Map file loaded &mdash; ready to upload.</div>
+            }
+        </div>
+    </div>
+}
+
+@if (_caves.Count == 0)
+{
+    <p class="text-muted">No caves yet.@(_isGm ? " Upload one above." : " Ask your Gamemaster to add one.")</p>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var c in _caves)
+        {
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body d-flex flex-column">
+                        @if (_editId == c.Id)
+                        {
+                            <input class="form-control form-control-sm mb-2" @bind="_editName" placeholder="Cave name" />
+                            <textarea class="form-control form-control-sm mb-2" rows="2" @bind="_editDescription"
+                                      placeholder="Description (optional)"></textarea>
+                            <div class="mt-auto d-flex gap-2">
+                                <button class="btn btn-sm btn-primary" @onclick="() => SaveEditAsync(c)">Save</button>
+                                <button class="btn btn-sm btn-secondary" @onclick="() => _editId = null">Cancel</button>
+                            </div>
+                        }
+                        else
+                        {
+                            <h5 class="card-title mb-1">@c.Name</h5>
+                            <div class="text-muted small mb-2">
+                                @c.Locations.Count location@(c.Locations.Count == 1 ? "" : "s") marked
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(c.Description))
+                            {
+                                <p class="card-text small">@c.Description</p>
+                            }
+                            <div class="mt-auto d-flex justify-content-between align-items-center">
+                                <a class="btn btn-sm btn-primary" href="/campaign/caves/@c.Id">Open Map</a>
+                                @if (_isGm)
+                                {
+                                    @if (_deleteId == c.Id)
+                                    {
+                                        <span>
+                                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteAsync(c)">Delete?</button>
+                                            <button class="btn btn-sm btn-secondary" @onclick="() => _deleteId = null">No</button>
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="d-flex gap-1">
+                                            <button class="btn btn-sm btn-outline-secondary" @onclick="() => BeginEdit(c)">Rename</button>
+                                            <button class="btn btn-sm btn-outline-danger" @onclick="() => _deleteId = c.Id">Delete</button>
+                                        </span>
+                                    }
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private const long MaxBytes = 8 * 1024 * 1024;
+
+    private List<CaveMap> _caves = [];
+    private bool _isGm;
+    private string? _currentUserId;
+    private string _uploadName = "";
+    private string? _pendingSvg;
+    private int? _deleteId;
+    private int? _editId;
+    private string _editName = "";
+    private string _editDescription = "";
+    private string? _message;
+    private bool _isError;
+
+    private bool _canUpload => !string.IsNullOrWhiteSpace(_uploadName) && _pendingSvg is not null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthState.GetAuthenticationStateAsync();
+        _currentUserId = auth.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        _isGm = auth.User.IsInRole(Roles.Gamemaster);
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _caves = await Db.CaveMaps
+            .Include(c => c.Locations)
+            .OrderBy(c => c.Name)
+            .ToListAsync();
+    }
+
+    private async Task OnFileSelected(InputFileChangeEventArgs e)
+    {
+        _pendingSvg = null;
+        _message = null;
+        try
+        {
+            using var reader = new StreamReader(e.File.OpenReadStream(MaxBytes));
+            var svg = await reader.ReadToEndAsync();
+            if (!Maps.IsValid(svg, out var error))
+            {
+                SetMessage(error ?? "Unrecognized map file.", error: true);
+                return;
+            }
+            _pendingSvg = svg;
+            if (string.IsNullOrWhiteSpace(_uploadName))
+                _uploadName = Path.GetFileNameWithoutExtension(e.File.Name);
+        }
+        catch (IOException)
+        {
+            SetMessage("That file is too large (max 8 MB).", error: true);
+        }
+    }
+
+    private async Task UploadAsync()
+    {
+        if (!_isGm || !_canUpload) return;
+
+        var cave = new CaveMap
+        {
+            Name = _uploadName.Trim(),
+            RawSvg = _pendingSvg!,
+            CreatedByUserId = _currentUserId,
+        };
+        Db.CaveMaps.Add(cave);
+        await Db.SaveChangesAsync();
+        Nav.NavigateTo($"/campaign/caves/{cave.Id}");
+    }
+
+    private void BeginEdit(CaveMap cave)
+    {
+        _editId = cave.Id;
+        _editName = cave.Name;
+        _editDescription = cave.Description ?? "";
+        _deleteId = null;
+    }
+
+    private async Task SaveEditAsync(CaveMap cave)
+    {
+        if (!_isGm || string.IsNullOrWhiteSpace(_editName)) return;
+        cave.Name = _editName.Trim();
+        cave.Description = string.IsNullOrWhiteSpace(_editDescription) ? null : _editDescription.Trim();
+        await Db.SaveChangesAsync();
+        _editId = null;
+        SetMessage($"Renamed to {cave.Name}.");
+    }
+
+    private async Task DeleteAsync(CaveMap cave)
+    {
+        if (!_isGm) return;
+        Db.CaveMaps.Remove(cave);
+        await Db.SaveChangesAsync();
+        _deleteId = null;
+        SetMessage($"Deleted {cave.Name}.");
+        await LoadAsync();
+    }
+
+    private void SetMessage(string msg, bool error = false)
+    {
+        _message = msg;
+        _isError = error;
+    }
+}

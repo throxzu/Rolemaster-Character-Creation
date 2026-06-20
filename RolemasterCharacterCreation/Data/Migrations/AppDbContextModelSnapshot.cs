@@ -359,6 +359,387 @@ namespace RolemasterCharacterCreation.Data.Migrations
                     b.ToTable("AttackTableWeapons");
                 });
 
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.BuildingCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ColorHex")
+                        .IsRequired()
+                        .HasMaxLength(9)
+                        .HasColumnType("nvarchar(9)");
+
+                    b.Property<bool>("IsBuiltIn")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsHidden")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BuildingCategories");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.BuildingCategoryName", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BuildingCategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BuildingCategoryId");
+
+                    b.ToTable("BuildingCategoryNames");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.BuildingLocation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BuildingCategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("BuildingMapId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CellX")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CellY")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FloorIndex")
+                        .HasColumnType("int");
+
+                    b.Property<string>("GmNotes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Label")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("VisibleToPlayers")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BuildingCategoryId");
+
+                    b.HasIndex("BuildingMapId", "FloorIndex", "CellX", "CellY")
+                        .IsUnique();
+
+                    b.ToTable("BuildingLocations");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.BuildingMap", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedByUserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("RawSvg")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BuildingMaps");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.BuildingNote", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BuildingMapId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FloorIndex")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Ref")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Text")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("VisibleToPlayers")
+                        .HasColumnType("bit");
+
+                    b.Property<double>("X")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Y")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BuildingMapId");
+
+                    b.ToTable("BuildingNotes");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.BuildingReveal", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BuildingMapId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CellX")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CellY")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FloorIndex")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BuildingMapId", "FloorIndex", "CellX", "CellY")
+                        .IsUnique();
+
+                    b.ToTable("BuildingReveals");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.CaveCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ColorHex")
+                        .IsRequired()
+                        .HasMaxLength(9)
+                        .HasColumnType("nvarchar(9)");
+
+                    b.Property<bool>("IsBuiltIn")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsHidden")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CaveCategories");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.CaveCategoryName", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CaveCategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CaveCategoryId");
+
+                    b.ToTable("CaveCategoryNames");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.CaveLocation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CaveCategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CaveMapId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CellX")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CellY")
+                        .HasColumnType("int");
+
+                    b.Property<string>("GmNotes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Label")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("VisibleToPlayers")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CaveCategoryId");
+
+                    b.HasIndex("CaveMapId", "CellX", "CellY")
+                        .IsUnique();
+
+                    b.ToTable("CaveLocations");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.CaveMap", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedByUserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("RawSvg")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CaveMaps");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.CaveNote", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CaveMapId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Ref")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Text")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("VisibleToPlayers")
+                        .HasColumnType("bit");
+
+                    b.Property<double>("X")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Y")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CaveMapId");
+
+                    b.ToTable("CaveNotes");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.CaveReveal", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CaveMapId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CellX")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CellY")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CaveMapId", "CellX", "CellY")
+                        .IsUnique();
+
+                    b.ToTable("CaveReveals");
+                });
+
             modelBuilder.Entity("RolemasterCharacterCreation.Models.Character", b =>
                 {
                     b.Property<int>("Id")
@@ -652,6 +1033,69 @@ namespace RolemasterCharacterCreation.Data.Migrations
                     b.ToTable("CharacterTalents");
                 });
 
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.ChatMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("RecipientId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SenderName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<DateTimeOffset>("SentAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RecipientId", "SentAt");
+
+                    b.ToTable("ChatMessages");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.ChatRead", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ConversationKey")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTimeOffset>("LastReadAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "ConversationKey")
+                        .IsUnique();
+
+                    b.ToTable("ChatReads");
+                });
+
             modelBuilder.Entity("RolemasterCharacterCreation.Models.CreatureDescription", b =>
                 {
                     b.Property<int>("Id")
@@ -748,6 +1192,189 @@ namespace RolemasterCharacterCreation.Data.Migrations
                     b.ToTable("CriticalTableRows");
                 });
 
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.DungeonCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ColorHex")
+                        .IsRequired()
+                        .HasMaxLength(9)
+                        .HasColumnType("nvarchar(9)");
+
+                    b.Property<bool>("IsBuiltIn")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsHidden")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DungeonCategories");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.DungeonCategoryName", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DungeonCategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DungeonCategoryId");
+
+                    b.ToTable("DungeonCategoryNames");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.DungeonLocation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CellX")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CellY")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DungeonCategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DungeonMapId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("GmNotes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Label")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("VisibleToPlayers")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DungeonCategoryId");
+
+                    b.HasIndex("DungeonMapId", "CellX", "CellY")
+                        .IsUnique();
+
+                    b.ToTable("DungeonLocations");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.DungeonMap", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedByUserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("RawJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DungeonMaps");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.DungeonNote", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DungeonMapId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Ref")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Text")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("VisibleToPlayers")
+                        .HasColumnType("bit");
+
+                    b.Property<double>("X")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Y")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DungeonMapId");
+
+                    b.ToTable("DungeonNotes");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.DungeonReveal", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DungeonMapId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RectIndex")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DungeonMapId", "RectIndex")
+                        .IsUnique();
+
+                    b.ToTable("DungeonReveals");
+                });
+
             modelBuilder.Entity("RolemasterCharacterCreation.Models.FumbleTable", b =>
                 {
                     b.Property<int>("Id")
@@ -834,6 +1461,58 @@ namespace RolemasterCharacterCreation.Data.Migrations
                     b.HasIndex("FumbleTableId");
 
                     b.ToTable("FumbleTableRows");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.MapCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ColorHex")
+                        .IsRequired()
+                        .HasMaxLength(9)
+                        .HasColumnType("nvarchar(9)");
+
+                    b.Property<bool>("IsBuiltIn")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MapCategories");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.MapCategoryName", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("MapCategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MapCategoryId");
+
+                    b.ToTable("MapCategoryNames");
                 });
 
             modelBuilder.Entity("RolemasterCharacterCreation.Models.Spell", b =>
@@ -998,6 +1677,393 @@ namespace RolemasterCharacterCreation.Data.Migrations
                     b.ToTable("SpellLists");
                 });
 
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.Town", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedByUserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("RawJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Towns");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.TownLocation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("FeatureIndex")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FeatureKind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("GmNotes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Label")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("LinkedBuildingId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MapCategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TownId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LinkedBuildingId");
+
+                    b.HasIndex("MapCategoryId");
+
+                    b.HasIndex("TownId", "FeatureKind", "FeatureIndex")
+                        .IsUnique();
+
+                    b.ToTable("TownLocations");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.UsefulLink", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("nvarchar(160)");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UsefulLinks");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.Village", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedByUserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("RawJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Villages");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.VillageCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ColorHex")
+                        .IsRequired()
+                        .HasMaxLength(9)
+                        .HasColumnType("nvarchar(9)");
+
+                    b.Property<bool>("IsBuiltIn")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("VillageCategories");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.VillageCategoryName", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<int>("VillageCategoryId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VillageCategoryId");
+
+                    b.ToTable("VillageCategoryNames");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.VillageLocation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("FeatureIndex")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FeatureKind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("GmNotes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Label")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("LinkedBuildingId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("VillageCategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VillageId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LinkedBuildingId");
+
+                    b.HasIndex("VillageCategoryId");
+
+                    b.HasIndex("VillageId", "FeatureKind", "FeatureIndex")
+                        .IsUnique();
+
+                    b.ToTable("VillageLocations");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.WorldCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ColorHex")
+                        .IsRequired()
+                        .HasMaxLength(9)
+                        .HasColumnType("nvarchar(9)");
+
+                    b.Property<bool>("IsBuiltIn")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("WorldCategories");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.WorldLocation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("GmNotes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("HexQ")
+                        .HasColumnType("int");
+
+                    b.Property<int>("HexR")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Label")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("LinkedBuildingId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("LinkedCaveId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("LinkedDungeonId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("LinkedTownId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("LinkedVillageId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("WorldCategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WorldMapId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LinkedBuildingId");
+
+                    b.HasIndex("LinkedCaveId");
+
+                    b.HasIndex("LinkedDungeonId");
+
+                    b.HasIndex("LinkedTownId");
+
+                    b.HasIndex("LinkedVillageId");
+
+                    b.HasIndex("WorldCategoryId");
+
+                    b.HasIndex("WorldMapId", "HexQ", "HexR")
+                        .IsUnique();
+
+                    b.ToTable("WorldLocations");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.WorldMap", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedByUserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("RawJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("WorldMaps");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.WorldReveal", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("HexQ")
+                        .HasColumnType("int");
+
+                    b.Property<int>("HexR")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WorldMapId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WorldMapId", "HexQ", "HexR")
+                        .IsUnique();
+
+                    b.ToTable("WorldReveals");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -1069,6 +2135,110 @@ namespace RolemasterCharacterCreation.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("AttackTable");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.BuildingCategoryName", b =>
+                {
+                    b.HasOne("RolemasterCharacterCreation.Models.BuildingCategory", "BuildingCategory")
+                        .WithMany("Names")
+                        .HasForeignKey("BuildingCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BuildingCategory");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.BuildingLocation", b =>
+                {
+                    b.HasOne("RolemasterCharacterCreation.Models.BuildingCategory", "BuildingCategory")
+                        .WithMany("Locations")
+                        .HasForeignKey("BuildingCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("RolemasterCharacterCreation.Models.BuildingMap", "BuildingMap")
+                        .WithMany("Locations")
+                        .HasForeignKey("BuildingMapId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BuildingCategory");
+
+                    b.Navigation("BuildingMap");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.BuildingNote", b =>
+                {
+                    b.HasOne("RolemasterCharacterCreation.Models.BuildingMap", "BuildingMap")
+                        .WithMany()
+                        .HasForeignKey("BuildingMapId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BuildingMap");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.BuildingReveal", b =>
+                {
+                    b.HasOne("RolemasterCharacterCreation.Models.BuildingMap", "BuildingMap")
+                        .WithMany()
+                        .HasForeignKey("BuildingMapId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BuildingMap");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.CaveCategoryName", b =>
+                {
+                    b.HasOne("RolemasterCharacterCreation.Models.CaveCategory", "CaveCategory")
+                        .WithMany("Names")
+                        .HasForeignKey("CaveCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CaveCategory");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.CaveLocation", b =>
+                {
+                    b.HasOne("RolemasterCharacterCreation.Models.CaveCategory", "CaveCategory")
+                        .WithMany("Locations")
+                        .HasForeignKey("CaveCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("RolemasterCharacterCreation.Models.CaveMap", "CaveMap")
+                        .WithMany("Locations")
+                        .HasForeignKey("CaveMapId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CaveCategory");
+
+                    b.Navigation("CaveMap");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.CaveNote", b =>
+                {
+                    b.HasOne("RolemasterCharacterCreation.Models.CaveMap", "CaveMap")
+                        .WithMany()
+                        .HasForeignKey("CaveMapId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CaveMap");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.CaveReveal", b =>
+                {
+                    b.HasOne("RolemasterCharacterCreation.Models.CaveMap", "CaveMap")
+                        .WithMany()
+                        .HasForeignKey("CaveMapId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CaveMap");
                 });
 
             modelBuilder.Entity("RolemasterCharacterCreation.Models.Character", b =>
@@ -1173,6 +2343,58 @@ namespace RolemasterCharacterCreation.Data.Migrations
                     b.Navigation("CriticalTable");
                 });
 
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.DungeonCategoryName", b =>
+                {
+                    b.HasOne("RolemasterCharacterCreation.Models.DungeonCategory", "DungeonCategory")
+                        .WithMany("Names")
+                        .HasForeignKey("DungeonCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DungeonCategory");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.DungeonLocation", b =>
+                {
+                    b.HasOne("RolemasterCharacterCreation.Models.DungeonCategory", "DungeonCategory")
+                        .WithMany("Locations")
+                        .HasForeignKey("DungeonCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("RolemasterCharacterCreation.Models.DungeonMap", "DungeonMap")
+                        .WithMany("Locations")
+                        .HasForeignKey("DungeonMapId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DungeonCategory");
+
+                    b.Navigation("DungeonMap");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.DungeonNote", b =>
+                {
+                    b.HasOne("RolemasterCharacterCreation.Models.DungeonMap", "DungeonMap")
+                        .WithMany()
+                        .HasForeignKey("DungeonMapId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DungeonMap");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.DungeonReveal", b =>
+                {
+                    b.HasOne("RolemasterCharacterCreation.Models.DungeonMap", "DungeonMap")
+                        .WithMany()
+                        .HasForeignKey("DungeonMapId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DungeonMap");
+                });
+
             modelBuilder.Entity("RolemasterCharacterCreation.Models.FumbleTableRow", b =>
                 {
                     b.HasOne("RolemasterCharacterCreation.Models.FumbleTable", "FumbleTable")
@@ -1182,6 +2404,17 @@ namespace RolemasterCharacterCreation.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("FumbleTable");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.MapCategoryName", b =>
+                {
+                    b.HasOne("RolemasterCharacterCreation.Models.MapCategory", "MapCategory")
+                        .WithMany("Names")
+                        .HasForeignKey("MapCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MapCategory");
                 });
 
             modelBuilder.Entity("RolemasterCharacterCreation.Models.Spell", b =>
@@ -1206,6 +2439,134 @@ namespace RolemasterCharacterCreation.Data.Migrations
                     b.Navigation("SpellFailureTable");
                 });
 
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.TownLocation", b =>
+                {
+                    b.HasOne("RolemasterCharacterCreation.Models.BuildingMap", "LinkedBuilding")
+                        .WithMany()
+                        .HasForeignKey("LinkedBuildingId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("RolemasterCharacterCreation.Models.MapCategory", "MapCategory")
+                        .WithMany("Locations")
+                        .HasForeignKey("MapCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("RolemasterCharacterCreation.Models.Town", "Town")
+                        .WithMany("Locations")
+                        .HasForeignKey("TownId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LinkedBuilding");
+
+                    b.Navigation("MapCategory");
+
+                    b.Navigation("Town");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.VillageCategoryName", b =>
+                {
+                    b.HasOne("RolemasterCharacterCreation.Models.VillageCategory", "VillageCategory")
+                        .WithMany("Names")
+                        .HasForeignKey("VillageCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("VillageCategory");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.VillageLocation", b =>
+                {
+                    b.HasOne("RolemasterCharacterCreation.Models.BuildingMap", "LinkedBuilding")
+                        .WithMany()
+                        .HasForeignKey("LinkedBuildingId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("RolemasterCharacterCreation.Models.VillageCategory", "VillageCategory")
+                        .WithMany("Locations")
+                        .HasForeignKey("VillageCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("RolemasterCharacterCreation.Models.Village", "Village")
+                        .WithMany("Locations")
+                        .HasForeignKey("VillageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LinkedBuilding");
+
+                    b.Navigation("Village");
+
+                    b.Navigation("VillageCategory");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.WorldLocation", b =>
+                {
+                    b.HasOne("RolemasterCharacterCreation.Models.BuildingMap", "LinkedBuilding")
+                        .WithMany()
+                        .HasForeignKey("LinkedBuildingId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("RolemasterCharacterCreation.Models.CaveMap", "LinkedCave")
+                        .WithMany()
+                        .HasForeignKey("LinkedCaveId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("RolemasterCharacterCreation.Models.DungeonMap", "LinkedDungeon")
+                        .WithMany()
+                        .HasForeignKey("LinkedDungeonId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("RolemasterCharacterCreation.Models.Town", "LinkedTown")
+                        .WithMany()
+                        .HasForeignKey("LinkedTownId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("RolemasterCharacterCreation.Models.Village", "LinkedVillage")
+                        .WithMany()
+                        .HasForeignKey("LinkedVillageId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("RolemasterCharacterCreation.Models.WorldCategory", "WorldCategory")
+                        .WithMany("Locations")
+                        .HasForeignKey("WorldCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("RolemasterCharacterCreation.Models.WorldMap", "WorldMap")
+                        .WithMany("Locations")
+                        .HasForeignKey("WorldMapId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LinkedBuilding");
+
+                    b.Navigation("LinkedCave");
+
+                    b.Navigation("LinkedDungeon");
+
+                    b.Navigation("LinkedTown");
+
+                    b.Navigation("LinkedVillage");
+
+                    b.Navigation("WorldCategory");
+
+                    b.Navigation("WorldMap");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.WorldReveal", b =>
+                {
+                    b.HasOne("RolemasterCharacterCreation.Models.WorldMap", "WorldMap")
+                        .WithMany()
+                        .HasForeignKey("WorldMapId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("WorldMap");
+                });
+
             modelBuilder.Entity("RolemasterCharacterCreation.Models.ApplicationUser", b =>
                 {
                     b.Navigation("Characters");
@@ -1216,6 +2577,30 @@ namespace RolemasterCharacterCreation.Data.Migrations
                     b.Navigation("Rows");
 
                     b.Navigation("Weapons");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.BuildingCategory", b =>
+                {
+                    b.Navigation("Locations");
+
+                    b.Navigation("Names");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.BuildingMap", b =>
+                {
+                    b.Navigation("Locations");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.CaveCategory", b =>
+                {
+                    b.Navigation("Locations");
+
+                    b.Navigation("Names");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.CaveMap", b =>
+                {
+                    b.Navigation("Locations");
                 });
 
             modelBuilder.Entity("RolemasterCharacterCreation.Models.Character", b =>
@@ -1238,9 +2623,28 @@ namespace RolemasterCharacterCreation.Data.Migrations
                     b.Navigation("Rows");
                 });
 
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.DungeonCategory", b =>
+                {
+                    b.Navigation("Locations");
+
+                    b.Navigation("Names");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.DungeonMap", b =>
+                {
+                    b.Navigation("Locations");
+                });
+
             modelBuilder.Entity("RolemasterCharacterCreation.Models.FumbleTable", b =>
                 {
                     b.Navigation("Rows");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.MapCategory", b =>
+                {
+                    b.Navigation("Locations");
+
+                    b.Navigation("Names");
                 });
 
             modelBuilder.Entity("RolemasterCharacterCreation.Models.SpellFailureTable", b =>
@@ -1251,6 +2655,33 @@ namespace RolemasterCharacterCreation.Data.Migrations
             modelBuilder.Entity("RolemasterCharacterCreation.Models.SpellList", b =>
                 {
                     b.Navigation("Spells");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.Town", b =>
+                {
+                    b.Navigation("Locations");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.Village", b =>
+                {
+                    b.Navigation("Locations");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.VillageCategory", b =>
+                {
+                    b.Navigation("Locations");
+
+                    b.Navigation("Names");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.WorldCategory", b =>
+                {
+                    b.Navigation("Locations");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.WorldMap", b =>
+                {
+                    b.Navigation("Locations");
                 });
 #pragma warning restore 612, 618
         }

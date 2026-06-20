@@ -1,0 +1,87 @@
+{
+  "Tavern / Inn": [
+    "The Plough & Sickle", "The Thirsty Crow", "The Sleeping Sheep", "The Old Mill Inn",
+    "The Cosy Hearth", "The Green Man", "The Harvest Moon", "The Muddy Boot",
+    "The Acorn & Oak", "The Cart and Carthorse", "The Brimming Ladle", "The Red Rooster",
+    "The Goose & Gander", "The Ploughman's Rest", "The Crooked Lantern", "The Barley Mow",
+    "The Hollow Stump", "The Mossy Milestone", "The Hayloft", "The Sow & Piglet",
+    "The Wayside Inn", "The Three Acorns", "The Tipsy Tinker", "The Honeyed Hive"
+  ],
+  "General Store": [
+    "Tindle's Sundries", "The Full Larder", "Greaves' General Goods", "The Penny Crock",
+    "Peddler's Corner", "The Tin & Twine", "Crofter's Supply", "The Brimming Barrel",
+    "Bramblewick Wares", "The Odds & Ends", "Marrow's Mercantile", "The Cluttered Counter",
+    "Hodge's Provisions", "The Salt Box", "The Candle & Comb", "Thatcher's Trading Post",
+    "The Dusty Shelf", "Goodbody's Goods", "The Copper Scoop", "Wrenfield Supplies"
+  ],
+  "Blacksmith / Smithy": [
+    "The Glowing Anvil", "Hammerfall Forge", "The Iron Oak", "Old Cinder's Smithy",
+    "The Ringing Hammer", "Coalfoot Forge", "The Bent Nail", "Emberhand Ironworks",
+    "The Sooty Apron", "Brand's Forge", "The Quenching Trough", "The Red Anvil",
+    "Strongarm Smithy", "The Sparking Stone", "Grimwald's Forge", "The Bellows & Brand",
+    "The Cold Chisel", "Ashby's Ironmongery", "The Horseshoe Hearth", "The Black Hammer"
+  ],
+  "Mill": [
+    "Greenwater Mill", "The Turning Wheel", "Oldstone Mill", "Windcrest Windmill",
+    "The Floury Sack", "Brookside Mill", "The Groaning Gears", "Stoneground Mill",
+    "Millbrook Wheel", "The White Dusting", "Ferncroft Mill", "The Tireless Wheel",
+    "Barleymead Mill", "The Sluice Gate", "Hollowbrook Mill", "The Granary Stone",
+    "Wheatsheaf Mill", "The Lazy Sails", "Edgewater Mill", "The Quern & Stone"
+  ],
+  "Temple / Shrine": [
+    "The Wayside Shrine", "Chapel of the Still Pond", "The Old Stone Cross", "Shrine of the Harvest",
+    "The Candlelit Chapel", "Temple of the Quiet Dawn", "The Whispering Altar", "Shrine of the Green Saint",
+    "The Bell Tower", "Chapel of the Wanderer", "The Mossy Cairn", "Shrine of the Hearthkeeper",
+    "The Pilgrim's Rest", "Temple of the Last Furrow", "The Weathered Idol", "Shrine of the River Maid",
+    "The Lantern Chapel", "Chapel of the Twin Oaks", "The Humble Sanctuary", "Shrine of the Sky Father"
+  ],
+  "Village Elder / Headman": [
+    "Elderwood House", "The Headman's Hall", "Greycloak Cottage", "The Reeve's House",
+    "Oakhart Manor", "The Council Cottage", "Thornberry House", "The Elder's Seat",
+    "Mossgate House", "The Old Family Home", "Hawthorne House", "The Speaker's Lodge",
+    "Fenwick Cottage", "The Warden's House", "Briarhall", "The Steward's Home",
+    "Aldermere House", "The Moot Cottage", "Whitethorn House", "The Patriarch's Hall"
+  ],
+  "Farmstead": [
+    "Bramblefield Farm", "The Old Barley Farm", "Mudlark Holding", "Greenfurrow Farm",
+    "The Three Pigs Farm", "Hollowfield Holding", "Applegarth Farm", "The Sunny Acre",
+    "Thistledown Farm", "Crowfoot Holding", "Meadowsweet Farm", "The Far Field",
+    "Stonewall Farm", "Pennycress Holding", "Barleyhill Farm", "The Damp Bottom",
+    "Foxglove Farm", "Hedgerow Holding", "Turnipfield Farm", "The Goosewing Croft"
+  ],
+  "Stable / Barn": [
+    "The Roan Stable", "Strawloft Barn", "The Old Cart Shed", "Hoofbeat Stables",
+    "The Hay Barn", "Saddleback Stables", "The Mossy Byre", "Cloverfield Barn",
+    "The Drovers' Stable", "Oxgate Barn", "The Warm Stall", "Dappledawn Stables",
+    "The Cattle Shed", "Brindle Barn", "The Pony Paddock", "Longhorn Stables",
+    "The Threshing Barn", "Bellwether Byre", "The Open Stall", "Packhorse Stables"
+  ],
+  "Healer / Herbalist": [
+    "The Green Apothecary", "Motherwort Cottage", "The Healing Hand", "Wormwood House",
+    "The Herb Garden", "Comfrey Cottage", "The Drying Loft", "Yarrow & Sage",
+    "The Poultice Pot", "Feverfew Cottage", "The Wise Woman's House", "Elderflower Cottage",
+    "The Bonesetter's Door", "Nettlebed Cottage", "The Tincture Shelf", "Foxglove & Fern",
+    "The Quiet Sickroom", "Willowbark Cottage", "The Mending Hearth", "Mossheart Apothecary"
+  ],
+  "Market Square": [
+    "The Village Cross", "Market Green", "The Weekly Stalls", "The Old Market Stone",
+    "Pedlar's Square", "The Goose Market", "The Trading Stones", "Cornmarket",
+    "The Bartering Bench", "The Tinker's Pitch", "Sheepfold Square", "The Cheese Stall",
+    "The Egg & Butter Cross", "The Haggling Steps", "Maypole Square", "The Common Stalls",
+    "The Produce Stones", "Fishwife's Corner", "The Tally Post", "Market Hollow"
+  ],
+  "Well / Village Green": [
+    "The Old Well", "The Common Green", "The Wishing Well", "Maypole Green",
+    "The Stone Well", "The Duck Pond Green", "The Deep Well", "The Mossy Trough",
+    "The Village Pump", "Goosey Green", "The Drawing Well", "The Cattle Green",
+    "The Bucket & Chain", "The Sward", "The Spring Well", "The Common Pasture",
+    "The Echoing Well", "The Festival Green", "The Brimming Well", "The Gallows Green"
+  ],
+  "Militia / Watch Post": [
+    "The Watch House", "Muster Post", "The Old Guard Hut", "The Bell Post",
+    "The Pikemen's Lodge", "The Sentry Box", "The Alarm Bell", "The Militia Barn",
+    "The Beacon Hut", "The Warden's Post", "The Levy Hall", "The Picket Fence",
+    "The Lookout Stand", "The Stockade", "The Drill Green", "The Watchman's Rest",
+    "The Hue & Cry Post", "The Guardstone", "The Tithing Post", "The Border Hut"
+  ]
+}

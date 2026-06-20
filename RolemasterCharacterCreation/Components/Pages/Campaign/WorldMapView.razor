@@ -1,0 +1,744 @@
+@page "/campaign/world-maps/{Id:int}"
+@rendermode InteractiveServer
+@attribute [Authorize]
+@using RolemasterCharacterCreation.Data
+@inject AppDbContext Db
+@inject WorldMapService Maps
+@inject AuthenticationStateProvider AuthState
+@inject IJSRuntime JS
+@inject NavigationManager Nav
+@implements IDisposable
+
+<PageTitle>@(_map?.Name ?? "World Map")</PageTitle>
+
+@if (_map is null)
+{
+    <p class="text-muted">Loading…</p>
+}
+else
+{
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="mb-0">@_map.Name</h2>
+            @if (!string.IsNullOrWhiteSpace(_map.Description))
+            {
+                <div class="text-muted small">@_map.Description</div>
+            }
+        </div>
+        <a class="btn btn-outline-secondary btn-sm" href="/campaign/world-maps">← All World Maps</a>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-9">
+            <div class="wm-frame" @ref="_frame">
+                <div class="town-zoom-controls" @onpointerdown:stopPropagation="true">
+                    <button class="btn btn-sm btn-light" title="Zoom in" @onclick="() => ZoomAsync(1.25)">+</button>
+                    <button class="btn btn-sm btn-light" title="Zoom out" @onclick="() => ZoomAsync(0.8)">−</button>
+                    <button class="btn btn-sm btn-light" title="Reset zoom" @onclick="ResetZoomAsync">⤢</button>
+                </div>
+                <svg viewBox="@_render!.ViewBox" class="wm-map" preserveAspectRatio="xMidYMid meet">
+                    <defs>
+                        <clipPath id="wm-land">
+                            @foreach (var c in _render.Coast)
+                            {
+                                <polygon points="@c.Points" />
+                            }
+                        </clipPath>
+                        @* Fog mask: white = fogged, black holes = revealed hexes. *@
+                        <mask id="wm-fog">
+                            <rect x="@_render.MinXs" y="@_render.MinYs" width="@_render.Ws" height="@_render.Hs" fill="white" />
+                            @foreach (var c in _revealed)
+                            {
+                                <polygon points="@Maps.HexPolygonPoints(c.Q, c.R)" fill="black" />
+                            }
+                        </mask>
+                    </defs>
+
+                    @* Open sea fills the whole extent; land is painted on top, clipped to
+                       the smooth coastline so the hex grid never shows. *@
+                    <rect x="@_render.MinXs" y="@_render.MinYs" width="@_render.Ws" height="@_render.Hs" class="wm-sea" />
+
+                    <g clip-path="url(#wm-land)">
+                        @foreach (var h in _render.Hexes)
+                        {
+                            var mark = Mark(h.Q, h.R);
+                            <polygon points="@h.Points" class="wm-hex"
+                                     style="fill:@h.Fill;stroke:@h.Fill"
+                                     @onclick="e => OnHexClick(h.Q, h.R, e)"
+                                     @oncontextmenu="e => OnHexContext(h.Q, h.R, e)"
+                                     @oncontextmenu:preventDefault="true">
+                                @if (mark is not null) { <title>@TitleFor(mark)</title> }
+                            </polygon>
+                        }
+                    </g>
+
+                    @foreach (var c in _render.Coast)
+                    {
+                        <polygon points="@c.Points" class="wm-coast-halo" />
+                    }
+                    @foreach (var c in _render.Coast)
+                    {
+                        <polygon points="@c.Points" class="wm-coast" />
+                    }
+
+                    <g clip-path="url(#wm-land)">
+                        @foreach (var f in _render.Forests)
+                        {
+                            <circle cx="@Num(f.X)" cy="@Num(f.Y)" r="2.3" class="wm-forest" />
+                        }
+                        @foreach (var rk in _render.Rocks)
+                        {
+                            <circle cx="@Num(rk.X)" cy="@Num(rk.Y)" r="1.5" class="wm-rock" />
+                        }
+                        @foreach (var mtn in _render.Mountains)
+                        {
+                            <polygon points="@mtn.Tri" class="wm-mtn" />
+                            <polygon points="@mtn.Shadow" class="wm-mtn-shadow" />
+                        }
+                    </g>
+
+                    @if (_showRivers)
+                    {
+                        @foreach (var l in _render.Rivers)
+                        {
+                            <polyline points="@l.Points" class="wm-river" />
+                        }
+                    }
+                    @if (_showRoads)
+                    {
+                        @foreach (var l in _render.Roads)
+                        {
+                            <polyline points="@l.Points" class="wm-road" />
+                        }
+                    }
+                    @if (_showSeaRoutes)
+                    {
+                        @foreach (var l in _render.SeaRoutes)
+                        {
+                            <polyline points="@l.Points" class="wm-searoute" />
+                        }
+                    }
+                    @* POIs in unrevealed hexes are not rendered for players (no leak). *@
+                    @foreach (var loc in _map.Locations)
+                    {
+                        @if (IsVisible(loc.HexQ, loc.HexR))
+                        {
+                            var (cx, cy) = Maps.HexCenter(loc.HexQ, loc.HexR);
+                            <circle cx="@Num(cx)" cy="@Num(cy)" r="5"
+                                    class="wm-poi @(loc.LinkedTownId is not null || loc.LinkedVillageId is not null || loc.LinkedDungeonId is not null || loc.LinkedCaveId is not null || loc.LinkedBuildingId is not null ? "wm-poi-linked" : null)"
+                                    style="fill:@CategoryColor(loc.WorldCategoryId)" />
+                        }
+                    }
+                    @PoiLabels
+
+                    @* Fog overlay: opaque cloud for players, translucent for the GM. *@
+                    @if (!_isGm || _showFog)
+                    {
+                        <rect x="@_render.MinXs" y="@_render.MinYs" width="@_render.Ws" height="@_render.Hs"
+                              class="@(_isGm ? "wm-fog-gm" : "wm-fog-player")" mask="url(#wm-fog)" />
+                    }
+
+                    @* Fog-paint layer (GM only): click or drag hexes to reveal / hide them.
+                       Painting is handled in JS (fogPaint) for a smooth drag. *@
+                    @if (_isGm && _fogMode)
+                    {
+                        @foreach (var c in _render.Cells)
+                        {
+                            <polygon points="@Maps.HexPolygonPoints(c.Q, c.R)" data-q="@c.Q" data-r="@c.R"
+                                     class="wm-fc @(_revealed.Contains(c) ? "wm-fc-on" : "wm-fc-off")"
+                                     @oncontextmenu:preventDefault="true" @oncontextmenu:stopPropagation="true" />
+                        }
+                    }
+                </svg>
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            @if (_isGm)
+            {
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="btn-group btn-group-sm w-100 mb-2" role="group">
+                            <button class="btn @(_fogMode ? "btn-outline-secondary" : "btn-dark")"
+                                    @onclick="() => SetFogModeAsync(false)">Edit POIs</button>
+                            <button class="btn @(_fogMode ? "btn-dark" : "btn-outline-secondary")"
+                                    @onclick="() => SetFogModeAsync(true)">Fog of war</button>
+                        </div>
+                        @if (_fogMode)
+                        {
+                            <p class="small text-muted mb-2">
+                                Click a hex to <strong>reveal</strong> it to players; click a revealed hex to hide it again.
+                            </p>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-success" @onclick="RevealAllAsync">Reveal all</button>
+                                <button class="btn btn-sm btn-outline-danger" @onclick="HideAllAsync">Hide all</button>
+                            </div>
+                            <div class="small text-muted mt-2">@_revealed.Count hex@(_revealed.Count == 1 ? "" : "es") revealed</div>
+                        }
+                        else
+                        {
+                            <ul class="small text-muted mb-2 ps-3">
+                                <li><strong>Left-click</strong> a hex → pick a type to drop a POI.</li>
+                                <li><strong>Right-click</strong> a POI → edit its name, info &amp; GM notes.</li>
+                                <li><strong>Hover</strong> a POI to see its details.</li>
+                            </ul>
+                            <a class="btn btn-link btn-sm px-0" href="/campaign/world-categories">Edit POI types…</a>
+                        }
+                    </div>
+                </div>
+            }
+
+            <div class="card mb-3">
+                <div class="card-body py-2">
+                    <h6 class="card-title">Map layers</h6>
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" id="wmRoads" @bind="_showRoads" />
+                        <label class="form-check-label small" for="wmRoads">Roads</label>
+                    </div>
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" id="wmRivers" @bind="_showRivers" />
+                        <label class="form-check-label small" for="wmRivers">Rivers</label>
+                    </div>
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" id="wmSea" @bind="_showSeaRoutes" />
+                        <label class="form-check-label small" for="wmSea">Sea routes</label>
+                    </div>
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" id="wmLabels" @bind="_showLabels" />
+                        <label class="form-check-label small" for="wmLabels">Place names</label>
+                    </div>
+                    @if (_isGm)
+                    {
+                        <div class="form-check form-switch mb-0">
+                            <input class="form-check-input" type="checkbox" id="wmFog" @bind="_showFog" />
+                            <label class="form-check-label small" for="wmFog">Fog overlay</label>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">Legend</h6>
+                    @if (_categories.Count == 0)
+                    {
+                        <p class="small text-muted mb-0">No POI types defined.</p>
+                    }
+                    else
+                    {
+                        <ul class="list-unstyled mb-0 small">
+                            @foreach (var c in _categories)
+                            {
+                                var count = _map.Locations.Count(l => l.WorldCategoryId == c.Id);
+                                <li class="d-flex justify-content-between align-items-center py-1">
+                                    <span><span class="wm-swatch" style="background:@c.ColorHex"></span> @c.Name</span>
+                                    @if (count > 0)
+                                    {
+                                        <span class="badge bg-secondary">@count</span>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@* Left-click: choose a POI type ───────────────────────────────── *@
+@if (_menu is { } m)
+{
+    <div class="ctx-backdrop" @onclick="CloseMenus" @oncontextmenu="CloseMenus" @oncontextmenu:preventDefault="true"></div>
+    <div class="ctx-menu" style="left:@Px(m.X); top:@Px(m.Y)">
+        <div class="ctx-title">Mark hex</div>
+        <div class="ctx-scroll">
+            @foreach (var c in _categories)
+            {
+                <div class="ctx-item" @onclick="() => AssignFromMenuAsync(c.Id)">
+                    <span class="wm-swatch" style="background:@c.ColorHex"></span>
+                    <span class="ctx-label">@c.Name</span>
+                </div>
+            }
+        </div>
+        @if (Mark(m.Q, m.R) is not null)
+        {
+            <div class="ctx-sep"></div>
+            <div class="ctx-item ctx-danger" @onclick="() => ClearAsync(m.Q, m.R)">✕ Remove POI</div>
+        }
+    </div>
+}
+
+@* Right-click: edit POI ───────────────────────────────────────── *@
+@if (_editor is { } ed)
+{
+    <div class="ctx-backdrop" @onclick="CloseMenus" @oncontextmenu="CloseMenus" @oncontextmenu:preventDefault="true"></div>
+    <div class="ctx-editor" style="left:@Px(ed.X); top:@Px(ed.Y)">
+        <div class="ctx-title">Edit point of interest</div>
+        <label class="form-label small mb-1">Type</label>
+        <select class="form-select form-select-sm mb-2" @bind="_editCategoryId">
+            <option value="0">— none (remove) —</option>
+            @foreach (var c in _categories)
+            {
+                <option value="@c.Id">@c.Name</option>
+            }
+        </select>
+        <label class="form-label small mb-1">Name</label>
+        <input class="form-control form-control-sm mb-2" @bind="_editName" placeholder="e.g. Skyscale" />
+        @* One link dropdown whose source follows the POI type: town/city → towns, village → villages. *@
+        @switch (LinkKind(_editCategoryId))
+        {
+            case LinkTarget.Town:
+                <label class="form-label small mb-1">Linked town map</label>
+                @if (_towns.Count == 0)
+                {
+                    <div class="small text-muted mb-2">No town maps uploaded yet.</div>
+                }
+                else
+                {
+                    <select class="form-select form-select-sm mb-2" @bind="_editLinkedTownId">
+                        <option value="0">— none —</option>
+                        @foreach (var t in _towns)
+                        {
+                            <option value="@t.Id">@t.Name</option>
+                        }
+                    </select>
+                }
+                break;
+
+            case LinkTarget.Village:
+                <label class="form-label small mb-1">Linked village map</label>
+                @if (_villages.Count == 0)
+                {
+                    <div class="small text-muted mb-2">No village maps uploaded yet.</div>
+                }
+                else
+                {
+                    <select class="form-select form-select-sm mb-2" @bind="_editLinkedVillageId">
+                        <option value="0">— none —</option>
+                        @foreach (var v in _villages)
+                        {
+                            <option value="@v.Id">@v.Name</option>
+                        }
+                    </select>
+                }
+                break;
+
+            case LinkTarget.Dungeon:
+                <label class="form-label small mb-1">Linked dungeon map</label>
+                @if (_dungeons.Count == 0)
+                {
+                    <div class="small text-muted mb-2">No dungeon maps uploaded yet.</div>
+                }
+                else
+                {
+                    <select class="form-select form-select-sm mb-2" @bind="_editLinkedDungeonId">
+                        <option value="0">— none —</option>
+                        @foreach (var d in _dungeons)
+                        {
+                            <option value="@d.Id">@d.Name</option>
+                        }
+                    </select>
+                }
+                break;
+
+            case LinkTarget.Cave:
+                <label class="form-label small mb-1">Linked cave map</label>
+                @if (_caves.Count == 0)
+                {
+                    <div class="small text-muted mb-2">No cave maps uploaded yet.</div>
+                }
+                else
+                {
+                    <select class="form-select form-select-sm mb-2" @bind="_editLinkedCaveId">
+                        <option value="0">— none —</option>
+                        @foreach (var cv in _caves)
+                        {
+                            <option value="@cv.Id">@cv.Name</option>
+                        }
+                    </select>
+                }
+                break;
+
+            case LinkTarget.Building:
+                <label class="form-label small mb-1">Linked building map</label>
+                @if (_buildings.Count == 0)
+                {
+                    <div class="small text-muted mb-2">No building maps uploaded yet.</div>
+                }
+                else
+                {
+                    <select class="form-select form-select-sm mb-2" @bind="_editLinkedBuildingId">
+                        <option value="0">— none —</option>
+                        @foreach (var bd in _buildings)
+                        {
+                            <option value="@bd.Id">@bd.Name</option>
+                        }
+                    </select>
+                }
+                break;
+        }
+        <label class="form-label small mb-1">
+            Additional information <span class="text-muted fw-normal">(players can see this)</span>
+        </label>
+        <textarea class="form-control form-control-sm mb-2" rows="2" @bind="_editNotes"
+                  placeholder="What's known about this place…"></textarea>
+        <label class="form-label small mb-1">
+            🔒 GM notes <span class="text-muted fw-normal">(only you)</span>
+        </label>
+        <textarea class="form-control form-control-sm mb-2 ctx-gmnotes" rows="3" @bind="_editGmNotes"
+                  placeholder="Secrets, plot hooks…"></textarea>
+        <div class="d-flex justify-content-between">
+            <button class="btn btn-sm btn-secondary" @onclick="CloseMenus">Cancel</button>
+            <button class="btn btn-sm btn-primary" @onclick="SaveEditorAsync">Save</button>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private WorldMap? _map;
+    private WorldMapService.WorldRender? _render;
+    private List<WorldCategory> _categories = [];
+    private List<Town> _towns = [];
+    private List<Village> _villages = [];
+    private List<DungeonMap> _dungeons = [];
+    private List<CaveMap> _caves = [];
+    private List<BuildingMap> _buildings = [];
+    private Dictionary<(int Q, int R), WorldLocation> _marks = [];
+    private bool _isGm;
+
+    private bool _showRoads = true, _showRivers = true, _showSeaRoutes = true, _showLabels = true;
+    private bool _showFog = true;
+    private bool _fogMode;
+    private HashSet<(int Q, int R)> _revealed = [];
+    private Dictionary<(int Q, int R), WorldReveal> _revealRows = [];
+    private ElementReference _frame;
+    private bool _zoomAttached;
+    private DotNetObjectReference<WorldMapView>? _dotNetRef;
+
+    // What an uploaded map a POI type can link to, decided by its category name.
+    private enum LinkTarget { None, Town, Village, Dungeon, Cave, Building }
+
+    private LinkTarget LinkKind(int categoryId)
+    {
+        var name = CategoryName(categoryId);
+        if (name.Contains("Village", StringComparison.OrdinalIgnoreCase)) return LinkTarget.Village;
+        if (name.Contains("Dungeon", StringComparison.OrdinalIgnoreCase)) return LinkTarget.Dungeon;
+        if (name.Contains("Cave", StringComparison.OrdinalIgnoreCase)) return LinkTarget.Cave;
+        if (name.Contains("Building", StringComparison.OrdinalIgnoreCase) ||
+            name.Contains("House", StringComparison.OrdinalIgnoreCase)) return LinkTarget.Building;
+        if (name.Contains("Town", StringComparison.OrdinalIgnoreCase) ||
+            name.Contains("City", StringComparison.OrdinalIgnoreCase)) return LinkTarget.Town;
+        return LinkTarget.None;
+    }
+
+    private sealed record Target(int Q, int R, double X, double Y);
+    private Target? _menu;
+    private Target? _editor;
+    private int _editCategoryId;
+    private int _editLinkedTownId;
+    private int _editLinkedVillageId;
+    private int _editLinkedDungeonId;
+    private int _editLinkedCaveId;
+    private int _editLinkedBuildingId;
+    private string _editName = "";
+    private string _editNotes = "";
+    private string _editGmNotes = "";
+
+    private const string PoiLabelStyle =
+        "fill:rgba(30,25,15,0.85);font-family:Georgia,'Times New Roman',serif;font-size:7px;" +
+        "text-anchor:middle;paint-order:stroke;stroke:rgba(245,240,225,0.85);stroke-width:1.6px;pointer-events:none";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthState.GetAuthenticationStateAsync();
+        _isGm = auth.User.IsInRole(Roles.Gamemaster);
+
+        _categories = await Db.WorldCategories.OrderBy(c => c.SortOrder).ThenBy(c => c.Name).ToListAsync();
+        _towns = await Db.Towns.OrderBy(t => t.Name).ToListAsync();
+        _villages = await Db.Villages.OrderBy(v => v.Name).ToListAsync();
+        _dungeons = await Db.DungeonMaps.OrderBy(d => d.Name).ToListAsync();
+        _caves = await Db.CaveMaps.OrderBy(c => c.Name).ToListAsync();
+        _buildings = await Db.BuildingMaps.OrderBy(b => b.Name).ToListAsync();
+
+        _map = await Db.WorldMaps
+            .Include(w => w.Locations)
+            .FirstOrDefaultAsync(w => w.Id == Id);
+
+        if (_map is not null)
+        {
+            _render = Maps.Build(_map.RawJson);
+            RebuildMarks();
+
+            _revealRows = await Db.WorldReveals
+                .Where(rv => rv.WorldMapId == Id)
+                .ToDictionaryAsync(rv => (rv.HexQ, rv.HexR));
+            _revealed = [.. _revealRows.Keys];
+        }
+    }
+
+    // A hex's content is shown to the GM always, and to players only once revealed.
+    private bool IsVisible(int q, int r) => _isGm || _revealed.Contains((q, r));
+
+    private async Task RevealAllAsync()
+    {
+        if (!_isGm || _render is null) return;
+        foreach (var c in _render.Cells)
+        {
+            if (_revealRows.ContainsKey(c)) continue;
+            var added = new WorldReveal { WorldMapId = _map!.Id, HexQ = c.Q, HexR = c.R };
+            Db.WorldReveals.Add(added);
+            _revealRows[c] = added;
+            _revealed.Add(c);
+        }
+        await Db.SaveChangesAsync();
+    }
+
+    private async Task HideAllAsync()
+    {
+        if (!_isGm) return;
+        Db.WorldReveals.RemoveRange(_revealRows.Values);
+        _revealRows.Clear();
+        _revealed.Clear();
+        await Db.SaveChangesAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_map is not null && !_zoomAttached)
+        {
+            _zoomAttached = true;
+            await JS.InvokeVoidAsync("townMap.attach", _frame);
+            _dotNetRef ??= DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("fogPaint.init", _frame, _dotNetRef);
+        }
+
+        if (_editor is not null)
+            await JS.InvokeVoidAsync("clampPopup", ".ctx-editor");
+        else if (_menu is not null)
+            await JS.InvokeVoidAsync("clampPopup", ".ctx-menu");
+    }
+
+    private async Task ZoomAsync(double factor) => await JS.InvokeVoidAsync("townMap.zoom", _frame, factor);
+    private async Task ResetZoomAsync() => await JS.InvokeVoidAsync("townMap.reset", _frame);
+
+    private async Task SetFogModeAsync(bool on)
+    {
+        _fogMode = on;
+        await JS.InvokeVoidAsync("fogPaint.setEnabled", on);
+    }
+
+    // Applies a whole drag-paint stroke (flat [q,r,q,r,…]) in one save. Called from JS.
+    [JSInvokable]
+    public async Task ApplyFogBatch(int[] cells, bool reveal)
+    {
+        if (!_isGm || _map is null || cells is null) return;
+
+        for (int i = 0; i + 1 < cells.Length; i += 2)
+        {
+            (int, int) key = (cells[i], cells[i + 1]);
+            if (reveal)
+            {
+                if (_revealRows.ContainsKey(key)) continue;
+                var added = new WorldReveal { WorldMapId = _map.Id, HexQ = key.Item1, HexR = key.Item2 };
+                Db.WorldReveals.Add(added);
+                _revealRows[key] = added;
+                _revealed.Add(key);
+            }
+            else if (_revealRows.TryGetValue(key, out var row))
+            {
+                Db.WorldReveals.Remove(row);
+                _revealRows.Remove(key);
+                _revealed.Remove(key);
+            }
+        }
+        await Db.SaveChangesAsync();
+        StateHasChanged();
+    }
+
+    public void Dispose() => _dotNetRef?.Dispose();
+
+    private void RebuildMarks() =>
+        _marks = _map!.Locations.ToDictionary(l => (l.HexQ, l.HexR));
+
+    private WorldLocation? Mark(int q, int r) =>
+        _marks.TryGetValue((q, r), out var loc) ? loc : null;
+
+    private string TitleFor(WorldLocation mark)
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.Append(string.IsNullOrWhiteSpace(mark.Label)
+            ? CategoryName(mark.WorldCategoryId)
+            : $"{mark.Label} — {CategoryName(mark.WorldCategoryId)}");
+        if (!string.IsNullOrWhiteSpace(mark.Notes))
+            sb.Append('\n').Append(mark.Notes);
+        if (mark.LinkedTownId is not null)
+            sb.Append("\n🔗 Click to open the town map");
+        else if (mark.LinkedVillageId is not null)
+            sb.Append("\n🔗 Click to open the village map");
+        else if (mark.LinkedDungeonId is not null)
+            sb.Append("\n🔗 Click to open the dungeon map");
+        else if (mark.LinkedCaveId is not null)
+            sb.Append("\n🔗 Click to open the cave map");
+        else if (mark.LinkedBuildingId is not null)
+            sb.Append("\n🔗 Click to open the building map");
+        if (_isGm && !string.IsNullOrWhiteSpace(mark.GmNotes))
+            sb.Append("\n\n🔒 GM: ").Append(mark.GmNotes);
+        return sb.ToString();
+    }
+
+    private RenderFragment PoiLabels => builder =>
+    {
+        if (_map is null || !_showLabels) return;
+        var seq = 0;
+        foreach (var loc in _map.Locations)
+        {
+            if (string.IsNullOrWhiteSpace(loc.Label)) continue;
+            if (!IsVisible(loc.HexQ, loc.HexR)) continue;
+            var (cx, cy) = Maps.HexCenter(loc.HexQ, loc.HexR);
+            builder.OpenElement(seq++, "text");
+            builder.AddAttribute(seq++, "x", Num(cx));
+            builder.AddAttribute(seq++, "y", Num(cy - 8));
+            builder.AddAttribute(seq++, "style", PoiLabelStyle);
+            builder.AddContent(seq++, loc.Label);
+            builder.CloseElement();
+        }
+    };
+
+    private void OnHexClick(int q, int r, MouseEventArgs e)
+    {
+        var mark = Mark(q, r);
+        // A revealed, linked POI opens its town/village map for anyone (players included).
+        if (IsVisible(q, r))
+        {
+            if (mark?.LinkedTownId is int townId)
+            {
+                Nav.NavigateTo($"/campaign/towns/{townId}");
+                return;
+            }
+            if (mark?.LinkedVillageId is int villageId)
+            {
+                Nav.NavigateTo($"/campaign/villages/{villageId}");
+                return;
+            }
+            if (mark?.LinkedDungeonId is int dungeonId)
+            {
+                Nav.NavigateTo($"/campaign/dungeons/{dungeonId}");
+                return;
+            }
+            if (mark?.LinkedCaveId is int caveId)
+            {
+                Nav.NavigateTo($"/campaign/caves/{caveId}");
+                return;
+            }
+            if (mark?.LinkedBuildingId is int buildingId)
+            {
+                Nav.NavigateTo($"/campaign/buildings/{buildingId}");
+                return;
+            }
+        }
+        if (!_isGm) return;
+        _editor = null;
+        _menu = new Target(q, r, e.ClientX, e.ClientY);
+    }
+
+    private void OnHexContext(int q, int r, MouseEventArgs e)
+    {
+        if (!_isGm) return;
+        _menu = null;
+        var mark = Mark(q, r);
+        _editCategoryId = mark?.WorldCategoryId ?? 0;
+        _editLinkedTownId = mark?.LinkedTownId ?? 0;
+        _editLinkedVillageId = mark?.LinkedVillageId ?? 0;
+        _editLinkedDungeonId = mark?.LinkedDungeonId ?? 0;
+        _editLinkedCaveId = mark?.LinkedCaveId ?? 0;
+        _editLinkedBuildingId = mark?.LinkedBuildingId ?? 0;
+        _editName = mark?.Label ?? "";
+        _editNotes = mark?.Notes ?? "";
+        _editGmNotes = mark?.GmNotes ?? "";
+        _editor = new Target(q, r, e.ClientX, e.ClientY);
+    }
+
+    private void CloseMenus()
+    {
+        _menu = null;
+        _editor = null;
+    }
+
+    private async Task AssignFromMenuAsync(int categoryId)
+    {
+        if (_menu is not { } t) return;
+        GetOrCreate(t.Q, t.R, categoryId).WorldCategoryId = categoryId;
+        await SaveAsync();
+        _menu = null;
+    }
+
+    private async Task SaveEditorAsync()
+    {
+        if (_editor is not { } t) return;
+        if (_editCategoryId == 0)
+        {
+            await ClearAsync(t.Q, t.R);
+            return;
+        }
+        var mark = GetOrCreate(t.Q, t.R, _editCategoryId);
+        mark.WorldCategoryId = _editCategoryId;
+        // Persist only the link that matches the chosen type; clear the other so a POI
+        // never carries a stale link after its type changes.
+        var linkKind = LinkKind(_editCategoryId);
+        mark.LinkedTownId = linkKind == LinkTarget.Town && _editLinkedTownId != 0 ? _editLinkedTownId : null;
+        mark.LinkedVillageId = linkKind == LinkTarget.Village && _editLinkedVillageId != 0 ? _editLinkedVillageId : null;
+        mark.LinkedDungeonId = linkKind == LinkTarget.Dungeon && _editLinkedDungeonId != 0 ? _editLinkedDungeonId : null;
+        mark.LinkedCaveId = linkKind == LinkTarget.Cave && _editLinkedCaveId != 0 ? _editLinkedCaveId : null;
+        mark.LinkedBuildingId = linkKind == LinkTarget.Building && _editLinkedBuildingId != 0 ? _editLinkedBuildingId : null;
+        mark.Label = string.IsNullOrWhiteSpace(_editName) ? null : _editName.Trim();
+        mark.Notes = string.IsNullOrWhiteSpace(_editNotes) ? null : _editNotes.Trim();
+        mark.GmNotes = string.IsNullOrWhiteSpace(_editGmNotes) ? null : _editGmNotes.Trim();
+        await SaveAsync();
+        _editor = null;
+    }
+
+    private async Task ClearAsync(int q, int r)
+    {
+        var existing = _map!.Locations.FirstOrDefault(l => l.HexQ == q && l.HexR == r);
+        if (existing is not null)
+        {
+            Db.WorldLocations.Remove(existing);
+            _map.Locations.Remove(existing);
+            await SaveAsync();
+        }
+        CloseMenus();
+    }
+
+    private WorldLocation GetOrCreate(int q, int r, int categoryId)
+    {
+        var existing = _map!.Locations.FirstOrDefault(l => l.HexQ == q && l.HexR == r);
+        if (existing is not null) return existing;
+
+        var created = new WorldLocation
+        {
+            WorldMapId = _map.Id,
+            HexQ = q,
+            HexR = r,
+            WorldCategoryId = categoryId,
+        };
+        _map.Locations.Add(created);
+        Db.WorldLocations.Add(created);
+        return created;
+    }
+
+    private async Task SaveAsync()
+    {
+        if (!_isGm) return;
+        await Db.SaveChangesAsync();
+        RebuildMarks();
+    }
+
+    private string CategoryColor(int id) => _categories.FirstOrDefault(c => c.Id == id)?.ColorHex ?? "#999999";
+    private string CategoryName(int id) => _categories.FirstOrDefault(c => c.Id == id)?.Name ?? "—";
+
+    private static string Px(double v) => v.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) + "px";
+    private static string Num(double v) => v.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+}

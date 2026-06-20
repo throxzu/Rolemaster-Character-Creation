@@ -8,10 +8,12 @@ public sealed class CreatureEntry
     public string Archetype     { get; init; } = "";
     public string Size          { get; init; } = "";
     public string Armor         { get; init; } = "";
+    public string Heal          { get; init; } = "";
     public string Treasure      { get; init; } = "";
     public string Realm         { get; init; } = "";
     public string Misc          { get; init; } = "";
     public int[]  StatBonuses   { get; init; } = new int[10];
+    public string Spells        { get; init; } = "";
     public string TalentsFlaws  { get; init; } = "";
     public string Description   { get; init; } = "";
 

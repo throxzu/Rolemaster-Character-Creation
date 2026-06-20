@@ -10,6 +10,15 @@ public sealed class CreatureService
         new(StringComparer.OrdinalIgnoreCase)
         { "ROLEMASTER", "UNIFIED", "Creature Law", "Rolemaster" };
 
+    // Category-group headings (from NormalizeGroup) that also appear in the text as
+    // a doubled heading without their chapter number, e.g. "Extraplanar Creatures".
+    private static readonly HashSet<string> GroupNames =
+        new(StringComparer.OrdinalIgnoreCase)
+        {
+            "Animals", "Artificials", "Elementals", "Extraplanar Creatures",
+            "Fell Creatures", "Fey", "Monsters", "Plants", "Races", "Undead",
+        };
+
     private static readonly Regex ChapterNum    = new(@"^\d+\.", RegexOptions.Compiled);
     private static readonly Regex DpMarker      = new(@"\(\d+\s*DP\)", RegexOptions.Compiled);
     private static readonly Regex TableHeading  = new(@"^Table\s+\d+\.\d", RegexOptions.Compiled);
@@ -92,16 +101,18 @@ public sealed class CreatureService
 
         // ── Per-creature state ────────────────────────────────────────────────
         string curGroup = "Unknown", curName = "", curCategory = "",
-               curArchetype = "", curSize = "", curArmor = "",
+               curArchetype = "", curSize = "", curArmor = "", curHeal = "",
                curTreasure = "", curRealm = "", curMisc = "";
         var curStats      = new int[10];
         var curDescBuf    = new StringBuilder();
         var curTalentsBuf = new StringBuilder();
+        var curSpellsBuf  = new StringBuilder();
 
         bool inFence             = false;
         bool statStarted         = false;
         bool waitStatHeader      = false;
         bool waitStatValues      = false;
+        bool collectingSpells    = false;  // after Spells label, before Talents label / next creature
         bool collectingTalents   = false;  // after Talents label, before first noise
         bool talentNoiseHit      = false;  // noise seen → switch to pendingDesc
 
@@ -118,10 +129,12 @@ public sealed class CreatureService
                 Archetype     = curArchetype,
                 Size          = curSize,
                 Armor         = curArmor,
+                Heal          = curHeal,
                 Treasure      = curTreasure,
                 Realm         = curRealm,
                 Misc          = curMisc,
                 StatBonuses   = (int[])curStats.Clone(),
+                Spells        = CleanText(curSpellsBuf.ToString()),
                 TalentsFlaws  = CleanTalents(curTalentsBuf.ToString()),
                 Description   = Polish(CleanText(curDescBuf.ToString())),
             });
@@ -154,17 +167,19 @@ public sealed class CreatureService
             Emit();
 
             curName = name; curGroup = group;
-            curCategory = curArchetype = curSize = curArmor =
+            curCategory = curArchetype = curSize = curArmor = curHeal =
             curTreasure = curRealm    = curMisc  = "";
             Array.Clear(curStats);
             curDescBuf.Clear();
             curDescBuf.Append(desc);
             curTalentsBuf.Clear();
+            curSpellsBuf.Clear();
 
-            inFence        = false;
-            statStarted    = false;
-            waitStatHeader = false;
-            waitStatValues = false;
+            inFence          = false;
+            statStarted      = false;
+            waitStatHeader   = false;
+            waitStatValues   = false;
+            collectingSpells = false;
         }
 
         // ── Main loop ─────────────────────────────────────────────────────────
@@ -195,11 +210,66 @@ public sealed class CreatureService
                     FinaliseTalents();
                     curGroup = NormalizeGroup(half);
                 }
+                else if (GroupNames.Contains(half))
+                {
+                    // A category-group heading printed without its chapter number
+                    // (e.g. "Extraplanar Creatures"); set the group, not a creature.
+                    FinaliseTalents();
+                    curGroup = half;
+                }
+                else if (half.EndsWith("-Cont.", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Page-continuation heading for the current creature — ignore it
+                    // so the continued stat block stays with the same creature.
+                }
                 else
                 {
                     StartCreature(half, curGroup, pendingDesc.ToString());
                     pendingDesc.Clear();
                 }
+                continue;
+            }
+
+            // ── Spell-section collection ──────────────────────────────────────
+            // The "Spells:" block sits between the stat bonuses and the
+            // Talents\Flaws label; it lists the spell lists a creature can use
+            // (e.g. "Fire Law [Own lvl, SCR: 69] (Magician Base, Essence)" or
+            // "25% will know 1 of the following spell lists ..."). It is dropped
+            // by the normal stat/prose branches, so collect it explicitly here.
+            if (collectingSpells)
+            {
+                if (IsTalentsLabel(line))
+                {
+                    collectingSpells = false;
+                    collectingTalents = true;
+                    talentNoiseHit    = false;
+                    continue;
+                }
+                // The "Talents\Flaws:" label is sometimes missing in the source.
+                // Talent entries always carry a "(NN DP)" cost marker, which spell
+                // entries never do, so a DP-marked line is the real start of talents.
+                if (DpCount.IsMatch(line))
+                {
+                    collectingSpells  = false;
+                    collectingTalents = true;
+                    talentNoiseHit    = false;
+                    talentSectionBuf.Append(line).Append(' ');
+                    continue;
+                }
+                if (!line.StartsWith("Spells:", StringComparison.OrdinalIgnoreCase))
+                    curSpellsBuf.Append(line).Append(' ');
+                continue;
+            }
+
+            // A creature's "Spells:" label starts spell collection. Guard on an
+            // active creature so the chapter-3 legend ("Spells: Here are noted…")
+            // is ignored.
+            if (!collectingTalents && !string.IsNullOrEmpty(curName)
+                && line.StartsWith("Spells:", StringComparison.OrdinalIgnoreCase))
+            {
+                collectingSpells = true;
+                var rest = line.Length > 7 ? line[7..].Trim() : "";
+                if (rest.Length > 0) curSpellsBuf.Append(rest).Append(' ');
                 continue;
             }
 
@@ -228,6 +298,7 @@ public sealed class CreatureService
                     if      (line.StartsWith("Archetype:")) curArchetype = line[10..].Trim();
                     else if (line.StartsWith("Size:"))       curSize      = line[5..].Trim();
                     else if (line.StartsWith("Armor:"))      curArmor     = line[6..].Trim();
+                    else if (line.StartsWith("Heal:"))       curHeal      = line[5..].Trim();
                     else if (line.StartsWith("Treasure:"))   curTreasure  = line[9..].Trim();
                     else if (line.StartsWith("Realm:"))      curRealm     = line[6..].Trim();
                     else if (line.StartsWith("Misc"))

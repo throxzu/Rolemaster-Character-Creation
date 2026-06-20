@@ -1,0 +1,17 @@
+{
+  "Trap": [
+    "Pit Trap", "Spring-Blade Door", "Crossbow Trap", "Poison Needle Lock",
+    "Falling Portcullis", "Collapsing Stair", "Tripwire Alarm", "Flooding Cellar",
+    "Gas Vent", "Caltrops", "Snare Net", "Rigged Chandelier"
+  ],
+  "Hidden Cache": [
+    "Loose Floorboard", "False-Bottomed Chest", "Hollow Bedpost", "Strongbox Behind a Brick",
+    "Coins in the Hearth Ash", "Pouch in the Rafters", "Buried Under the Cellar", "Sealed Wall Niche",
+    "Locked Strongbox", "Stash in the Privy", "Sewn into a Mattress", "Behind a Painting"
+  ],
+  "Secret Door": [
+    "Sliding Bookcase", "Pivoting Hearthstone", "False Wardrobe Back", "Trapdoor Under the Rug",
+    "Hidden Cellar Hatch", "Panel Behind the Tapestry", "Concealed Servant's Stair", "Loose Wall Panel",
+    "Priest Hole", "Disguised Storeroom Door", "Counterweight Wall", "Dumbwaiter Passage"
+  ]
+}

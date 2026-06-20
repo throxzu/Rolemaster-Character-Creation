@@ -1,0 +1,112 @@
+@page "/campaign/world-categories"
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = Roles.Gamemaster)]
+@using RolemasterCharacterCreation.Data
+@inject AppDbContext Db
+
+<PageTitle>World POI Types</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">World POI Types</h2>
+    <a class="btn btn-outline-secondary btn-sm" href="/campaign/world-maps">← World Maps</a>
+</div>
+
+<p class="text-muted">
+    These color types are shared across every world map. Rename, recolor, reorder or add
+    your own &mdash; changes apply everywhere a type is used.
+</p>
+
+@if (!string.IsNullOrEmpty(_message))
+{
+    <div class="alert @(_isError ? "alert-danger" : "alert-success") alert-dismissible">
+        @_message
+        <button type="button" class="btn-close" @onclick="() => _message = null"></button>
+    </div>
+}
+
+<table class="table align-middle">
+    <thead>
+        <tr>
+            <th style="width:90px">Color</th>
+            <th>Name</th>
+            <th style="width:110px">Order</th>
+            <th style="width:90px">In use</th>
+            <th style="width:110px"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var c in _categories.OrderBy(c => c.SortOrder).ThenBy(c => c.Name))
+        {
+            <tr>
+                <td><input type="color" class="form-control form-control-color" @bind="c.ColorHex" /></td>
+                <td><input class="form-control form-control-sm" @bind="c.Name" /></td>
+                <td><input type="number" class="form-control form-control-sm" @bind="c.SortOrder" /></td>
+                <td>@_usage.GetValueOrDefault(c.Id)</td>
+                <td class="text-end">
+                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteAsync(c)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="d-flex gap-2 mb-4">
+    <button class="btn btn-primary" @onclick="SaveAsync">Save changes</button>
+    <button class="btn btn-outline-success" @onclick="AddAsync">+ Add type</button>
+</div>
+
+@code {
+    private List<WorldCategory> _categories = [];
+    private Dictionary<int, int> _usage = [];
+    private string? _message;
+    private bool _isError;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _categories = await Db.WorldCategories.OrderBy(c => c.SortOrder).ThenBy(c => c.Name).ToListAsync();
+        _usage = await Db.WorldLocations
+            .GroupBy(l => l.WorldCategoryId)
+            .Select(g => new { g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.Key, x => x.Count);
+    }
+
+    private async Task SaveAsync()
+    {
+        foreach (var c in _categories)
+        {
+            c.Name = string.IsNullOrWhiteSpace(c.Name) ? "Unnamed" : c.Name.Trim();
+            if (string.IsNullOrWhiteSpace(c.ColorHex)) c.ColorHex = "#cccccc";
+        }
+        await Db.SaveChangesAsync();
+        SetMessage("Types saved.");
+    }
+
+    private async Task AddAsync()
+    {
+        var next = _categories.Count == 0 ? 0 : _categories.Max(c => c.SortOrder) + 1;
+        Db.WorldCategories.Add(new WorldCategory { Name = "New Type", ColorHex = "#cccccc", SortOrder = next });
+        await Db.SaveChangesAsync();
+        await LoadAsync();
+    }
+
+    private async Task DeleteAsync(WorldCategory c)
+    {
+        if (_usage.GetValueOrDefault(c.Id) > 0)
+        {
+            SetMessage($"Cannot delete \"{c.Name}\" — it is used by {_usage[c.Id]} POI(s). Reassign them first.", error: true);
+            return;
+        }
+        Db.WorldCategories.Remove(c);
+        await Db.SaveChangesAsync();
+        await LoadAsync();
+        SetMessage($"Deleted {c.Name}.");
+    }
+
+    private void SetMessage(string msg, bool error = false)
+    {
+        _message = msg;
+        _isError = error;
+    }
+}

@@ -1,0 +1,222 @@
+@page "/campaign/dungeons"
+@rendermode InteractiveServer
+@attribute [Authorize]
+@using System.Security.Claims
+@using RolemasterCharacterCreation.Data
+@inject AppDbContext Db
+@inject DungeonMapService Maps
+@inject AuthenticationStateProvider AuthState
+@inject NavigationManager Nav
+
+<PageTitle>Dungeons</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Dungeons</h2>
+</div>
+
+@if (!string.IsNullOrEmpty(_message))
+{
+    <div class="alert @(_isError ? "alert-danger" : "alert-success") alert-dismissible">
+        @_message
+        <button type="button" class="btn-close" @onclick="() => _message = null"></button>
+    </div>
+}
+
+@if (_isGm)
+{
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Upload a new dungeon</h5>
+            <p class="text-muted small mb-3">
+                Upload a <a href="https://watabou.itch.io/one-page-dungeon" target="_blank" rel="noopener">Watabou
+                One-Page Dungeon</a> export (<code>.json</code>). It will be drawn as an interactive map
+                you can color-code and reveal room by room.
+            </p>
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Dungeon name</label>
+                    <input class="form-control" @bind="_uploadName" placeholder="e.g. The Sunken Crypt" />
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label">Map file (.json)</label>
+                    <InputFile class="form-control" accept=".json,application/json" OnChange="OnFileSelected" />
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-success" disabled="@(!_canUpload)" @onclick="UploadAsync">
+                        Upload Dungeon
+                    </button>
+                </div>
+            </div>
+            @if (_pendingJson is not null)
+            {
+                <div class="small text-success mt-2">Map file loaded &mdash; ready to upload.</div>
+            }
+        </div>
+    </div>
+}
+
+@if (_dungeons.Count == 0)
+{
+    <p class="text-muted">No dungeons yet.@(_isGm ? " Upload one above." : " Ask your Gamemaster to add one.")</p>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var d in _dungeons)
+        {
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body d-flex flex-column">
+                        @if (_editId == d.Id)
+                        {
+                            <input class="form-control form-control-sm mb-2" @bind="_editName" placeholder="Dungeon name" />
+                            <textarea class="form-control form-control-sm mb-2" rows="2" @bind="_editDescription"
+                                      placeholder="Description (optional)"></textarea>
+                            <div class="mt-auto d-flex gap-2">
+                                <button class="btn btn-sm btn-primary" @onclick="() => SaveEditAsync(d)">Save</button>
+                                <button class="btn btn-sm btn-secondary" @onclick="() => _editId = null">Cancel</button>
+                            </div>
+                        }
+                        else
+                        {
+                            <h5 class="card-title mb-1">@d.Name</h5>
+                            <div class="text-muted small mb-2">
+                                @d.Locations.Count location@(d.Locations.Count == 1 ? "" : "s") marked
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(d.Description))
+                            {
+                                <p class="card-text small">@d.Description</p>
+                            }
+                            <div class="mt-auto d-flex justify-content-between align-items-center">
+                                <a class="btn btn-sm btn-primary" href="/campaign/dungeons/@d.Id">Open Map</a>
+                                @if (_isGm)
+                                {
+                                    @if (_deleteId == d.Id)
+                                    {
+                                        <span>
+                                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteAsync(d)">Delete?</button>
+                                            <button class="btn btn-sm btn-secondary" @onclick="() => _deleteId = null">No</button>
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="d-flex gap-1">
+                                            <button class="btn btn-sm btn-outline-secondary" @onclick="() => BeginEdit(d)">Rename</button>
+                                            <button class="btn btn-sm btn-outline-danger" @onclick="() => _deleteId = d.Id">Delete</button>
+                                        </span>
+                                    }
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private const long MaxBytes = 5 * 1024 * 1024;
+
+    private List<DungeonMap> _dungeons = [];
+    private bool _isGm;
+    private string? _currentUserId;
+    private string _uploadName = "";
+    private string? _pendingJson;
+    private int? _deleteId;
+    private int? _editId;
+    private string _editName = "";
+    private string _editDescription = "";
+    private string? _message;
+    private bool _isError;
+
+    private bool _canUpload => !string.IsNullOrWhiteSpace(_uploadName) && _pendingJson is not null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthState.GetAuthenticationStateAsync();
+        _currentUserId = auth.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        _isGm = auth.User.IsInRole(Roles.Gamemaster);
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _dungeons = await Db.DungeonMaps
+            .Include(d => d.Locations)
+            .OrderBy(d => d.Name)
+            .ToListAsync();
+    }
+
+    private async Task OnFileSelected(InputFileChangeEventArgs e)
+    {
+        _pendingJson = null;
+        _message = null;
+        try
+        {
+            using var reader = new StreamReader(e.File.OpenReadStream(MaxBytes));
+            var json = await reader.ReadToEndAsync();
+            if (!Maps.IsValid(json, out var error))
+            {
+                SetMessage(error ?? "Unrecognized map file.", error: true);
+                return;
+            }
+            _pendingJson = json;
+            if (string.IsNullOrWhiteSpace(_uploadName))
+                _uploadName = Path.GetFileNameWithoutExtension(e.File.Name);
+        }
+        catch (IOException)
+        {
+            SetMessage("That file is too large (max 5 MB).", error: true);
+        }
+    }
+
+    private async Task UploadAsync()
+    {
+        if (!_isGm || !_canUpload) return;
+
+        var dungeon = new DungeonMap
+        {
+            Name = _uploadName.Trim(),
+            RawJson = _pendingJson!,
+            CreatedByUserId = _currentUserId,
+        };
+        Db.DungeonMaps.Add(dungeon);
+        await Db.SaveChangesAsync();
+        Nav.NavigateTo($"/campaign/dungeons/{dungeon.Id}");
+    }
+
+    private void BeginEdit(DungeonMap dungeon)
+    {
+        _editId = dungeon.Id;
+        _editName = dungeon.Name;
+        _editDescription = dungeon.Description ?? "";
+        _deleteId = null;
+    }
+
+    private async Task SaveEditAsync(DungeonMap dungeon)
+    {
+        if (!_isGm || string.IsNullOrWhiteSpace(_editName)) return;
+        dungeon.Name = _editName.Trim();
+        dungeon.Description = string.IsNullOrWhiteSpace(_editDescription) ? null : _editDescription.Trim();
+        await Db.SaveChangesAsync();
+        _editId = null;
+        SetMessage($"Renamed to {dungeon.Name}.");
+    }
+
+    private async Task DeleteAsync(DungeonMap dungeon)
+    {
+        if (!_isGm) return;
+        Db.DungeonMaps.Remove(dungeon);
+        await Db.SaveChangesAsync();
+        _deleteId = null;
+        SetMessage($"Deleted {dungeon.Name}.");
+        await LoadAsync();
+    }
+
+    private void SetMessage(string msg, bool error = false)
+    {
+        _message = msg;
+        _isError = error;
+    }
+}

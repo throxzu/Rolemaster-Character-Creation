@@ -1,0 +1,493 @@
+@page "/campaign/towns/{Id:int}"
+@rendermode InteractiveServer
+@attribute [Authorize]
+@using System.Security.Claims
+@using RolemasterCharacterCreation.Data
+@inject AppDbContext Db
+@inject TownMapService Maps
+@inject AuthenticationStateProvider AuthState
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+
+<PageTitle>@(_town?.Name ?? "Town")</PageTitle>
+
+@if (_town is null)
+{
+    <p class="text-muted">Loading…</p>
+}
+else
+{
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="mb-0">@_town.Name</h2>
+            @if (!string.IsNullOrWhiteSpace(_town.Description))
+            {
+                <div class="text-muted small">@_town.Description</div>
+            }
+        </div>
+        <a class="btn btn-outline-secondary btn-sm" href="/campaign/towns">← All Towns</a>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-9">
+            <div class="town-map-frame" @ref="_frame">
+                <div class="town-zoom-controls" @onpointerdown:stopPropagation="true">
+                    <button class="btn btn-sm btn-light" title="Zoom in" @onclick="() => ZoomAsync(1.25)">+</button>
+                    <button class="btn btn-sm btn-light" title="Zoom out" @onclick="() => ZoomAsync(0.8)">−</button>
+                    <button class="btn btn-sm btn-light" title="Reset zoom" @onclick="ResetZoomAsync">⤢</button>
+                </div>
+                <svg viewBox="@_render!.ViewBox" class="town-map" preserveAspectRatio="xMidYMid meet">
+                    @foreach (var p in _render.Water)
+                    {
+                        <polygon points="@p.Points" class="town-water" />
+                    }
+                    @foreach (var p in _render.Earth)
+                    {
+                        <polygon points="@p.Points" class="town-earth" />
+                    }
+                    @foreach (var d in _render.Districts)
+                    {
+                        <polygon points="@d.Points" class="town-district" />
+                    }
+                    @foreach (var r in _render.Roads)
+                    {
+                        <polyline points="@r.Points" class="town-road" style="stroke-width:@Num(r.Width)" />
+                    }
+                    @foreach (var r in _render.Planks)
+                    {
+                        <polyline points="@r.Points" class="town-plank" style="stroke-width:@Num(r.Width)" />
+                    }
+                    @foreach (var w in _render.Walls)
+                    {
+                        <polygon points="@w.Points" class="town-wall" style="stroke-width:@Num(w.Width)" />
+                    }
+                    @foreach (var f in _render.Squares)
+                    {
+                        var mark = Mark("squares", f.Index);
+                        <polygon points="@f.Points" class="town-square @(mark is null ? null : "town-marked") @(mark?.LinkedBuildingId is not null ? "town-linked" : null)"
+                                 style="@FillStyle(mark)"
+                                 @onclick='e => OnFeatureClick("squares", f.Index, e)'
+                                 @ondblclick='() => OnFeatureDblClick("squares", f.Index)'
+                                 @oncontextmenu='e => OnFeatureContext("squares", f.Index, e)'
+                                 @oncontextmenu:preventDefault="true">
+                            @if (mark is not null) { <title>@TitleFor(mark)</title> }
+                        </polygon>
+                    }
+                    @foreach (var f in _render.Buildings)
+                    {
+                        var mark = Mark("buildings", f.Index);
+                        <polygon points="@f.Points" class="town-building @(mark is null ? null : "town-marked") @(mark?.LinkedBuildingId is not null ? "town-linked" : null)"
+                                 style="@FillStyle(mark)"
+                                 @onclick='e => OnFeatureClick("buildings", f.Index, e)'
+                                 @ondblclick='() => OnFeatureDblClick("buildings", f.Index)'
+                                 @oncontextmenu='e => OnFeatureContext("buildings", f.Index, e)'
+                                 @oncontextmenu:preventDefault="true">
+                            @if (mark is not null) { <title>@TitleFor(mark)</title> }
+                        </polygon>
+                    }
+                    @foreach (var f in _render.Prisms)
+                    {
+                        var mark = Mark("prisms", f.Index);
+                        <polygon points="@f.Points" class="town-prism @(mark is null ? null : "town-marked") @(mark?.LinkedBuildingId is not null ? "town-linked" : null)"
+                                 style="@FillStyle(mark)"
+                                 @onclick='e => OnFeatureClick("prisms", f.Index, e)'
+                                 @ondblclick='() => OnFeatureDblClick("prisms", f.Index)'
+                                 @oncontextmenu='e => OnFeatureContext("prisms", f.Index, e)'
+                                 @oncontextmenu:preventDefault="true">
+                            @if (mark is not null) { <title>@TitleFor(mark)</title> }
+                        </polygon>
+                    }
+                    @* District names drawn on top so they read over the buildings.
+                       Built via RenderFragment because <text> is a reserved Razor tag. *@
+                    @if (_showDistricts)
+                    {
+                        @DistrictLabels
+                    }
+                </svg>
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            @if (_isGm)
+            {
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h6 class="card-title">How to mark places</h6>
+                        <ul class="small text-muted mb-2 ps-3">
+                            <li><strong>Left-click</strong> a building → pick a type, then a name.</li>
+                            <li><strong>Right-click</strong> a building → edit its name &amp; notes.</li>
+                            <li><strong>Hover</strong> a marked building to see its details.</li>
+                        </ul>
+                        <a class="btn btn-link btn-sm px-0" href="/campaign/map-categories">Edit categories…</a>
+                    </div>
+                </div>
+            }
+
+            @if (_hasDistrictNames)
+            {
+                <div class="card mb-3">
+                    <div class="card-body py-2">
+                        <div class="form-check form-switch mb-0">
+                            <input class="form-check-input" type="checkbox" id="toggleDistricts" @bind="_showDistricts" />
+                            <label class="form-check-label small" for="toggleDistricts">Show district names</label>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">Legend</h6>
+                    @if (_categories.Count == 0)
+                    {
+                        <p class="small text-muted mb-0">No categories defined.</p>
+                    }
+                    else
+                    {
+                        <ul class="list-unstyled mb-0 small">
+                            @foreach (var c in _categories)
+                            {
+                                var count = _town.Locations.Count(l => l.MapCategoryId == c.Id);
+                                <li class="d-flex justify-content-between align-items-center py-1">
+                                    <span><span class="town-swatch" style="background:@c.ColorHex"></span> @c.Name</span>
+                                    @if (count > 0)
+                                    {
+                                        <span class="badge bg-secondary">@count</span>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@* ── Left-click: type → name popup ─────────────────────────────── *@
+@if (_menu is { } m)
+{
+    <div class="ctx-backdrop" @onclick="CloseMenus" @oncontextmenu="CloseMenus" @oncontextmenu:preventDefault="true"></div>
+    <div class="ctx-menu" style="left:@Px(m.X); top:@Px(m.Y)">
+        <div class="ctx-title">Mark @Singular(m.Kind)</div>
+        <div class="ctx-scroll">
+            @foreach (var c in _categories)
+            {
+                <div class="ctx-item">
+                    <span class="town-swatch" style="background:@c.ColorHex"></span>
+                    <span class="ctx-label">@c.Name</span>
+                    <span class="ctx-arrow">▸</span>
+                    <div class="ctx-sub">
+                        <div class="ctx-subitem ctx-muted" @onclick="() => AssignFromMenuAsync(c.Id, null)">
+                            — type only —
+                        </div>
+                        @foreach (var n in c.Names.OrderBy(n => n.Id))
+                        {
+                            <div class="ctx-subitem" @onclick="() => AssignFromMenuAsync(c.Id, n.Name)">@n.Name</div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+        @if (Mark(m.Kind, m.Index) is not null)
+        {
+            <div class="ctx-sep"></div>
+            <div class="ctx-item ctx-danger" @onclick="() => ClearAsync(m.Kind, m.Index)">✕ Remove marking</div>
+        }
+    </div>
+}
+
+@* ── Right-click: edit name & notes ────────────────────────────── *@
+@if (_editor is { } ed)
+{
+    <div class="ctx-backdrop" @onclick="CloseMenus" @oncontextmenu="CloseMenus" @oncontextmenu:preventDefault="true"></div>
+    <div class="ctx-editor" style="left:@Px(ed.X); top:@Px(ed.Y)">
+        <div class="ctx-title">Edit @Singular(ed.Kind)</div>
+        <label class="form-label small mb-1">Type</label>
+        <select class="form-select form-select-sm mb-2" @bind="_editCategoryId">
+            <option value="0">— none (unmark) —</option>
+            @foreach (var c in _categories)
+            {
+                <option value="@c.Id">@c.Name</option>
+            }
+        </select>
+        <label class="form-label small mb-1">Name</label>
+        <input class="form-control form-control-sm mb-2" @bind="_editName" placeholder="e.g. The Happy Goat" />
+        <label class="form-label small mb-1">
+            Additional information <span class="text-muted fw-normal">(players can see this)</span>
+        </label>
+        <textarea class="form-control form-control-sm mb-2" rows="2" @bind="_editNotes"
+                  placeholder="What players notice — signage, trade, atmosphere…"></textarea>
+        <label class="form-label small mb-1">
+            🔒 GM notes <span class="text-muted fw-normal">(only you)</span>
+        </label>
+        <textarea class="form-control form-control-sm mb-2 ctx-gmnotes" rows="3" @bind="_editGmNotes"
+                  placeholder="Secrets, owner's real allegiance, plot hooks…"></textarea>
+        <label class="form-label small mb-1">
+            🏠 Linked building map <span class="text-muted fw-normal">(double-click opens it)</span>
+        </label>
+        @if (_buildings.Count == 0)
+        {
+            <div class="small text-muted mb-2">No building maps uploaded yet.</div>
+        }
+        else
+        {
+            <select class="form-select form-select-sm mb-2" @bind="_editLinkedBuildingId">
+                <option value="0">— none —</option>
+                @foreach (var bd in _buildings)
+                {
+                    <option value="@bd.Id">@bd.Name</option>
+                }
+            </select>
+        }
+        <div class="d-flex justify-content-between">
+            <button class="btn btn-sm btn-secondary" @onclick="CloseMenus">Cancel</button>
+            <button class="btn btn-sm btn-primary" @onclick="SaveEditorAsync">Save</button>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private Town? _town;
+    private TownMapService.TownRender? _render;
+    private List<MapCategory> _categories = [];
+    private List<BuildingMap> _buildings = [];
+    private Dictionary<(string Kind, int Index), TownLocation> _marks = [];
+    private bool _isGm;
+    private bool _showDistricts = true;
+    private bool _hasDistrictNames;
+    private ElementReference _frame;
+    private bool _zoomAttached;
+
+    private sealed record Target(string Kind, int Index, double X, double Y);
+    private Target? _menu;
+    private Target? _editor;
+    private int _editCategoryId;
+    private string _editName = "";
+    private string _editNotes = "";
+    private string _editGmNotes = "";
+    private int _editLinkedBuildingId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthState.GetAuthenticationStateAsync();
+        _isGm = auth.User.IsInRole(Roles.Gamemaster);
+
+        _categories = await Db.MapCategories
+            .Include(c => c.Names)
+            .OrderBy(c => c.SortOrder).ThenBy(c => c.Name)
+            .ToListAsync();
+
+        // GM editor offers these as link targets; players never need the list.
+        if (_isGm)
+            _buildings = await Db.BuildingMaps.OrderBy(b => b.Name).ToListAsync();
+
+        _town = await Db.Towns
+            .Include(t => t.Locations)
+            .FirstOrDefaultAsync(t => t.Id == Id);
+
+        if (_town is not null)
+        {
+            _render = Maps.Build(_town.RawJson);
+            _hasDistrictNames = _render.Districts.Any(d => !string.IsNullOrWhiteSpace(d.Name));
+            RebuildMarks();
+        }
+    }
+
+    // Attach the JS pan/zoom controller once the map frame is in the DOM.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_town is not null && !_zoomAttached)
+        {
+            _zoomAttached = true;
+            await JS.InvokeVoidAsync("townMap.attach", _frame);
+        }
+
+        if (_editor is not null)
+            await JS.InvokeVoidAsync("clampPopup", ".ctx-editor");
+        else if (_menu is not null)
+            await JS.InvokeVoidAsync("clampPopup", ".ctx-menu");
+    }
+
+    private async Task ZoomAsync(double factor) =>
+        await JS.InvokeVoidAsync("townMap.zoom", _frame, factor);
+
+    private async Task ResetZoomAsync() =>
+        await JS.InvokeVoidAsync("townMap.reset", _frame);
+
+    private void RebuildMarks() =>
+        _marks = _town!.Locations.ToDictionary(l => (l.FeatureKind, l.FeatureIndex));
+
+    private TownLocation? Mark(string kind, int index) =>
+        _marks.TryGetValue((kind, index), out var loc) ? loc : null;
+
+    private const string DistrictLabelStyle =
+        "fill:rgba(45,33,18,0.6);font-family:Georgia,'Times New Roman',serif;font-weight:600;" +
+        "font-size:20px;letter-spacing:4px;text-anchor:middle;dominant-baseline:middle;" +
+        "paint-order:stroke;stroke:rgba(239,230,208,0.7);stroke-width:2px;pointer-events:none";
+
+    // District/sector name labels. Rendered via the builder because SVG <text> collides
+    // with Razor's reserved <text> tag; styled inline so no scoped-CSS attribute is needed.
+    private RenderFragment DistrictLabels => builder =>
+    {
+        if (_render is null) return;
+        var seq = 0;
+        foreach (var d in _render.Districts)
+        {
+            if (string.IsNullOrWhiteSpace(d.Name)) continue;
+            builder.OpenElement(seq++, "text");
+            builder.AddAttribute(seq++, "x", Num(d.Cx));
+            builder.AddAttribute(seq++, "y", Num(d.Cy));
+            builder.AddAttribute(seq++, "style", DistrictLabelStyle);
+            builder.AddContent(seq++, d.Name!.ToUpperInvariant());
+            builder.CloseElement();
+        }
+    };
+
+    private string? FillStyle(TownLocation? mark) =>
+        mark is null ? null : $"fill:{CategoryColor(mark.MapCategoryId)}";
+
+    // Builds the hover tooltip. GM notes are appended only for the GM, so they are never
+    // rendered into a player's DOM (this runs server-side under InteractiveServer).
+    private string TitleFor(TownLocation mark)
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.Append(string.IsNullOrWhiteSpace(mark.Label)
+            ? CategoryName(mark.MapCategoryId)
+            : $"{mark.Label} — {CategoryName(mark.MapCategoryId)}");
+
+        if (!string.IsNullOrWhiteSpace(mark.Notes))
+            sb.Append('\n').Append(mark.Notes);
+
+        if (mark.LinkedBuildingId is not null)
+            sb.Append("\n🏠 Double-click to open the building");
+
+        if (_isGm && !string.IsNullOrWhiteSpace(mark.GmNotes))
+            sb.Append("\n\n🔒 GM: ").Append(mark.GmNotes);
+
+        return sb.ToString();
+    }
+
+    // Left-click opens the type→name picker (GM only).
+    private void OnFeatureClick(string kind, int index, MouseEventArgs e)
+    {
+        if (!_isGm) return;
+        _editor = null;
+        _menu = new Target(kind, index, e.ClientX, e.ClientY);
+    }
+
+    // Double-click a building linked to a building map opens that floor plan (anyone).
+    private void OnFeatureDblClick(string kind, int index)
+    {
+        if (Mark(kind, index)?.LinkedBuildingId is int buildingId)
+            Nav.NavigateTo($"/campaign/buildings/{buildingId}");
+    }
+
+    // Right-click opens the name/notes editor pre-filled with current values (GM only).
+    private void OnFeatureContext(string kind, int index, MouseEventArgs e)
+    {
+        if (!_isGm) return;
+        _menu = null;
+        var mark = Mark(kind, index);
+        _editCategoryId = mark?.MapCategoryId ?? 0;
+        _editName = mark?.Label ?? "";
+        _editNotes = mark?.Notes ?? "";
+        _editGmNotes = mark?.GmNotes ?? "";
+        _editLinkedBuildingId = mark?.LinkedBuildingId ?? 0;
+        _editor = new Target(kind, index, e.ClientX, e.ClientY);
+    }
+
+    private void CloseMenus()
+    {
+        _menu = null;
+        _editor = null;
+    }
+
+    // Menu pick: set type (+ optional name), preserving any existing notes.
+    private async Task AssignFromMenuAsync(int categoryId, string? name)
+    {
+        if (_menu is not { } t) return;
+        var mark = GetOrCreate(t.Kind, t.Index, categoryId);
+        mark.MapCategoryId = categoryId;
+        mark.Label = string.IsNullOrWhiteSpace(name) ? null : name;
+        await SaveAsync();
+        _menu = null;
+    }
+
+    private async Task SaveEditorAsync()
+    {
+        if (_editor is not { } t) return;
+
+        if (_editCategoryId == 0)
+        {
+            await ClearAsync(t.Kind, t.Index);  // also closes menus
+            return;
+        }
+
+        var mark = GetOrCreate(t.Kind, t.Index, _editCategoryId);
+        mark.MapCategoryId = _editCategoryId;
+        mark.Label = string.IsNullOrWhiteSpace(_editName) ? null : _editName.Trim();
+        mark.Notes = string.IsNullOrWhiteSpace(_editNotes) ? null : _editNotes.Trim();
+        mark.GmNotes = string.IsNullOrWhiteSpace(_editGmNotes) ? null : _editGmNotes.Trim();
+        mark.LinkedBuildingId = _editLinkedBuildingId != 0 ? _editLinkedBuildingId : null;
+        await SaveAsync();
+        _editor = null;
+    }
+
+    private async Task ClearAsync(string kind, int index)
+    {
+        var existing = _town!.Locations.FirstOrDefault(l => l.FeatureKind == kind && l.FeatureIndex == index);
+        if (existing is not null)
+        {
+            Db.TownLocations.Remove(existing);
+            _town.Locations.Remove(existing);
+            await SaveAsync();
+        }
+        CloseMenus();
+    }
+
+    // Finds the existing mark or creates+tracks a new one for this feature.
+    private TownLocation GetOrCreate(string kind, int index, int categoryId)
+    {
+        var existing = _town!.Locations.FirstOrDefault(l => l.FeatureKind == kind && l.FeatureIndex == index);
+        if (existing is not null) return existing;
+
+        var created = new TownLocation
+        {
+            TownId = _town.Id,
+            FeatureKind = kind,
+            FeatureIndex = index,
+            MapCategoryId = categoryId,
+        };
+        _town.Locations.Add(created);
+        Db.TownLocations.Add(created);
+        return created;
+    }
+
+    private async Task SaveAsync()
+    {
+        if (!_isGm) return;
+        await Db.SaveChangesAsync();
+        RebuildMarks();
+    }
+
+    private string CategoryColor(int id) =>
+        _categories.FirstOrDefault(c => c.Id == id)?.ColorHex ?? "#999999";
+
+    private string CategoryName(int id) =>
+        _categories.FirstOrDefault(c => c.Id == id)?.Name ?? "—";
+
+    private static string Singular(string kind) => kind switch
+    {
+        "buildings" => "building",
+        "squares" => "square",
+        "prisms" => "tower",
+        _ => kind,
+    };
+
+    private static string Px(double v) => v.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) + "px";
+
+    private static string Num(double v) => v.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+}

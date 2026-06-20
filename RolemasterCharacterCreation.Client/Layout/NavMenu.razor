@@ -39,12 +39,27 @@
                                 <NavLink class="dropdown-item" href="gm/creatures">Creatures</NavLink>
                             </li>
                             <li>
+                                <NavLink class="dropdown-item" href="gm/tools">GM Tools</NavLink>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="chat" target="_blank" rel="noopener">Chat (window)</a>
+                            </li>
+                            <li>
                                 <hr class="dropdown-divider qp-divider" />
                             </li>
                             <li>
                                 <NavLink class="dropdown-item" href="gm/players">Players</NavLink>
                             </li>
+                            <li>
+                                <NavLink class="dropdown-item" href="gm/useful-links">Useful Links</NavLink>
+                            </li>
                         </ul>
+                    </li>
+                </AuthorizeView>
+
+                <AuthorizeView>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="chat">Chat</NavLink>
                     </li>
                 </AuthorizeView>
 
@@ -73,6 +88,63 @@
                             <li>
                                 <NavLink class="dropdown-item" href="reference-tables">Reference Tables</NavLink>
                             </li>
+                            <AuthorizeView Roles="Gamemaster" Context="gmTables">
+                                <li>
+                                    <NavLink class="dropdown-item" href="creature-tables">Creature Tables</NavLink>
+                                </li>
+                            </AuthorizeView>
+                        </ul>
+                    </li>
+                </AuthorizeView>
+
+                <AuthorizeView>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            Campaign
+                        </a>
+                        <ul class="dropdown-menu qp-dropdown">
+                            <li>
+                                <NavLink class="dropdown-item" href="campaign/world-maps">World Maps</NavLink>
+                            </li>
+                            <li>
+                                <NavLink class="dropdown-item" href="campaign/towns">Towns &amp; Cities</NavLink>
+                            </li>
+                            <li>
+                                <NavLink class="dropdown-item" href="campaign/villages">Villages</NavLink>
+                            </li>
+                            <li>
+                                <NavLink class="dropdown-item" href="campaign/dungeons">Dungeons</NavLink>
+                            </li>
+                            <li>
+                                <NavLink class="dropdown-item" href="campaign/caves">Caves</NavLink>
+                            </li>
+                            <li>
+                                <NavLink class="dropdown-item" href="campaign/buildings">Buildings</NavLink>
+                            </li>
+                            <AuthorizeView Roles="Gamemaster" Context="gm">
+                                <li>
+                                    <hr class="dropdown-divider qp-divider" />
+                                </li>
+                                <li>
+                                    <NavLink class="dropdown-item" href="campaign/world-categories">World POI Types</NavLink>
+                                </li>
+                                <li>
+                                    <NavLink class="dropdown-item" href="campaign/map-categories">Town Map Categories</NavLink>
+                                </li>
+                                <li>
+                                    <NavLink class="dropdown-item" href="campaign/village-categories">Village Categories</NavLink>
+                                </li>
+                                <li>
+                                    <NavLink class="dropdown-item" href="campaign/dungeon-categories">Dungeon Legend</NavLink>
+                                </li>
+                                <li>
+                                    <NavLink class="dropdown-item" href="campaign/cave-categories">Cave Legend</NavLink>
+                                </li>
+                                <li>
+                                    <NavLink class="dropdown-item" href="campaign/building-categories">Building Legend</NavLink>
+                                </li>
+                            </AuthorizeView>
                         </ul>
                     </li>
                 </AuthorizeView>

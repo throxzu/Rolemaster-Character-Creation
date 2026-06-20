@@ -1,0 +1,113 @@
+@page "/campaign/village-categories"
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = Roles.Gamemaster)]
+@using RolemasterCharacterCreation.Data
+@inject AppDbContext Db
+
+<PageTitle>Village Categories</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Village Categories</h2>
+    <a class="btn btn-outline-secondary btn-sm" href="/campaign/villages">← Villages</a>
+</div>
+
+<p class="text-muted">
+    These color categories are shared across every village map. Rename, recolor, reorder
+    or add your own &mdash; changes apply everywhere a category is used.
+</p>
+
+@if (!string.IsNullOrEmpty(_message))
+{
+    <div class="alert @(_isError ? "alert-danger" : "alert-success") alert-dismissible">
+        @_message
+        <button type="button" class="btn-close" @onclick="() => _message = null"></button>
+    </div>
+}
+
+<table class="table align-middle">
+    <thead>
+        <tr>
+            <th style="width:90px">Color</th>
+            <th>Name</th>
+            <th style="width:110px">Order</th>
+            <th style="width:90px">In use</th>
+            <th style="width:110px"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var c in _categories.OrderBy(c => c.SortOrder).ThenBy(c => c.Name))
+        {
+            <tr>
+                <td><input type="color" class="form-control form-control-color" @bind="c.ColorHex" /></td>
+                <td><input class="form-control form-control-sm" @bind="c.Name" /></td>
+                <td><input type="number" class="form-control form-control-sm" @bind="c.SortOrder" /></td>
+                <td>@_usage.GetValueOrDefault(c.Id)</td>
+                <td class="text-end">
+                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteAsync(c)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="d-flex gap-2 mb-4">
+    <button class="btn btn-primary" @onclick="SaveAsync">Save changes</button>
+    <button class="btn btn-outline-success" @onclick="AddAsync">+ Add category</button>
+</div>
+
+@code {
+    private List<VillageCategory> _categories = [];
+    private Dictionary<int, int> _usage = [];
+    private string? _message;
+    private bool _isError;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _categories = await Db.VillageCategories.OrderBy(c => c.SortOrder).ThenBy(c => c.Name).ToListAsync();
+        _usage = await Db.VillageLocations
+            .GroupBy(l => l.VillageCategoryId)
+            .Select(g => new { g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.Key, x => x.Count);
+    }
+
+    private async Task SaveAsync()
+    {
+        foreach (var c in _categories)
+        {
+            c.Name = string.IsNullOrWhiteSpace(c.Name) ? "Unnamed" : c.Name.Trim();
+            if (string.IsNullOrWhiteSpace(c.ColorHex)) c.ColorHex = "#cccccc";
+        }
+        await Db.SaveChangesAsync();
+        SetMessage("Categories saved.");
+    }
+
+    private async Task AddAsync()
+    {
+        var next = _categories.Count == 0 ? 0 : _categories.Max(c => c.SortOrder) + 1;
+        var cat = new VillageCategory { Name = "New Category", ColorHex = "#cccccc", SortOrder = next };
+        Db.VillageCategories.Add(cat);
+        await Db.SaveChangesAsync();
+        await LoadAsync();
+    }
+
+    private async Task DeleteAsync(VillageCategory c)
+    {
+        if (_usage.GetValueOrDefault(c.Id) > 0)
+        {
+            SetMessage($"Cannot delete \"{c.Name}\" — it is used by {_usage[c.Id]} location(s). Reassign them first.", error: true);
+            return;
+        }
+        Db.VillageCategories.Remove(c);
+        await Db.SaveChangesAsync();
+        await LoadAsync();
+        SetMessage($"Deleted {c.Name}.");
+    }
+
+    private void SetMessage(string msg, bool error = false)
+    {
+        _message = msg;
+        _isError = error;
+    }
+}

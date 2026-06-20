@@ -1,0 +1,17 @@
+{
+  "Trap": [
+    "Pit Trap", "Loose Scree Slide", "Deadfall Boulder", "Snare Vine",
+    "Collapsing Floor", "Flooded Sump", "Gas Pocket", "Spiked Crevasse",
+    "Tripwire Rockfall", "Slick Ledge", "Hidden Sinkhole", "Falling Stalactites"
+  ],
+  "Hidden Cache": [
+    "Loose-Rock Nook", "Sunken Waterproof Bundle", "Buried Strongbox", "Hollow Stalagmite",
+    "Crevice Stash", "Submerged Chest", "Pouch in a Cranny", "Sealed Clay Jar",
+    "Stash Beneath the Guano", "Wedged Lockbox", "Miner's Forgotten Pack", "Behind the Flowstone"
+  ],
+  "Secret Passage": [
+    "Crack Behind a Boulder", "Submerged Tunnel", "Narrow Squeeze", "False Cave Wall",
+    "Chimney Shaft", "Hidden Crawlway", "Curtain of Stalactites", "Drowned Passage",
+    "Concealed Fissure", "Loose Rubble Plug", "Behind the Waterfall", "Collapsed Dead End"
+  ]
+}

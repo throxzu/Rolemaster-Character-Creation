@@ -1,3 +1,4 @@
+using Anthropic;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -30,16 +31,44 @@ builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<AuthenticationStateProvider, PersistingAuthenticationStateProvider>();
 
-// Rules assistant (Ollama RAG)
-builder.Services.Configure<OllamaOptions>(builder.Configuration.GetSection(OllamaOptions.SectionName));
+// Rules assistant (Claude answers + Voyage embeddings RAG).
+// API keys come from ANTHROPIC_API_KEY / VOYAGE_API_KEY (env vars or user-secrets), never config files.
+builder.Services.Configure<RulesAssistantOptions>(builder.Configuration.GetSection(RulesAssistantOptions.SectionName));
+builder.Services.AddHttpClient<IEmbeddingClient, VoyageEmbeddingClient>();
+builder.Services.AddSingleton(_ =>
+{
+    var key = builder.Configuration["ANTHROPIC_API_KEY"];
+    return string.IsNullOrWhiteSpace(key) ? new AnthropicClient() : new AnthropicClient { ApiKey = key };
+});
 builder.Services.AddSingleton<RulesIndexService>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<RulesIndexService>());
+
+// Real-time chat broker (in-memory pub/sub + presence; persistence is done by pages)
+builder.Services.AddSingleton<ChatService>();
 
 // Creature lookup
 builder.Services.AddSingleton<CreatureService>();
 
 // Misc reference tables (static, loaded from docs/game-data/reference-tables.json)
 builder.Services.AddSingleton<ReferenceTableService>();
+
+// Creature overview stat tables (static, GM-only, loaded from docs/game-data/creature-tables.json)
+builder.Services.AddSingleton<CreatureTableService>();
+
+// Campaign town map geometry parser (stateless)
+builder.Services.AddSingleton<TownMapService>();
+
+// Campaign world (hex region) map parser (stateless)
+builder.Services.AddSingleton<WorldMapService>();
+
+// Campaign dungeon (One-Page Dungeon grid) map parser (stateless)
+builder.Services.AddSingleton<DungeonMapService>();
+
+// Campaign cave (uploaded SVG + grid overlay) map preparer (stateless)
+builder.Services.AddSingleton<CaveMapService>();
+
+// Campaign building (uploaded multi-floor SVG + per-floor grid) map preparer (stateless)
+builder.Services.AddSingleton<BuildingMapService>();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -80,6 +109,17 @@ await SeedCriticalTablesAsync(app.Services);
 await SeedFumbleTablesAsync(app.Services);
 await SeedSpellFailureTablesAsync(app.Services);
 await SeedSpellListsAsync(app.Services);
+await SeedMapCategoriesAsync(app.Services);
+await SeedMapCategoryNamesAsync(app.Services);
+await SeedVillageCategoriesAsync(app.Services);
+await SeedVillageCategoryNamesAsync(app.Services);
+await SeedDungeonCategoriesAsync(app.Services);
+await SeedDungeonCategoryNamesAsync(app.Services);
+await SeedCaveCategoriesAsync(app.Services);
+await SeedCaveCategoryNamesAsync(app.Services);
+await SeedBuildingCategoriesAsync(app.Services);
+await SeedBuildingCategoryNamesAsync(app.Services);
+await SeedWorldCategoriesAsync(app.Services);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -528,6 +568,462 @@ static async Task SeedSpellListsAsync(IServiceProvider services)
     foreach (var l in existing)
         if (!seen.Contains((l.Category, l.Name)))
             db.SpellLists.Remove(l);
+
+    await db.SaveChangesAsync();
+}
+
+// Seeds the default fantasy map-category palette used to color-code town locations.
+// Inserts the full set when empty; on existing installs, refreshes a built-in
+// category's color only when it still holds its previous default (so a GM's custom
+// color is never overwritten). The palette is chosen for strong visual separation.
+static async Task SeedMapCategoriesAsync(IServiceProvider services)
+{
+    await using var scope = services.CreateAsyncScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    // (Name, new color, previous default color to migrate from)
+    var defaults = new (string Name, string Color, string OldColor)[]
+    {
+        ("Tavern / Inn",            "#E67E22", "#E8B923"),
+        ("Shop / Trader",           "#27AE60", "#3FA34D"),
+        ("Blacksmith / Forge",      "#C0392B", "#D35400"),
+        ("Temple / Shrine",         "#3498DB", "#6FB1FC"),
+        ("Guild Hall",              "#8E44AD", "#8E44AD"),
+        ("Apothecary / Alchemist",  "#1ABC9C", "#16A085"),
+        ("Barracks / Watch",        "#2C3E50", "#5D6D7E"),
+        ("Noble Manor",             "#F1C40F", "#C9A227"),
+        ("Bank / Moneylender",      "#7F8C8D", "#F1C40F"),
+        ("Mage Tower / Library",    "#00BCD4", "#2980B9"),
+        ("Stables",                 "#8B5A2B", "#8B5A2B"),
+        ("Brothel",                 "#E84393", "#E84393"),
+    };
+
+    var existing = await db.MapCategories.ToListAsync();
+
+    if (existing.Count == 0)
+    {
+        for (int i = 0; i < defaults.Length; i++)
+        {
+            db.MapCategories.Add(new MapCategory
+            {
+                Name = defaults[i].Name,
+                ColorHex = defaults[i].Color,
+                SortOrder = i,
+                IsBuiltIn = true,
+            });
+        }
+        await db.SaveChangesAsync();
+        return;
+    }
+
+    var changed = false;
+    foreach (var d in defaults)
+    {
+        var cat = existing.FirstOrDefault(c =>
+            c.IsBuiltIn && string.Equals(c.Name, d.Name, StringComparison.OrdinalIgnoreCase));
+        if (cat is not null &&
+            string.Equals(cat.ColorHex, d.OldColor, StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(cat.ColorHex, d.Color, StringComparison.OrdinalIgnoreCase))
+        {
+            cat.ColorHex = d.Color;
+            changed = true;
+        }
+    }
+
+    if (changed) await db.SaveChangesAsync();
+}
+
+// Seeds the preset place-name lists for each built-in category from the curated JSON.
+// Idempotent: only populates a category that currently has no names, matched by name,
+// so GM renames and re-runs never duplicate or clobber.
+static async Task SeedMapCategoryNamesAsync(IServiceProvider services)
+{
+    var env = services.GetRequiredService<IWebHostEnvironment>();
+    var path = Path.GetFullPath(Path.Combine(
+        env.ContentRootPath, "../docs/game-data/map-category-names.json"));
+    if (!File.Exists(path)) return;
+
+    var byCategory = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, List<string>>>(
+        await File.ReadAllTextAsync(path)) ?? [];
+    if (byCategory.Count == 0) return;
+
+    await using var scope = services.CreateAsyncScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    var categories = await db.MapCategories.Include(c => c.Names).ToListAsync();
+    var changed = false;
+
+    foreach (var (catName, names) in byCategory)
+    {
+        var category = categories.FirstOrDefault(c =>
+            string.Equals(c.Name, catName, StringComparison.OrdinalIgnoreCase));
+        if (category is null || category.Names.Count > 0) continue;
+
+        foreach (var name in names.Where(n => !string.IsNullOrWhiteSpace(n)))
+        {
+            category.Names.Add(new MapCategoryName { Name = name.Trim() });
+            changed = true;
+        }
+    }
+
+    if (changed) await db.SaveChangesAsync();
+}
+
+// Seeds the default village legend palette (Tavern, General Store, Mill, …). Inserts
+// the full set only when the table is empty so GM edits/additions are never overwritten.
+// Kept separate from the town palette so villages have their own rural legend.
+static async Task SeedVillageCategoriesAsync(IServiceProvider services)
+{
+    await using var scope = services.CreateAsyncScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    if (await db.VillageCategories.AnyAsync()) return;
+
+    var defaults = new (string Name, string Color)[]
+    {
+        ("Tavern / Inn",            "#E67E22"),
+        ("General Store",           "#27AE60"),
+        ("Blacksmith / Smithy",     "#C0392B"),
+        ("Mill",                    "#8B5A2B"),
+        ("Temple / Shrine",         "#3498DB"),
+        ("Village Elder / Headman", "#8E44AD"),
+        ("Farmstead",               "#7CB342"),
+        ("Stable / Barn",           "#A0522D"),
+        ("Healer / Herbalist",      "#1ABC9C"),
+        ("Market Square",           "#F1C40F"),
+        ("Well / Village Green",    "#00BCD4"),
+        ("Militia / Watch Post",    "#2C3E50"),
+    };
+
+    for (int i = 0; i < defaults.Length; i++)
+    {
+        db.VillageCategories.Add(new VillageCategory
+        {
+            Name = defaults[i].Name,
+            ColorHex = defaults[i].Color,
+            SortOrder = i,
+            IsBuiltIn = true,
+        });
+    }
+
+    await db.SaveChangesAsync();
+}
+
+// Seeds the preset place-name lists for each built-in village category from the curated
+// JSON. Idempotent: only populates a category that currently has no names, matched by
+// name, so GM renames and re-runs never duplicate or clobber.
+static async Task SeedVillageCategoryNamesAsync(IServiceProvider services)
+{
+    var env = services.GetRequiredService<IWebHostEnvironment>();
+    var path = Path.GetFullPath(Path.Combine(
+        env.ContentRootPath, "../docs/game-data/village-category-names.json"));
+    if (!File.Exists(path)) return;
+
+    var byCategory = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, List<string>>>(
+        await File.ReadAllTextAsync(path)) ?? [];
+    if (byCategory.Count == 0) return;
+
+    await using var scope = services.CreateAsyncScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    var categories = await db.VillageCategories.Include(c => c.Names).ToListAsync();
+    var changed = false;
+
+    foreach (var (catName, names) in byCategory)
+    {
+        var category = categories.FirstOrDefault(c =>
+            string.Equals(c.Name, catName, StringComparison.OrdinalIgnoreCase));
+        if (category is null || category.Names.Count > 0) continue;
+
+        foreach (var name in names.Where(n => !string.IsNullOrWhiteSpace(n)))
+        {
+            category.Names.Add(new VillageCategoryName { Name = name.Trim() });
+            changed = true;
+        }
+    }
+
+    if (changed) await db.SaveChangesAsync();
+}
+
+// Seeds the default dungeon legend (Monster Lair, Trap, Secret Door, …). Inserts the
+// full set only when the table is empty so GM edits/additions are never overwritten.
+// Some legends are "hidden" — their markings are shown to the GM only.
+static async Task SeedDungeonCategoriesAsync(IServiceProvider services)
+{
+    await using var scope = services.CreateAsyncScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    if (await db.DungeonCategories.AnyAsync()) return;
+
+    // (Name, color, hidden-from-players)
+    var defaults = new (string Name, string Color, bool Hidden)[]
+    {
+        ("Monster Lair",          "#C0392B", false),
+        ("Boss Chamber",          "#7B241C", false),
+        ("Treasure Vault",        "#F1C40F", false),
+        ("Altar / Shrine",        "#8E44AD", false),
+        ("Prison / Cells",        "#5D6D7E", false),
+        ("Tomb / Crypt",          "#6E4B3A", false),
+        ("Armory",                "#2C3E50", false),
+        ("Library / Study",       "#2980B9", false),
+        ("Alchemy Lab",           "#1ABC9C", false),
+        ("Fountain / Pool",       "#00BCD4", false),
+        ("Statue / Monument",     "#95A5A6", false),
+        ("Throne Room",           "#D4AC0D", false),
+        ("Trap",                  "#E74C3C", true),
+        ("Secret Door / Passage", "#9B59B6", true),
+        ("Hidden Cache",          "#E67E22", true),
+        ("Ambush",                "#34495E", true),
+    };
+
+    for (int i = 0; i < defaults.Length; i++)
+    {
+        db.DungeonCategories.Add(new DungeonCategory
+        {
+            Name = defaults[i].Name,
+            ColorHex = defaults[i].Color,
+            SortOrder = i,
+            IsBuiltIn = true,
+            IsHidden = defaults[i].Hidden,
+        });
+    }
+
+    await db.SaveChangesAsync();
+}
+
+// Seeds the preset name lists for each built-in dungeon legend from the curated JSON.
+// Idempotent: only populates a category that currently has no names, matched by name.
+static async Task SeedDungeonCategoryNamesAsync(IServiceProvider services)
+{
+    var env = services.GetRequiredService<IWebHostEnvironment>();
+    var path = Path.GetFullPath(Path.Combine(
+        env.ContentRootPath, "../docs/game-data/dungeon-category-names.json"));
+    if (!File.Exists(path)) return;
+
+    var byCategory = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, List<string>>>(
+        await File.ReadAllTextAsync(path)) ?? [];
+    if (byCategory.Count == 0) return;
+
+    await using var scope = services.CreateAsyncScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    var categories = await db.DungeonCategories.Include(c => c.Names).ToListAsync();
+    var changed = false;
+
+    foreach (var (catName, names) in byCategory)
+    {
+        var category = categories.FirstOrDefault(c =>
+            string.Equals(c.Name, catName, StringComparison.OrdinalIgnoreCase));
+        if (category is null || category.Names.Count > 0) continue;
+
+        foreach (var name in names.Where(n => !string.IsNullOrWhiteSpace(n)))
+        {
+            category.Names.Add(new DungeonCategoryName { Name = name.Trim() });
+            changed = true;
+        }
+    }
+
+    if (changed) await db.SaveChangesAsync();
+}
+
+// Seeds the default cave legend (Underground Lake, Crystal Vein, Beast Den, …). Inserts
+// the full set only when the table is empty so GM edits/additions are never overwritten.
+// Some legends are "hidden" — their markings are shown to the GM only.
+static async Task SeedCaveCategoriesAsync(IServiceProvider services)
+{
+    await using var scope = services.CreateAsyncScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    if (await db.CaveCategories.AnyAsync()) return;
+
+    // (Name, color, hidden-from-players)
+    var defaults = new (string Name, string Color, bool Hidden)[]
+    {
+        ("Underground Lake",      "#2980B9", false),
+        ("Underground Stream",    "#00BCD4", false),
+        ("Crystal Vein",          "#9B59B6", false),
+        ("Mineral Deposit",       "#D4AC0D", false),
+        ("Fungal Grove",          "#1ABC9C", false),
+        ("Stalagmite Hall",       "#95A5A6", false),
+        ("Bat Roost",             "#5D6D7E", false),
+        ("Beast Den",             "#C0392B", false),
+        ("Bottomless Chasm",      "#34495E", false),
+        ("Cave-In / Rubble",      "#7F8C8D", false),
+        ("Old Campsite",          "#27AE60", false),
+        ("Cave Painting / Shrine","#8E44AD", false),
+        ("Trap",                  "#E74C3C", true),
+        ("Hidden Cache",          "#E67E22", true),
+        ("Secret Passage",        "#6E4B3A", true),
+        ("Ambush",                "#2C3E50", true),
+    };
+
+    for (int i = 0; i < defaults.Length; i++)
+    {
+        db.CaveCategories.Add(new CaveCategory
+        {
+            Name = defaults[i].Name,
+            ColorHex = defaults[i].Color,
+            SortOrder = i,
+            IsBuiltIn = true,
+            IsHidden = defaults[i].Hidden,
+        });
+    }
+
+    await db.SaveChangesAsync();
+}
+
+// Seeds the preset name lists for the hidden cave legends from the curated JSON.
+// Idempotent: only populates a category that currently has no names, matched by name.
+static async Task SeedCaveCategoryNamesAsync(IServiceProvider services)
+{
+    var env = services.GetRequiredService<IWebHostEnvironment>();
+    var path = Path.GetFullPath(Path.Combine(
+        env.ContentRootPath, "../docs/game-data/cave-category-names.json"));
+    if (!File.Exists(path)) return;
+
+    var byCategory = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, List<string>>>(
+        await File.ReadAllTextAsync(path)) ?? [];
+    if (byCategory.Count == 0) return;
+
+    await using var scope = services.CreateAsyncScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    var categories = await db.CaveCategories.Include(c => c.Names).ToListAsync();
+    var changed = false;
+
+    foreach (var (catName, names) in byCategory)
+    {
+        var category = categories.FirstOrDefault(c =>
+            string.Equals(c.Name, catName, StringComparison.OrdinalIgnoreCase));
+        if (category is null || category.Names.Count > 0) continue;
+
+        foreach (var name in names.Where(n => !string.IsNullOrWhiteSpace(n)))
+        {
+            category.Names.Add(new CaveCategoryName { Name = name.Trim() });
+            changed = true;
+        }
+    }
+
+    if (changed) await db.SaveChangesAsync();
+}
+
+// Seeds the default building legend (Bedroom, Kitchen, Cellar, …). Inserts the full set
+// only when the table is empty so GM edits/additions are never overwritten. Some legends
+// are "hidden" — their markings are shown to the GM only.
+static async Task SeedBuildingCategoriesAsync(IServiceProvider services)
+{
+    await using var scope = services.CreateAsyncScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    if (await db.BuildingCategories.AnyAsync()) return;
+
+    // (Name, color, hidden-from-players)
+    var defaults = new (string Name, string Color, bool Hidden)[]
+    {
+        ("Bedroom",            "#2980B9", false),
+        ("Kitchen",            "#E67E22", false),
+        ("Hearth / Fireplace", "#C0392B", false),
+        ("Dining Hall",        "#D4AC0D", false),
+        ("Study / Library",    "#8E44AD", false),
+        ("Storage / Pantry",   "#7F8C8D", false),
+        ("Cellar",             "#34495E", false),
+        ("Workshop",           "#16A085", false),
+        ("Shrine / Altar",     "#1ABC9C", false),
+        ("Privy",              "#95A5A6", false),
+        ("Stairs",             "#5D6D7E", false),
+        ("Well",               "#00BCD4", false),
+        ("Trap",               "#E74C3C", true),
+        ("Hidden Cache",       "#E67E22", true),
+        ("Secret Door",        "#6E4B3A", true),
+        ("Ambush",             "#2C3E50", true),
+    };
+
+    for (int i = 0; i < defaults.Length; i++)
+    {
+        db.BuildingCategories.Add(new BuildingCategory
+        {
+            Name = defaults[i].Name,
+            ColorHex = defaults[i].Color,
+            SortOrder = i,
+            IsBuiltIn = true,
+            IsHidden = defaults[i].Hidden,
+        });
+    }
+
+    await db.SaveChangesAsync();
+}
+
+// Seeds the preset name lists for the hidden building legends from the curated JSON.
+// Idempotent: only populates a category that currently has no names, matched by name.
+static async Task SeedBuildingCategoryNamesAsync(IServiceProvider services)
+{
+    var env = services.GetRequiredService<IWebHostEnvironment>();
+    var path = Path.GetFullPath(Path.Combine(
+        env.ContentRootPath, "../docs/game-data/building-category-names.json"));
+    if (!File.Exists(path)) return;
+
+    var byCategory = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, List<string>>>(
+        await File.ReadAllTextAsync(path)) ?? [];
+    if (byCategory.Count == 0) return;
+
+    await using var scope = services.CreateAsyncScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    var categories = await db.BuildingCategories.Include(c => c.Names).ToListAsync();
+    var changed = false;
+
+    foreach (var (catName, names) in byCategory)
+    {
+        var category = categories.FirstOrDefault(c =>
+            string.Equals(c.Name, catName, StringComparison.OrdinalIgnoreCase));
+        if (category is null || category.Names.Count > 0) continue;
+
+        foreach (var name in names.Where(n => !string.IsNullOrWhiteSpace(n)))
+        {
+            category.Names.Add(new BuildingCategoryName { Name = name.Trim() });
+            changed = true;
+        }
+    }
+
+    if (changed) await db.SaveChangesAsync();
+}
+
+// Seeds the default world-map POI palette (City, Town, Dungeon, …). Inserts only when
+// the table is empty so GM edits/additions are never overwritten.
+static async Task SeedWorldCategoriesAsync(IServiceProvider services)
+{
+    await using var scope = services.CreateAsyncScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    if (await db.WorldCategories.AnyAsync()) return;
+
+    var defaults = new (string Name, string Color)[]
+    {
+        ("City",         "#C0392B"),
+        ("Town",         "#E67E22"),
+        ("Village",      "#F1C40F"),
+        ("Castle / Keep","#8E44AD"),
+        ("Dungeon",      "#2C3E50"),
+        ("Ruins",        "#7F8C8D"),
+        ("Temple",       "#3498DB"),
+        ("Cave",         "#6E4B3A"),
+        ("Building",     "#A0522D"),
+        ("Camp",         "#27AE60"),
+        ("Landmark",     "#16A085"),
+        ("Port",         "#00BCD4"),
+        ("Mine",         "#D4AC0D"),
+    };
+
+    for (int i = 0; i < defaults.Length; i++)
+    {
+        db.WorldCategories.Add(new WorldCategory
+        {
+            Name = defaults[i].Name,
+            ColorHex = defaults[i].Color,
+            SortOrder = i,
+            IsBuiltIn = true,
+        });
+    }
 
     await db.SaveChangesAsync();
 }

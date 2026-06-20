@@ -1,0 +1,939 @@
+@page "/campaign/buildings/{Id:int}"
+@rendermode InteractiveServer
+@attribute [Authorize]
+@using RolemasterCharacterCreation.Data
+@inject AppDbContext Db
+@inject BuildingMapService Maps
+@inject AuthenticationStateProvider AuthState
+@inject IJSRuntime JS
+@implements IDisposable
+
+<PageTitle>@(_building?.Name ?? "Building")</PageTitle>
+
+@if (_building is null)
+{
+    <p class="text-muted">Loading…</p>
+}
+else
+{
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="mb-0">@_building.Name</h2>
+            @if (!string.IsNullOrWhiteSpace(_building.Description))
+            {
+                <div class="text-muted small">@_building.Description</div>
+            }
+        </div>
+        <a class="btn btn-outline-secondary btn-sm" href="/campaign/buildings">← All Buildings</a>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-9">
+            @* Floor selector — show one floor at a time. *@
+            <div class="btn-group btn-group-sm mb-2 bld-floors" role="group">
+                @foreach (var f in _render!.Floors)
+                {
+                    <button class="btn @(f.Index == _activeFloor ? "btn-dark" : "btn-outline-dark")"
+                            @onclick="() => SwitchFloorAsync(f.Index)">@f.Name</button>
+                }
+            </div>
+
+            <div class="bld-frame" @ref="_frame">
+                <div class="town-zoom-controls" @onpointerdown:stopPropagation="true">
+                    <button class="btn btn-sm btn-light" title="Zoom in" @onclick="() => ZoomAsync(1.25)">+</button>
+                    <button class="btn btn-sm btn-light" title="Zoom out" @onclick="() => ZoomAsync(0.8)">−</button>
+                    <button class="btn btn-sm btn-light" title="Reset zoom" @onclick="ResetZoomAsync">⤢</button>
+                </div>
+                <svg viewBox="@_active.ViewBox" class="bld-map" preserveAspectRatio="xMidYMid meet">
+                    <defs>
+                        <pattern id="bld-grid" width="@Num(CELL)" height="@Num(CELL)" patternUnits="userSpaceOnUse"
+                                 patternTransform="translate(@Num(OX) 0)">
+                            <path d="M @Num(CELL) 0 L 0 0 0 @Num(CELL)" fill="none"
+                                  stroke="rgba(255,255,255,0.16)" stroke-width="@Num(CELL * 0.02)"
+                                  stroke-dasharray="@Num(CELL * 0.12) @Num(CELL * 0.12)" />
+                        </pattern>
+                        <mask id="bld-fog">
+                            <rect x="@Num(OX)" y="0" width="@Num(_active.FloorWidth)" height="@Num(H)" fill="white" />
+                            @foreach (var rv in _revealed.Where(r => r.F == _activeFloor))
+                            {
+                                <rect x="@Num(OX + rv.X * CELL)" y="@Num(rv.Y * CELL)" width="@Num(CELL)" height="@Num(CELL)" fill="black" />
+                            }
+                        </mask>
+                    </defs>
+
+                    @* The uploaded building SVG, shown exactly as drawn (never intercepts clicks).
+                       The floor's viewBox crops the full strip down to this one floor. *@
+                    <g class="bld-embed" pointer-events="none">@((MarkupString)_render.Svg)</g>
+
+                    @* Faint placement grid — GM only. *@
+                    @if (_isGm)
+                    {
+                        <rect x="@Num(OX)" y="0" width="@Num(_active.FloorWidth)" height="@Num(H)" fill="url(#bld-grid)" class="bld-decor" />
+                    }
+
+                    @* Legend markers — a small coloured circle on a square. *@
+                    @foreach (var loc in FloorLocations)
+                    {
+                        @if (MarkVisibleToViewer(loc))
+                        {
+                            <circle cx="@Num(OX + (loc.CellX + 0.5) * CELL)" cy="@Num((loc.CellY + 0.5) * CELL)"
+                                    r="@Num(CELL * 0.24)" class="bld-marker" style="@MarkerStyle(loc)">
+                                <title>@TitleFor(loc)</title>
+                            </circle>
+                        }
+                    }
+
+                    @* Clickable squares (GM, Edit mode): left-click to add a legend, right-click to edit. *@
+                    @if (_isGm && !_fogMode)
+                    {
+                        @foreach (var cell in _active.Cells())
+                        {
+                            var cm = Mark(cell.X, cell.Y);
+                            <rect x="@Num(OX + cell.X * CELL)" y="@Num(cell.Y * CELL)" width="@Num(CELL)" height="@Num(CELL)" class="bld-cell"
+                                  @onclick="e => OnCellClick(cell.X, cell.Y, e)"
+                                  @oncontextmenu="e => OnCellContext(cell.X, cell.Y, e)" @oncontextmenu:preventDefault="true">
+                                @if (cm is not null) { <title>@TitleFor(cm)</title> }
+                            </rect>
+                        }
+                    }
+
+                    @* Keyed notes — GM sees a numbered circle; players see only a star. *@
+                    @if (_showNotes)
+                    {
+                        @foreach (var n in FloorNotes)
+                        {
+                            @if (NoteVisible(n))
+                            {
+                                <circle cx="@Num(OX + n.X * CELL)" cy="@Num(n.Y * CELL)" r="@Num(CELL * 0.27)"
+                                        class="bld-note-marker @(_isGm && n.VisibleToPlayers ? "bld-note-shown" : null) @(_isGm ? "bld-note-hot" : null)"
+                                        style="stroke-width:@Num(CELL * 0.04)"
+                                        @onmouseover="e => ShowNoteTip(n.Id, e)" @onmouseout="HideNoteTip" />
+                            }
+                        }
+                        @NoteGlyphs
+                    }
+
+                    @* Fog overlay: opaque for players, faint for the GM. *@
+                    @if (!_isGm || _showFog)
+                    {
+                        <rect x="@Num(OX)" y="0" width="@Num(_active.FloorWidth)" height="@Num(H)"
+                              class="@(_isGm ? "bld-fog-gm" : "bld-fog-player")" mask="url(#bld-fog)" />
+                    }
+
+                    @* Fog-paint layer (GM fog mode): click or drag to reveal / hide squares. *@
+                    @if (_isGm && _fogMode)
+                    {
+                        @foreach (var cell in _active.Cells())
+                        {
+                            <rect x="@Num(OX + cell.X * CELL)" y="@Num(cell.Y * CELL)" width="@Num(CELL)" height="@Num(CELL)"
+                                  data-q="@cell.X" data-r="@cell.Y"
+                                  class="wm-fc @(_revealed.Contains((_activeFloor, cell.X, cell.Y)) ? "wm-fc-on" : "wm-fc-off")"
+                                  @oncontextmenu:preventDefault="true" @oncontextmenu:stopPropagation="true" />
+                        }
+                    }
+                </svg>
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            @if (_isGm)
+            {
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="btn-group btn-group-sm w-100 mb-2" role="group">
+                            <button class="btn @(_fogMode ? "btn-outline-secondary" : "btn-dark")"
+                                    @onclick="() => SetFogModeAsync(false)">Edit floor</button>
+                            <button class="btn @(_fogMode ? "btn-dark" : "btn-outline-secondary")"
+                                    @onclick="() => SetFogModeAsync(true)">Fog of war</button>
+                        </div>
+                        @if (_fogMode)
+                        {
+                            <p class="small text-muted mb-2">
+                                Click a square to <strong>reveal</strong> it to players; click a revealed square to hide it.
+                                Drag to paint several. Fog is tracked per floor.
+                            </p>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-success" @onclick="RevealAllAsync">Reveal floor</button>
+                                <button class="btn btn-sm btn-outline-danger" @onclick="HideAllAsync">Hide floor</button>
+                            </div>
+                            <div class="small text-muted mt-2">@FloorRevealedCount square@(FloorRevealedCount == 1 ? "" : "s") revealed on @_active.Name</div>
+                        }
+                        else
+                        {
+                            <ul class="small text-muted mb-2 ps-3">
+                                <li><strong>Left-click</strong> a square → pick a legend, then a name.</li>
+                                <li><strong>Right-click</strong> a marked square → edit or remove it.</li>
+                                <li>Marks &amp; fog are kept separately for each floor.</li>
+                                <li>🔒 Hidden types (traps, secret doors) are never shown to players.</li>
+                            </ul>
+                            <a class="btn btn-link btn-sm px-0" href="/campaign/building-categories">Edit legend…</a>
+                        }
+                    </div>
+                </div>
+            }
+
+            <div class="card mb-3">
+                <div class="card-body py-2">
+                    <h6 class="card-title">Map layers</h6>
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" id="bldNotes" @bind="_showNotes" />
+                        <label class="form-check-label small" for="bldNotes">Notes</label>
+                    </div>
+                    @if (_isGm)
+                    {
+                        <div class="form-check form-switch mb-0">
+                            <input class="form-check-input" type="checkbox" id="bldFog" @bind="_showFog" />
+                            <label class="form-check-label small" for="bldFog">Fog overlay</label>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">Legend</h6>
+                    @{ var legend = _categories.Where(c => _isGm || !c.IsHidden).ToList(); }
+                    @if (legend.Count == 0)
+                    {
+                        <p class="small text-muted mb-0">No legend defined.</p>
+                    }
+                    else
+                    {
+                        <ul class="list-unstyled mb-0 small">
+                            @foreach (var c in legend)
+                            {
+                                var count = _building.Locations.Count(l => l.BuildingCategoryId == c.Id);
+                                <li class="@(_isGm ? "bld-legend-row " : "")d-flex justify-content-between align-items-center py-1"
+                                    @onmouseover="e => ShowTip(c.Id, e)" @onmouseout="HideTip">
+                                    <span>
+                                        <span class="town-swatch" style="background:@c.ColorHex"></span> @c.Name
+                                        @if (c.IsHidden) { <span title="Hidden from players">🔒</span> }
+                                    </span>
+                                    @if (_isGm && count > 0)
+                                    {
+                                        <span class="badge bg-secondary">@count</span>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
+
+            @if (_isGm)
+            {
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h6 class="card-title">Keyed locations — @_active.Name</h6>
+                        @{ var floorNotes = FloorNotes.ToList(); }
+                        @if (floorNotes.Count == 0)
+                        {
+                            <p class="small text-muted mb-0">No notes on this floor yet.</p>
+                        }
+                        else
+                        {
+                            <ul class="list-unstyled mb-0 small bld-note-list">
+                                @foreach (var n in floorNotes)
+                                {
+                                    <li class="d-flex justify-content-between align-items-start py-1">
+                                        <span>
+                                            <strong>@(string.IsNullOrWhiteSpace(n.Ref) ? "•" : n.Ref).</strong> @n.Text
+                                            @if (n.VisibleToPlayers) { <span title="Shown to players (star)">⭐</span> }
+                                        </span>
+                                        <span class="text-nowrap ms-2">
+                                            <button class="btn btn-sm btn-link p-0 @(n.VisibleToPlayers ? "" : "text-muted")"
+                                                    title="@(n.VisibleToPlayers ? "Shown to players — click to hide" : "Hidden from players — click to show a star")"
+                                                    @onclick="() => ToggleNoteVisibleAsync(n.Id)">@(n.VisibleToPlayers ? "👁" : "🚫")</button>
+                                            <button class="btn btn-sm btn-link p-0 ms-1" title="Edit" @onclick="e => EditNote(n.Id, e)">✎</button>
+                                        </span>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        <button class="btn btn-sm @(_addingNote ? "btn-warning" : "btn-outline-success") mt-2"
+                                @onclick="StartAddNoteAsync">
+                            @(_addingNote ? "Click a square to place…" : "+ Add note")
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@* Legend hover: creative "what's found here" hint (GM only) ──────── *@
+@if (_hoverCatId is { } hcid && _catById.GetValueOrDefault(hcid) is { } hc)
+{
+    <div class="bld-tip" style="left:@Px(_hoverX); top:@Px(_hoverY)">
+        <div class="bld-tip-head">
+            <span class="town-swatch" style="background:@hc.ColorHex"></span> @hc.Name
+            @if (hc.IsHidden) { <span title="Hidden from players">🔒</span> }
+        </div>
+        <div class="bld-tip-body">
+            @foreach (var s in SuggestionFor(hc.Name))
+            {
+                <div class="bld-tip-item">@s</div>
+            }
+        </div>
+    </div>
+}
+
+@* Keyed-note hover (GM only): show the note's text over its number on the map ─── *@
+@if (_isGm && _hoverNoteId is { } hnid && _notes.FirstOrDefault(n => n.Id == hnid) is { } hn)
+{
+    <div class="bld-tip" style="left:@Px(_hoverNoteX); top:@Px(_hoverNoteY)">
+        <div class="bld-tip-head">
+            <span>@(string.IsNullOrWhiteSpace(hn.Ref) ? "Note" : $"Note {hn.Ref}")</span>
+            @if (hn.VisibleToPlayers) { <span title="Shown to players (star)">⭐</span> }
+        </div>
+        <div class="bld-tip-body">
+            @if (string.IsNullOrWhiteSpace(hn.Text))
+            {
+                <span class="text-muted fst-italic">No description yet.</span>
+            }
+            else
+            {
+                @hn.Text
+            }
+        </div>
+    </div>
+}
+
+@* Square left-click: type → name popup ──────────────────────────── *@
+@if (_menu is { } m)
+{
+    <div class="ctx-backdrop" @onclick="CloseMenus" @oncontextmenu="CloseMenus" @oncontextmenu:preventDefault="true"></div>
+    <div class="ctx-menu" style="left:@Px(m.X); top:@Px(m.Y)">
+        <div class="ctx-title">Mark square</div>
+        <div class="ctx-scroll">
+            @foreach (var c in _categories)
+            {
+                @if (c.Names.Count > 0)
+                {
+                    <div class="ctx-item" @onclick="() => ToggleExpand(c.Id)">
+                        <span class="town-swatch" style="background:@c.ColorHex"></span>
+                        <span class="ctx-label">@c.Name @(c.IsHidden ? "🔒" : "")</span>
+                        <span class="ctx-arrow">@(_menuExpanded == c.Id ? "▾" : "▸")</span>
+                    </div>
+                    @if (_menuExpanded == c.Id)
+                    {
+                        <div class="ctx-subitem ctx-muted" @onclick="() => AssignFromMenuAsync(c.Id, null)">— type only —</div>
+                        @foreach (var nm in c.Names.OrderBy(n => n.Id))
+                        {
+                            <div class="ctx-subitem ctx-indent" @onclick="() => AssignFromMenuAsync(c.Id, nm.Name)">@nm.Name</div>
+                        }
+                    }
+                }
+                else
+                {
+                    <div class="ctx-item" @onclick="() => AssignFromMenuAsync(c.Id, null)">
+                        <span class="town-swatch" style="background:@c.ColorHex"></span>
+                        <span class="ctx-label">@c.Name @(c.IsHidden ? "🔒" : "")</span>
+                    </div>
+                }
+            }
+        </div>
+        @if (Mark(m.CellX, m.CellY) is not null)
+        {
+            <div class="ctx-sep"></div>
+            <div class="ctx-item ctx-danger" @onclick="() => ClearAsync(m.CellX, m.CellY)">✕ Remove marking</div>
+        }
+    </div>
+}
+
+@* Square right-click: edit name & notes ─────────────────────────── *@
+@if (_editor is { } ed)
+{
+    <div class="ctx-backdrop" @onclick="CloseMenus" @oncontextmenu="CloseMenus" @oncontextmenu:preventDefault="true"></div>
+    <div class="ctx-editor" style="left:@Px(ed.X); top:@Px(ed.Y)">
+        <div class="ctx-title">Edit square</div>
+        <label class="form-label small mb-1">Type</label>
+        <select class="form-select form-select-sm mb-2" @bind="_editCategoryId">
+            <option value="0">— none (unmark) —</option>
+            @foreach (var c in _categories)
+            {
+                <option value="@c.Id">@c.Name@(c.IsHidden ? " 🔒" : "")</option>
+            }
+        </select>
+        <label class="form-label small mb-1">Name</label>
+        <input class="form-control form-control-sm mb-2" @bind="_editName" placeholder="e.g. Master Bedroom" />
+        @{ var editHidden = _catById.GetValueOrDefault(_editCategoryId)?.IsHidden ?? false; }
+        <div class="form-check form-switch mb-2">
+            <input class="form-check-input" type="checkbox" id="bldMarkVisible"
+                   @bind="_editVisible" disabled="@editHidden" />
+            <label class="form-check-label small" for="bldMarkVisible">
+                👁 Show this legend to players
+            </label>
+            @if (editHidden)
+            {
+                <div class="text-muted small">Hidden legend types are never shown to players.</div>
+            }
+            else
+            {
+                <div class="text-muted small">Off by default. Players still only see it once the area is revealed.</div>
+            }
+        </div>
+        <label class="form-label small mb-1">
+            Additional information <span class="text-muted fw-normal">(players can see this)</span>
+        </label>
+        <textarea class="form-control form-control-sm mb-2" rows="2" @bind="_editNotes"
+                  placeholder="What players notice on entering…"></textarea>
+        <label class="form-label small mb-1">
+            🔒 GM notes <span class="text-muted fw-normal">(only you)</span>
+        </label>
+        <textarea class="form-control form-control-sm mb-2 ctx-gmnotes" rows="3" @bind="_editGmNotes"
+                  placeholder="Encounter, mechanics, treasure, plot hooks…"></textarea>
+        <div class="d-flex justify-content-between">
+            <button class="btn btn-sm btn-secondary" @onclick="CloseMenus">Cancel</button>
+            <button class="btn btn-sm btn-primary" @onclick="SaveEditorAsync">Save</button>
+        </div>
+    </div>
+}
+
+@* Note editor ──────────────────────────────────────────────────── *@
+@if (_noteEditor is { } ne)
+{
+    <div class="ctx-backdrop" @onclick="CloseMenus" @oncontextmenu="CloseMenus" @oncontextmenu:preventDefault="true"></div>
+    <div class="ctx-editor" style="left:@Px(ne.X); top:@Px(ne.Y)">
+        <div class="ctx-title">Edit note</div>
+        <label class="form-label small mb-1">Number / label</label>
+        <input class="form-control form-control-sm mb-2" style="max-width:8rem" @bind="_noteRef" placeholder="e.g. 1" />
+        <label class="form-label small mb-1">Description</label>
+        <textarea class="form-control form-control-sm mb-2" rows="3" @bind="_noteText"
+                  placeholder="What is keyed at this spot…"></textarea>
+        <div class="form-check form-switch mb-2">
+            <input class="form-check-input" type="checkbox" id="bldNoteVisible" @bind="_noteVisible" />
+            <label class="form-check-label small" for="bldNoteVisible">⭐ Show to players</label>
+            <div class="text-muted small">Players see a star here (no number or text) once the area is revealed.</div>
+        </div>
+        <div class="d-flex justify-content-between">
+            <button class="btn btn-sm btn-outline-danger" @onclick="DeleteNoteAsync">Delete</button>
+            <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-secondary" @onclick="CloseMenus">Cancel</button>
+                <button class="btn btn-sm btn-primary" @onclick="SaveNoteAsync">Save</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private BuildingMap? _building;
+    private BuildingMapService.BuildingRender? _render;
+    private List<BuildingCategory> _categories = [];
+    private Dictionary<int, BuildingCategory> _catById = [];
+    private Dictionary<(int F, int X, int Y), BuildingLocation> _marks = [];
+    private List<BuildingNote> _notes = [];
+    private bool _isGm;
+
+    private int _activeFloor;
+
+    private bool _showFog = true;
+    private bool _showNotes = true;
+    private bool _fogMode;
+    private bool _addingNote;
+    private HashSet<(int F, int X, int Y)> _revealed = [];
+    private Dictionary<(int F, int X, int Y), BuildingReveal> _revealRows = [];
+    private ElementReference _frame;
+    private bool _zoomAttached;
+    private DotNetObjectReference<BuildingMapView>? _dotNetRef;
+
+    private sealed record Target(int CellX, int CellY, double X, double Y);
+    private Target? _menu;
+    private Target? _editor;
+    private int? _menuExpanded;
+    private int _editCategoryId;
+    private string _editName = "";
+    private string _editNotes = "";
+    private string _editGmNotes = "";
+    private bool _editVisible;
+
+    private int? _hoverCatId;
+    private double _hoverX, _hoverY;
+
+    private int? _hoverNoteId;
+    private double _hoverNoteX, _hoverNoteY;
+
+    private sealed record NoteTarget(int NoteId, double X, double Y);
+    private NoteTarget? _noteEditor;
+    private string _noteRef = "";
+    private string _noteText = "";
+    private bool _noteVisible;
+
+    private BuildingMapService.Floor _active => _render!.Floors[_activeFloor];
+    private double CELL => _active.Cell;
+    private double OX => _active.OriginX;
+    private double H => _render!.Height;
+
+    private IEnumerable<BuildingLocation> FloorLocations => _building!.Locations.Where(l => l.FloorIndex == _activeFloor);
+    private IEnumerable<BuildingNote> FloorNotes => _notes.Where(n => n.FloorIndex == _activeFloor);
+    private int FloorRevealedCount => _revealed.Count(r => r.F == _activeFloor);
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthState.GetAuthenticationStateAsync();
+        _isGm = auth.User.IsInRole(Roles.Gamemaster);
+
+        _categories = await Db.BuildingCategories
+            .Include(c => c.Names)
+            .OrderBy(c => c.SortOrder).ThenBy(c => c.Name)
+            .ToListAsync();
+        _catById = _categories.ToDictionary(c => c.Id);
+
+        _building = await Db.BuildingMaps
+            .Include(b => b.Locations)
+            .FirstOrDefaultAsync(b => b.Id == Id);
+
+        if (_building is not null)
+        {
+            _render = Maps.Build(_building.RawSvg);
+            RebuildMarks();
+
+            _revealRows = await Db.BuildingReveals
+                .Where(rv => rv.BuildingMapId == Id)
+                .ToDictionaryAsync(rv => (rv.FloorIndex, rv.CellX, rv.CellY));
+            _revealed = [.. _revealRows.Keys];
+
+            _notes = await Db.BuildingNotes.Where(n => n.BuildingMapId == Id).OrderBy(n => n.Id).ToListAsync();
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_building is not null && !_zoomAttached)
+        {
+            _zoomAttached = true;
+            await JS.InvokeVoidAsync("townMap.attach", _frame);
+            _dotNetRef ??= DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("fogPaint.init", _frame, _dotNetRef);
+        }
+
+        if (_noteEditor is not null)
+            await JS.InvokeVoidAsync("clampPopup", ".ctx-editor");
+        else if (_editor is not null)
+            await JS.InvokeVoidAsync("clampPopup", ".ctx-editor");
+        else if (_menu is not null)
+            await JS.InvokeVoidAsync("clampPopup", ".ctx-menu");
+
+        if (_hoverCatId is not null || _hoverNoteId is not null)
+            await JS.InvokeVoidAsync("clampPopup", ".bld-tip");
+    }
+
+    public void Dispose() => _dotNetRef?.Dispose();
+
+    private async Task ZoomAsync(double factor) => await JS.InvokeVoidAsync("townMap.zoom", _frame, factor);
+    private async Task ResetZoomAsync() => await JS.InvokeVoidAsync("townMap.reset", _frame);
+
+    // Switch the displayed floor: close any open popups, leave the cursor at home, recenter.
+    private async Task SwitchFloorAsync(int floor)
+    {
+        if (floor == _activeFloor) return;
+        _activeFloor = floor;
+        _addingNote = false;
+        CloseMenus();
+        HideTip();
+        HideNoteTip();
+        await JS.InvokeVoidAsync("townMap.reset", _frame);
+    }
+
+    private void RebuildMarks() =>
+        _marks = _building!.Locations.ToDictionary(l => (l.FloorIndex, l.CellX, l.CellY));
+
+    private BuildingLocation? Mark(int cellX, int cellY) => _marks.GetValueOrDefault((_activeFloor, cellX, cellY));
+
+    private bool MarkVisibleToViewer(BuildingLocation mark)
+    {
+        if (_isGm) return true;
+        if (!mark.VisibleToPlayers) return false;               // hidden from players unless the GM revealed it
+        if (!CellRevealed(mark.CellX, mark.CellY)) return false;
+        return !(_catById.GetValueOrDefault(mark.BuildingCategoryId)?.IsHidden ?? false);
+    }
+
+    private bool CellRevealed(int cellX, int cellY) => _revealed.Contains((_activeFloor, cellX, cellY));
+
+    private bool IsHiddenMark(BuildingLocation mark) =>
+        _catById.GetValueOrDefault(mark.BuildingCategoryId)?.IsHidden ?? false;
+
+    // Markers are fully inline-styled so their sizes scale with the per-map cell size.
+    private string MarkerStyle(BuildingLocation loc)
+    {
+        var fill = CategoryColor(loc.BuildingCategoryId);
+        if (_isGm && loc.VisibleToPlayers && !IsHiddenMark(loc))
+            return $"fill:{fill};stroke:#1f9d55;stroke-width:{Num(CELL * 0.07)}";
+        if (IsHiddenMark(loc))
+            return $"fill:{fill};stroke:#1a1a1a;stroke-width:{Num(CELL * 0.045)};stroke-dasharray:{Num(CELL * 0.13)} {Num(CELL * 0.09)}";
+        return $"fill:{fill};stroke:#1a1a1a;stroke-width:{Num(CELL * 0.045)}";
+    }
+
+    private string TitleFor(BuildingLocation mark)
+    {
+        var sb = new System.Text.StringBuilder();
+        var catName = CategoryName(mark.BuildingCategoryId);
+        sb.Append(string.IsNullOrWhiteSpace(mark.Label) ? catName : $"{mark.Label} — {catName}");
+        if (_isGm && IsHiddenMark(mark)) sb.Append(" 🔒");
+        else if (_isGm && mark.VisibleToPlayers) sb.Append(" 👁");
+        if (!string.IsNullOrWhiteSpace(mark.Notes)) sb.Append('\n').Append(mark.Notes);
+        if (_isGm && !string.IsNullOrWhiteSpace(mark.GmNotes)) sb.Append("\n\n🔒 GM: ").Append(mark.GmNotes);
+        return sb.ToString();
+    }
+
+    // ── Notes ───────────────────────────────────────────────────────────────────
+    // A note is shown to the GM always, and to players only when the GM allowed it and
+    // its square is revealed.
+    private bool NoteVisible(BuildingNote n)
+    {
+        if (_isGm) return true;
+        if (!n.VisibleToPlayers) return false;
+        return _revealed.Contains((n.FloorIndex, (int)Math.Floor(n.X), (int)Math.Floor(n.Y)));
+    }
+
+    // Glyphs over the map: GM sees the keyed number; players see only a star.
+    private RenderFragment NoteGlyphs => builder =>
+    {
+        var numStyle = string.Create(System.Globalization.CultureInfo.InvariantCulture,
+            $"fill:#1a1a1a;font-family:Georgia,'Times New Roman',serif;font-size:{CELL * 0.46:0.##}px;font-weight:700;text-anchor:middle;dominant-baseline:central;paint-order:stroke;stroke:#ffffff;stroke-width:{CELL * 0.11:0.##}px;pointer-events:none");
+        var starStyle = string.Create(System.Globalization.CultureInfo.InvariantCulture,
+            $"fill:#d4a017;font-size:{CELL * 0.57:0.##}px;text-anchor:middle;dominant-baseline:central;paint-order:stroke;stroke:#1a1a1a;stroke-width:{CELL * 0.04:0.##}px;pointer-events:none");
+
+        var seq = 0;
+        foreach (var n in FloorNotes)
+        {
+            if (!NoteVisible(n)) continue;
+            if (_isGm && string.IsNullOrWhiteSpace(n.Ref)) continue;
+            builder.OpenElement(seq++, "text");
+            builder.AddAttribute(seq++, "x", Num(OX + n.X * CELL));
+            builder.AddAttribute(seq++, "y", Num(n.Y * CELL));
+            builder.AddAttribute(seq++, "style", _isGm ? numStyle : starStyle);
+            builder.AddContent(seq++, _isGm ? n.Ref : "★");
+            builder.CloseElement();
+        }
+    };
+
+    private void EditNote(int noteId, MouseEventArgs e)
+    {
+        if (!_isGm) return;
+        var note = _notes.FirstOrDefault(n => n.Id == noteId);
+        if (note is null) return;
+        _noteRef = note.Ref ?? "";
+        _noteText = note.Text ?? "";
+        _noteVisible = note.VisibleToPlayers;
+        _noteEditor = new NoteTarget(noteId, e.ClientX, e.ClientY);
+    }
+
+    private async Task ToggleNoteVisibleAsync(int noteId)
+    {
+        if (!_isGm) return;
+        var note = _notes.FirstOrDefault(n => n.Id == noteId);
+        if (note is null) return;
+        note.VisibleToPlayers = !note.VisibleToPlayers;
+        await Db.SaveChangesAsync();
+    }
+
+    private async Task StartAddNoteAsync()
+    {
+        if (_fogMode) await SetFogModeAsync(false);
+        _addingNote = !_addingNote;
+    }
+
+    private async Task PlaceNoteAsync(int cellX, int cellY, MouseEventArgs e)
+    {
+        var nextRef = (_notes
+            .Select(n => int.TryParse(n.Ref, out var v) ? v : 0)
+            .DefaultIfEmpty(0).Max() + 1).ToString();
+
+        var note = new BuildingNote
+        {
+            BuildingMapId = Id,
+            FloorIndex = _activeFloor,
+            Ref = nextRef,
+            Text = "",
+            X = cellX + 0.5,
+            Y = cellY + 0.5,
+        };
+        Db.BuildingNotes.Add(note);
+        await Db.SaveChangesAsync();
+        _addingNote = false;
+        _notes = await Db.BuildingNotes.Where(n => n.BuildingMapId == Id).OrderBy(n => n.Id).ToListAsync();
+
+        _noteRef = note.Ref ?? "";
+        _noteText = "";
+        _noteVisible = false;
+        _noteEditor = new NoteTarget(note.Id, e.ClientX, e.ClientY);
+    }
+
+    private async Task SaveNoteAsync()
+    {
+        if (_noteEditor is not { } t) return;
+        var note = _notes.FirstOrDefault(n => n.Id == t.NoteId);
+        if (note is not null)
+        {
+            note.Ref = string.IsNullOrWhiteSpace(_noteRef) ? null : _noteRef.Trim();
+            note.Text = string.IsNullOrWhiteSpace(_noteText) ? null : _noteText.Trim();
+            note.VisibleToPlayers = _noteVisible;
+            await Db.SaveChangesAsync();
+        }
+        _noteEditor = null;
+    }
+
+    private async Task DeleteNoteAsync()
+    {
+        if (_noteEditor is not { } t) return;
+        var note = _notes.FirstOrDefault(n => n.Id == t.NoteId);
+        if (note is not null)
+        {
+            Db.BuildingNotes.Remove(note);
+            await Db.SaveChangesAsync();
+            _notes = await Db.BuildingNotes.Where(n => n.BuildingMapId == Id).OrderBy(n => n.Id).ToListAsync();
+        }
+        _noteEditor = null;
+    }
+
+    // ── Square marking ──────────────────────────────────────────────────────────
+    private async Task OnCellClick(int cellX, int cellY, MouseEventArgs e)
+    {
+        if (!_isGm || _fogMode) return;
+        if (_addingNote) { await PlaceNoteAsync(cellX, cellY, e); return; }
+        _editor = null;
+        _menuExpanded = null;
+        _menu = new Target(cellX, cellY, e.ClientX, e.ClientY);
+    }
+
+    private void ToggleExpand(int categoryId) =>
+        _menuExpanded = _menuExpanded == categoryId ? null : categoryId;
+
+    private void OnCellContext(int cellX, int cellY, MouseEventArgs e)
+    {
+        if (!_isGm || _fogMode || _addingNote) return;
+        _menu = null;
+        var mark = Mark(cellX, cellY);
+        _editCategoryId = mark?.BuildingCategoryId ?? 0;
+        _editName = mark?.Label ?? "";
+        _editNotes = mark?.Notes ?? "";
+        _editGmNotes = mark?.GmNotes ?? "";
+        _editVisible = mark?.VisibleToPlayers ?? false;
+        _editor = new Target(cellX, cellY, e.ClientX, e.ClientY);
+    }
+
+    private void CloseMenus()
+    {
+        _menu = null;
+        _editor = null;
+        _noteEditor = null;
+        _menuExpanded = null;
+    }
+
+    private async Task AssignFromMenuAsync(int categoryId, string? name)
+    {
+        if (_menu is not { } t) return;
+        var mark = GetOrCreate(t.CellX, t.CellY, categoryId);
+        mark.BuildingCategoryId = categoryId;
+        mark.Label = string.IsNullOrWhiteSpace(name) ? null : name;
+        await SaveAsync();
+        _menu = null;
+    }
+
+    private async Task SaveEditorAsync()
+    {
+        if (_editor is not { } t) return;
+        if (_editCategoryId == 0)
+        {
+            await ClearAsync(t.CellX, t.CellY);
+            return;
+        }
+        var mark = GetOrCreate(t.CellX, t.CellY, _editCategoryId);
+        mark.BuildingCategoryId = _editCategoryId;
+        mark.Label = string.IsNullOrWhiteSpace(_editName) ? null : _editName.Trim();
+        mark.Notes = string.IsNullOrWhiteSpace(_editNotes) ? null : _editNotes.Trim();
+        mark.GmNotes = string.IsNullOrWhiteSpace(_editGmNotes) ? null : _editGmNotes.Trim();
+        mark.VisibleToPlayers = _editVisible;
+        await SaveAsync();
+        _editor = null;
+    }
+
+    private async Task ClearAsync(int cellX, int cellY)
+    {
+        var existing = _building!.Locations.FirstOrDefault(l =>
+            l.FloorIndex == _activeFloor && l.CellX == cellX && l.CellY == cellY);
+        if (existing is not null)
+        {
+            Db.BuildingLocations.Remove(existing);
+            _building.Locations.Remove(existing);
+            await SaveAsync();
+        }
+        CloseMenus();
+    }
+
+    private BuildingLocation GetOrCreate(int cellX, int cellY, int categoryId)
+    {
+        var existing = _building!.Locations.FirstOrDefault(l =>
+            l.FloorIndex == _activeFloor && l.CellX == cellX && l.CellY == cellY);
+        if (existing is not null) return existing;
+
+        var created = new BuildingLocation
+        {
+            BuildingMapId = _building.Id,
+            FloorIndex = _activeFloor,
+            CellX = cellX,
+            CellY = cellY,
+            BuildingCategoryId = categoryId,
+        };
+        _building.Locations.Add(created);
+        Db.BuildingLocations.Add(created);
+        return created;
+    }
+
+    private async Task SaveAsync()
+    {
+        if (!_isGm) return;
+        await Db.SaveChangesAsync();
+        RebuildMarks();
+    }
+
+    // ── Modes & fog of war ──────────────────────────────────────────────────────
+    private async Task SetFogModeAsync(bool on)
+    {
+        _fogMode = on;
+        _addingNote = false;
+        CloseMenus();
+        await JS.InvokeVoidAsync("fogPaint.setEnabled", on);
+    }
+
+    [JSInvokable]
+    public async Task ApplyFogBatch(int[] cells, bool reveal)
+    {
+        if (!_isGm || _building is null || cells is null) return;
+
+        for (int i = 0; i + 1 < cells.Length; i += 2)
+        {
+            if (reveal) RevealCell(cells[i], cells[i + 1]);
+            else HideCell(cells[i], cells[i + 1]);
+        }
+        await Db.SaveChangesAsync();
+        StateHasChanged();
+    }
+
+    private async Task RevealAllAsync()
+    {
+        if (!_isGm || _render is null) return;
+        foreach (var cell in _active.Cells()) RevealCell(cell.X, cell.Y);
+        await Db.SaveChangesAsync();
+    }
+
+    private async Task HideAllAsync()
+    {
+        if (!_isGm) return;
+        var onFloor = _revealRows.Where(kv => kv.Key.F == _activeFloor).ToList();
+        Db.BuildingReveals.RemoveRange(onFloor.Select(kv => kv.Value));
+        foreach (var kv in onFloor) { _revealRows.Remove(kv.Key); _revealed.Remove(kv.Key); }
+        await Db.SaveChangesAsync();
+    }
+
+    private void RevealCell(int cellX, int cellY)
+    {
+        var key = (_activeFloor, cellX, cellY);
+        if (_revealRows.ContainsKey(key)) return;
+        var row = new BuildingReveal { BuildingMapId = _building!.Id, FloorIndex = _activeFloor, CellX = cellX, CellY = cellY };
+        Db.BuildingReveals.Add(row);
+        _revealRows[key] = row;
+        _revealed.Add(key);
+    }
+
+    private void HideCell(int cellX, int cellY)
+    {
+        var key = (_activeFloor, cellX, cellY);
+        if (_revealRows.TryGetValue(key, out var row))
+        {
+            Db.BuildingReveals.Remove(row);
+            _revealRows.Remove(key);
+            _revealed.Remove(key);
+        }
+    }
+
+    private string CategoryColor(int id) => _catById.GetValueOrDefault(id)?.ColorHex ?? "#999999";
+    private string CategoryName(int id) => _catById.GetValueOrDefault(id)?.Name ?? "—";
+
+    // ── Legend hover hints (GM only) ────────────────────────────────────────────
+    private void ShowTip(int catId, MouseEventArgs e)
+    {
+        if (!_isGm) return;
+        _hoverCatId = catId;
+        _hoverX = e.ClientX - 300;   // grow leftward of the legend card; clampPopup corrects the edge
+        _hoverY = e.ClientY - 10;
+    }
+
+    private void HideTip() => _hoverCatId = null;
+
+    // GM hovers a keyed-note number on the map → show its description.
+    private void ShowNoteTip(int noteId, MouseEventArgs e)
+    {
+        if (!_isGm) return;
+        _hoverNoteId = noteId;
+        _hoverNoteX = e.ClientX + 14;   // sit just to the right of the cursor; clampPopup corrects the edge
+        _hoverNoteY = e.ClientY + 14;
+    }
+
+    private void HideNoteTip() => _hoverNoteId = null;
+
+    private static readonly string[] _genericSuggestion =
+        ["Everyday furnishings", "Signs of recent use", "A hidden detail", "Something worth a closer look"];
+
+    private string[] SuggestionFor(string name) =>
+        _suggestions.GetValueOrDefault(name, _genericSuggestion);
+
+    // Evocative "what might be found here" item lists, keyed by the built-in legend names.
+    private static readonly Dictionary<string, string[]> _suggestions = new()
+    {
+        ["Bedroom"] =
+            ["A rumpled bed", "A clothes chest", "A keepsake box", "Coins under the mattress", "A private diary",
+             "A washbasin and ewer", "A child's toys", "A loaded chamber-pot", "A locked jewellery casket", "A window left ajar"],
+        ["Kitchen"] =
+            ["A banked cooking fire", "Hanging cured meat", "Sharp knives", "A barrel of ale", "Sacks of flour",
+             "A simmering pot", "Strings of onions and herbs", "A cat by the hearth", "A cellar trapdoor", "Cooling fresh bread"],
+        ["Hearth / Fireplace"] =
+            ["A crackling fire", "A blackened mantel", "An iron poker", "Coins hidden in the ash", "A bricked-up flue",
+             "Drying laundry", "A loose hearthstone", "A simmering kettle", "Soot-stained portraits", "A hidden chimney nook"],
+        ["Dining Hall"] =
+            ["A long oak table", "Tarnished silver", "Half-finished meal", "A wine rack", "High-backed chairs",
+             "A roaring hearth", "Tapestries on the wall", "A dropped goblet", "Candle-stubs and wax", "A family crest"],
+        ["Study / Library"] =
+            ["Shelves of books", "A writing desk", "Ink and quills", "A locked ledger", "A hidden cipher",
+             "Rolled maps", "A reading candle", "A secret drawer", "Unpaid debts and letters", "A bust with watching eyes"],
+        ["Storage / Pantry"] =
+            ["Stacked crates", "Sacks of grain", "Hanging tools", "Dusty preserves", "A forgotten chest",
+             "Jars of pickles", "Coils of rope", "Mouse-gnawed sacks", "A misplaced valuable", "Cobwebbed shelves"],
+        ["Cellar"] =
+            ["Racked wine casks", "A cool earthen floor", "Cobwebbed bottles", "A damp stone wall", "A buried strongbox",
+             "Scuttling rats", "A locked cage", "A trapdoor below", "Mouldering crates", "A draught from nowhere"],
+        ["Workshop"] =
+            ["A cluttered workbench", "Hanging tools", "Half-made wares", "A whetstone", "Wood-shavings and sawdust",
+             "A cold forge", "Tins of nails and oil", "A apprentice's stool", "A vice and clamps", "An unfinished commission"],
+        ["Shrine / Altar"] =
+            ["A small household altar", "Votive candles", "A carved icon", "Offerings of bread and coin", "A prayer book",
+             "Dried flowers", "Incense smoke", "A family relic", "A kneeling cushion", "A hidden reliquary"],
+        ["Privy"] =
+            ["A wooden seat", "A foul reek", "A bucket of ash", "A draughty shaft", "Torn rags",
+             "A spider's web", "Something dropped below", "A loose floorboard", "A chamber-pot", "Scratched graffiti"],
+        ["Stairs"] =
+            ["Worn treads", "A creaking step", "A banister rail", "A landing window", "A cupboard beneath",
+             "A guttering wall-sconce", "A loose riser", "A dusty portrait", "A draught up the well", "A hidden step-cache"],
+        ["Well"] =
+            ["Cold dark water", "A mossy rim", "A rope and bucket", "An echoing shaft", "Coins on the bottom",
+             "A dropped key", "Slick handholds", "A faint glow below", "A carved drinking-trough", "Something snagged on the rope"],
+        ["Trap"] =
+            ["A concealed pit", "A spring-blade door", "A pressure plate", "A poisoned lock", "A falling portcullis",
+             "A tripwire", "A collapsing stair", "A flooding cellar", "A gas vent", "Bait left to lure"],
+        ["Hidden Cache"] =
+            ["A loose floorboard", "A false-bottomed chest", "A hollow bedpost", "A brick that pulls free", "Coins in the ash",
+             "A pouch in the rafters", "A sealed wall niche", "A stash in the privy", "A locked strongbox", "Sewn into a mattress"],
+        ["Secret Door"] =
+            ["A sliding bookcase", "A pivoting hearthstone", "A false wardrobe back", "A trapdoor under the rug", "A priest hole",
+             "A panel behind a tapestry", "A concealed servant's stair", "A loose wall panel", "A draught of fresh air", "A dumbwaiter shaft"],
+        ["Ambush"] =
+            ["A shadowed doorway", "Eyes at the window", "A sprung snare", "Silence too complete", "Hidden foes",
+             "A blocked exit", "A creaking floorboard", "A decoy lure", "A cut-off retreat", "The strike before you see it"],
+    };
+
+    private static string Px(double v) => v.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) + "px";
+    private static string Num(double v) => v.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+}

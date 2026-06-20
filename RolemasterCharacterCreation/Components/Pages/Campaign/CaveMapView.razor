@@ -1,0 +1,902 @@
+@page "/campaign/caves/{Id:int}"
+@rendermode InteractiveServer
+@attribute [Authorize]
+@using RolemasterCharacterCreation.Data
+@inject AppDbContext Db
+@inject CaveMapService Maps
+@inject AuthenticationStateProvider AuthState
+@inject IJSRuntime JS
+@implements IDisposable
+
+<PageTitle>@(_cave?.Name ?? "Cave")</PageTitle>
+
+@if (_cave is null)
+{
+    <p class="text-muted">Loading…</p>
+}
+else
+{
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="mb-0">@_cave.Name</h2>
+            @if (!string.IsNullOrWhiteSpace(_cave.Description))
+            {
+                <div class="text-muted small">@_cave.Description</div>
+            }
+        </div>
+        <a class="btn btn-outline-secondary btn-sm" href="/campaign/caves">← All Caves</a>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-9">
+            <div class="cave-frame" @ref="_frame">
+                <div class="town-zoom-controls" @onpointerdown:stopPropagation="true">
+                    <button class="btn btn-sm btn-light" title="Zoom in" @onclick="() => ZoomAsync(1.25)">+</button>
+                    <button class="btn btn-sm btn-light" title="Zoom out" @onclick="() => ZoomAsync(0.8)">−</button>
+                    <button class="btn btn-sm btn-light" title="Reset zoom" @onclick="ResetZoomAsync">⤢</button>
+                </div>
+                <svg viewBox="@_render!.ViewBox" class="cave-map" preserveAspectRatio="xMidYMid meet">
+                    <defs>
+                        <pattern id="cave-grid" width="@Num(CELL)" height="@Num(CELL)" patternUnits="userSpaceOnUse">
+                            <path d="M @Num(CELL) 0 L 0 0 0 @Num(CELL)" fill="none"
+                                  stroke="rgba(255,255,255,0.16)" stroke-width="@Num(CELL * 0.02)"
+                                  stroke-dasharray="@Num(CELL * 0.12) @Num(CELL * 0.12)" />
+                        </pattern>
+                        <mask id="cave-fog">
+                            <rect x="0" y="0" width="@Num(W)" height="@Num(H)" fill="white" />
+                            @foreach (var (cx, cy) in _revealed)
+                            {
+                                <rect x="@Num(cx * CELL)" y="@Num(cy * CELL)" width="@Num(CELL)" height="@Num(CELL)" fill="black" />
+                            }
+                        </mask>
+                    </defs>
+
+                    @* The uploaded cave SVG, shown exactly as drawn (never intercepts clicks). *@
+                    <g class="cave-embed" pointer-events="none">@((MarkupString)_render.Svg)</g>
+
+                    @* Faint placement grid — GM only. *@
+                    @if (_isGm)
+                    {
+                        <rect x="0" y="0" width="@Num(W)" height="@Num(H)" fill="url(#cave-grid)" class="cave-decor" />
+                    }
+
+                    @* Legend markers — a small coloured circle on a square. *@
+                    @foreach (var loc in _cave.Locations)
+                    {
+                        @if (MarkVisibleToViewer(loc))
+                        {
+                            <circle cx="@Num((loc.CellX + 0.5) * CELL)" cy="@Num((loc.CellY + 0.5) * CELL)"
+                                    r="@Num(CELL * 0.24)" class="cave-marker" style="@MarkerStyle(loc)">
+                                <title>@TitleFor(loc)</title>
+                            </circle>
+                        }
+                    }
+
+                    @* Clickable squares (GM, Edit mode): left-click to add a legend, right-click to edit. *@
+                    @if (_isGm && !_fogMode)
+                    {
+                        @foreach (var cell in _render.Cells())
+                        {
+                            var cm = Mark(cell.X, cell.Y);
+                            <rect x="@Num(cell.X * CELL)" y="@Num(cell.Y * CELL)" width="@Num(CELL)" height="@Num(CELL)" class="cave-cell"
+                                  @onclick="e => OnCellClick(cell.X, cell.Y, e)"
+                                  @oncontextmenu="e => OnCellContext(cell.X, cell.Y, e)" @oncontextmenu:preventDefault="true">
+                                @if (cm is not null) { <title>@TitleFor(cm)</title> }
+                            </rect>
+                        }
+                    }
+
+                    @* Keyed notes — GM sees a numbered circle; players see only a star. *@
+                    @if (_showNotes)
+                    {
+                        @foreach (var n in _notes)
+                        {
+                            @if (NoteVisible(n))
+                            {
+                                <circle cx="@Num(n.X * CELL)" cy="@Num(n.Y * CELL)" r="@Num(CELL * 0.27)"
+                                        class="cave-note-marker @(_isGm && n.VisibleToPlayers ? "cave-note-shown" : null) @(_isGm ? "cave-note-hot" : null)"
+                                        style="stroke-width:@Num(CELL * 0.04)"
+                                        @onmouseover="e => ShowNoteTip(n.Id, e)" @onmouseout="HideNoteTip" />
+                            }
+                        }
+                        @NoteGlyphs
+                    }
+
+                    @* Fog overlay: opaque for players, faint for the GM. *@
+                    @if (!_isGm || _showFog)
+                    {
+                        <rect x="0" y="0" width="@Num(W)" height="@Num(H)"
+                              class="@(_isGm ? "cave-fog-gm" : "cave-fog-player")" mask="url(#cave-fog)" />
+                    }
+
+                    @* Fog-paint layer (GM fog mode): click or drag to reveal / hide squares. *@
+                    @if (_isGm && _fogMode)
+                    {
+                        @foreach (var cell in _render.Cells())
+                        {
+                            <rect x="@Num(cell.X * CELL)" y="@Num(cell.Y * CELL)" width="@Num(CELL)" height="@Num(CELL)"
+                                  data-q="@cell.X" data-r="@cell.Y"
+                                  class="wm-fc @(_revealed.Contains((cell.X, cell.Y)) ? "wm-fc-on" : "wm-fc-off")"
+                                  @oncontextmenu:preventDefault="true" @oncontextmenu:stopPropagation="true" />
+                        }
+                    }
+                </svg>
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            @if (_isGm)
+            {
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="btn-group btn-group-sm w-100 mb-2" role="group">
+                            <button class="btn @(_fogMode ? "btn-outline-secondary" : "btn-dark")"
+                                    @onclick="() => SetFogModeAsync(false)">Edit map</button>
+                            <button class="btn @(_fogMode ? "btn-dark" : "btn-outline-secondary")"
+                                    @onclick="() => SetFogModeAsync(true)">Fog of war</button>
+                        </div>
+                        @if (_fogMode)
+                        {
+                            <p class="small text-muted mb-2">
+                                Click a square to <strong>reveal</strong> it to players; click a revealed square to hide it.
+                                Drag to paint several.
+                            </p>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-success" @onclick="RevealAllAsync">Reveal all</button>
+                                <button class="btn btn-sm btn-outline-danger" @onclick="HideAllAsync">Hide all</button>
+                            </div>
+                            <div class="small text-muted mt-2">@_revealed.Count square@(_revealed.Count == 1 ? "" : "s") revealed</div>
+                        }
+                        else
+                        {
+                            <ul class="small text-muted mb-2 ps-3">
+                                <li><strong>Left-click</strong> a square → pick a legend, then a name.</li>
+                                <li><strong>Right-click</strong> a marked square → edit or remove it.</li>
+                                <li>Add several legends on different squares.</li>
+                                <li>🔒 Hidden types (traps, secret passages) are never shown to players.</li>
+                            </ul>
+                            <a class="btn btn-link btn-sm px-0" href="/campaign/cave-categories">Edit legend…</a>
+                        }
+                    </div>
+                </div>
+            }
+
+            <div class="card mb-3">
+                <div class="card-body py-2">
+                    <h6 class="card-title">Map layers</h6>
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" id="caveNotes" @bind="_showNotes" />
+                        <label class="form-check-label small" for="caveNotes">Notes</label>
+                    </div>
+                    @if (_isGm)
+                    {
+                        <div class="form-check form-switch mb-0">
+                            <input class="form-check-input" type="checkbox" id="caveFog" @bind="_showFog" />
+                            <label class="form-check-label small" for="caveFog">Fog overlay</label>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">Legend</h6>
+                    @{ var legend = _categories.Where(c => _isGm || !c.IsHidden).ToList(); }
+                    @if (legend.Count == 0)
+                    {
+                        <p class="small text-muted mb-0">No legend defined.</p>
+                    }
+                    else
+                    {
+                        <ul class="list-unstyled mb-0 small">
+                            @foreach (var c in legend)
+                            {
+                                var count = _cave.Locations.Count(l => l.CaveCategoryId == c.Id);
+                                <li class="@(_isGm ? "cave-legend-row " : "")d-flex justify-content-between align-items-center py-1"
+                                    @onmouseover="e => ShowTip(c.Id, e)" @onmouseout="HideTip">
+                                    <span>
+                                        <span class="town-swatch" style="background:@c.ColorHex"></span> @c.Name
+                                        @if (c.IsHidden) { <span title="Hidden from players">🔒</span> }
+                                    </span>
+                                    @if (_isGm && count > 0)
+                                    {
+                                        <span class="badge bg-secondary">@count</span>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
+
+            @if (_isGm)
+            {
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h6 class="card-title">Keyed locations</h6>
+                        @if (_notes.Count == 0)
+                        {
+                            <p class="small text-muted mb-0">No notes yet.</p>
+                        }
+                        else
+                        {
+                            <ul class="list-unstyled mb-0 small cave-note-list">
+                                @foreach (var n in _notes)
+                                {
+                                    <li class="d-flex justify-content-between align-items-start py-1">
+                                        <span>
+                                            <strong>@(string.IsNullOrWhiteSpace(n.Ref) ? "•" : n.Ref).</strong> @n.Text
+                                            @if (n.VisibleToPlayers) { <span title="Shown to players (star)">⭐</span> }
+                                        </span>
+                                        <span class="text-nowrap ms-2">
+                                            <button class="btn btn-sm btn-link p-0 @(n.VisibleToPlayers ? "" : "text-muted")"
+                                                    title="@(n.VisibleToPlayers ? "Shown to players — click to hide" : "Hidden from players — click to show a star")"
+                                                    @onclick="() => ToggleNoteVisibleAsync(n.Id)">@(n.VisibleToPlayers ? "👁" : "🚫")</button>
+                                            <button class="btn btn-sm btn-link p-0 ms-1" title="Edit" @onclick="e => EditNote(n.Id, e)">✎</button>
+                                        </span>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        <button class="btn btn-sm @(_addingNote ? "btn-warning" : "btn-outline-success") mt-2"
+                                @onclick="StartAddNoteAsync">
+                            @(_addingNote ? "Click a square to place…" : "+ Add note")
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@* Legend hover: creative "what's found here" hint (GM only) ──────── *@
+@if (_hoverCatId is { } hcid && _catById.GetValueOrDefault(hcid) is { } hc)
+{
+    <div class="cave-tip" style="left:@Px(_hoverX); top:@Px(_hoverY)">
+        <div class="cave-tip-head">
+            <span class="town-swatch" style="background:@hc.ColorHex"></span> @hc.Name
+            @if (hc.IsHidden) { <span title="Hidden from players">🔒</span> }
+        </div>
+        <div class="cave-tip-body">
+            @foreach (var s in SuggestionFor(hc.Name))
+            {
+                <div class="cave-tip-item">@s</div>
+            }
+        </div>
+    </div>
+}
+
+@* Keyed-note hover (GM only): show the note's text over its number on the map ─── *@
+@if (_isGm && _hoverNoteId is { } hnid && _notes.FirstOrDefault(n => n.Id == hnid) is { } hn)
+{
+    <div class="cave-tip" style="left:@Px(_hoverNoteX); top:@Px(_hoverNoteY)">
+        <div class="cave-tip-head">
+            <span>@(string.IsNullOrWhiteSpace(hn.Ref) ? "Note" : $"Note {hn.Ref}")</span>
+            @if (hn.VisibleToPlayers) { <span title="Shown to players (star)">⭐</span> }
+        </div>
+        <div class="cave-tip-body">
+            @if (string.IsNullOrWhiteSpace(hn.Text))
+            {
+                <span class="text-muted fst-italic">No description yet.</span>
+            }
+            else
+            {
+                @hn.Text
+            }
+        </div>
+    </div>
+}
+
+@* Square left-click: type → name popup ──────────────────────────── *@
+@if (_menu is { } m)
+{
+    <div class="ctx-backdrop" @onclick="CloseMenus" @oncontextmenu="CloseMenus" @oncontextmenu:preventDefault="true"></div>
+    <div class="ctx-menu" style="left:@Px(m.X); top:@Px(m.Y)">
+        <div class="ctx-title">Mark square</div>
+        <div class="ctx-scroll">
+            @foreach (var c in _categories)
+            {
+                @if (c.Names.Count > 0)
+                {
+                    <div class="ctx-item" @onclick="() => ToggleExpand(c.Id)">
+                        <span class="town-swatch" style="background:@c.ColorHex"></span>
+                        <span class="ctx-label">@c.Name @(c.IsHidden ? "🔒" : "")</span>
+                        <span class="ctx-arrow">@(_menuExpanded == c.Id ? "▾" : "▸")</span>
+                    </div>
+                    @if (_menuExpanded == c.Id)
+                    {
+                        <div class="ctx-subitem ctx-muted" @onclick="() => AssignFromMenuAsync(c.Id, null)">— type only —</div>
+                        @foreach (var nm in c.Names.OrderBy(n => n.Id))
+                        {
+                            <div class="ctx-subitem ctx-indent" @onclick="() => AssignFromMenuAsync(c.Id, nm.Name)">@nm.Name</div>
+                        }
+                    }
+                }
+                else
+                {
+                    <div class="ctx-item" @onclick="() => AssignFromMenuAsync(c.Id, null)">
+                        <span class="town-swatch" style="background:@c.ColorHex"></span>
+                        <span class="ctx-label">@c.Name @(c.IsHidden ? "🔒" : "")</span>
+                    </div>
+                }
+            }
+        </div>
+        @if (Mark(m.CellX, m.CellY) is not null)
+        {
+            <div class="ctx-sep"></div>
+            <div class="ctx-item ctx-danger" @onclick="() => ClearAsync(m.CellX, m.CellY)">✕ Remove marking</div>
+        }
+    </div>
+}
+
+@* Square right-click: edit name & notes ─────────────────────────── *@
+@if (_editor is { } ed)
+{
+    <div class="ctx-backdrop" @onclick="CloseMenus" @oncontextmenu="CloseMenus" @oncontextmenu:preventDefault="true"></div>
+    <div class="ctx-editor" style="left:@Px(ed.X); top:@Px(ed.Y)">
+        <div class="ctx-title">Edit square</div>
+        <label class="form-label small mb-1">Type</label>
+        <select class="form-select form-select-sm mb-2" @bind="_editCategoryId">
+            <option value="0">— none (unmark) —</option>
+            @foreach (var c in _categories)
+            {
+                <option value="@c.Id">@c.Name@(c.IsHidden ? " 🔒" : "")</option>
+            }
+        </select>
+        <label class="form-label small mb-1">Name</label>
+        <input class="form-control form-control-sm mb-2" @bind="_editName" placeholder="e.g. The Weeping Pool" />
+        @{ var editHidden = _catById.GetValueOrDefault(_editCategoryId)?.IsHidden ?? false; }
+        <div class="form-check form-switch mb-2">
+            <input class="form-check-input" type="checkbox" id="caveMarkVisible"
+                   @bind="_editVisible" disabled="@editHidden" />
+            <label class="form-check-label small" for="caveMarkVisible">
+                👁 Show this legend to players
+            </label>
+            @if (editHidden)
+            {
+                <div class="text-muted small">Hidden legend types are never shown to players.</div>
+            }
+            else
+            {
+                <div class="text-muted small">Off by default. Players still only see it once the area is revealed.</div>
+            }
+        </div>
+        <label class="form-label small mb-1">
+            Additional information <span class="text-muted fw-normal">(players can see this)</span>
+        </label>
+        <textarea class="form-control form-control-sm mb-2" rows="2" @bind="_editNotes"
+                  placeholder="What players notice on approaching…"></textarea>
+        <label class="form-label small mb-1">
+            🔒 GM notes <span class="text-muted fw-normal">(only you)</span>
+        </label>
+        <textarea class="form-control form-control-sm mb-2 ctx-gmnotes" rows="3" @bind="_editGmNotes"
+                  placeholder="Encounter, mechanics, treasure, plot hooks…"></textarea>
+        <div class="d-flex justify-content-between">
+            <button class="btn btn-sm btn-secondary" @onclick="CloseMenus">Cancel</button>
+            <button class="btn btn-sm btn-primary" @onclick="SaveEditorAsync">Save</button>
+        </div>
+    </div>
+}
+
+@* Note editor ──────────────────────────────────────────────────── *@
+@if (_noteEditor is { } ne)
+{
+    <div class="ctx-backdrop" @onclick="CloseMenus" @oncontextmenu="CloseMenus" @oncontextmenu:preventDefault="true"></div>
+    <div class="ctx-editor" style="left:@Px(ne.X); top:@Px(ne.Y)">
+        <div class="ctx-title">Edit note</div>
+        <label class="form-label small mb-1">Number / label</label>
+        <input class="form-control form-control-sm mb-2" style="max-width:8rem" @bind="_noteRef" placeholder="e.g. 1" />
+        <label class="form-label small mb-1">Description</label>
+        <textarea class="form-control form-control-sm mb-2" rows="3" @bind="_noteText"
+                  placeholder="What is keyed at this spot…"></textarea>
+        <div class="form-check form-switch mb-2">
+            <input class="form-check-input" type="checkbox" id="caveNoteVisible" @bind="_noteVisible" />
+            <label class="form-check-label small" for="caveNoteVisible">⭐ Show to players</label>
+            <div class="text-muted small">Players see a star here (no number or text) once the area is revealed.</div>
+        </div>
+        <div class="d-flex justify-content-between">
+            <button class="btn btn-sm btn-outline-danger" @onclick="DeleteNoteAsync">Delete</button>
+            <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-secondary" @onclick="CloseMenus">Cancel</button>
+                <button class="btn btn-sm btn-primary" @onclick="SaveNoteAsync">Save</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private CaveMap? _cave;
+    private CaveMapService.CaveRender? _render;
+    private List<CaveCategory> _categories = [];
+    private Dictionary<int, CaveCategory> _catById = [];
+    private Dictionary<(int X, int Y), CaveLocation> _marks = [];
+    private List<CaveNote> _notes = [];
+    private bool _isGm;
+
+    private bool _showFog = true;
+    private bool _showNotes = true;
+    private bool _fogMode;
+    private bool _addingNote;
+    private HashSet<(int X, int Y)> _revealed = [];
+    private Dictionary<(int X, int Y), CaveReveal> _revealRows = [];
+    private ElementReference _frame;
+    private bool _zoomAttached;
+    private DotNetObjectReference<CaveMapView>? _dotNetRef;
+
+    private sealed record Target(int CellX, int CellY, double X, double Y);
+    private Target? _menu;
+    private Target? _editor;
+    private int? _menuExpanded;
+    private int _editCategoryId;
+    private string _editName = "";
+    private string _editNotes = "";
+    private string _editGmNotes = "";
+    private bool _editVisible;
+
+    private int? _hoverCatId;
+    private double _hoverX, _hoverY;
+
+    private int? _hoverNoteId;
+    private double _hoverNoteX, _hoverNoteY;
+
+    private sealed record NoteTarget(int NoteId, double X, double Y);
+    private NoteTarget? _noteEditor;
+    private string _noteRef = "";
+    private string _noteText = "";
+    private bool _noteVisible;
+
+    private double CELL => _render!.Cell;
+    private double W => _render!.Width;
+    private double H => _render!.Height;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthState.GetAuthenticationStateAsync();
+        _isGm = auth.User.IsInRole(Roles.Gamemaster);
+
+        _categories = await Db.CaveCategories
+            .Include(c => c.Names)
+            .OrderBy(c => c.SortOrder).ThenBy(c => c.Name)
+            .ToListAsync();
+        _catById = _categories.ToDictionary(c => c.Id);
+
+        _cave = await Db.CaveMaps
+            .Include(c => c.Locations)
+            .FirstOrDefaultAsync(c => c.Id == Id);
+
+        if (_cave is not null)
+        {
+            _render = Maps.Build(_cave.RawSvg);
+            RebuildMarks();
+
+            _revealRows = await Db.CaveReveals
+                .Where(rv => rv.CaveMapId == Id)
+                .ToDictionaryAsync(rv => (rv.CellX, rv.CellY));
+            _revealed = [.. _revealRows.Keys];
+
+            _notes = await Db.CaveNotes.Where(n => n.CaveMapId == Id).OrderBy(n => n.Id).ToListAsync();
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_cave is not null && !_zoomAttached)
+        {
+            _zoomAttached = true;
+            await JS.InvokeVoidAsync("townMap.attach", _frame);
+            _dotNetRef ??= DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("fogPaint.init", _frame, _dotNetRef);
+        }
+
+        if (_noteEditor is not null)
+            await JS.InvokeVoidAsync("clampPopup", ".ctx-editor");
+        else if (_editor is not null)
+            await JS.InvokeVoidAsync("clampPopup", ".ctx-editor");
+        else if (_menu is not null)
+            await JS.InvokeVoidAsync("clampPopup", ".ctx-menu");
+
+        if (_hoverCatId is not null || _hoverNoteId is not null)
+            await JS.InvokeVoidAsync("clampPopup", ".cave-tip");
+    }
+
+    public void Dispose() => _dotNetRef?.Dispose();
+
+    private async Task ZoomAsync(double factor) => await JS.InvokeVoidAsync("townMap.zoom", _frame, factor);
+    private async Task ResetZoomAsync() => await JS.InvokeVoidAsync("townMap.reset", _frame);
+
+    private void RebuildMarks() =>
+        _marks = _cave!.Locations.ToDictionary(l => (l.CellX, l.CellY));
+
+    private CaveLocation? Mark(int cellX, int cellY) => _marks.GetValueOrDefault((cellX, cellY));
+
+    private bool MarkVisibleToViewer(CaveLocation mark)
+    {
+        if (_isGm) return true;
+        if (!mark.VisibleToPlayers) return false;               // hidden from players unless the GM revealed it
+        if (!CellRevealed(mark.CellX, mark.CellY)) return false;
+        return !(_catById.GetValueOrDefault(mark.CaveCategoryId)?.IsHidden ?? false);
+    }
+
+    private bool CellRevealed(int cellX, int cellY) => _revealed.Contains((cellX, cellY));
+
+    private bool IsHiddenMark(CaveLocation mark) =>
+        _catById.GetValueOrDefault(mark.CaveCategoryId)?.IsHidden ?? false;
+
+    // Markers are fully inline-styled so their sizes scale with the per-map cell size.
+    private string MarkerStyle(CaveLocation loc)
+    {
+        var fill = CategoryColor(loc.CaveCategoryId);
+        if (_isGm && loc.VisibleToPlayers && !IsHiddenMark(loc))
+            return $"fill:{fill};stroke:#1f9d55;stroke-width:{Num(CELL * 0.07)}";
+        if (IsHiddenMark(loc))
+            return $"fill:{fill};stroke:#1a1a1a;stroke-width:{Num(CELL * 0.045)};stroke-dasharray:{Num(CELL * 0.13)} {Num(CELL * 0.09)}";
+        return $"fill:{fill};stroke:#1a1a1a;stroke-width:{Num(CELL * 0.045)}";
+    }
+
+    private string TitleFor(CaveLocation mark)
+    {
+        var sb = new System.Text.StringBuilder();
+        var catName = CategoryName(mark.CaveCategoryId);
+        sb.Append(string.IsNullOrWhiteSpace(mark.Label) ? catName : $"{mark.Label} — {catName}");
+        if (_isGm && IsHiddenMark(mark)) sb.Append(" 🔒");
+        else if (_isGm && mark.VisibleToPlayers) sb.Append(" 👁");
+        if (!string.IsNullOrWhiteSpace(mark.Notes)) sb.Append('\n').Append(mark.Notes);
+        if (_isGm && !string.IsNullOrWhiteSpace(mark.GmNotes)) sb.Append("\n\n🔒 GM: ").Append(mark.GmNotes);
+        return sb.ToString();
+    }
+
+    // ── Notes ───────────────────────────────────────────────────────────────────
+    // A note is shown to the GM always, and to players only when the GM allowed it and
+    // its square is revealed.
+    private bool NoteVisible(CaveNote n)
+    {
+        if (_isGm) return true;
+        if (!n.VisibleToPlayers) return false;
+        return _revealed.Contains(((int)Math.Floor(n.X), (int)Math.Floor(n.Y)));
+    }
+
+    // Glyphs over the map: GM sees the keyed number; players see only a star.
+    private RenderFragment NoteGlyphs => builder =>
+    {
+        var numStyle = string.Create(System.Globalization.CultureInfo.InvariantCulture,
+            $"fill:#1a1a1a;font-family:Georgia,'Times New Roman',serif;font-size:{CELL * 0.46:0.##}px;font-weight:700;text-anchor:middle;dominant-baseline:central;paint-order:stroke;stroke:#ffffff;stroke-width:{CELL * 0.11:0.##}px;pointer-events:none");
+        var starStyle = string.Create(System.Globalization.CultureInfo.InvariantCulture,
+            $"fill:#d4a017;font-size:{CELL * 0.57:0.##}px;text-anchor:middle;dominant-baseline:central;paint-order:stroke;stroke:#1a1a1a;stroke-width:{CELL * 0.04:0.##}px;pointer-events:none");
+
+        var seq = 0;
+        foreach (var n in _notes)
+        {
+            if (!NoteVisible(n)) continue;
+            if (_isGm && string.IsNullOrWhiteSpace(n.Ref)) continue;
+            builder.OpenElement(seq++, "text");
+            builder.AddAttribute(seq++, "x", Num(n.X * CELL));
+            builder.AddAttribute(seq++, "y", Num(n.Y * CELL));
+            builder.AddAttribute(seq++, "style", _isGm ? numStyle : starStyle);
+            builder.AddContent(seq++, _isGm ? n.Ref : "★");
+            builder.CloseElement();
+        }
+    };
+
+    private void EditNote(int noteId, MouseEventArgs e)
+    {
+        if (!_isGm) return;
+        var note = _notes.FirstOrDefault(n => n.Id == noteId);
+        if (note is null) return;
+        _noteRef = note.Ref ?? "";
+        _noteText = note.Text ?? "";
+        _noteVisible = note.VisibleToPlayers;
+        _noteEditor = new NoteTarget(noteId, e.ClientX, e.ClientY);
+    }
+
+    private async Task ToggleNoteVisibleAsync(int noteId)
+    {
+        if (!_isGm) return;
+        var note = _notes.FirstOrDefault(n => n.Id == noteId);
+        if (note is null) return;
+        note.VisibleToPlayers = !note.VisibleToPlayers;
+        await Db.SaveChangesAsync();
+    }
+
+    private async Task StartAddNoteAsync()
+    {
+        if (_fogMode) await SetFogModeAsync(false);
+        _addingNote = !_addingNote;
+    }
+
+    private async Task PlaceNoteAsync(int cellX, int cellY, MouseEventArgs e)
+    {
+        var nextRef = (_notes
+            .Select(n => int.TryParse(n.Ref, out var v) ? v : 0)
+            .DefaultIfEmpty(0).Max() + 1).ToString();
+
+        var note = new CaveNote
+        {
+            CaveMapId = Id,
+            Ref = nextRef,
+            Text = "",
+            X = cellX + 0.5,
+            Y = cellY + 0.5,
+        };
+        Db.CaveNotes.Add(note);
+        await Db.SaveChangesAsync();
+        _addingNote = false;
+        _notes = await Db.CaveNotes.Where(n => n.CaveMapId == Id).OrderBy(n => n.Id).ToListAsync();
+
+        _noteRef = note.Ref ?? "";
+        _noteText = "";
+        _noteVisible = false;
+        _noteEditor = new NoteTarget(note.Id, e.ClientX, e.ClientY);
+    }
+
+    private async Task SaveNoteAsync()
+    {
+        if (_noteEditor is not { } t) return;
+        var note = _notes.FirstOrDefault(n => n.Id == t.NoteId);
+        if (note is not null)
+        {
+            note.Ref = string.IsNullOrWhiteSpace(_noteRef) ? null : _noteRef.Trim();
+            note.Text = string.IsNullOrWhiteSpace(_noteText) ? null : _noteText.Trim();
+            note.VisibleToPlayers = _noteVisible;
+            await Db.SaveChangesAsync();
+        }
+        _noteEditor = null;
+    }
+
+    private async Task DeleteNoteAsync()
+    {
+        if (_noteEditor is not { } t) return;
+        var note = _notes.FirstOrDefault(n => n.Id == t.NoteId);
+        if (note is not null)
+        {
+            Db.CaveNotes.Remove(note);
+            await Db.SaveChangesAsync();
+            _notes = await Db.CaveNotes.Where(n => n.CaveMapId == Id).OrderBy(n => n.Id).ToListAsync();
+        }
+        _noteEditor = null;
+    }
+
+    // ── Square marking ──────────────────────────────────────────────────────────
+    private async Task OnCellClick(int cellX, int cellY, MouseEventArgs e)
+    {
+        if (!_isGm || _fogMode) return;
+        if (_addingNote) { await PlaceNoteAsync(cellX, cellY, e); return; }
+        _editor = null;
+        _menuExpanded = null;
+        _menu = new Target(cellX, cellY, e.ClientX, e.ClientY);
+    }
+
+    private void ToggleExpand(int categoryId) =>
+        _menuExpanded = _menuExpanded == categoryId ? null : categoryId;
+
+    private void OnCellContext(int cellX, int cellY, MouseEventArgs e)
+    {
+        if (!_isGm || _fogMode || _addingNote) return;
+        _menu = null;
+        var mark = Mark(cellX, cellY);
+        _editCategoryId = mark?.CaveCategoryId ?? 0;
+        _editName = mark?.Label ?? "";
+        _editNotes = mark?.Notes ?? "";
+        _editGmNotes = mark?.GmNotes ?? "";
+        _editVisible = mark?.VisibleToPlayers ?? false;
+        _editor = new Target(cellX, cellY, e.ClientX, e.ClientY);
+    }
+
+    private void CloseMenus()
+    {
+        _menu = null;
+        _editor = null;
+        _noteEditor = null;
+        _menuExpanded = null;
+    }
+
+    private async Task AssignFromMenuAsync(int categoryId, string? name)
+    {
+        if (_menu is not { } t) return;
+        var mark = GetOrCreate(t.CellX, t.CellY, categoryId);
+        mark.CaveCategoryId = categoryId;
+        mark.Label = string.IsNullOrWhiteSpace(name) ? null : name;
+        await SaveAsync();
+        _menu = null;
+    }
+
+    private async Task SaveEditorAsync()
+    {
+        if (_editor is not { } t) return;
+        if (_editCategoryId == 0)
+        {
+            await ClearAsync(t.CellX, t.CellY);
+            return;
+        }
+        var mark = GetOrCreate(t.CellX, t.CellY, _editCategoryId);
+        mark.CaveCategoryId = _editCategoryId;
+        mark.Label = string.IsNullOrWhiteSpace(_editName) ? null : _editName.Trim();
+        mark.Notes = string.IsNullOrWhiteSpace(_editNotes) ? null : _editNotes.Trim();
+        mark.GmNotes = string.IsNullOrWhiteSpace(_editGmNotes) ? null : _editGmNotes.Trim();
+        mark.VisibleToPlayers = _editVisible;
+        await SaveAsync();
+        _editor = null;
+    }
+
+    private async Task ClearAsync(int cellX, int cellY)
+    {
+        var existing = _cave!.Locations.FirstOrDefault(l => l.CellX == cellX && l.CellY == cellY);
+        if (existing is not null)
+        {
+            Db.CaveLocations.Remove(existing);
+            _cave.Locations.Remove(existing);
+            await SaveAsync();
+        }
+        CloseMenus();
+    }
+
+    private CaveLocation GetOrCreate(int cellX, int cellY, int categoryId)
+    {
+        var existing = _cave!.Locations.FirstOrDefault(l => l.CellX == cellX && l.CellY == cellY);
+        if (existing is not null) return existing;
+
+        var created = new CaveLocation
+        {
+            CaveMapId = _cave.Id,
+            CellX = cellX,
+            CellY = cellY,
+            CaveCategoryId = categoryId,
+        };
+        _cave.Locations.Add(created);
+        Db.CaveLocations.Add(created);
+        return created;
+    }
+
+    private async Task SaveAsync()
+    {
+        if (!_isGm) return;
+        await Db.SaveChangesAsync();
+        RebuildMarks();
+    }
+
+    // ── Modes & fog of war ──────────────────────────────────────────────────────
+    private async Task SetFogModeAsync(bool on)
+    {
+        _fogMode = on;
+        _addingNote = false;
+        CloseMenus();
+        await JS.InvokeVoidAsync("fogPaint.setEnabled", on);
+    }
+
+    [JSInvokable]
+    public async Task ApplyFogBatch(int[] cells, bool reveal)
+    {
+        if (!_isGm || _cave is null || cells is null) return;
+
+        for (int i = 0; i + 1 < cells.Length; i += 2)
+        {
+            if (reveal) RevealCell(cells[i], cells[i + 1]);
+            else HideCell(cells[i], cells[i + 1]);
+        }
+        await Db.SaveChangesAsync();
+        StateHasChanged();
+    }
+
+    private async Task RevealAllAsync()
+    {
+        if (!_isGm || _render is null) return;
+        foreach (var cell in _render.Cells()) RevealCell(cell.X, cell.Y);
+        await Db.SaveChangesAsync();
+    }
+
+    private async Task HideAllAsync()
+    {
+        if (!_isGm) return;
+        Db.CaveReveals.RemoveRange(_revealRows.Values);
+        _revealRows.Clear();
+        _revealed.Clear();
+        await Db.SaveChangesAsync();
+    }
+
+    private void RevealCell(int cellX, int cellY)
+    {
+        if (_revealRows.ContainsKey((cellX, cellY))) return;
+        var row = new CaveReveal { CaveMapId = _cave!.Id, CellX = cellX, CellY = cellY };
+        Db.CaveReveals.Add(row);
+        _revealRows[(cellX, cellY)] = row;
+        _revealed.Add((cellX, cellY));
+    }
+
+    private void HideCell(int cellX, int cellY)
+    {
+        if (_revealRows.TryGetValue((cellX, cellY), out var row))
+        {
+            Db.CaveReveals.Remove(row);
+            _revealRows.Remove((cellX, cellY));
+            _revealed.Remove((cellX, cellY));
+        }
+    }
+
+    private string CategoryColor(int id) => _catById.GetValueOrDefault(id)?.ColorHex ?? "#999999";
+    private string CategoryName(int id) => _catById.GetValueOrDefault(id)?.Name ?? "—";
+
+    // ── Legend hover hints (GM only) ────────────────────────────────────────────
+    private void ShowTip(int catId, MouseEventArgs e)
+    {
+        if (!_isGm) return;
+        _hoverCatId = catId;
+        _hoverX = e.ClientX - 300;   // grow leftward of the legend card; clampPopup corrects the edge
+        _hoverY = e.ClientY - 10;
+    }
+
+    private void HideTip() => _hoverCatId = null;
+
+    // GM hovers a keyed-note number on the map → show its description.
+    private void ShowNoteTip(int noteId, MouseEventArgs e)
+    {
+        if (!_isGm) return;
+        _hoverNoteId = noteId;
+        _hoverNoteX = e.ClientX + 14;   // sit just to the right of the cursor; clampPopup corrects the edge
+        _hoverNoteY = e.ClientY + 14;
+    }
+
+    private void HideNoteTip() => _hoverNoteId = null;
+
+    private static readonly string[] _genericSuggestion =
+        ["Curious rock formations", "Signs of passage", "A hidden detail", "Something worth a closer look"];
+
+    private string[] SuggestionFor(string name) =>
+        _suggestions.GetValueOrDefault(name, _genericSuggestion);
+
+    // Evocative "what might be found here" item lists, keyed by the built-in legend names.
+    private static readonly Dictionary<string, string[]> _suggestions = new()
+    {
+        ["Underground Lake"] =
+            ["Still black water", "A pale eyeless fish", "A half-sunk boat", "A glittering coin-bed", "A drowned passage",
+             "Lapping echoes", "A slick mineral shore", "A faint sulphur smell", "Ripples with no wind", "Something large below"],
+        ["Underground Stream"] =
+            ["Clear running water", "Smooth-worn stones", "A natural ford", "Safe water to drink", "Blind cave shrimp",
+             "A carved channel", "A small waterfall", "Mossy banks", "Driftwood and bones", "The current's tug"],
+        ["Crystal Vein"] =
+            ["Glittering quartz", "Faintly glowing crystals", "A geode cluster", "Sharp prism shards", "A humming resonance",
+             "Gem-flecked walls", "A reflective gallery", "A valuable specimen", "A crystal that's warm", "Light that bends oddly"],
+        ["Mineral Deposit"] =
+            ["A seam of ore", "Iron-stained rock", "Veins of silver", "A salt crust", "Sulphur-yellow streaks",
+             "Worth a miner's claim", "Brittle flaking stone", "A rich pocket", "Old pick-marks", "A metallic tang"],
+        ["Fungal Grove"] =
+            ["Glowing mushrooms", "A spore-thick haze", "Pale toadstool rings", "Edible — or deadly — caps", "A faint blue light",
+             "Soft rotting wood", "Drifting spores", "A giant bracket fungus", "Crunching underfoot", "A medicinal lichen"],
+        ["Stalagmite Hall"] =
+            ["A forest of stone", "Dripping stalactites", "Joined pillars", "A flowstone curtain", "Echoing drips",
+             "Razor-edged cones", "A natural colonnade", "Glistening wet rock", "A hidden gap between", "Footing to test"],
+        ["Bat Roost"] =
+            ["A ceiling of bats", "Reeking guano drifts", "A shrieking swarm", "A slick black floor", "Tiny watching eyes",
+             "A choking ammonia stench", "Bones in the droppings", "Disturbed, they erupt", "A roosting cleft", "Echoes of wings"],
+        ["Beast Den"] =
+            ["Gnawed bones", "A reeking nest", "A territorial predator", "Claw-scored walls", "The smell of musk",
+             "Scattered prey-remains", "A cub or clutch", "A worn game-trail in", "Half-eaten carrion", "Eyes in the dark"],
+        ["Bottomless Chasm"] =
+            ["A yawning black drop", "No echo from below", "A frayed old rope", "A precarious ledge", "Cold air rising",
+             "A narrow stone span", "Loose scree at the edge", "A dropped light fading", "Something climbing up", "A vertigo pull"],
+        ["Cave-In / Rubble"] =
+            ["A collapsed passage", "A heap of broken stone", "A blocked way on", "Dust still settling", "A crushed skeleton",
+             "An unstable ceiling", "A gap to dig through", "Creaking, shifting rock", "A trapped pocket of air", "Diggers' tools"],
+        ["Old Campsite"] =
+            ["A cold fire-ring", "Discarded gear", "A bedroll and pack", "Charcoal sketches", "Scratched tally-marks",
+             "A cached ration tin", "Left in a hurry", "A guttered torch-stub", "A scrawled warning", "Days-old ash"],
+        ["Cave Painting / Shrine"] =
+            ["Ochre hand-prints", "A painted hunt", "A crude carved idol", "Offerings of bone", "A worn ritual circle",
+             "Faded pigment figures", "A sense of being watched", "An ancient warning glyph", "Stacked skull-cairns", "A once-sacred place"],
+        ["Trap"] =
+            ["A concealed pit", "Loose deadfall scree", "A snare in the dark", "A flooding sump", "A gas pocket",
+             "A tripwire rockfall", "A collapsing ledge", "A slick-rock slide", "Falling stalactites", "Bait left to lure"],
+        ["Hidden Cache"] =
+            ["A loose rock nook", "A sunken bundle", "A hollow stalagmite", "A wedged lockbox", "A pouch in a cranny",
+             "A sealed clay jar", "Coin under the guano", "A waterproofed pack", "A buried strongbox", "A single hidden key"],
+        ["Secret Passage"] =
+            ["A crack behind a boulder", "A submerged tunnel", "A narrow squeeze", "A false cave wall", "A chimney shaft up",
+             "A curtain of stalactites", "A draught of fresh air", "A loose rubble plug", "The way behind the falls", "A concealed crawlway"],
+        ["Ambush"] =
+            ["Shadowed clefts", "Eyes that don't blink", "A sprung snare", "Silence too complete", "A predator's patience",
+             "A choke-point", "Camouflaged shapes", "A cut-off retreat", "Held breath in the dark", "The strike before you see it"],
+    };
+
+    private static string Px(double v) => v.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) + "px";
+    private static string Num(double v) => v.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+}

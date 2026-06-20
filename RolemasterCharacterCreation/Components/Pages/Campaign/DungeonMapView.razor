@@ -1,0 +1,1037 @@
+@page "/campaign/dungeons/{Id:int}"
+@rendermode InteractiveServer
+@attribute [Authorize]
+@using RolemasterCharacterCreation.Data
+@inject AppDbContext Db
+@inject DungeonMapService Maps
+@inject AuthenticationStateProvider AuthState
+@inject IJSRuntime JS
+@implements IDisposable
+
+<PageTitle>@(_dungeon?.Name ?? "Dungeon")</PageTitle>
+
+@if (_dungeon is null)
+{
+    <p class="text-muted">Loading…</p>
+}
+else
+{
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="mb-0">@_dungeon.Name</h2>
+            @if (!string.IsNullOrWhiteSpace(_dungeon.Description))
+            {
+                <div class="text-muted small">@_dungeon.Description</div>
+            }
+        </div>
+        <a class="btn btn-outline-secondary btn-sm" href="/campaign/dungeons">← All Dungeons</a>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-9">
+            <div class="dgn-frame" @ref="_frame">
+                <div class="town-zoom-controls" @onpointerdown:stopPropagation="true">
+                    <button class="btn btn-sm btn-light" title="Zoom in" @onclick="() => ZoomAsync(1.25)">+</button>
+                    <button class="btn btn-sm btn-light" title="Zoom out" @onclick="() => ZoomAsync(0.8)">−</button>
+                    <button class="btn btn-sm btn-light" title="Reset zoom" @onclick="ResetZoomAsync">⤢</button>
+                </div>
+                <svg viewBox="@_render!.ViewBox" class="dgn-map" preserveAspectRatio="xMidYMid meet">
+                    <defs>
+                        <clipPath id="dgn-floor">
+                            @foreach (var r in _render!.Rects)
+                            {
+                                @if (r.Rotunda)
+                                {
+                                    <circle cx="@Num(r.Cx)" cy="@Num(r.Cy)" r="@Num(r.W / 2)" />
+                                }
+                                else
+                                {
+                                    <rect x="@Num(r.X)" y="@Num(r.Y)" width="@Num(r.W)" height="@Num(r.H)" />
+                                }
+                            }
+                        </clipPath>
+                        <pattern id="dgn-grid" width="@Num(DungeonMapService.S)" height="@Num(DungeonMapService.S)"
+                                 patternUnits="userSpaceOnUse">
+                            <path d="M @Num(DungeonMapService.S) 0 L 0 0 0 @Num(DungeonMapService.S)"
+                                  fill="none" stroke="rgba(40,40,40,0.14)" stroke-width="0.5" stroke-dasharray="1.5 1.5" />
+                        </pattern>
+                        <mask id="dgn-fog">
+                            <rect x="@Num(_render.MinX)" y="@Num(_render.MinY)" width="@Num(_render.Width)" height="@Num(_render.Height)" fill="white" />
+                            @foreach (var idx in _revealed)
+                            {
+                                @if (_rectById.TryGetValue(idx, out var rr))
+                                {
+                                    <rect x="@Num(rr.X)" y="@Num(rr.Y)" width="@Num(rr.W)" height="@Num(rr.H)" fill="black" />
+                                }
+                            }
+                        </mask>
+                    </defs>
+
+                    @* Floor rooms — display only (rects, or circles for rotundas). *@
+                    @foreach (var r in _render.Rects)
+                    {
+                        @if (r.Rotunda)
+                        {
+                            <circle cx="@Num(r.Cx)" cy="@Num(r.Cy)" r="@Num(r.W / 2)" class="dgn-room" />
+                        }
+                        else
+                        {
+                            <rect x="@Num(r.X)" y="@Num(r.Y)" width="@Num(r.W)" height="@Num(r.H)" class="dgn-room" />
+                        }
+                    }
+
+                    <rect x="@Num(_render.MinX)" y="@Num(_render.MinY)" width="@Num(_render.Width)" height="@Num(_render.Height)"
+                          fill="url(#dgn-grid)" clip-path="url(#dgn-floor)" class="dgn-decor" />
+
+                    @foreach (var w in _render.Water)
+                    {
+                        <rect x="@Num(w.X)" y="@Num(w.Y)" width="@Num(w.Size)" height="@Num(w.Size)" class="dgn-water" />
+                    }
+
+                    @* Walls: square segments + circle outlines for rotundas. *@
+                    @foreach (var wall in _render.Walls)
+                    {
+                        <line x1="@Num(wall.X1)" y1="@Num(wall.Y1)" x2="@Num(wall.X2)" y2="@Num(wall.Y2)" class="dgn-wall" />
+                    }
+                    @foreach (var r in _render.Rects)
+                    {
+                        @if (r.Rotunda)
+                        {
+                            <circle cx="@Num(r.Cx)" cy="@Num(r.Cy)" r="@Num(r.W / 2)" class="dgn-wall" fill="none" />
+                        }
+                    }
+
+                    @* Doors: white gap erases the wall, then a thin leaf marks the opening. *@
+                    @foreach (var d in _render.Doors)
+                    {
+                        @if (d.Vertical)
+                        {
+                            <line x1="@Num(d.Cx)" y1="@Num(d.Cy - DungeonMapService.S / 2)" x2="@Num(d.Cx)" y2="@Num(d.Cy + DungeonMapService.S / 2)" class="dgn-doorgap" />
+                            <line x1="@Num(d.Cx - DungeonMapService.S * 0.3)" y1="@Num(d.Cy)" x2="@Num(d.Cx + DungeonMapService.S * 0.3)" y2="@Num(d.Cy)" class="dgn-door" />
+                        }
+                        else
+                        {
+                            <line x1="@Num(d.Cx - DungeonMapService.S / 2)" y1="@Num(d.Cy)" x2="@Num(d.Cx + DungeonMapService.S / 2)" y2="@Num(d.Cy)" class="dgn-doorgap" />
+                            <line x1="@Num(d.Cx)" y1="@Num(d.Cy - DungeonMapService.S * 0.3)" x2="@Num(d.Cx)" y2="@Num(d.Cy + DungeonMapService.S * 0.3)" class="dgn-door" />
+                        }
+                    }
+
+                    @foreach (var col in _render.Columns)
+                    {
+                        <circle cx="@Num(col.X)" cy="@Num(col.Y)" r="1.8" class="dgn-column" />
+                    }
+
+                    @* Legend markers — a small coloured circle on a square. A room can hold several. *@
+                    @foreach (var loc in _dungeon.Locations)
+                    {
+                        @if (MarkVisibleToViewer(loc))
+                        {
+                            <circle cx="@Num((loc.CellX + 0.5) * DungeonMapService.S)" cy="@Num((loc.CellY + 0.5) * DungeonMapService.S)"
+                                    r="3" class="dgn-marker @(IsHiddenMark(loc) ? "dgn-marker-hidden" : null) @(_isGm && loc.VisibleToPlayers && !IsHiddenMark(loc) ? "dgn-marker-shown" : null)"
+                                    style="fill:@CategoryColor(loc.DungeonCategoryId)">
+                                <title>@TitleFor(loc)</title>
+                            </circle>
+                        }
+                    }
+
+                    @* Clickable squares (GM, Edit rooms): left-click to add a legend, right-click to edit. *@
+                    @if (_isGm && !_fogMode)
+                    {
+                        @foreach (var cell in _render.Cells)
+                        {
+                            var cm = Mark(cell.X, cell.Y);
+                            <rect x="@Num(cell.X * DungeonMapService.S)" y="@Num(cell.Y * DungeonMapService.S)"
+                                  width="@Num(DungeonMapService.S)" height="@Num(DungeonMapService.S)" class="dgn-cell"
+                                  @onclick="e => OnCellClick(cell.X, cell.Y, e)"
+                                  @oncontextmenu="e => OnCellContext(cell.X, cell.Y, e)" @oncontextmenu:preventDefault="true">
+                                @if (cm is not null) { <title>@TitleFor(cm)</title> }
+                            </rect>
+                        }
+                    }
+
+                    @* Keyed notes — GM sees a numbered circle; players see only a star. *@
+                    @if (_showNotes)
+                    {
+                        @foreach (var n in _notes)
+                        {
+                            @if (NoteVisible(n))
+                            {
+                                <circle cx="@Num(n.X * DungeonMapService.S)" cy="@Num(n.Y * DungeonMapService.S)" r="4.5"
+                                        class="dgn-note-marker @(_isGm && n.VisibleToPlayers ? "dgn-note-shown" : null) @(_isGm ? "dgn-note-hot" : null)"
+                                        @onmouseover="e => ShowNoteTip(n.Id, e)" @onmouseout="HideNoteTip" />
+                            }
+                        }
+                        @NoteGlyphs
+                    }
+
+                    @* Fog overlay: opaque for players, faint for the GM. *@
+                    @if (!_isGm || _showFog)
+                    {
+                        <rect x="@Num(_render.MinX)" y="@Num(_render.MinY)" width="@Num(_render.Width)" height="@Num(_render.Height)"
+                              class="@(_isGm ? "dgn-fog-gm" : "dgn-fog-player")" mask="url(#dgn-fog)" />
+                    }
+
+                    @* Fog-paint layer (GM fog mode): click or drag a room to reveal / hide it. *@
+                    @if (_isGm && _fogMode)
+                    {
+                        @foreach (var r in _render.Rects)
+                        {
+                            <rect x="@Num(r.X)" y="@Num(r.Y)" width="@Num(r.W)" height="@Num(r.H)"
+                                  data-q="@r.Index" data-r="0"
+                                  class="wm-fc @(_revealed.Contains(r.Index) ? "wm-fc-on" : "wm-fc-off")"
+                                  @oncontextmenu:preventDefault="true" @oncontextmenu:stopPropagation="true" />
+                        }
+                    }
+                </svg>
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            @if (_isGm)
+            {
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="btn-group btn-group-sm w-100 mb-2" role="group">
+                            <button class="btn @(_fogMode ? "btn-outline-secondary" : "btn-dark")"
+                                    @onclick="() => SetFogModeAsync(false)">Edit rooms</button>
+                            <button class="btn @(_fogMode ? "btn-dark" : "btn-outline-secondary")"
+                                    @onclick="() => SetFogModeAsync(true)">Fog of war</button>
+                        </div>
+                        @if (_fogMode)
+                        {
+                            <p class="small text-muted mb-2">
+                                Click a room to <strong>reveal</strong> it to players; click a revealed room to hide it.
+                                Drag to paint several.
+                            </p>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-success" @onclick="RevealAllAsync">Reveal all</button>
+                                <button class="btn btn-sm btn-outline-danger" @onclick="HideAllAsync">Hide all</button>
+                            </div>
+                            <div class="small text-muted mt-2">@_revealed.Count room@(_revealed.Count == 1 ? "" : "s") revealed</div>
+                        }
+                        else
+                        {
+                            <ul class="small text-muted mb-2 ps-3">
+                                <li><strong>Left-click</strong> a square → pick a legend, then a name.</li>
+                                <li><strong>Right-click</strong> a marked square → edit or remove it.</li>
+                                <li>Add several legends to the same room on different squares.</li>
+                                <li>🔒 Hidden types (traps, secret doors) are never shown to players.</li>
+                            </ul>
+                            <a class="btn btn-link btn-sm px-0" href="/campaign/dungeon-categories">Edit legend…</a>
+                        }
+                    </div>
+                </div>
+            }
+
+            <div class="card mb-3">
+                <div class="card-body py-2">
+                    <h6 class="card-title">Map layers</h6>
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" id="dgnNotes" @bind="_showNotes" />
+                        <label class="form-check-label small" for="dgnNotes">Notes</label>
+                    </div>
+                    @if (_isGm)
+                    {
+                        <div class="form-check form-switch mb-0">
+                            <input class="form-check-input" type="checkbox" id="dgnFog" @bind="_showFog" />
+                            <label class="form-check-label small" for="dgnFog">Fog overlay</label>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">Legend</h6>
+                    @{ var legend = _categories.Where(c => _isGm || !c.IsHidden).ToList(); }
+                    @if (legend.Count == 0)
+                    {
+                        <p class="small text-muted mb-0">No legend defined.</p>
+                    }
+                    else
+                    {
+                        <ul class="list-unstyled mb-0 small">
+                            @foreach (var c in legend)
+                            {
+                                var count = _dungeon.Locations.Count(l => l.DungeonCategoryId == c.Id);
+                                <li class="@(_isGm ? "dgn-legend-row " : "")d-flex justify-content-between align-items-center py-1"
+                                    @onmouseover="e => ShowTip(c.Id, e)" @onmouseout="HideTip">
+                                    <span>
+                                        <span class="town-swatch" style="background:@c.ColorHex"></span> @c.Name
+                                        @if (c.IsHidden) { <span title="Hidden from players">🔒</span> }
+                                    </span>
+                                    @if (_isGm && count > 0)
+                                    {
+                                        <span class="badge bg-secondary">@count</span>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
+
+            @if (_isGm)
+            {
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h6 class="card-title">Keyed locations</h6>
+                        @if (_notes.Count == 0)
+                        {
+                            <p class="small text-muted mb-0">No notes yet.</p>
+                        }
+                        else
+                        {
+                            <ul class="list-unstyled mb-0 small dgn-note-list">
+                                @foreach (var n in _notes)
+                                {
+                                    <li class="d-flex justify-content-between align-items-start py-1">
+                                        <span>
+                                            <strong>@(string.IsNullOrWhiteSpace(n.Ref) ? "•" : n.Ref).</strong> @n.Text
+                                            @if (n.VisibleToPlayers) { <span title="Shown to players (star)">⭐</span> }
+                                        </span>
+                                        <span class="text-nowrap ms-2">
+                                            <button class="btn btn-sm btn-link p-0 @(n.VisibleToPlayers ? "" : "text-muted")"
+                                                    title="@(n.VisibleToPlayers ? "Shown to players — click to hide" : "Hidden from players — click to show a star")"
+                                                    @onclick="() => ToggleNoteVisibleAsync(n.Id)">@(n.VisibleToPlayers ? "👁" : "🚫")</button>
+                                            <button class="btn btn-sm btn-link p-0 ms-1" title="Edit" @onclick="e => EditNote(n.Id, e)">✎</button>
+                                        </span>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        <button class="btn btn-sm @(_addingNote ? "btn-warning" : "btn-outline-success") mt-2"
+                                @onclick="StartAddNoteAsync">
+                            @(_addingNote ? "Click a room to place…" : "+ Add note")
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@* Legend hover: creative "what's found here" hint ──────────────── *@
+@if (_hoverCatId is { } hcid && _catById.GetValueOrDefault(hcid) is { } hc)
+{
+    <div class="dgn-tip" style="left:@Px(_hoverX); top:@Px(_hoverY)">
+        <div class="dgn-tip-head">
+            <span class="town-swatch" style="background:@hc.ColorHex"></span> @hc.Name
+            @if (hc.IsHidden) { <span title="Hidden from players">🔒</span> }
+        </div>
+        <div class="dgn-tip-body">
+            @foreach (var s in SuggestionFor(hc.Name))
+            {
+                <div class="dgn-tip-item">@s</div>
+            }
+        </div>
+    </div>
+}
+
+@* Keyed-note hover (GM only): show the note's text over its number on the map ─── *@
+@if (_isGm && _hoverNoteId is { } hnid && _notes.FirstOrDefault(n => n.Id == hnid) is { } hn)
+{
+    <div class="dgn-tip" style="left:@Px(_hoverNoteX); top:@Px(_hoverNoteY)">
+        <div class="dgn-tip-head">
+            <span>@(string.IsNullOrWhiteSpace(hn.Ref) ? "Note" : $"Note {hn.Ref}")</span>
+            @if (hn.VisibleToPlayers) { <span title="Shown to players (star)">⭐</span> }
+        </div>
+        <div class="dgn-tip-body">
+            @if (string.IsNullOrWhiteSpace(hn.Text))
+            {
+                <span class="text-muted fst-italic">No description yet.</span>
+            }
+            else
+            {
+                @hn.Text
+            }
+        </div>
+    </div>
+}
+
+@* Room left-click: type → name popup ───────────────────────────── *@
+@if (_menu is { } m)
+{
+    <div class="ctx-backdrop" @onclick="CloseMenus" @oncontextmenu="CloseMenus" @oncontextmenu:preventDefault="true"></div>
+    <div class="ctx-menu" style="left:@Px(m.X); top:@Px(m.Y)">
+        <div class="ctx-title">Mark square</div>
+        <div class="ctx-scroll">
+            @foreach (var c in _categories)
+            {
+                @if (c.Names.Count > 0)
+                {
+                    @* Legends with a preset name list (Trap, Secret Door, Hidden Cache) expand inline. *@
+                    <div class="ctx-item" @onclick="() => ToggleExpand(c.Id)">
+                        <span class="town-swatch" style="background:@c.ColorHex"></span>
+                        <span class="ctx-label">@c.Name @(c.IsHidden ? "🔒" : "")</span>
+                        <span class="ctx-arrow">@(_menuExpanded == c.Id ? "▾" : "▸")</span>
+                    </div>
+                    @if (_menuExpanded == c.Id)
+                    {
+                        <div class="ctx-subitem ctx-muted" @onclick="() => AssignFromMenuAsync(c.Id, null)">— type only —</div>
+                        @foreach (var n in c.Names.OrderBy(n => n.Id))
+                        {
+                            <div class="ctx-subitem ctx-indent" @onclick="() => AssignFromMenuAsync(c.Id, n.Name)">@n.Name</div>
+                        }
+                    }
+                }
+                else
+                {
+                    <div class="ctx-item" @onclick="() => AssignFromMenuAsync(c.Id, null)">
+                        <span class="town-swatch" style="background:@c.ColorHex"></span>
+                        <span class="ctx-label">@c.Name @(c.IsHidden ? "🔒" : "")</span>
+                    </div>
+                }
+            }
+        </div>
+        @if (Mark(m.CellX, m.CellY) is not null)
+        {
+            <div class="ctx-sep"></div>
+            <div class="ctx-item ctx-danger" @onclick="() => ClearAsync(m.CellX, m.CellY)">✕ Remove marking</div>
+        }
+    </div>
+}
+
+@* Room right-click: edit name & notes ───────────────────────────── *@
+@if (_editor is { } ed)
+{
+    <div class="ctx-backdrop" @onclick="CloseMenus" @oncontextmenu="CloseMenus" @oncontextmenu:preventDefault="true"></div>
+    <div class="ctx-editor" style="left:@Px(ed.X); top:@Px(ed.Y)">
+        <div class="ctx-title">Edit square</div>
+        <label class="form-label small mb-1">Type</label>
+        <select class="form-select form-select-sm mb-2" @bind="_editCategoryId">
+            <option value="0">— none (unmark) —</option>
+            @foreach (var c in _categories)
+            {
+                <option value="@c.Id">@c.Name@(c.IsHidden ? " 🔒" : "")</option>
+            }
+        </select>
+        <label class="form-label small mb-1">Name</label>
+        <input class="form-control form-control-sm mb-2" @bind="_editName" placeholder="e.g. The Sundered Tomb" />
+        @{ var editHidden = _catById.GetValueOrDefault(_editCategoryId)?.IsHidden ?? false; }
+        <div class="form-check form-switch mb-2">
+            <input class="form-check-input" type="checkbox" id="dgnMarkVisible"
+                   @bind="_editVisible" disabled="@editHidden" />
+            <label class="form-check-label small" for="dgnMarkVisible">
+                👁 Show this legend to players
+            </label>
+            @if (editHidden)
+            {
+                <div class="text-muted small">Hidden legend types are never shown to players.</div>
+            }
+            else
+            {
+                <div class="text-muted small">Off by default. Players still only see it once the room is revealed.</div>
+            }
+        </div>
+        <label class="form-label small mb-1">
+            Additional information <span class="text-muted fw-normal">(players can see this)</span>
+        </label>
+        <textarea class="form-control form-control-sm mb-2" rows="2" @bind="_editNotes"
+                  placeholder="What players notice on entering…"></textarea>
+        <label class="form-label small mb-1">
+            🔒 GM notes <span class="text-muted fw-normal">(only you)</span>
+        </label>
+        <textarea class="form-control form-control-sm mb-2 ctx-gmnotes" rows="3" @bind="_editGmNotes"
+                  placeholder="Encounter, mechanics, treasure, plot hooks…"></textarea>
+        <div class="d-flex justify-content-between">
+            <button class="btn btn-sm btn-secondary" @onclick="CloseMenus">Cancel</button>
+            <button class="btn btn-sm btn-primary" @onclick="SaveEditorAsync">Save</button>
+        </div>
+    </div>
+}
+
+@* Note editor ──────────────────────────────────────────────────── *@
+@if (_noteEditor is { } ne)
+{
+    <div class="ctx-backdrop" @onclick="CloseMenus" @oncontextmenu="CloseMenus" @oncontextmenu:preventDefault="true"></div>
+    <div class="ctx-editor" style="left:@Px(ne.X); top:@Px(ne.Y)">
+        <div class="ctx-title">Edit note</div>
+        <label class="form-label small mb-1">Number / label</label>
+        <input class="form-control form-control-sm mb-2" style="max-width:8rem" @bind="_noteRef" placeholder="e.g. 1" />
+        <label class="form-label small mb-1">Description</label>
+        <textarea class="form-control form-control-sm mb-2" rows="3" @bind="_noteText"
+                  placeholder="What is keyed at this spot…"></textarea>
+        <div class="form-check form-switch mb-2">
+            <input class="form-check-input" type="checkbox" id="dgnNoteVisible" @bind="_noteVisible" />
+            <label class="form-check-label small" for="dgnNoteVisible">⭐ Show to players</label>
+            <div class="text-muted small">Players see a star here (no number or text) once the room is revealed.</div>
+        </div>
+        <div class="d-flex justify-content-between">
+            <button class="btn btn-sm btn-outline-danger" @onclick="DeleteNoteAsync">Delete</button>
+            <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-secondary" @onclick="CloseMenus">Cancel</button>
+                <button class="btn btn-sm btn-primary" @onclick="SaveNoteAsync">Save</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private DungeonMap? _dungeon;
+    private DungeonMapService.DungeonRender? _render;
+    private List<DungeonCategory> _categories = [];
+    private Dictionary<int, DungeonCategory> _catById = [];
+    private Dictionary<(int X, int Y), DungeonLocation> _marks = [];
+    private Dictionary<int, DungeonMapService.Rect> _rectById = [];
+    private Dictionary<int, List<int>> _rectsInRoom = [];
+    private Dictionary<int, List<int>> _revealGroup = [];
+    private List<DungeonNote> _notes = [];
+    private bool _isGm;
+
+    private bool _showFog = true;
+    private bool _showNotes = true;
+    private bool _fogMode;
+    private bool _addingNote;
+    private HashSet<int> _revealed = [];
+    private Dictionary<int, DungeonReveal> _revealRows = [];
+    private ElementReference _frame;
+    private bool _zoomAttached;
+    private DotNetObjectReference<DungeonMapView>? _dotNetRef;
+
+    private sealed record Target(int CellX, int CellY, double X, double Y);
+    private Target? _menu;
+    private Target? _editor;
+    private int? _menuExpanded;
+    private int _editCategoryId;
+    private string _editName = "";
+    private string _editNotes = "";
+    private string _editGmNotes = "";
+    private bool _editVisible;
+
+    private int? _hoverCatId;
+    private double _hoverX, _hoverY;
+
+    private int? _hoverNoteId;
+    private double _hoverNoteX, _hoverNoteY;
+
+    private sealed record NoteTarget(int NoteId, double X, double Y);
+    private NoteTarget? _noteEditor;
+    private string _noteRef = "";
+    private string _noteText = "";
+    private bool _noteVisible;
+
+    private const string NoteNumberStyle =
+        "fill:#1a1a1a;font-family:Georgia,'Times New Roman',serif;font-size:6px;font-weight:700;" +
+        "text-anchor:middle;dominant-baseline:central;paint-order:stroke;stroke:#ffffff;stroke-width:1.4px;pointer-events:none";
+
+    private const string NoteStarStyle =
+        "fill:#d4a017;font-size:7px;text-anchor:middle;dominant-baseline:central;" +
+        "paint-order:stroke;stroke:#1a1a1a;stroke-width:0.5px;pointer-events:none";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthState.GetAuthenticationStateAsync();
+        _isGm = auth.User.IsInRole(Roles.Gamemaster);
+
+        _categories = await Db.DungeonCategories
+            .Include(c => c.Names)
+            .OrderBy(c => c.SortOrder).ThenBy(c => c.Name)
+            .ToListAsync();
+        _catById = _categories.ToDictionary(c => c.Id);
+
+        _dungeon = await Db.DungeonMaps
+            .Include(d => d.Locations)
+            .FirstOrDefaultAsync(d => d.Id == Id);
+
+        if (_dungeon is not null)
+        {
+            _render = Maps.Build(_dungeon.RawJson);
+            _rectById = _render.Rects.ToDictionary(r => r.Index);
+            _rectsInRoom = _render.Rects.GroupBy(r => r.RoomId)
+                .ToDictionary(g => g.Key, g => g.Select(r => r.Index).ToList());
+            BuildRevealGroups();
+            RebuildMarks();
+
+            _revealRows = await Db.DungeonReveals
+                .Where(rv => rv.DungeonMapId == Id)
+                .ToDictionaryAsync(rv => rv.RectIndex);
+            _revealed = [.. _revealRows.Keys];
+
+            await LoadNotesAsync(seedIfEmpty: true);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_dungeon is not null && !_zoomAttached)
+        {
+            _zoomAttached = true;
+            await JS.InvokeVoidAsync("townMap.attach", _frame);
+            _dotNetRef ??= DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("fogPaint.init", _frame, _dotNetRef);
+        }
+
+        if (_noteEditor is not null)
+            await JS.InvokeVoidAsync("clampPopup", ".ctx-editor");
+        else if (_editor is not null)
+            await JS.InvokeVoidAsync("clampPopup", ".ctx-editor");
+        else if (_menu is not null)
+            await JS.InvokeVoidAsync("clampPopup", ".ctx-menu");
+
+        if (_hoverCatId is not null || _hoverNoteId is not null)
+            await JS.InvokeVoidAsync("clampPopup", ".dgn-tip");
+    }
+
+    public void Dispose() => _dotNetRef?.Dispose();
+
+    private async Task ZoomAsync(double factor) => await JS.InvokeVoidAsync("townMap.zoom", _frame, factor);
+    private async Task ResetZoomAsync() => await JS.InvokeVoidAsync("townMap.reset", _frame);
+
+    private void RebuildMarks() =>
+        _marks = _dungeon!.Locations.ToDictionary(l => (l.CellX, l.CellY));
+
+    private DungeonLocation? Mark(int cellX, int cellY) => _marks.GetValueOrDefault((cellX, cellY));
+
+    private bool MarkVisibleToViewer(DungeonLocation mark)
+    {
+        if (_isGm) return true;
+        if (!mark.VisibleToPlayers) return false;               // hidden from players unless the GM revealed it
+        if (!CellRevealed(mark.CellX, mark.CellY)) return false;
+        return !(_catById.GetValueOrDefault(mark.DungeonCategoryId)?.IsHidden ?? false);
+    }
+
+    // A square is revealed to players once any room rectangle covering it is revealed.
+    private bool CellRevealed(int cellX, int cellY)
+    {
+        double px = (cellX + 0.5) * DungeonMapService.S, py = (cellY + 0.5) * DungeonMapService.S;
+        foreach (var r in _render!.Rects)
+            if (_revealed.Contains(r.Index) && px >= r.X && px <= r.X + r.W && py >= r.Y && py <= r.Y + r.H)
+                return true;
+        return false;
+    }
+
+    private bool IsHiddenMark(DungeonLocation mark) =>
+        _catById.GetValueOrDefault(mark.DungeonCategoryId)?.IsHidden ?? false;
+
+    private string TitleFor(DungeonLocation mark)
+    {
+        var sb = new System.Text.StringBuilder();
+        var catName = CategoryName(mark.DungeonCategoryId);
+        sb.Append(string.IsNullOrWhiteSpace(mark.Label) ? catName : $"{mark.Label} — {catName}");
+        if (_isGm && IsHiddenMark(mark)) sb.Append(" 🔒");
+        else if (_isGm && mark.VisibleToPlayers) sb.Append(" 👁");
+        if (!string.IsNullOrWhiteSpace(mark.Notes)) sb.Append('\n').Append(mark.Notes);
+        if (_isGm && !string.IsNullOrWhiteSpace(mark.GmNotes)) sb.Append("\n\n🔒 GM: ").Append(mark.GmNotes);
+        return sb.ToString();
+    }
+
+    // ── Notes ───────────────────────────────────────────────────────────────────
+    private async Task LoadNotesAsync(bool seedIfEmpty)
+    {
+        _notes = await Db.DungeonNotes.Where(n => n.DungeonMapId == Id).OrderBy(n => n.Id).ToListAsync();
+
+        // First time a GM opens a dungeon, import the file's authored notes so they
+        // become editable rows. Players never trigger a write.
+        if (seedIfEmpty && _isGm && _notes.Count == 0)
+        {
+            var seeds = Maps.ExtractNotes(_dungeon!.RawJson);
+            if (seeds.Count > 0)
+            {
+                foreach (var s in seeds)
+                    Db.DungeonNotes.Add(new DungeonNote { DungeonMapId = Id, Ref = s.Ref, Text = s.Text, X = s.X, Y = s.Y });
+                await Db.SaveChangesAsync();
+                _notes = await Db.DungeonNotes.Where(n => n.DungeonMapId == Id).OrderBy(n => n.Id).ToListAsync();
+            }
+        }
+    }
+
+    // A note is shown to the GM always, and to players only when the GM allowed it and its room is revealed.
+    private bool NoteVisible(DungeonNote n)
+    {
+        if (_isGm) return true;
+        if (!n.VisibleToPlayers) return false;
+        double nx = n.X * DungeonMapService.S, ny = n.Y * DungeonMapService.S;
+        foreach (var r in _render!.Rects)
+            if (_revealed.Contains(r.Index) &&
+                nx >= r.X && nx <= r.X + r.W && ny >= r.Y && ny <= r.Y + r.H)
+                return true;
+        return false;
+    }
+
+    // Glyphs drawn over the rooms: the GM sees the keyed number; players see only a star
+    // (the number and description stay in the GM's side panel).
+    private RenderFragment NoteGlyphs => builder =>
+    {
+        var seq = 0;
+        foreach (var n in _notes)
+        {
+            if (!NoteVisible(n)) continue;
+            if (_isGm && string.IsNullOrWhiteSpace(n.Ref)) continue;
+            builder.OpenElement(seq++, "text");
+            builder.AddAttribute(seq++, "x", Num(n.X * DungeonMapService.S));
+            builder.AddAttribute(seq++, "y", Num(n.Y * DungeonMapService.S));
+            builder.AddAttribute(seq++, "style", _isGm ? NoteNumberStyle : NoteStarStyle);
+            builder.AddContent(seq++, _isGm ? n.Ref : "★");
+            builder.CloseElement();
+        }
+    };
+
+    private void EditNote(int noteId, MouseEventArgs e)
+    {
+        if (!_isGm) return;
+        var note = _notes.FirstOrDefault(n => n.Id == noteId);
+        if (note is null) return;
+        _noteRef = note.Ref ?? "";
+        _noteText = note.Text ?? "";
+        _noteVisible = note.VisibleToPlayers;
+        _noteEditor = new NoteTarget(noteId, e.ClientX, e.ClientY);
+    }
+
+    private async Task ToggleNoteVisibleAsync(int noteId)
+    {
+        if (!_isGm) return;
+        var note = _notes.FirstOrDefault(n => n.Id == noteId);
+        if (note is null) return;
+        note.VisibleToPlayers = !note.VisibleToPlayers;
+        await Db.SaveChangesAsync();
+    }
+
+    // Arm note placement: the next room click drops a new note there. Leave fog mode so
+    // the click isn't swallowed by the fog overlay.
+    private async Task StartAddNoteAsync()
+    {
+        if (_fogMode) await SetFogModeAsync(false);
+        _addingNote = !_addingNote;
+    }
+
+    private async Task PlaceNoteAsync(int cellX, int cellY, MouseEventArgs e)
+    {
+        var nextRef = (_notes
+            .Select(n => int.TryParse(n.Ref, out var v) ? v : 0)
+            .DefaultIfEmpty(0).Max() + 1).ToString();
+
+        var note = new DungeonNote
+        {
+            DungeonMapId = Id,
+            Ref = nextRef,
+            Text = "",
+            X = cellX + 0.5,
+            Y = cellY + 0.5,
+        };
+        Db.DungeonNotes.Add(note);
+        await Db.SaveChangesAsync();
+        _addingNote = false;
+        await LoadNotesAsync(seedIfEmpty: false);
+
+        _noteRef = note.Ref ?? "";
+        _noteText = "";
+        _noteVisible = false;
+        _noteEditor = new NoteTarget(note.Id, e.ClientX, e.ClientY);
+    }
+
+    private async Task SaveNoteAsync()
+    {
+        if (_noteEditor is not { } t) return;
+        var note = _notes.FirstOrDefault(n => n.Id == t.NoteId);
+        if (note is not null)
+        {
+            note.Ref = string.IsNullOrWhiteSpace(_noteRef) ? null : _noteRef.Trim();
+            note.Text = string.IsNullOrWhiteSpace(_noteText) ? null : _noteText.Trim();
+            note.VisibleToPlayers = _noteVisible;
+            await Db.SaveChangesAsync();
+        }
+        _noteEditor = null;
+    }
+
+    private async Task DeleteNoteAsync()
+    {
+        if (_noteEditor is not { } t) return;
+        var note = _notes.FirstOrDefault(n => n.Id == t.NoteId);
+        if (note is not null)
+        {
+            Db.DungeonNotes.Remove(note);
+            await Db.SaveChangesAsync();
+            await LoadNotesAsync(seedIfEmpty: false);
+        }
+        _noteEditor = null;
+    }
+
+    // ── Room marking ────────────────────────────────────────────────────────────
+    private async Task OnCellClick(int cellX, int cellY, MouseEventArgs e)
+    {
+        if (!_isGm || _fogMode) return;
+        if (_addingNote) { await PlaceNoteAsync(cellX, cellY, e); return; }
+        _editor = null;
+        _menuExpanded = null;
+        _menu = new Target(cellX, cellY, e.ClientX, e.ClientY);
+    }
+
+    private void ToggleExpand(int categoryId) =>
+        _menuExpanded = _menuExpanded == categoryId ? null : categoryId;
+
+    private void OnCellContext(int cellX, int cellY, MouseEventArgs e)
+    {
+        if (!_isGm || _fogMode || _addingNote) return;
+        _menu = null;
+        var mark = Mark(cellX, cellY);
+        _editCategoryId = mark?.DungeonCategoryId ?? 0;
+        _editName = mark?.Label ?? "";
+        _editNotes = mark?.Notes ?? "";
+        _editGmNotes = mark?.GmNotes ?? "";
+        _editVisible = mark?.VisibleToPlayers ?? false;
+        _editor = new Target(cellX, cellY, e.ClientX, e.ClientY);
+    }
+
+    private void CloseMenus()
+    {
+        _menu = null;
+        _editor = null;
+        _noteEditor = null;
+        _menuExpanded = null;
+    }
+
+    private async Task AssignFromMenuAsync(int categoryId, string? name)
+    {
+        if (_menu is not { } t) return;
+        var mark = GetOrCreate(t.CellX, t.CellY, categoryId);
+        mark.DungeonCategoryId = categoryId;
+        mark.Label = string.IsNullOrWhiteSpace(name) ? null : name;
+        await SaveAsync();
+        _menu = null;
+    }
+
+    private async Task SaveEditorAsync()
+    {
+        if (_editor is not { } t) return;
+        if (_editCategoryId == 0)
+        {
+            await ClearAsync(t.CellX, t.CellY);
+            return;
+        }
+        var mark = GetOrCreate(t.CellX, t.CellY, _editCategoryId);
+        mark.DungeonCategoryId = _editCategoryId;
+        mark.Label = string.IsNullOrWhiteSpace(_editName) ? null : _editName.Trim();
+        mark.Notes = string.IsNullOrWhiteSpace(_editNotes) ? null : _editNotes.Trim();
+        mark.GmNotes = string.IsNullOrWhiteSpace(_editGmNotes) ? null : _editGmNotes.Trim();
+        mark.VisibleToPlayers = _editVisible;
+        await SaveAsync();
+        _editor = null;
+    }
+
+    private async Task ClearAsync(int cellX, int cellY)
+    {
+        var existing = _dungeon!.Locations.FirstOrDefault(l => l.CellX == cellX && l.CellY == cellY);
+        if (existing is not null)
+        {
+            Db.DungeonLocations.Remove(existing);
+            _dungeon.Locations.Remove(existing);
+            await SaveAsync();
+        }
+        CloseMenus();
+    }
+
+    private DungeonLocation GetOrCreate(int cellX, int cellY, int categoryId)
+    {
+        var existing = _dungeon!.Locations.FirstOrDefault(l => l.CellX == cellX && l.CellY == cellY);
+        if (existing is not null) return existing;
+
+        var created = new DungeonLocation
+        {
+            DungeonMapId = _dungeon.Id,
+            CellX = cellX,
+            CellY = cellY,
+            DungeonCategoryId = categoryId,
+        };
+        _dungeon.Locations.Add(created);
+        Db.DungeonLocations.Add(created);
+        return created;
+    }
+
+    private async Task SaveAsync()
+    {
+        if (!_isGm) return;
+        await Db.SaveChangesAsync();
+        RebuildMarks();
+    }
+
+    // ── Modes & fog of war ──────────────────────────────────────────────────────
+    private async Task SetFogModeAsync(bool on)
+    {
+        _fogMode = on;
+        _addingNote = false;
+        CloseMenus();
+        await JS.InvokeVoidAsync("fogPaint.setEnabled", on);
+    }
+
+    [JSInvokable]
+    public async Task ApplyFogBatch(int[] cells, bool reveal)
+    {
+        if (!_isGm || _dungeon is null || cells is null) return;
+
+        for (int i = 0; i + 1 < cells.Length; i += 2)
+        {
+            foreach (var idx in RoomRects(cells[i]))
+            {
+                if (reveal) RevealRect(idx);
+                else HideRect(idx);
+            }
+        }
+        await Db.SaveChangesAsync();
+        StateHasChanged();
+    }
+
+    private async Task RevealAllAsync()
+    {
+        if (!_isGm || _render is null) return;
+        foreach (var r in _render.Rects) RevealRect(r.Index);
+        await Db.SaveChangesAsync();
+    }
+
+    private async Task HideAllAsync()
+    {
+        if (!_isGm) return;
+        Db.DungeonReveals.RemoveRange(_revealRows.Values);
+        _revealRows.Clear();
+        _revealed.Clear();
+        await Db.SaveChangesAsync();
+    }
+
+    // For each rect, the set of rects revealed together: its room group plus the narrow
+    // corridor / door cells touching that room, so a revealed room shows its connections
+    // to neighbours instead of floating in isolation.
+    private void BuildRevealGroups()
+    {
+        _revealGroup = [];
+        var rects = _render!.Rects;
+        const double eps = 0.01;
+        const double corridorMax = DungeonMapService.S + eps; // a one-cell-wide passage
+
+        bool IsCorridor(DungeonMapService.Rect r) => Math.Min(r.W, r.H) <= corridorMax;
+
+        // Edge-adjacent (shared edge with positive overlap) or overlapping.
+        bool Adjacent(DungeonMapService.Rect a, DungeonMapService.Rect b)
+        {
+            bool xOverlap = a.X < b.X + b.W - eps && b.X < a.X + a.W - eps;
+            bool yOverlap = a.Y < b.Y + b.H - eps && b.Y < a.Y + a.H - eps;
+            bool xTouch = Math.Abs(a.X + a.W - b.X) < eps || Math.Abs(b.X + b.W - a.X) < eps;
+            bool yTouch = Math.Abs(a.Y + a.H - b.Y) < eps || Math.Abs(b.Y + b.H - a.Y) < eps;
+            return (xTouch && yOverlap) || (yTouch && xOverlap) || (xOverlap && yOverlap);
+        }
+
+        foreach (var r in rects)
+        {
+            var group = new HashSet<int>(
+                _rectsInRoom.TryGetValue(r.RoomId, out var g) ? g : [r.Index]);
+            var groupRects = group.Select(i => _rectById[i]).ToList();
+
+            foreach (var c in rects)
+            {
+                if (group.Contains(c.Index) || !IsCorridor(c)) continue;
+                if (groupRects.Any(gr => Adjacent(gr, c))) group.Add(c.Index);
+            }
+            _revealGroup[r.Index] = [.. group];
+        }
+    }
+
+    private IEnumerable<int> RoomRects(int rectIndex) =>
+        _revealGroup.TryGetValue(rectIndex, out var list) ? list : [rectIndex];
+
+    private void RevealRect(int idx)
+    {
+        if (_revealRows.ContainsKey(idx)) return;
+        var row = new DungeonReveal { DungeonMapId = _dungeon!.Id, RectIndex = idx };
+        Db.DungeonReveals.Add(row);
+        _revealRows[idx] = row;
+        _revealed.Add(idx);
+    }
+
+    private void HideRect(int idx)
+    {
+        if (_revealRows.TryGetValue(idx, out var row))
+        {
+            Db.DungeonReveals.Remove(row);
+            _revealRows.Remove(idx);
+            _revealed.Remove(idx);
+        }
+    }
+
+    private string CategoryColor(int id) => _catById.GetValueOrDefault(id)?.ColorHex ?? "#999999";
+    private string CategoryName(int id) => _catById.GetValueOrDefault(id)?.Name ?? "—";
+
+    // ── Legend hover hints ──────────────────────────────────────────────────────
+    private void ShowTip(int catId, MouseEventArgs e)
+    {
+        if (!_isGm) return;          // GM-only hint; players never see it
+        _hoverCatId = catId;
+        _hoverX = e.ClientX - 300;   // grow leftward of the legend card; clampPopup corrects the edge
+        _hoverY = e.ClientY - 10;
+    }
+
+    private void HideTip() => _hoverCatId = null;
+
+    // GM hovers a keyed-note number on the map → show its description.
+    private void ShowNoteTip(int noteId, MouseEventArgs e)
+    {
+        if (!_isGm) return;
+        _hoverNoteId = noteId;
+        _hoverNoteX = e.ClientX + 14;   // sit just to the right of the cursor; clampPopup corrects the edge
+        _hoverNoteY = e.ClientY + 14;
+    }
+
+    private void HideNoteTip() => _hoverNoteId = null;
+
+    private static readonly string[] _genericSuggestion =
+        ["Curious furnishings", "Signs of old use", "A hidden detail", "Something worth a closer look"];
+
+    private string[] SuggestionFor(string name) =>
+        _suggestions.GetValueOrDefault(name, _genericSuggestion);
+
+    // Evocative "what might be found here" item lists, keyed by the built-in legend names.
+    private static readonly Dictionary<string, string[]> _suggestions = new()
+    {
+        ["Monster Lair"] =
+            ["Pile of gnawed bones", "Reeking straw nest", "Half-eaten carcass", "Scattered swallowed coin", "A territorial beast",
+             "Claw-marked walls", "Tufts of shed fur", "A cracked egg-clutch", "Trophy skulls on spikes", "Bloody drag-marks"],
+        ["Boss Chamber"] =
+            ["Raised dais and throne", "The lair's master", "Banners of office", "A hoarded treasure", "Key to deeper doors",
+             "A ritual circle", "Kneeling minions", "A war-map of the region", "Trophies of slain heroes", "A brazier of green fire"],
+        ["Treasure Vault"] =
+            ["Heaped gold coins", "Gem-studded regalia", "Iron-bound coffers", "A warded lock", "Guardian construct",
+             "A cursed relic", "Stacked silver ingots", "A jewelled crown", "Dusty deeds and ledgers", "A mimic among the chests"],
+        ["Altar / Shrine"] =
+            ["Bloodstained altar", "Votive offerings", "Holy water font", "A sacred relic", "Guttering candles",
+             "A waiting blessing — or curse", "A carved idol", "Whispering chants", "A sacrificial dagger", "An offering bowl of coins"],
+        ["Prison / Cells"] =
+            ["Rusted iron bars", "Scratched tally-marks", "Gaoler's keyring", "A starving captive", "Bones in the corner",
+             "Torturer's tools", "A confiscated-goods chest", "Manacles bolted to stone", "A desperate scrawled message", "A cell that won't open"],
+        ["Tomb / Crypt"] =
+            ["Sealed sarcophagus", "Burial silver", "An ancestral blade", "Funerary urns", "Cobwebbed grave-goods",
+             "A restless corpse", "Carved epitaphs", "A death-mask of gold", "Niches of stacked skulls", "A robber's abandoned tools"],
+        ["Armory"] =
+            ["Racks of spears", "Stacked shields", "Dented mail", "A master-forged blade", "War-banners",
+             "Barrels of arrows", "A whetstone and oil", "Quartermaster's tally-book", "A rack of crossbows", "Armour on a stand"],
+        ["Library / Study"] =
+            ["Mouldering scrolls", "A spell-tome", "Cartographer's maps", "Ink and quills", "A hidden cipher",
+             "A guardian owl", "A locked grimoire", "Star-charts and orrery", "A reading lectern", "Unfinished scholar's notes"],
+        ["Alchemy Lab"] =
+            ["Bubbling alembics", "Shelved reagents", "Labelled phials", "A potion — or poison", "Rare ingredients",
+             "A volatile draught", "A mortar and pestle", "Bunches of dried herbs", "A formula scrawled on slate", "A cracked vial leaking smoke"],
+        ["Fountain / Pool"] =
+            ["Still dark water", "Coins on the bottom", "A mossy basin", "Healing — or cursed — waters", "A submerged shape",
+             "Dripping echoes", "A weathered statue spout", "Faintly glowing algae", "A floating petal", "A reflection that lingers"],
+        ["Statue / Monument"] =
+            ["A watching statue", "Gemstone eyes", "A hidden lever", "A worn inscription", "Crumbled offerings",
+             "A stone sentinel", "An outstretched pointing hand", "Moss-filled cracks", "A plaque naming the fallen", "A pedestal that rotates"],
+        ["Throne Room"] =
+            ["A great throne", "Tattered banners", "A crown of office", "Royal treasure", "A pillared hall",
+             "A rival claimant", "A long carpet to the dais", "Petrified courtiers", "A royal sceptre", "A vault behind the seat"],
+        ["Trap"] =
+            ["A concealed pit", "Dart-volley slots", "A pressure plate", "A scything blade", "A glyph ward",
+             "A tripwire", "A collapsing ceiling", "A flooding chamber", "A poison-gas vent", "False treasure as bait"],
+        ["Secret Door / Passage"] =
+            ["A false wall", "A worn flagstone", "A hidden lever", "A cold draught", "A pivoting bookcase",
+             "A narrow tunnel", "A loose torch sconce", "A seam in the masonry", "A concealed stair", "A trapdoor under the rug"],
+        ["Hidden Cache"] =
+            ["A loose brick", "A hollow idol", "A false-bottomed chest", "A buried strongbox", "Coins in the hearth",
+             "A single key", "A pouch in the rafters", "A sealed wall niche", "A map rolled in a bottle", "A gem sewn in a cushion"],
+        ["Ambush"] =
+            ["Shadowed alcoves", "Arrow-slits", "A sprung snare", "Hidden foes", "A camouflaged pit",
+             "Silence before the strike", "A barricaded exit", "Murder-holes overhead", "A decoy lure", "A cut-off retreat"],
+    };
+
+    private static string Px(double v) => v.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) + "px";
+    private static string Num(double v) => v.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+}

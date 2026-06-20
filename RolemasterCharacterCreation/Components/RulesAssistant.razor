@@ -1,4 +1,6 @@
 @rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.Authorization
+@using RolemasterCharacterCreation.Identity
 @inject RulesIndexService IndexService
 @inject IJSRuntime JS
 
@@ -61,6 +63,8 @@
     ElementReference _messagesEl;
     CancellationTokenSource? _cts;
 
+    [CascadingParameter] private Task<AuthenticationState>? AuthState { get; set; }
+
     bool CanSend => IndexService.IsReady
         && !_streaming
         && IndexService.StartupError is null
@@ -86,9 +90,12 @@
         _streamBuffer = "";
         _cts = new CancellationTokenSource();
 
+        // Resolved server-side from the authenticated circuit; gates GM-only rules content.
+        bool isGm = AuthState is not null && (await AuthState).User.IsInRole(Roles.Gamemaster);
+
         try
         {
-            await foreach (var token in IndexService.AskAsync(question, _history, _cts.Token))
+            await foreach (var token in IndexService.AskAsync(question, _history, isGm, _cts.Token))
             {
                 _streamBuffer += token;
                 await InvokeAsync(StateHasChanged);

@@ -19,7 +19,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="OllamaSharp" Version="5.4.25" />
+    <PackageReference Include="Anthropic" Version="12.29.1" />
     <ProjectReference Include="..\RolemasterCharacterCreation.Client\RolemasterCharacterCreation.Client.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.8" />
   </ItemGroup>

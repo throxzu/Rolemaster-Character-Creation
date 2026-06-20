@@ -1,0 +1,18 @@
+{
+  "Trap": [
+    "Pit Trap", "Poisoned Darts", "Collapsing Ceiling", "Swinging Blade",
+    "Pressure Plate", "Flame Jet", "Spiked Floor", "Crushing Walls",
+    "Net Snare", "Poison Gas", "Falling Portcullis", "Tripwire Alarm",
+    "Acid Spray", "Rolling Boulder", "Dart Volley", "Concealed Spikes"
+  ],
+  "Secret Door / Passage": [
+    "Hidden Door", "Sliding Panel", "Concealed Stair", "False Wall",
+    "Secret Passage", "Pivoting Bookcase", "Trapdoor", "Hidden Tunnel",
+    "Disguised Archway", "Bricked Recess", "Loose Flagstone", "Behind the Tapestry"
+  ],
+  "Hidden Cache": [
+    "Loose Stone Cache", "Hollow Statue", "Buried Strongbox", "False-Bottom Chest",
+    "Coins in the Hearth", "Hidden Floor Vault", "Stash Behind the Bricks", "Sealed Niche",
+    "Pouch in the Rafters", "Concealed Drawer", "The Forgotten Satchel", "Wall Cavity"
+  ]
+}

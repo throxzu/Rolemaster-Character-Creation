@@ -1,0 +1,143 @@
+@page "/gm/useful-links"
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = Roles.Gamemaster)]
+@using RolemasterCharacterCreation.Data
+@inject AppDbContext Db
+
+<PageTitle>Useful Links</PageTitle>
+
+<h2 class="mb-3">Useful Links</h2>
+
+<p class="text-muted">
+    Bookmark pages on the internet you find handy while running the game. Only the GM can
+    add or remove links here.
+</p>
+
+@if (!string.IsNullOrEmpty(_message))
+{
+    <div class="alert @(_isError ? "alert-danger" : "alert-success") alert-dismissible">
+        @_message
+        <button type="button" class="btn-close" @onclick="() => _message = null"></button>
+    </div>
+}
+
+@if (_links.Count == 0)
+{
+    <p class="fst-italic text-muted">No links yet. Add your first one below.</p>
+}
+else
+{
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th style="width:60px">Order</th>
+                <th>Link</th>
+                <th style="width:110px"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var l in _links)
+            {
+                <tr>
+                    <td>@l.SortOrder</td>
+                    <td>
+                        <a href="@l.Url" target="_blank" rel="noopener noreferrer">@l.Title</a>
+                        @if (!string.IsNullOrWhiteSpace(l.Description))
+                        {
+                            <div class="small text-muted">@l.Description</div>
+                        }
+                        <div class="small text-truncate" style="max-width:520px">
+                            <span class="text-muted">@l.Url</span>
+                        </div>
+                    </td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteAsync(l)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<div class="card mt-4" style="max-width:640px">
+    <div class="card-body">
+        <h5 class="card-title">Add a link</h5>
+        <div class="mb-2">
+            <label class="form-label mb-1">Title</label>
+            <input class="form-control form-control-sm" @bind="_newTitle" placeholder="e.g. RMU errata thread" />
+        </div>
+        <div class="mb-2">
+            <label class="form-label mb-1">URL</label>
+            <input class="form-control form-control-sm" @bind="_newUrl" placeholder="https://example.com" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label mb-1">Description <span class="text-muted">(optional)</span></label>
+            <input class="form-control form-control-sm" @bind="_newDescription" placeholder="Why it's useful" />
+        </div>
+        <button class="btn btn-primary" @onclick="AddAsync">+ Add link</button>
+    </div>
+</div>
+
+@code {
+    private List<UsefulLink> _links = [];
+    private string? _newTitle;
+    private string? _newUrl;
+    private string? _newDescription;
+    private string? _message;
+    private bool _isError;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync() =>
+        _links = await Db.UsefulLinks.OrderBy(l => l.SortOrder).ThenBy(l => l.Title).ToListAsync();
+
+    private async Task AddAsync()
+    {
+        var title = _newTitle?.Trim();
+        var url = _newUrl?.Trim();
+
+        if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(url))
+        {
+            SetMessage("Both a title and a URL are required.", error: true);
+            return;
+        }
+
+        // Be forgiving: default to https:// when the GM omits the scheme.
+        if (!url.Contains("://")) url = "https://" + url;
+
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) ||
+            (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
+        {
+            SetMessage("That doesn't look like a valid web address.", error: true);
+            return;
+        }
+
+        var next = _links.Count == 0 ? 0 : _links.Max(l => l.SortOrder) + 1;
+        Db.UsefulLinks.Add(new UsefulLink
+        {
+            Title = title,
+            Url = uri.ToString(),
+            Description = string.IsNullOrWhiteSpace(_newDescription) ? null : _newDescription.Trim(),
+            SortOrder = next
+        });
+        await Db.SaveChangesAsync();
+
+        _newTitle = _newUrl = _newDescription = null;
+        await LoadAsync();
+        SetMessage($"Added \"{title}\".");
+    }
+
+    private async Task DeleteAsync(UsefulLink l)
+    {
+        Db.UsefulLinks.Remove(l);
+        await Db.SaveChangesAsync();
+        await LoadAsync();
+        SetMessage($"Deleted \"{l.Title}\".");
+    }
+
+    private void SetMessage(string msg, bool error = false)
+    {
+        _message = msg;
+        _isError = error;
+    }
+}
