@@ -4,6 +4,8 @@
 @inject RulesIndexService IndexService
 @inject IJSRuntime JS
 
+@if (_authenticated)
+{
 @if (_open)
 {
     <div class="ra-panel">
@@ -53,9 +55,11 @@
 }
 
 <button class="ra-fab" @onclick="Toggle" title="Rules Assistant">?</button>
+}
 
 @code {
     bool _open;
+    bool _authenticated;
     bool _streaming;
     string _input = "";
     string _streamBuffer = "";
@@ -69,6 +73,15 @@
         && !_streaming
         && IndexService.StartupError is null
         && !string.IsNullOrWhiteSpace(_input);
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _authenticated = AuthState is not null
+            && (await AuthState).User.Identity?.IsAuthenticated == true;
+
+        if (!_authenticated)
+            _open = false;
+    }
 
     void Toggle() => _open = !_open;
     void Close()  => _open = false;
