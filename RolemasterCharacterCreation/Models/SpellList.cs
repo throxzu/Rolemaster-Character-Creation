@@ -16,6 +16,9 @@ public class SpellList
     public string? Profession { get; set; }
     public string? Code { get; set; }
 
+    /// <summary>When true, the list is only shown to Gamemasters (hidden from players).</summary>
+    public bool GmOnly { get; set; }
+
     /// <summary>Hash of the source JSON entry; lets seeding rebuild only when changed.</summary>
     public string? Signature { get; set; }
 
