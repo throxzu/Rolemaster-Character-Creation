@@ -13,12 +13,16 @@
         <!-- ── Left: realm list ── -->
         <div class="col-md-3 col-lg-2">
             <div class="sf-list qp-card p-0">
-                @foreach (var t in _tables)
+                @foreach (var (title, tables) in Grouped())
                 {
-                    <div class="sf-list-item @(_selected?.Id == t.Id ? "active" : "")"
-                         @onclick="() => Select(t)">
-                        @t.Name
-                    </div>
+                    <div class="sf-group-header">@title</div>
+                    @foreach (var t in tables)
+                    {
+                        <div class="sf-list-item @(_selected?.Id == t.Id ? "active" : "")"
+                             @onclick="() => Select(t)">
+                            @t.Name
+                        </div>
+                    }
                 }
             </div>
         </div>
@@ -85,6 +89,9 @@
 
 <style>
     .sf-list { display: flex; flex-direction: column; }
+    .sf-group-header { padding: 8px 14px 4px; font-size: .72rem; font-weight: 700;
+                       text-transform: uppercase; letter-spacing: .06em; color: var(--qp-teal);
+                       background: var(--qp-bg-panel-alt); border-bottom: 1px solid var(--qp-border-panel); }
     .sf-list-item {
         padding: 8px 14px; border-bottom: 1px solid var(--qp-border-panel);
         cursor: pointer; color: var(--qp-text-primary); transition: background .12s; font-weight: 500;
@@ -116,6 +123,20 @@
     private SpellFailureTable? _selected;
     private string _column = "";
 
+    // The realm tables form the "Default" group; everything else is alchemical.
+    private static readonly string[] DefaultRealms = ["Channeling", "Essence", "Mentalism"];
+    private bool IsDefault(SpellFailureTable t) => DefaultRealms.Contains(t.Name);
+
+    private IEnumerable<(string Title, List<SpellFailureTable> Tables)> Grouped()
+    {
+        var def = _tables.Where(IsDefault)
+            .OrderBy(t => Array.IndexOf(DefaultRealms, t.Name)).ToList();
+        var alch = _tables.Where(t => !IsDefault(t))
+            .OrderBy(t => t.Name, StringComparer.OrdinalIgnoreCase).ToList();
+        if (def.Count > 0) yield return ("Default", def);
+        if (alch.Count > 0) yield return ("Alchemy", alch);
+    }
+
     private IEnumerable<(string Name, int Index)> ShownColumns(SpellFailureTable sf) =>
         sf.ColumnNames
             .Select((n, i) => (Name: n, Index: i))
@@ -131,7 +152,7 @@
 
         _selected = (Type is not null
             ? _tables.FirstOrDefault(t => t.Name.Equals(Type, StringComparison.OrdinalIgnoreCase))
-            : null) ?? _tables.FirstOrDefault();
+            : null) ?? _tables.FirstOrDefault(IsDefault) ?? _tables.FirstOrDefault();
     }
 
     private void Select(SpellFailureTable t) { _selected = t; _column = ""; }

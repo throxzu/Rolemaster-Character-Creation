@@ -543,7 +543,7 @@
     ]
   },
   {
-    "name": "Alchemical: Bonus & Embedded Entity",
+    "name": "Bonus & Embedded Entity",
     "columns": [
       "Bonus",
       "Embedded Entity"
@@ -688,7 +688,7 @@
     ]
   },
   {
-    "name": "Alchemical: General & Independent Entity",
+    "name": "General & Independent Entity",
     "columns": [
       "General",
       "Independent Entity"
@@ -833,7 +833,7 @@
     ]
   },
   {
-    "name": "Alchemical: Intelligence & Location",
+    "name": "Intelligence & Location",
     "columns": [
       "Intelligence",
       "Location"
@@ -978,7 +978,7 @@
     ]
   },
   {
-    "name": "Alchemical: Organism & Potion",
+    "name": "Organism & Potion",
     "columns": [
       "Organism",
       "Potion"
@@ -1123,7 +1123,7 @@
     ]
   },
   {
-    "name": "Alchemical: Power Enhancer & Spell Power",
+    "name": "Power Enhancer & Spell Power",
     "columns": [
       "Power Enhancer",
       "Spell Power"
