@@ -54,10 +54,22 @@ public sealed class MagicItemGenerator
             new(ChatRole.System, system),
             new(ChatRole.User, user),
         };
-        var response = await _chat.GetResponseAsync(messages, new ChatOptions { MaxOutputTokens = 1500 }, ct);
 
-        var dto = ParseJson(response.Text)
-                  ?? throw new InvalidOperationException("The model did not return a valid item. Try again.");
+        // Aggregate via streaming — the proven path used by RulesIndexService. The non-streaming
+        // GetResponseAsync/.Text did not reliably surface content with this Anthropic adapter.
+        var sb = new StringBuilder();
+        await foreach (var update in _chat.GetStreamingResponseAsync(
+                           messages, new ChatOptions { MaxOutputTokens = 2500 }, ct))
+        {
+            if (!string.IsNullOrEmpty(update.Text))
+                sb.Append(update.Text);
+        }
+        var raw = sb.ToString();
+
+        var dto = ParseJson(raw)
+                  ?? throw new InvalidOperationException(
+                      "The model did not return a valid item. Try again." +
+                      (string.IsNullOrWhiteSpace(raw) ? " (empty response)" : $" Raw: {Truncate(raw, 300)}"));
 
         return new MagicItem
         {
@@ -95,7 +107,8 @@ public sealed class MagicItemGenerator
                 sb.AppendLine($"- {e.Name}: {e.Description} [Recipe: {e.Recipe}]");
         }
         sb.AppendLine(
-            "\nReturn ONLY a JSON object (no markdown, no commentary) with these string keys: " +
+            "\nKeep the description to 2-4 sentences and the recipe concise (one line). " +
+            "Return ONLY a raw JSON object — no markdown fences, no commentary — with these string keys: " +
             "\"name\", \"description\", \"recipe\", \"level\", \"cost\", \"days\". " +
             "\"level\" is the numeric item level, \"cost\" like \"1,234 sp\", \"days\" the working days as a number.");
         return sb.ToString();
@@ -113,6 +126,9 @@ public sealed class MagicItemGenerator
         return sb.ToString();
     }
 
+    private static string Truncate(string s, int max) =>
+        s.Length <= max ? s : s[..max] + "…";
+
     private static ItemDto? ParseJson(string? text)
     {
         if (string.IsNullOrWhiteSpace(text)) return null;
@@ -122,12 +138,32 @@ public sealed class MagicItemGenerator
         if (!match.Success) return null;
         try
         {
-            return JsonSerializer.Deserialize<ItemDto>(match.Value,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            // Read each field by hand so numeric values (e.g. "level": 8) bind to our string
+            // properties — JsonSerializer would otherwise throw on number-to-string.
+            using var doc = JsonDocument.Parse(match.Value);
+            var root = doc.RootElement;
+            if (root.ValueKind != JsonValueKind.Object) return null;
+            return new ItemDto(
+                Field(root, "name"), Field(root, "description"), Field(root, "recipe"),
+                Field(root, "level"), Field(root, "cost"), Field(root, "days"));
         }
         catch (JsonException)
         {
             return null;
         }
+    }
+
+    // Returns a property as text whether the model emitted a string, number or bool.
+    private static string? Field(JsonElement obj, string name)
+    {
+        foreach (var p in obj.EnumerateObject())
+            if (string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase))
+                return p.Value.ValueKind switch
+                {
+                    JsonValueKind.String => p.Value.GetString(),
+                    JsonValueKind.Null or JsonValueKind.Undefined => null,
+                    _ => p.Value.GetRawText(),
+                };
+        return null;
     }
 }
