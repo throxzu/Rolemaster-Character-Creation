@@ -1,0 +1,79 @@
+@page "/gm/campaign-settings"
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = Roles.Gamemaster)]
+@using RolemasterCharacterCreation.Data
+@using RolemasterCharacterCreation.Identity
+@inject AppDbContext Db
+
+<PageTitle>Campaign Settings</PageTitle>
+
+<h2>Campaign Settings</h2>
+
+@if (!string.IsNullOrEmpty(_message))
+{
+    <div class="alert alert-success alert-dismissible">
+        @_message
+        <button type="button" class="btn-close" @onclick="() => _message = null"></button>
+    </div>
+}
+
+@if (_settings is null)
+{
+    <p class="text-muted">Loading…</p>
+}
+else
+{
+    <div class="card" style="max-width: 640px;">
+        <div class="card-body">
+            <EditForm Model="_settings" OnValidSubmit="SaveAsync">
+                <DataAnnotationsValidator />
+                <div class="mb-3">
+                    <label class="form-label">Campaign name</label>
+                    <InputText @bind-Value="_settings.Name" class="form-control" />
+                    <ValidationMessage For="() => _settings.Name" />
+                    <div class="form-text">Shown to players and used in the SMS invite.</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Login URL</label>
+                    <InputText @bind-Value="_settings.LoginUrl" class="form-control" />
+                    <ValidationMessage For="() => _settings.LoginUrl" />
+                    <div class="form-text">The address players open to log in, included in the invite.</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Invite SMS template <span class="text-muted">(optional)</span></label>
+                    <InputTextArea @bind-Value="_settings.InviteSmsTemplate" class="form-control" rows="3" />
+                    <div class="form-text">
+                        Leave blank for the default. Placeholders: <code>{campaign}</code>, <code>{url}</code>, <code>{password}</code>.
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    private CampaignSettings? _settings;
+    private string? _message;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _settings = await Db.CampaignSettings.FirstOrDefaultAsync()
+            ?? new CampaignSettings { Name = "Rolemaster Campaign", LoginUrl = "https://rolemaster.isager.dk" };
+    }
+
+    private async Task SaveAsync()
+    {
+        if (_settings is null) return;
+
+        if (_settings.Id == 0)
+            Db.CampaignSettings.Add(_settings);
+
+        // Normalise an empty template back to null so the built-in default is used.
+        if (string.IsNullOrWhiteSpace(_settings.InviteSmsTemplate))
+            _settings.InviteSmsTemplate = null;
+
+        await Db.SaveChangesAsync();
+        _message = "Campaign settings saved.";
+    }
+}

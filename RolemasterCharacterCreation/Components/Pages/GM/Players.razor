@@ -1,10 +1,14 @@
 @page "/gm/players"
 @rendermode InteractiveServer
 @attribute [Authorize(Roles = Roles.Gamemaster)]
+@using System.Security.Claims
 @using Microsoft.AspNetCore.Identity
 @using RolemasterCharacterCreation.Data
+@using RolemasterCharacterCreation.Identity
+@using RolemasterCharacterCreation.Services
 @inject UserManager<ApplicationUser> UserManager
 @inject AppDbContext Db
+@inject ISmsSender Sms
 @inject ILogger<Players> Logger
 
 <PageTitle>Players</PageTitle>
@@ -19,6 +23,16 @@
     </div>
 }
 
+@if (_lastInvite is not null)
+{
+    <div class="alert alert-info alert-dismissible">
+        <div><strong>@_lastInvite.Name</strong> (@_lastInvite.Phone) was added.</div>
+        <div>First-time password: <code>@_lastInvite.Password</code></div>
+        <div>SMS: @_lastInvite.SmsStatus</div>
+        <button type="button" class="btn-close" @onclick="() => _lastInvite = null"></button>
+    </div>
+}
+
 <button class="btn btn-primary mb-3" @onclick="() => _showCreate = !_showCreate">
     @(_showCreate ? "Cancel" : "+ New Player")
 </button>
@@ -27,27 +41,48 @@
 {
     <div class="card mb-4">
         <div class="card-body">
-            <h5 class="card-title">Create Player</h5>
+            <h5 class="card-title">Invite Player</h5>
             <EditForm Model="_createModel" OnValidSubmit="CreatePlayerAsync">
                 <DataAnnotationsValidator />
                 <div class="row g-3">
-                    <div class="col-md-4">
-                        <label class="form-label">Display Name</label>
-                        <InputText @bind-Value="_createModel.DisplayName" class="form-control" />
-                        <ValidationMessage For="() => _createModel.DisplayName" />
+                    <div class="col-md-5">
+                        <label class="form-label">Full name</label>
+                        <InputText @bind-Value="_createModel.FullName" class="form-control" />
+                        <ValidationMessage For="() => _createModel.FullName" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Country</label>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle w-100 d-flex align-items-center gap-2"
+                                    type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="@_country.ImagePath" alt="@_country.Name" width="22" height="16"
+                                     style="border:1px solid rgba(0,0,0,.15);" />
+                                <span>@_country.Dial</span>
+                            </button>
+                            <ul class="dropdown-menu w-100">
+                                @foreach (var c in CountryDialCodes.All)
+                                {
+                                    <li>
+                                        <button type="button" class="dropdown-item d-flex align-items-center gap-2"
+                                                @onclick="() => SelectCountry(c)">
+                                            <img src="@c.ImagePath" alt="@c.Name" width="22" height="16"
+                                                 style="border:1px solid rgba(0,0,0,.15);" />
+                                            <span>@c.Name (@c.Dial)</span>
+                                        </button>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Email</label>
-                        <InputText @bind-Value="_createModel.Email" class="form-control" />
-                        <ValidationMessage For="() => _createModel.Email" />
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Password</label>
-                        <InputText @bind-Value="_createModel.Password" type="password" class="form-control" />
-                        <ValidationMessage For="() => _createModel.Password" />
+                        <label class="form-label">Phone number</label>
+                        <InputText @bind-Value="_createModel.LocalNumber" class="form-control" placeholder="12345678" />
+                        <ValidationMessage For="() => _createModel.LocalNumber" />
                     </div>
                 </div>
-                <button type="submit" class="btn btn-success mt-3">Create</button>
+                <button type="submit" class="btn btn-success mt-3" disabled="@_sending">
+                    @(_sending ? "Sending…" : "Create & send invite")
+                </button>
             </EditForm>
         </div>
     </div>
@@ -56,8 +91,9 @@
 <table class="table table-hover">
     <thead>
         <tr>
-            <th>Display Name</th>
-            <th>Email</th>
+            <th>Full Name</th>
+            <th>Phone</th>
+            <th>Status</th>
             <th>Characters</th>
             <th></th>
         </tr>
@@ -67,7 +103,17 @@
         {
             <tr>
                 <td>@player.DisplayName</td>
-                <td>@player.Email</td>
+                <td>@player.PhoneNumber</td>
+                <td>
+                    @if (string.IsNullOrEmpty(player.Email))
+                    {
+                        <span class="badge bg-warning text-dark">Pending first login</span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">@player.Email</span>
+                    }
+                </td>
                 <td>@player.Characters.Count</td>
                 <td class="text-end">
                     @if (_resetId == player.Id)
@@ -103,12 +149,21 @@
 @code {
     private List<ApplicationUser> _players = [];
     private bool _showCreate;
+    private bool _sending;
     private string? _message;
     private bool _isError;
     private string? _deleteId;
     private string? _resetId;
     private string _newPassword = string.Empty;
     private CreateModel _createModel = new();
+    private CountryDialCode _country = CountryDialCodes.Default;
+    private InviteInfo? _lastInvite;
+
+    private void SelectCountry(CountryDialCode c)
+    {
+        _country = c;
+        _createModel.Dial = c.Dial;
+    }
 
     protected override async Task OnInitializedAsync() => await LoadPlayersAsync();
 
@@ -127,25 +182,72 @@
 
     private async Task CreatePlayerAsync()
     {
-        var user = new ApplicationUser
+        // Build the E.164 number: chosen dial code + local digits (drop a leading trunk 0).
+        var localDigits = new string(_createModel.LocalNumber.Where(char.IsDigit).ToArray()).TrimStart('0');
+        if (localDigits.Length < 4)
         {
-            UserName = _createModel.Email,
-            Email = _createModel.Email,
-            DisplayName = _createModel.DisplayName
-        };
-
-        var result = await UserManager.CreateAsync(user, _createModel.Password);
-        if (!result.Succeeded)
-        {
-            SetMessage(string.Join("; ", result.Errors.Select(e => e.Description)), error: true);
+            SetMessage("Enter a valid phone number.", error: true);
             return;
         }
+        var e164 = _createModel.Dial + localDigits;
 
-        await UserManager.AddToRoleAsync(user, Roles.Player);
-        SetMessage($"Player {user.DisplayName} created.");
-        _createModel = new();
-        _showCreate = false;
-        await LoadPlayersAsync();
+        var password = TempPassword.Generate();
+        var user = new ApplicationUser
+        {
+            UserName = e164,
+            PhoneNumber = e164,
+            DisplayName = _createModel.FullName.Trim(),
+        };
+
+        _sending = true;
+        try
+        {
+            var result = await UserManager.CreateAsync(user, password);
+            if (!result.Succeeded)
+            {
+                SetMessage(string.Join("; ", result.Errors.Select(e => e.Description)), error: true);
+                return;
+            }
+
+            await UserManager.AddToRoleAsync(user, Roles.Player);
+            await UserManager.AddClaimAsync(user, new Claim(InviteClaims.Type, InviteClaims.Required));
+
+            var settings = await Db.CampaignSettings.FirstOrDefaultAsync();
+            var campaignName = settings?.Name ?? "the campaign";
+            var loginUrl = settings?.LoginUrl ?? "https://rolemaster.isager.dk";
+            var message = BuildInviteMessage(settings?.InviteSmsTemplate, campaignName, loginUrl, password);
+
+            var sms = await Sms.SendAsync(e164, message);
+            var smsStatus = sms.Success
+                ? $"sent{(sms.QuotaRemaining is { } q ? $" (quota left: {q})" : "")}."
+                : $"NOT sent — {sms.Error} Relay the password manually.";
+
+            _lastInvite = new InviteInfo(user.DisplayName!, e164, password, smsStatus);
+            _message = null;
+            _createModel = new();
+            _country = CountryDialCodes.Default;
+            _showCreate = false;
+            await LoadPlayersAsync();
+        }
+        finally
+        {
+            _sending = false;
+        }
+    }
+
+    private static string BuildInviteMessage(string? template, string campaign, string url, string password)
+    {
+        if (!string.IsNullOrWhiteSpace(template))
+        {
+            return template
+                .Replace("{campaign}", campaign)
+                .Replace("{url}", url)
+                .Replace("{password}", password);
+        }
+
+        return $"You are invited to join the campaign {campaign}. " +
+               $"Log in at {url} using your phone number. " +
+               $"Your first-time password is: {password}";
     }
 
     private async Task DeletePlayerAsync(ApplicationUser player)
@@ -176,17 +278,17 @@
         _isError = error;
     }
 
+    private sealed record InviteInfo(string Name, string Phone, string Password, string SmsStatus);
+
     private sealed class CreateModel
     {
         [System.ComponentModel.DataAnnotations.Required]
-        public string DisplayName { get; set; } = "";
+        public string FullName { get; set; } = "";
 
         [System.ComponentModel.DataAnnotations.Required]
-        [System.ComponentModel.DataAnnotations.EmailAddress]
-        public string Email { get; set; } = "";
+        public string Dial { get; set; } = CountryDialCodes.Default.Dial;
 
         [System.ComponentModel.DataAnnotations.Required]
-        [System.ComponentModel.DataAnnotations.MinLength(8)]
-        public string Password { get; set; } = "";
+        public string LocalNumber { get; set; } = "";
     }
 }

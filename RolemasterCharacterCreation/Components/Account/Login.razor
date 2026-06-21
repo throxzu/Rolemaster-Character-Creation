@@ -1,8 +1,13 @@
 @page "/account/login"
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using RolemasterCharacterCreation.Data
+@using RolemasterCharacterCreation.Identity
 @using RolemasterCharacterCreation.Models
 @inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@inject AppDbContext Db
 @inject NavigationManager Navigation
 @inject ILogger<Login> Logger
 
@@ -20,9 +25,10 @@
         <EditForm Model="_model" method="post" OnValidSubmit="LoginAsync" FormName="login">
             <DataAnnotationsValidator />
             <div class="mb-3">
-                <label class="form-label">Email</label>
-                <InputText @bind-Value="_model.Email" class="form-control" autocomplete="username" />
-                <ValidationMessage For="() => _model.Email" />
+                <label class="form-label">Phone or email</label>
+                <InputText @bind-Value="_model.Identifier" class="form-control" autocomplete="username" />
+                <ValidationMessage For="() => _model.Identifier" />
+                <div class="form-text">Your phone number (with or without +45) or your email.</div>
             </div>
             <div class="mb-3">
                 <label class="form-label">Password</label>
@@ -47,25 +53,59 @@
 
     private async Task LoginAsync()
     {
-        var result = await SignInManager.PasswordSignInAsync(
-            _model.Email, _model.Password, isPersistent: false, lockoutOnFailure: false);
+        var user = await ResolveUserAsync(_model.Identifier.Trim());
+        if (user?.UserName is null)
+        {
+            _errorMessage = "Invalid login.";
+            return;
+        }
 
-        if (result.Succeeded)
+        var result = await SignInManager.PasswordSignInAsync(
+            user.UserName, _model.Password, isPersistent: false, lockoutOnFailure: false);
+
+        if (!result.Succeeded)
         {
-            Logger.LogInformation("User {Email} logged in.", _model.Email);
-            Navigation.NavigateTo(ReturnUrl ?? "/", forceLoad: true);
+            _errorMessage = "Invalid login.";
+            return;
         }
-        else
+
+        Logger.LogInformation("User {UserId} logged in.", user.Id);
+
+        // Freshly-invited players must complete their profile before going anywhere else.
+        var claims = await UserManager.GetClaimsAsync(user);
+        if (claims.Any(c => c.Type == InviteClaims.Type && c.Value == InviteClaims.Required))
         {
-            _errorMessage = "Invalid email or password.";
+            Navigation.NavigateTo("/account/complete-profile", forceLoad: true);
+            return;
         }
+
+        Navigation.NavigateTo(ReturnUrl ?? "/", forceLoad: true);
+    }
+
+    // Resolves the typed identifier to a user: an email, a full E.164 phone (UserName), or a
+    // local phone number matched by its trailing digits. Returns null when nothing matches.
+    private async Task<ApplicationUser?> ResolveUserAsync(string identifier)
+    {
+        if (string.IsNullOrWhiteSpace(identifier)) return null;
+
+        if (identifier.Contains('@'))
+            return await UserManager.FindByEmailAsync(identifier);
+
+        if (identifier.StartsWith('+'))
+            return await UserManager.FindByNameAsync(identifier);
+
+        // Local number: keep digits only, drop a leading trunk '0', match by trailing digits.
+        var digits = new string(identifier.Where(char.IsDigit).ToArray()).TrimStart('0');
+        if (digits.Length == 0) return null;
+
+        return await Db.Users
+            .FirstOrDefaultAsync(u => u.PhoneNumber != null && u.PhoneNumber.EndsWith(digits));
     }
 
     private sealed class LoginModel
     {
         [System.ComponentModel.DataAnnotations.Required]
-        [System.ComponentModel.DataAnnotations.EmailAddress]
-        public string Email { get; set; } = "";
+        public string Identifier { get; set; } = "";
 
         [System.ComponentModel.DataAnnotations.Required]
         public string Password { get; set; } = "";

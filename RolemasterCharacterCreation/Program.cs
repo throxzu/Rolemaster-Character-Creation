@@ -46,6 +46,11 @@ builder.Services.AddHostedService(sp => sp.GetRequiredService<RulesIndexService>
 // Real-time chat broker (in-memory pub/sub + presence; persistence is done by pages)
 builder.Services.AddSingleton<ChatService>();
 
+// SMS invites (Textbelt). BaseUrl from the "Textbelt" config section; the API key comes from
+// TEXTBELT_API_KEY (env var / user-secret), read inside the sender — never from appsettings.
+builder.Services.Configure<TextbeltOptions>(builder.Configuration.GetSection(TextbeltOptions.SectionName));
+builder.Services.AddHttpClient<ISmsSender, TextbeltSmsSender>();
+
 // Needed so App.razor can detect a phone player during SSR (chat-only lockdown).
 builder.Services.AddHttpContextAccessor();
 
@@ -106,6 +111,7 @@ if (args.Contains("--list-names"))
 // Apply pending EF migrations and seed on every startup.
 await MigrateAsync(app.Services);
 await SeedAsync(app.Services);
+await SeedCampaignSettingsAsync(app.Services);
 await SeedCreatureDescriptionsAsync(app.Services);
 await SeedAttackTablesAsync(app.Services);
 await SeedCriticalTablesAsync(app.Services);
@@ -138,6 +144,23 @@ app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages:
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+
+// First-login gate: an invited player still carrying the "profile setup required" claim is
+// confined to the complete-profile page (set email + a real password) until they finish. The
+// claim rides in the auth cookie, so this costs no database hit, and is cleared by a refreshed
+// sign-in once the profile is completed.
+app.Use(async (context, next) =>
+{
+    var user = context.User;
+    if (user.Identity?.IsAuthenticated == true
+        && user.HasClaim(InviteClaims.Type, InviteClaims.Required)
+        && !ProfileSetupAllowedPath(context.Request.Path))
+    {
+        context.Response.Redirect("/account/complete-profile");
+        return;
+    }
+    await next();
+});
 
 // Chat-only lockdown for phones: an authenticated Player (not the GM) on a phone is
 // confined to the chat app — any other request is redirected to /chat. This both lands
@@ -190,6 +213,21 @@ static bool PhoneAllowedPath(PathString path)
         || p.Contains('.');
 }
 
+// Paths an invited player awaiting profile completion may still reach: the complete-profile
+// page itself, auth endpoints (so they can log out), Blazor/framework plumbing, and static
+// asset files (those carry a '.'). Everything else redirects to complete-profile.
+static bool ProfileSetupAllowedPath(PathString path)
+{
+    var p = path.HasValue ? path.Value! : "/";
+    return p.StartsWith("/account", StringComparison.OrdinalIgnoreCase)
+        || p.StartsWith("/_blazor", StringComparison.OrdinalIgnoreCase)
+        || p.StartsWith("/_framework", StringComparison.OrdinalIgnoreCase)
+        || p.StartsWith("/_content", StringComparison.OrdinalIgnoreCase)
+        || p.StartsWith("/Error", StringComparison.OrdinalIgnoreCase)
+        || p.StartsWith("/not-found", StringComparison.OrdinalIgnoreCase)
+        || p.Contains('.');
+}
+
 static async Task SeedAsync(IServiceProvider services)
 {
     await using var scope = services.CreateAsyncScope();
@@ -212,6 +250,23 @@ static async Task SeedAsync(IServiceProvider services)
         if (result.Succeeded)
             await userManager.AddToRoleAsync(gm, Roles.Gamemaster);
     }
+}
+
+// Seeds the single campaign-settings row (name + login URL used in SMS invites). Idempotent:
+// only inserts when the table is empty, so GM edits via the Campaign Settings page are kept.
+static async Task SeedCampaignSettingsAsync(IServiceProvider services)
+{
+    await using var scope = services.CreateAsyncScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    if (await db.CampaignSettings.AnyAsync()) return;
+
+    db.CampaignSettings.Add(new CampaignSettings
+    {
+        Name = "Rolemaster Campaign",
+        LoginUrl = "https://rolemaster.isager.dk",
+    });
+    await db.SaveChangesAsync();
 }
 
 // Path to the curated description file, relative to the content root.
@@ -594,6 +649,7 @@ static async Task SeedSpellListsAsync(IServiceProvider services)
         entity.Category = dto.Category!;
         entity.Profession = dto.Profession;
         entity.Code = dto.Code;
+        entity.GmOnly = dto.GmOnly;
         entity.Signature = signature;
         entity.Spells = (dto.Spells ?? []).Select(s => new Spell
         {
@@ -1075,6 +1131,7 @@ internal sealed class SpellListDto
     public string? Category { get; set; }
     public string? Profession { get; set; }
     public string? Code { get; set; }
+    public bool GmOnly { get; set; }
     public List<SpellDto>? Spells { get; set; }
 }
 

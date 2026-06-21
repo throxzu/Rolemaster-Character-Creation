@@ -1,0 +1,120 @@
+@page "/account/complete-profile"
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@using RolemasterCharacterCreation.Identity
+@using RolemasterCharacterCreation.Models
+@attribute [Authorize]
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject NavigationManager Navigation
+@inject ILogger<CompleteProfile> Logger
+
+<PageTitle>Complete your profile</PageTitle>
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-4">
+        <h2 class="mb-4">Welcome — finish setting up</h2>
+        <p class="text-muted">Add your email and choose your own password to continue.</p>
+
+        @if (!string.IsNullOrEmpty(_errorMessage))
+        {
+            <div class="alert alert-danger">@_errorMessage</div>
+        }
+
+        <EditForm Model="_model" method="post" OnValidSubmit="SubmitAsync" FormName="complete-profile">
+            <DataAnnotationsValidator />
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <InputText @bind-Value="_model.Email" class="form-control" autocomplete="email" />
+                <ValidationMessage For="() => _model.Email" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">New password</label>
+                <InputText @bind-Value="_model.Password" type="password" class="form-control" autocomplete="new-password" />
+                <ValidationMessage For="() => _model.Password" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Confirm password</label>
+                <InputText @bind-Value="_model.ConfirmPassword" type="password" class="form-control" autocomplete="new-password" />
+                <ValidationMessage For="() => _model.ConfirmPassword" />
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Save and continue</button>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthState { get; set; }
+
+    [SupplyParameterFromForm]
+    private ProfileModel _model { get; set; } = default!;
+
+    protected override void OnInitialized() => _model ??= new();
+
+    private string? _errorMessage;
+
+    private async Task SubmitAsync()
+    {
+        if (_model.Password != _model.ConfirmPassword)
+        {
+            _errorMessage = "The passwords do not match.";
+            return;
+        }
+
+        if (AuthState is null)
+        {
+            _errorMessage = "Your session has expired. Please log in again.";
+            return;
+        }
+
+        var principal = (await AuthState).User;
+        var user = await UserManager.GetUserAsync(principal);
+        if (user is null)
+        {
+            _errorMessage = "Your session has expired. Please log in again.";
+            return;
+        }
+
+        var setEmail = await UserManager.SetEmailAsync(user, _model.Email.Trim());
+        if (!setEmail.Succeeded)
+        {
+            _errorMessage = string.Join("; ", setEmail.Errors.Select(e => e.Description));
+            return;
+        }
+
+        var token = await UserManager.GeneratePasswordResetTokenAsync(user);
+        var setPassword = await UserManager.ResetPasswordAsync(user, token, _model.Password);
+        if (!setPassword.Succeeded)
+        {
+            _errorMessage = string.Join("; ", setPassword.Errors.Select(e => e.Description));
+            return;
+        }
+
+        // Clear the gate claim, then refresh the cookie so the new security stamp and the
+        // claim removal take effect immediately (the middleware lets them through afterwards).
+        await UserManager.RemoveClaimAsync(user, new Claim(InviteClaims.Type, InviteClaims.Required));
+        await SignInManager.RefreshSignInAsync(user);
+
+        Logger.LogInformation("User {UserId} completed first-login profile setup.", user.Id);
+
+        // Redirect home; a phone player is bounced on to /chat by the phone-lockdown middleware.
+        Navigation.NavigateTo("/", forceLoad: true);
+    }
+
+    private sealed class ProfileModel
+    {
+        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.EmailAddress]
+        public string Email { get; set; } = "";
+
+        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.MinLength(8)]
+        public string Password { get; set; } = "";
+
+        [System.ComponentModel.DataAnnotations.Required]
+        public string ConfirmPassword { get; set; } = "";
+    }
+}

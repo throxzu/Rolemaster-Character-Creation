@@ -60,6 +60,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<UsefulLink> UsefulLinks => Set<UsefulLink>();
     public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
     public DbSet<ChatRead> ChatReads => Set<ChatRead>();
+    public DbSet<CampaignSettings> CampaignSettings => Set<CampaignSettings>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -641,6 +642,16 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         modelBuilder.Entity<ChatRead>()
             .HasIndex(r => new { r.UserId, r.ConversationKey })
             .IsUnique();
+
+        modelBuilder.Entity<CampaignSettings>()
+            .Property(c => c.Name)
+            .HasMaxLength(120)
+            .IsRequired();
+
+        modelBuilder.Entity<CampaignSettings>()
+            .Property(c => c.LoginUrl)
+            .HasMaxLength(400)
+            .IsRequired();
     }
 
     // Writes audit log entries for tracked Character changes.

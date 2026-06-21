@@ -51,6 +51,9 @@
                                 <NavLink class="dropdown-item" href="gm/players">Players</NavLink>
                             </li>
                             <li>
+                                <NavLink class="dropdown-item" href="gm/campaign-settings">Campaign Settings</NavLink>
+                            </li>
+                            <li>
                                 <NavLink class="dropdown-item" href="gm/useful-links">Useful Links</NavLink>
                             </li>
                         </ul>
@@ -122,29 +125,6 @@
                             <li>
                                 <NavLink class="dropdown-item" href="campaign/buildings">Buildings</NavLink>
                             </li>
-                            <AuthorizeView Roles="Gamemaster" Context="gm">
-                                <li>
-                                    <hr class="dropdown-divider qp-divider" />
-                                </li>
-                                <li>
-                                    <NavLink class="dropdown-item" href="campaign/world-categories">World POI Types</NavLink>
-                                </li>
-                                <li>
-                                    <NavLink class="dropdown-item" href="campaign/map-categories">Town Map Categories</NavLink>
-                                </li>
-                                <li>
-                                    <NavLink class="dropdown-item" href="campaign/village-categories">Village Categories</NavLink>
-                                </li>
-                                <li>
-                                    <NavLink class="dropdown-item" href="campaign/dungeon-categories">Dungeon Legend</NavLink>
-                                </li>
-                                <li>
-                                    <NavLink class="dropdown-item" href="campaign/cave-categories">Cave Legend</NavLink>
-                                </li>
-                                <li>
-                                    <NavLink class="dropdown-item" href="campaign/building-categories">Building Legend</NavLink>
-                                </li>
-                            </AuthorizeView>
                         </ul>
                     </li>
                 </AuthorizeView>
@@ -166,6 +146,15 @@
                                     </li>
                                 }
                             }
+                            <AuthorizeView Roles="Gamemaster" Context="gmSpells">
+                                <li><h6 class="dropdown-header qp-dropdown-header">Alchemist (GM)</h6></li>
+                                @foreach (var cat in AlchemistMenu)
+                                {
+                                    <li>
+                                        <NavLink class="dropdown-item" href="@($"spells?category={Uri.EscapeDataString(cat)}")">@cat</NavLink>
+                                    </li>
+                                }
+                            </AuthorizeView>
                         </ul>
                     </li>
                 </AuthorizeView>
@@ -220,4 +209,8 @@
                           "Mentalist Base", "Monk Base", "Evil Mentalism"]),
         new("Hybrid", ["Healer Base", "Mystic Base", "Sorcerer Base"]),
     ];
+
+    // Treasure Law §5.6 Alchemist base lists — Gamemaster-only (rendered inside an AuthorizeView).
+    private static readonly string[] AlchemistMenu =
+        ["Adept Base", "Psychographer Base", "Sanctifier Base"];
 }
