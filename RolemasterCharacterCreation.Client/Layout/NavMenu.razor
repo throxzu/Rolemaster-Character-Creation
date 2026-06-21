@@ -129,6 +129,23 @@
                     </li>
                 </AuthorizeView>
 
+                <AuthorizeView Roles="Gamemaster" Context="gmTreasure">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            Treasure
+                        </a>
+                        <ul class="dropdown-menu qp-dropdown">
+                            <li>
+                                <NavLink class="dropdown-item" href="treasure/magic-items">Magic Items</NavLink>
+                            </li>
+                            <li>
+                                <NavLink class="dropdown-item" href="treasure/create-magic-item">Create Magic Item</NavLink>
+                            </li>
+                        </ul>
+                    </li>
+                </AuthorizeView>
+
                 <AuthorizeView>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button"

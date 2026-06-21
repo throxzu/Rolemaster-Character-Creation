@@ -1,0 +1,227 @@
+@page "/treasure/create-magic-item"
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = Roles.Gamemaster)]
+@using RolemasterCharacterCreation.Identity
+@using RolemasterCharacterCreation.Models
+@using RolemasterCharacterCreation.Rules
+@using RolemasterCharacterCreation.Services
+@inject MagicItemGenerator Generator
+@inject MagicItemService Items
+@inject NavigationManager Nav
+
+<PageTitle>Create Magic Item</PageTitle>
+
+<div class="container-fluid mt-3">
+    <div class="d-flex flex-wrap align-items-baseline gap-2 mb-3">
+        <h2 class="mb-0">Create Magic Item</h2>
+        <span class="mi-gm-tag" title="Gamemaster only">GM only</span>
+        <span class="text-muted small">AI-assisted &mdash; generates an item, then save it to the catalog</span>
+    </div>
+
+    @if (!Generator.IsAvailable)
+    {
+        <div class="alert alert-warning">Item generation is disabled — set <code>ANTHROPIC_API_KEY</code>.</div>
+    }
+
+    <div class="row g-3">
+        <!-- ── Inputs ── -->
+        <div class="col-md-5 col-lg-4">
+            <div class="qp-card p-3">
+                <label class="cmi-label">Type</label>
+                <select class="form-select form-select-sm mb-3" @bind="_typeLabel" @bind:after="OnTypeChanged">
+                    @foreach (var t in Types)
+                    {
+                        <option value="@t.Label">@t.Label</option>
+                    }
+                </select>
+
+                @if (SelectedType.Subtypes.Length > 0)
+                {
+                    <label class="cmi-label">Subtype</label>
+                    <select class="form-select form-select-sm mb-3" @bind="_subtype">
+                        @foreach (var s in SelectedType.Subtypes)
+                        {
+                            <option value="@s">@s</option>
+                        }
+                    </select>
+                }
+
+                <label class="cmi-label">Estimated item level</label>
+                <input type="number" min="1" max="100" class="form-control form-control-sm mb-3"
+                       @bind="_level" />
+
+                <label class="cmi-label">Guidance <span class="text-muted">(optional)</span></label>
+                <textarea class="form-control form-control-sm mb-3" rows="3"
+                          placeholder="e.g. fire-themed war hammer for a dwarf paladin; holy, Channeling"
+                          @bind="_guidance"></textarea>
+
+                <button class="btn btn-primary btn-sm w-100"
+                        @onclick="Generate" disabled="@(_generating || !Generator.IsAvailable)">
+                    @(_generating ? "Generating…" : "Generate")
+                </button>
+            </div>
+        </div>
+
+        <!-- ── Result ── -->
+        <div class="col-md-7 col-lg-8">
+            @if (_error is { } err)
+            {
+                <div class="alert alert-danger">@err</div>
+            }
+
+            @if (_generating)
+            {
+                <div class="qp-card p-4 text-muted text-center">Asking the LLM to forge an item…</div>
+            }
+            else if (_generated is { } it)
+            {
+                <div class="qp-card p-4">
+                    <div class="d-flex flex-wrap align-items-baseline gap-2 mb-2">
+                        <h3 class="mi-title mb-0">@it.Name</h3>
+                        <span class="mi-cat">@it.Category</span>
+                        <span class="cmi-created-tag" title="AI-generated">Created</span>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(it.Level) || !string.IsNullOrWhiteSpace(it.Cost)
+                         || !string.IsNullOrWhiteSpace(it.Days))
+                    {
+                        <div class="mi-stats mb-3">
+                            @if (!string.IsNullOrWhiteSpace(it.Level))
+                            { <span class="mi-stat"><span class="mi-stat-label">Level</span> @it.Level</span> }
+                            @if (!string.IsNullOrWhiteSpace(it.Cost))
+                            { <span class="mi-stat"><span class="mi-stat-label">Cost</span> @it.Cost</span> }
+                            @if (!string.IsNullOrWhiteSpace(it.Days))
+                            { <span class="mi-stat"><span class="mi-stat-label">Days</span> @it.Days</span> }
+                        </div>
+                    }
+
+                    <p class="mi-desc">@it.Description</p>
+
+                    @if (!string.IsNullOrWhiteSpace(it.Recipe))
+                    {
+                        <div class="mi-section-label mt-3 mb-1">Enchantment</div>
+                        <p class="mi-recipe">@it.Recipe</p>
+                    }
+
+                    <div class="d-flex gap-2 mt-3">
+                        <button class="btn btn-success btn-sm" @onclick="Save" disabled="@_saving">
+                            @(_saving ? "Saving…" : "Save to catalog")
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" @onclick="Generate" disabled="@_saving">
+                            Regenerate
+                        </button>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="qp-card p-4 text-muted text-center">
+                    Choose a type, subtype and level, then Generate.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .cmi-label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+                 color: var(--qp-text-label); display: block; margin-bottom: 3px; }
+    .mi-title { color: var(--qp-teal); font-weight: 700; letter-spacing: .03em; }
+    .mi-cat { color: var(--qp-text-muted); font-size: .82rem; }
+    .mi-gm-tag, .cmi-created-tag { display: inline-block; padding: 0 5px; border-radius: 3px;
+        font-size: .62rem; font-weight: 700; letter-spacing: .04em; vertical-align: middle;
+        text-transform: uppercase; color: #fff; }
+    .mi-gm-tag { background: var(--qp-red, #b3402e); }
+    .cmi-created-tag { background: var(--qp-blue, #2f6f9f); }
+    .mi-stats { display: flex; flex-wrap: wrap; gap: 16px; }
+    .mi-stat { font-size: .9rem; color: var(--qp-text-primary); }
+    .mi-stat-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+                     color: var(--qp-text-label); margin-right: 4px; }
+    .mi-desc { color: var(--qp-text-primary); line-height: 1.6; font-size: .92rem; margin-bottom: 0; }
+    .mi-section-label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+                        color: var(--qp-text-label); }
+    .mi-recipe { color: var(--qp-text-muted); font-size: .86rem; line-height: 1.55;
+                 font-family: var(--bs-font-monospace, monospace); margin-bottom: 0; }
+</style>
+
+@code {
+    private sealed record TypeOption(string Label, string Category, string[] Subtypes);
+
+    private static readonly TypeOption[] Types =
+    [
+        new("Melee Weapon", "Melee Weapons",
+            WeaponRules.BySkill["Melee Weapons"].Select(w => w.Name).ToArray()),
+        new("Ranged Weapon", "Missile Weapons",
+            WeaponRules.BySkill["Ranged Weapons"].Select(w => w.Name).ToArray()),
+        new("Armor", "Armor & Shields",
+            ArmorRules.All.Where(a => a.AT >= 2).Select(a => a.Name).ToArray()),
+        new("Shield", "Armor & Shields",
+            ["Target Shield", "Normal Shield", "Full Shield", "Wall Shield"]),
+        new("Jewelry", "Jewelry",
+            ["Ring", "Amulet", "Necklace", "Pendant", "Brooch", "Bracelet", "Circlet",
+             "Crown", "Diadem", "Earrings", "Torc", "Choker"]),
+        new("Potion", "Potions", ["Normal Potion", "Gaseous Potion"]),
+        new("Wand / Rod / Staff", "Wands, Rods & Staves",
+            ["Wand", "Rod", "Staff", "Half-Bole", "Bole"]),
+        new("Daily Item", "Daily Items", []),
+        new("Constant Item", "Constant Items", []),
+        new("Emplaced Spell Item", "Emplaced Spell Items", []),
+        new("General Bonus Item", "General Bonus Items", []),
+        new("Skill Item", "Skill Items", []),
+        new("Stat Bonus Item", "Stat Bonus Items", []),
+        new("Power Enhancer", "Power Enhancers", []),
+    ];
+
+    private string _typeLabel = Types[0].Label;
+    private string? _subtype = Types[0].Subtypes.FirstOrDefault();
+    private int _level = 10;
+    private string? _guidance;
+
+    private bool _generating;
+    private bool _saving;
+    private string? _error;
+    private MagicItem? _generated;
+
+    private TypeOption SelectedType => Types.First(t => t.Label == _typeLabel);
+
+    private void OnTypeChanged() => _subtype = SelectedType.Subtypes.FirstOrDefault();
+
+    private async Task Generate()
+    {
+        _error = null;
+        _generated = null;
+        _generating = true;
+        try
+        {
+            var t = SelectedType;
+            var subtype = t.Subtypes.Length > 0 ? _subtype : null;
+            _generated = await Generator.GenerateAsync(t.Label, t.Category, subtype, _level, _guidance,
+                CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _generating = false;
+        }
+    }
+
+    private async Task Save()
+    {
+        if (_generated is null) return;
+        _saving = true;
+        _error = null;
+        try
+        {
+            var saved = await Items.AddCreatedAsync(_generated);
+            Nav.NavigateTo($"/treasure/magic-items?item={Uri.EscapeDataString(saved.Name)}");
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+            _saving = false;
+        }
+    }
+}

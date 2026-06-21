@@ -60,6 +60,12 @@ builder.Services.AddSingleton<CreatureService>();
 // Misc reference tables (static, loaded from docs/game-data/reference-tables.json)
 builder.Services.AddSingleton<ReferenceTableService>();
 
+// Magic items (static, GM-only, loaded from docs/game-data/magic-items.json)
+builder.Services.AddSingleton<MagicItemService>();
+
+// LLM-backed magic item generator (Claude); GM-only Create Magic Item page
+builder.Services.AddSingleton<MagicItemGenerator>();
+
 // Creature overview stat tables (static, GM-only, loaded from docs/game-data/creature-tables.json)
 builder.Services.AddSingleton<CreatureTableService>();
 

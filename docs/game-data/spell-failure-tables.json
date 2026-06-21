@@ -541,5 +541,730 @@
         ]
       }
     ]
+  },
+  {
+    "name": "Alchemical: Bonus & Embedded Entity",
+    "columns": [
+      "Bonus",
+      "Embedded Entity"
+    ],
+    "rows": [
+      {
+        "rollLow": 1,
+        "rollHigh": 15,
+        "cells": [
+          "The job is done, but what a mess! The workshop will require a dedicated week of work before it is ready for another project.",
+          "Entity psychically squirms throughout process, adding 3 days to the time required, but no additional material costs."
+        ]
+      },
+      {
+        "rollLow": 16,
+        "rollHigh": 30,
+        "cells": [
+          "Extra work is required. Add 1-3 days to production time, with increased materials costs.",
+          "Alchemist has nightmares about being trapped in a confined space. Poor sleep puts him at -10 until project is finished."
+        ]
+      },
+      {
+        "rollLow": 31,
+        "rollHigh": 45,
+        "cells": [
+          "Tool breakage halfway through process requires immediate 10 sp replacement. Work cannot continue without it.",
+          "Halfway through project, Alchemist becomes paranoid about object watching him and needs a month break to clear his head."
+        ]
+      },
+      {
+        "rollLow": 46,
+        "rollHigh": 65,
+        "cells": [
+          "An early error requires an additional 1-10 days of work to correct, with increased materials costs.",
+          "Project starts to fall behind, but Alchemist salvages his schedule by using an additional 5-50 sp of materials."
+        ]
+      },
+      {
+        "rollLow": 66,
+        "rollHigh": 66,
+        "cells": [
+          "Serendipity!",
+          "Serendipity!"
+        ]
+      },
+      {
+        "rollLow": 67,
+        "rollHigh": 80,
+        "cells": [
+          "Item develops a quirk.",
+          "Entity creates an inscription on the item."
+        ]
+      },
+      {
+        "rollLow": 81,
+        "rollHigh": 95,
+        "cells": [
+          "Process takes an extra 3 days (includes material costs) and produces an item with a quirk.",
+          "Item gains a quirk."
+        ]
+      },
+      {
+        "rollLow": 96,
+        "rollHigh": 105,
+        "cells": [
+          "Item develops a flaw.",
+          "Item gains a quirk and takes an extra 1-10 days to complete (no extra materials costs)."
+        ]
+      },
+      {
+        "rollLow": 106,
+        "rollHigh": 135,
+        "cells": [
+          "Item has a reduced bonus.",
+          "Entity becomes uncooperative halfway through process and initiates will contest with a +25 bonus. If it can, it will make the Alchemist perform some errand before allowing work to resume."
+        ]
+      },
+      {
+        "rollLow": 136,
+        "rollHigh": 165,
+        "cells": [
+          "Item develops a flaw and a quirk.",
+          "The intended ability is produced, but with a flaw."
+        ]
+      },
+      {
+        "rollLow": 166,
+        "rollHigh": 166,
+        "cells": [
+          "Serendipity!!!",
+          "Serendipity!!!"
+        ]
+      },
+      {
+        "rollLow": 167,
+        "rollHigh": 180,
+        "cells": [
+          "Item is cursed.",
+          "Bearer of item will pick up a personality trait of the embedded entity (takes 1-10 months; effects fade over 1-10 years after separating from item)."
+        ]
+      },
+      {
+        "rollLow": 181,
+        "rollHigh": 190,
+        "cells": [
+          "At a random point in the process, Alchemist does an A critical to himself in an industrial accident. If item is a weapon, he takes a +0 attack instead.",
+          "At a random point in the process, the Alchemist does an A critical to himself in an industrial accident."
+        ]
+      },
+      {
+        "rollLow": 191,
+        "rollHigh": 200,
+        "cells": [
+          "At a random point in the process, Alchemist does an A critical to himself in an industrial accident. If item is a weapon, he takes a +0 attack instead. The distraction causes him to produce an object with a flaw.",
+          "At a random point in the process, the Alchemist does an A critical to himself in an industrial accident. The item manages to acquire a curse at the same time."
+        ]
+      },
+      {
+        "rollLow": 201,
+        "rollHigh": 250,
+        "cells": [
+          "At a random point in the process, Alchemist does an A critical to himself in an industrial accident. If item is a weapon, he takes a +0 attack instead. This distraction leads to the creation of a cursed item.",
+          "Alchemist manages to almost accidentally embed himself as enchantment completes. Treat as an Absolution cast by the Alchemist on himself (automatic touch range)."
+        ]
+      },
+      {
+        "rollLow": 251,
+        "rollHigh": 300,
+        "cells": [
+          "At a random point in the process, Alchemist does a B critical to himself in an industrial accident. If item is a weapon, he takes a +30 attack instead.",
+          "Oops! The entity is released from the item when the process should have completed; all entity-based enchantments are lost. Further results dependant on the nature of the previously-embedded entity."
+        ]
+      },
+      {
+        "rollLow": 301,
+        "rollHigh": 9999,
+        "cells": [
+          "Major disaster! At a random point in the process, a fire gets out of control. The workshop ends up 50+1d100% destroyed (a result over 100% indicates danger to any neighboring structures). Alchemist takes immediate B Heat crit and needs to get out of burning building.",
+          "Accidentally fusing his mind with the embedded entity at a random point in the process, the Alchemist does 10 x 1d100 sp damage to his workshop in a fit of madness. Afterwards, he is completely dominated by the entity for 1-10 weeks until complete psychic reintegration."
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Alchemical: General & Independent Entity",
+    "columns": [
+      "General",
+      "Independent Entity"
+    ],
+    "rows": [
+      {
+        "rollLow": 1,
+        "rollHigh": 15,
+        "cells": [
+          "Enchantment process consumes an extra 1-10 sp in materials.",
+          "An extra 1-4 days are spent in fruitless tinkering, with no added materials costs."
+        ]
+      },
+      {
+        "rollLow": 16,
+        "rollHigh": 30,
+        "cells": [
+          "Enchantment process requires an additional 2 days (including additional materials costs).",
+          "Rumors spread that the Alchemist is creating an abomination. -10 to all social interactions until project completes."
+        ]
+      },
+      {
+        "rollLow": 31,
+        "rollHigh": 45,
+        "cells": [
+          "Minor incident causes 5-50 sp of damage to workshop, which must be repaired before the next project begins.",
+          "Carelessness with exotic ingredients results in 5-50 sp in additional costs."
+        ]
+      },
+      {
+        "rollLow": 46,
+        "rollHigh": 65,
+        "cells": [
+          "As both 16-30 and 31-45 above.",
+          "An accident leads to a cosmetic flaw in the creation's appearance. Alchemist may leave it permanently scarred or spend another 3 days (with additional materials costs) to fix it."
+        ]
+      },
+      {
+        "rollLow": 66,
+        "rollHigh": 66,
+        "cells": [
+          "Serendipity!",
+          "Serendipity!"
+        ]
+      },
+      {
+        "rollLow": 67,
+        "rollHigh": 80,
+        "cells": [
+          "Item has a quirk.",
+          "Creature has a quirk."
+        ]
+      },
+      {
+        "rollLow": 81,
+        "rollHigh": 95,
+        "cells": [
+          "Item has a quirk and the enchantment process takes an additional 1-5 days (with additional material costs).",
+          "Miscalibration results in a -5 OB with all attacks."
+        ]
+      },
+      {
+        "rollLow": 96,
+        "rollHigh": 105,
+        "cells": [
+          "Item has a flaw.",
+          "Creature has a flaw."
+        ]
+      },
+      {
+        "rollLow": 106,
+        "rollHigh": 135,
+        "cells": [
+          "Item has a flaw and the enchantment process takes an additional 1-5 days (with additional material costs).",
+          "Creature has an obvious flaw. Depressed, the Alchemist is at -20 to all creative work for 1-10 weeks."
+        ]
+      },
+      {
+        "rollLow": 136,
+        "rollHigh": 165,
+        "cells": [
+          "Item has a flaw and the Alchemist is frustrated by the process, requiring a week of vacation before attempting any other work without a -30 penalty.",
+          "Creature is created at 75% of the intended level (round up). In addition, cost overruns of 1-100 sp occur."
+        ]
+      },
+      {
+        "rollLow": 166,
+        "rollHigh": 166,
+        "cells": [
+          "Serendipity!!!",
+          "Serendipity!!!"
+        ]
+      },
+      {
+        "rollLow": 167,
+        "rollHigh": 180,
+        "cells": [
+          "Item is cursed.",
+          "Creature spends 1-10 rounds uncontrolled when first awakening. After this time, normal control methods will work. Just survive that long."
+        ]
+      },
+      {
+        "rollLow": 181,
+        "rollHigh": 190,
+        "cells": [
+          "At a random point in the process, Alchemist does an A critical to himself in an industrial accident.",
+          "Creature does 5-500 sp of property damage upon awakening before settling down to normal control. It will not harm any living thing, unless someone deliberately gets in its way."
+        ]
+      },
+      {
+        "rollLow": 191,
+        "rollHigh": 200,
+        "cells": [
+          "At a random point in the process, Alchemist does an A critical to himself in an industrial accident. The distraction causes him to produce an object with a flaw.",
+          "With 3 days remaining in the process, the Alchemist errs while testing the creature's reflexes. Alchemist suffers a +0 attack from a random creature attack form."
+        ]
+      },
+      {
+        "rollLow": 201,
+        "rollHigh": 250,
+        "cells": [
+          "At a random point in the process, Alchemist does an A critical to himself in an industrial accident. This distraction leads to the creation of a cursed item.",
+          "With 2 days remaining in the process, the Alchemist errs while testing the creature's reflexes. Alchemist suffers a half OB attack from a random creature attack form."
+        ]
+      },
+      {
+        "rollLow": 251,
+        "rollHigh": 300,
+        "cells": [
+          "At a random point in the process, Alchemist does a B critical to himself in an industrial accident.",
+          "With 1 day remaining in the process, the Alchemist errs while testing the creature's reflexes. Alchemist suffers a normal attack from a random creature attack form."
+        ]
+      },
+      {
+        "rollLow": 301,
+        "rollHigh": 9999,
+        "cells": [
+          "At a random point in the process, magical energies surge out of control, converting the entire workshop into a single substance (e.g., glass or cheese). Treat as exposure to a conversion poison equal in level to the item for living things. Magical items get an RR, including the one being enchanted. The enchantment process fails in any case.",
+          "It's alive! It's alive! Unfortunately, it is also uncontrollable and berserk. It will destroy until destroyed, starting with whatever is nearest. Alchemist is caught flatfooted."
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Alchemical: Intelligence & Location",
+    "columns": [
+      "Intelligence",
+      "Location"
+    ],
+    "rows": [
+      {
+        "rollLow": 1,
+        "rollHigh": 15,
+        "cells": [
+          "This requires more thought. Add 2 days to the required time, along with associated materials costs.",
+          "An additional 1-5 days (with material costs) are required."
+        ]
+      },
+      {
+        "rollLow": 16,
+        "rollHigh": 30,
+        "cells": [
+          "This job is a real headache. After completion, Alchemist spends 1 week at -25 to all actions due to residual headaches.",
+          "Location begins to attract minor pests (e.g., flies, cockroaches, or rats). They will be well established by the end of the process, but the place will no longer abnormally attract them once enchanted."
+        ]
+      },
+      {
+        "rollLow": 31,
+        "rollHigh": 45,
+        "cells": [
+          "Confusion of perspective with that of the item causes Alchemist to break 5-50 sp of equipment, but project completes on time.",
+          "Intensive focus on the area dictates that the Alchemist spend DP for 2 ranks in appropriate Region Lore on next leveling up due to obsession."
+        ]
+      },
+      {
+        "rollLow": 46,
+        "rollHigh": 65,
+        "cells": [
+          "Too many stray thoughts from the project dance through the Alchemist's brain. All activity not part of this project suffers a -10 penalty from start to completion of this project.",
+          "A careless spill wastes 3-30 sp worth of materials."
+        ]
+      },
+      {
+        "rollLow": 66,
+        "rollHigh": 66,
+        "cells": [
+          "Serendipity!",
+          "Serendipity!"
+        ]
+      },
+      {
+        "rollLow": 67,
+        "rollHigh": 80,
+        "cells": [
+          "Intelligence's personality develops a random trait.",
+          "Location's enchantment has a quirk."
+        ]
+      },
+      {
+        "rollLow": 81,
+        "rollHigh": 95,
+        "cells": [
+          "One stat bonus is reduced by 1-10.",
+          "Some nearby source of contrary influences interferes with the enchantment. Alchemist realizes this 1-5 days into the process. Until it is removed, work cannot proceed."
+        ]
+      },
+      {
+        "rollLow": 96,
+        "rollHigh": 105,
+        "cells": [
+          "Intelligence has different ethics than intended. It will still pursue its purpose, but the means may be quite different than envisioned.",
+          "Alchemist drained by enchantment process; after project completes, he cannot cast spells for as many days as the enchantment itself required."
+        ]
+      },
+      {
+        "rollLow": 106,
+        "rollHigh": 135,
+        "cells": [
+          "Intelligence has a different purpose than was intended.",
+          "Location's enchantment has a flaw."
+        ]
+      },
+      {
+        "rollLow": 136,
+        "rollHigh": 165,
+        "cells": [
+          "Item's purpose is directly opposite what was intended, but its personality and ethics remain as close as possible to intended.",
+          "Location becomes cursed."
+        ]
+      },
+      {
+        "rollLow": 166,
+        "rollHigh": 166,
+        "cells": [
+          "Serendipity!!!",
+          "Serendipity!!!"
+        ]
+      },
+      {
+        "rollLow": 167,
+        "rollHigh": 180,
+        "cells": [
+          "Item's purpose is directly opposite what was intended and ethics directly opposite to what was intended.",
+          "Location becomes haunted."
+        ]
+      },
+      {
+        "rollLow": 181,
+        "rollHigh": 190,
+        "cells": [
+          "Psychic stresses cause Alchemist to suffer a 1-10 reduction in one of his temporary mental stats (Em, In, Me, Pr, Re, or SD).",
+          "Alchemist becomes cursed (level twice his own) to remain at the enchanted site as its guardian."
+        ]
+      },
+      {
+        "rollLow": 191,
+        "rollHigh": 200,
+        "cells": [
+          "Telekinetic manifestations appear at random points in the process. 50% chance of 1-10 sp of damage each day of the project.",
+          "At a random point in the process, materials explode in Alchemist's face, doing 5-50 hits and an A critical. 10-100 sp of equipment is destroyed."
+        ]
+      },
+      {
+        "rollLow": 201,
+        "rollHigh": 250,
+        "cells": [
+          "As 167-180 and 191-200 above.",
+          "Alchemist triggers minor earthquake at a random point in the process."
+        ]
+      },
+      {
+        "rollLow": 251,
+        "rollHigh": 300,
+        "cells": [
+          "Psychic forces shake workshop destructively at a random point in the process. Damage is 2-200 sp and any within must make a Nigh Impossible maneuver to avoid taking a C Krush critical from falling materials.",
+          "Psychic emanations attract some hostile creature of substantial power (at least twice Alchemist's own level), which will appear at a random point in the process to attempt to put a stop to it."
+        ]
+      },
+      {
+        "rollLow": 301,
+        "rollHigh": 9999,
+        "cells": [
+          "Mental force stuns all within 10'/level of item upon its completion for 1-10 rounds. The item is fine, but the Alchemist suffers a major change in personality and his temporary mental stats (Em, In, Me, Pr, Re, & SD) drop 1-5 points each.",
+          "Location is engulfed in magical energies for a moment of completely lost control. Alchemist takes a C critical, any others in the area take an A critical. This occurs at a random time in the process."
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Alchemical: Organism & Potion",
+    "columns": [
+      "Organism",
+      "Potion"
+    ],
+    "rows": [
+      {
+        "rollLow": 1,
+        "rollHigh": 15,
+        "cells": [
+          "Organism has a rash in addition to the enchantment. It will go away in a week.",
+          "Potion tastes bitter, smells bad."
+        ]
+      },
+      {
+        "rollLow": 16,
+        "rollHigh": 30,
+        "cells": [
+          "Organism and Alchemist are both exposed to a disease at a random point in the process. Maximum result is mild.",
+          "Slow brewing: process requires an additional day to complete, but does not incur additional material costs."
+        ]
+      },
+      {
+        "rollLow": 31,
+        "rollHigh": 45,
+        "cells": [
+          "Sometimes things take a little longer. In this case, an extra 1-10 days are required (no additional material costs).",
+          "Temperamental recipe: Problems develop, requiring 3-30 sp additional expenses to fix, but job finishes on time."
+        ]
+      },
+      {
+        "rollLow": 46,
+        "rollHigh": 65,
+        "cells": [
+          "Organism requires unexpected care (probably food), driving expenses up by 3-30 sp and making Alchemist cranky (-10 to all Social skills until project is complete).",
+          "Damage to equipment costs 10-100 sp, but the brew is salvaged."
+        ]
+      },
+      {
+        "rollLow": 66,
+        "rollHigh": 66,
+        "cells": [
+          "Serendipity!",
+          "Serendipity!"
+        ]
+      },
+      {
+        "rollLow": 67,
+        "rollHigh": 80,
+        "cells": [
+          "The enchantment has a quirk.",
+          "Slow-working: potion effects will be delayed 1-5 rounds."
+        ]
+      },
+      {
+        "rollLow": 81,
+        "rollHigh": 95,
+        "cells": [
+          "The enchantment has a quirk and the organism experiences 1-5 weeks of mild nausea (-5).",
+          "Potion has a side effect."
+        ]
+      },
+      {
+        "rollLow": 96,
+        "rollHigh": 105,
+        "cells": [
+          "The enchantment has a flaw.",
+          "Potion has a 50% chance of not doing anything. No refunds."
+        ]
+      },
+      {
+        "rollLow": 106,
+        "rollHigh": 135,
+        "cells": [
+          "The enchantment has a flaw and the organism has a headache (-20) for 1-10 days after the process completes.",
+          "Potion is flawed."
+        ]
+      },
+      {
+        "rollLow": 136,
+        "rollHigh": 165,
+        "cells": [
+          "The enchantment has a flaw and the Alchemist has a headache (-20) for 1-10 days after the process completes.",
+          "Potion is flawed and has a side effect."
+        ]
+      },
+      {
+        "rollLow": 166,
+        "rollHigh": 166,
+        "cells": [
+          "Serendipity!!!",
+          "Serendipity!!!"
+        ]
+      },
+      {
+        "rollLow": 167,
+        "rollHigh": 180,
+        "cells": [
+          "Organism takes 1-10 hits at a random point in the process, and it instinctively lashes out with one unarmed attack on the Alchemist.",
+          "Potion acidifies. Treat as a very weak acid. Magic works normally."
+        ]
+      },
+      {
+        "rollLow": 181,
+        "rollHigh": 190,
+        "cells": [
+          "As process completes, Alchemist transfers some of his vital energy to the organism. Treat as an Infuse Life IV (Life Mastery) spell affecting random stats.",
+          "Potion is poisonous. Level of poison is same as potion. Type is random. If the imbiber survives, the intended effect still applies."
+        ]
+      },
+      {
+        "rollLow": 191,
+        "rollHigh": 200,
+        "cells": [
+          "As process completes, Alchemist transfers some of his vital energy to the organism. Treat as an Infuse Life X (Life Mastery) spell affecting random stats.",
+          "Alchemist poisons himself (random type, level 5, max. moderate effect) halfway into project. If he still completes the potion, it will have a side effect."
+        ]
+      },
+      {
+        "rollLow": 201,
+        "rollHigh": 250,
+        "cells": [
+          "Weird magic does identical A criticals to organism and Alchemist, 1-100 sp damage to workshop. Afterwards, organism and Alchemist are magically linked for 1-10 months, during which any injury to either will also affect the other.",
+          "Glass sent flying by explosion does A Slash critical to Alchemist at a random point in the project. 3-30 sp damage is done, but the project can still be salvaged."
+        ]
+      },
+      {
+        "rollLow": 251,
+        "rollHigh": 300,
+        "cells": [
+          "Burst of Essence at random point in the process does 2-200 sp of damage to workshop and knocks out everyone in room. When they wake up, minds are switched to different bodies; they will revert after 1-100 days.",
+          "Explosion 2 days into project does B Stream crit to Alchemist. Damage to equipment is minor and progress can continue if the Alchemist is still capable."
+        ]
+      },
+      {
+        "rollLow": 301,
+        "rollHigh": 9999,
+        "cells": [
+          "Magical backlash does D crits to both Alchemist and organism. Plant growth of some kind instantly springs up throughout the workshop. It will not interfere with future work, but all future repairs or upgrades to the workshop will take twice the time and be three times the expense.",
+          "Explosion sets workshop ablaze, halfway through project. Alchemist takes B Heat crit and an imperative need to make a Very Hard maneuver to exit the building. Unless magical fire suppression is immediate, workshop is a complete loss (and may imperil adjacent buildings)."
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Alchemical: Power Enhancer & Spell Power",
+    "columns": [
+      "Power Enhancer",
+      "Spell Power"
+    ],
+    "rows": [
+      {
+        "rollLow": 1,
+        "rollHigh": 15,
+        "cells": [
+          "Power surge in the final step causes Alchemist to lose attunement to one item.",
+          "Caster providing the spell develops mental block upon item completion and cannot cast the spell for 2-20 days."
+        ]
+      },
+      {
+        "rollLow": 16,
+        "rollHigh": 30,
+        "cells": [
+          "Exhausting process leaves Alchemist drained of PP for one week after item completion.",
+          "Stubborn matter resists enchantment. Add 2 days (and associated materials costs) to creation time."
+        ]
+      },
+      {
+        "rollLow": 31,
+        "rollHigh": 45,
+        "cells": [
+          "Uncontrolled discharge of energies does 1-100 sp of damage to workshop, but work is completed on time.",
+          "Upon item completion, it releases a burst of excess magical energy, doing 1-10 sp of damage to the workshop per level of the highest embedded spell."
+        ]
+      },
+      {
+        "rollLow": 46,
+        "rollHigh": 65,
+        "cells": [
+          "Disruption of the Essence in a radius of 5'/level of item around the location of enchantment causes penalty to SCRs of -30. Radius shrinks by 5'/week as Essence heals.",
+          "Spell goes off on completion of item, targeting the Alchemist."
+        ]
+      },
+      {
+        "rollLow": 66,
+        "rollHigh": 66,
+        "cells": [
+          "Serendipity!",
+          "Serendipity!"
+        ]
+      },
+      {
+        "rollLow": 67,
+        "rollHigh": 80,
+        "cells": [
+          "Item develops a quirk.",
+          "Item develops a quirk."
+        ]
+      },
+      {
+        "rollLow": 81,
+        "rollHigh": 95,
+        "cells": [
+          "User's aura becomes slightly warped, causing a -10 to SCRs.",
+          "Item is difficult to use. -10 to SCRs casting from this item."
+        ]
+      },
+      {
+        "rollLow": 96,
+        "rollHigh": 105,
+        "cells": [
+          "Item is fickle: Every 1-100+ days (roll open-ended upon attunement), it will alter its aura, deattuning the currently attuned user(s). Reattunement is possible.",
+          "Item is fickle: Every 1-100+ days (roll open-ended upon attunement), it will alter its aura, deattuning the currently attuned user(s). Reattunement is possible."
+        ]
+      },
+      {
+        "rollLow": 106,
+        "rollHigh": 135,
+        "cells": [
+          "Item develops a flaw.",
+          "Item develops a flaw."
+        ]
+      },
+      {
+        "rollLow": 136,
+        "rollHigh": 165,
+        "cells": [
+          "Item develops a flaw and a quirk.",
+          "Item develops a quirk and a flaw."
+        ]
+      },
+      {
+        "rollLow": 166,
+        "rollHigh": 166,
+        "cells": [
+          "Serendipity!!!",
+          "Serendipity!!!"
+        ]
+      },
+      {
+        "rollLow": 167,
+        "rollHigh": 180,
+        "cells": [
+          "Item is cursed.",
+          "Item is cursed."
+        ]
+      },
+      {
+        "rollLow": 181,
+        "rollHigh": 190,
+        "cells": [
+          "Enchantment completes successfully and on-time, but Alchemist has left a little of himself in his work. Reduce Alchemist's temporary realm stat by 1-5.",
+          "One little slip is all it takes. At a random time in the enchanting process, the Alchemist takes an A critical. Work can continue when the Alchemist can."
+        ]
+      },
+      {
+        "rollLow": 191,
+        "rollHigh": 200,
+        "cells": [
+          "Power surge does C Subdual crit to Alchemist as enchantment completes, while the item develops a flaw.",
+          "Power is misdirected into the Alchemist, who takes a -20 penalty nerve injury, while the item becomes flawed."
+        ]
+      },
+      {
+        "rollLow": 201,
+        "rollHigh": 250,
+        "cells": [
+          "At a random point in the process, a power surge throws the Alchemist across the room, delivering a B Unbalancing and an A Krush critical. This also does 3-300 sp damage to the workshop that must be repaired before work resumes.",
+          "Burst of Essence at a random point in the process knocks Alchemist out. Workshop takes 25-250 (1d10 x 25) sp of damage. Alchemist is physically fine, but cannot recall any spells not used in this project until 2-20 weeks after it is completed."
+        ]
+      },
+      {
+        "rollLow": 251,
+        "rollHigh": 300,
+        "cells": [
+          "On the first day of enchantment, a silent burst of light flares through workshop. 300 + 1d100 sp of materials must be replaced before resuming work, and Alchemist is drained of all PP for 1-100 days.",
+          "Everything seems fine at a glance, but a complete investigation would find that the item has become both flawed and cursed."
+        ]
+      },
+      {
+        "rollLow": 301,
+        "rollHigh": 9999,
+        "cells": [
+          "One day before project completion, Essence surges into the item, releasing all stored energy. Creator takes an E crit and cannot cast spells for 1-100 weeks. Anyone else within 50' takes a C crit. The lab must be entirely rebuilt. The enchantment fails and the item must check for breakage at -100.",
+          "At a random point in the process, it all goes wrong. The caster of the embedded spell must make a spell failure roll. The Alchemist is targeted by every spell being placed in the item. Random discharges of Essence do 1-100 sp damage to the workshop per level of the item. Enchantment fails."
+        ]
+      }
+    ]
   }
 ]

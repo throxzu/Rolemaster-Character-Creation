@@ -5,6 +5,7 @@
 @using RolemasterCharacterCreation.Models
 @using RolemasterCharacterCreation.Services
 @inject ReferenceTableService Tables
+@inject MagicItemService MagicItems
 @inject AuthenticationStateProvider AuthState
 
 <PageTitle>Reference Tables</PageTitle>
@@ -77,7 +78,7 @@
                                     <tr>
                                         @for (var i = 0; i < t.Columns.Count; i++)
                                         {
-                                            <td>@(i < row.Count ? row[i] : "")</td>
+                                            <td>@CellContent(t, t.Columns[i], i < row.Count ? row[i] : "")</td>
                                         }
                                     </tr>
                                 }
@@ -104,7 +105,7 @@
                                         <tr>
                                             @for (var i = 0; i < sub.Columns.Count; i++)
                                             {
-                                                <td>@(i < row.Count ? row[i] : "")</td>
+                                                <td>@CellContent(t, sub.Columns[i], i < row.Count ? row[i] : "")</td>
                                             }
                                         </tr>
                                     }
@@ -147,6 +148,9 @@
                   white-space: nowrap; }
     .rt-grid td { border-color: var(--qp-border-panel) !important; padding: 4px 10px;
                   vertical-align: top; line-height: 1.4; }
+    .rt-item-link { color: inherit; text-decoration: underline dotted var(--qp-blue);
+                    text-underline-offset: 2px; }
+    .rt-item-link:hover { color: var(--qp-blue); text-decoration-style: solid; }
 </style>
 
 @code {
@@ -159,6 +163,21 @@
 
     private IEnumerable<ReferenceTable> Filtered =>
         Tables.Search(_search).Where(t => _isGm || !t.GmOnly);
+
+    // In Random Treasure tables, an "Item" cell that names a magic item links to it.
+    private RenderFragment CellContent(ReferenceTable table, string column, string value) => __builder =>
+    {
+        if (table.Category == "Random Treasure" && column == "Item"
+            && MagicItems.Resolve(value) is { } mi)
+        {
+            <a class="rt-item-link" target="_blank" title="@($"View {mi.Name} in Magic Items")"
+               href="@($"/treasure/magic-items?item={Uri.EscapeDataString(mi.Name)}")">@value</a>
+        }
+        else
+        {
+            @value
+        }
+    };
 
     protected override async Task OnInitializedAsync()
     {

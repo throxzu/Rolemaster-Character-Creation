@@ -1,0 +1,2117 @@
+[
+  {
+    "name": "Runemaker’s Desk",
+    "category": "Daily Items",
+    "description": "This wooden desk allows the (attuned) user to cast Rune I (Rune Mastery) once each day. Rune I is an Essence spell, so the Daily and Embed spells used come from the Essence Embedding list.",
+    "recipe": "Work Mundane Wood (4), Daily III (10), Embed III (7), Rune I (3). Days: 24. Standard cost = 288sp, plus the cost of the desk itself. Level 10 item.",
+    "level": "10",
+    "cost": "288 sp",
+    "days": "24"
+  },
+  {
+    "name": "Staff of Fasting",
+    "category": "Daily Items",
+    "description": "This walking staff allows its (attuned) bearer to cast Sustain Self (Creations) on a daily basis. Sustain Self is a Channeling spell, so the Daily and Embed spells used come from the Other Realm Embedding list. The staff itself will cost less than a silver piece if made from any non-magical wood, so we can ignore that expense.",
+    "recipe": "Work Mundane Wood (4), Daily II (9), Embed II (6), Sustain Self (2). Days: 21. Standard cost = 231sp. Level 9 item.",
+    "level": "9",
+    "cost": "231 sp",
+    "days": "21"
+  },
+  {
+    "name": "Reefwarder’s Eyes",
+    "category": "Constant Items",
+    "description": "This beaded leather headband (2sp) permits the wearer to see 100' into water as if it was air. It is used to avoid rocks and reefs while approaching unfamiliar shores.",
+    "recipe": "Work Mundane Leather (3), Constant X (35), Embed VII (15), Watervision (Physical Enhancement, 7). Days: 60. Standard cost 2282sp. Level 35 item.",
+    "level": "35",
+    "cost": "2282 sp",
+    "days": "60"
+  },
+  {
+    "name": "Staff of Levitation",
+    "category": "Emplaced Spell Items",
+    "description": "This white wooden staff is carved with inscriptions regarding centering oneself and achieving a sense of lightness (with a base value of 2sp). It permits casting Levitation I (from the Movement spell list), using the wielder’s Mentalism PP (if any) or the 3 PP stored in the item.",
+    "recipe": "Work Mundane Wood (4), Emplace Spell III (5), Levitation I (3), Implant Power I (4). Days: 16. Standard cost = 114sp. Level 5 item.",
+    "level": "5",
+    "cost": "114 sp",
+    "days": "16"
+  },
+  {
+    "name": "Climber’s Gloves",
+    "category": "General Bonus Items",
+    "description": "These fine leather gloves fit securely and have an exceptional grip, granting +10 to all Climbing maneuvers.",
+    "recipe": "Work Mundane Leather (3), General II (10). Days: 13. Standard cost = 156sp. Level 10 item.",
+    "level": "10",
+    "cost": "156 sp",
+    "days": "13"
+  },
+  {
+    "name": "Golden Ring",
+    "category": "Power Enhancers",
+    "description": "This gold ring (75 sp value) is a +2 Spell Adder for the Realm of Essence.",
+    "recipe": "Work Lesser Metals (5), Spell Adder II (9 x 2 for wearable). Days: 23. Standard cost = 328sp. Level 9 item.",
+    "level": "9",
+    "cost": "328 sp",
+    "days": "23"
+  },
+  {
+    "name": "Vestments of Divinity",
+    "category": "Power Enhancers",
+    "description": "These elaborate robes (3 sp value) act as a x1.5 PP Multiplier for users of Channeling.",
+    "recipe": "Work Mundane Cloth (2), Power Multiplier II (12 x 2 for wearable). Days: 26. Standard cost = 367sp. Level 12 item.",
+    "level": "12",
+    "cost": "367 sp",
+    "days": "26"
+  },
+  {
+    "name": "Headband of Meditation",
+    "category": "Skill Items",
+    "description": "This fine silk headband (worth 2sp) helps the wearer separate themself from the distractions of the everyday world, granting them a +60 skill bonus in Meditation, plus a +5 Meditation Knack. Even a wearer with Meditation skill rank bonus of +60 or more may benefit from the Knack if they do not already have a Knack in Meditation.",
+    "recipe": "Work Mundane Cloth (2), Internal Skill III (15), Knack (12). Days: 29. Standard cost = 495sp. Level 15 item.",
+    "level": "15",
+    "cost": "495 sp",
+    "days": "29"
+  },
+  {
+    "name": "Prayer Beads of Patience",
+    "category": "Stat Bonus Items",
+    "description": "This string of large wooden beads is intended to help the user slow down and accept that not all things happen immediately, a lesson with which Alchemists are extremely familiar. It increases the user’s Self-Discipline stat bonus by 2.",
+    "recipe": "Work Mundane Wood (4), Stat Bonus II (19). Days: 23. Standard cost = 483sp. Level 19 item.",
+    "level": "19",
+    "cost": "483 sp",
+    "days": "23"
+  },
+  {
+    "name": "Adamantine Helm",
+    "category": "Armor & Shields",
+    "description": "A heavy helm of adamant steel (3015sp) set with rubies (500sp), this beautiful head protection negates 75% of all head criticals, while having no maneuver or perception penalty. It is “indestructible” and fits any Medium head.",
+    "recipe": "Work Metal V (35), Automatic Sizing Inorganic (8), Crit Negation True (90), Unbreakable Work (90), Armor III (14), Armor II (9). Days: 221. Standard cost: 25,173sp. Level 90 item.",
+    "level": "90",
+    "cost": "25,173 sp",
+    "days": "221"
+  },
+  {
+    "name": "Adamantine Shield",
+    "category": "Armor & Shields",
+    "description": "This is a full shield of adamant steel (+25 Shield skill, base price of 3,007sp), with the Autofocusing, Mobility, Resilience, and Weapon Bane abilities (see the Armor Enchantment list).",
+    "recipe": "Work Metal V (35), Weapon Bane (19), Autofocusing (16), Resilience (15), Mobility (11). Days: 71. Standard cost: 5,776sp. Level 35 item.",
+    "level": "35",
+    "cost": "5,776 sp",
+    "days": "71"
+  },
+  {
+    "name": "Air Drake Armor",
+    "category": "Armor & Shields",
+    "description": "This is a full set of armor created from the hide of an old air drake (AT 8, 460sp). In addition to the advantages of dragonskin armor, it provides various magical abilities. The wearer can cast Fly III (Lofty Bridge) in combination with Extension IV (Spell Enhancement) once a day (duration 44 minutes). Twice per day, the wearer can cast Lightning Bolt I (Light Law). Finally, the armor provides a constant Lightarmor (Elemental Shields).",
+    "recipe": "Work Organic True (20), Daily XX (40), Embed XX (30), Embed X (19), Fly III (11), Extension IV (9). Daily XX (40), Embed X (19), Lightning Bolt I (10), Constant X (35), Embed X (19), Lightarmor (8). Days: 260. Standard cost: 12,940sp. Level 40 item.",
+    "level": "40",
+    "cost": "12,940 sp",
+    "days": "260"
+  },
+  {
+    "name": "Armor of Golspre",
+    "category": "Armor & Shields",
+    "description": "This beautifully ornate High Steel plate armor (AT 10, base 165sp) with inlaid gold designs (increasing the base value to 700sp) has been enchanted to +30. It has also had its armor penalties reduced to -40 to maneuvers and -20 to missiles with no Perception penalty. The helmet provides constant Watervision (Physical Enhancement), The vambraces provide Waterlungs (Physical Enhancement) that trigger whenever the wearer’s head is underwater and cancels when above water. The greaves provide constant Underwater Movement (Movement Mastery). When the whole suit is present, it will size itself to any Medium humanoid, and wearing the entire suit provides constant Lightarmor, Heatarmor, and Coldarmor (Elemental Shields). Enchanted suit includes all padding and underarmor.",
+    "recipe": "Work Mundane Metal II (9), Armor II (9), Armor III (14), Watervision (7), Embed VII (15), Constant X (35). Days: 79. Standard price: 3,081sp (not including the base item price). Penalties eliminated. Vambraces: Work Mundane Metal II (9), Armor II (9), Armor II (9), Waterlungs (8), Embed X (19), Constant X (35 x 2 triggered = 70). Days: 114. Standard price 4,560sp (not including the base item price). Penalties reduced to -5 maneuvers and -20 missiles.",
+    "level": "",
+    "cost": "4,560 sp",
+    "days": "114"
+  },
+  {
+    "name": "Armor of Slickness",
+    "category": "Armor & Shields",
+    "description": "This rigid leather armor (AT 6) is a complete set except for helmet. At need, it becomes slippery, adding +15 to Contortion maneuvers and reducing Grappling attacks by two Sizes. It also provides +10 to DB. It fits any Medium humanoid.",
+    "recipe": "Work Organic (6), Automatic Sizing Organic (6), General III (15), Armor II (9), Defensive Size II (35 x 1/5 for single type = 7). Days: 43. Standard cost: 1,668sp. Level 35 item.",
+    "level": "35",
+    "cost": "1,668 sp",
+    "days": "43"
+  },
+  {
+    "name": "Armor of the Rangers",
+    "category": "Armor & Shields",
+    "description": "This set of +15 rigid leather armor (AT 6) includes everything but a helm. In addition to the defensive bonus, the body armor provides a +10 bonus to Stalking maneuvers and Survival maneuvers. The vambraces have been enchanted to reduce the missile penalty to -10, while the maneuver penalty of the greaves has been reduced to -5. The entire set functions as a +3 Spell Adder for Rangers.",
+    "recipe": "Work Organic (6), Armor II (9). Days: 15. Standard cost: 175sp. Level 9 item. Vambraces: Work Organic (6), Armor II (9). Days: 15. Standard cost: 175sp. Level 9 item. Body armor: Work Organic (6), General II (10 x 2 for all specializations), Armor III (14), General II (10). Days: 50. Standard cost: 855sp. Level 14 item. Set: Work Organic True (20), Spell Adder III (14 x 1/2 for single profession x 2 wearable). Days: 34. Standard cost: 748sp. Level 20 item. Total Cost: 175 + 175 + 855 + 748 + (25 sp for the armor) = 1,978sp. Level 20 item.",
+    "level": "20",
+    "cost": "748 sp",
+    "days": "34"
+  },
+  {
+    "name": "Bracers of Gorgax",
+    "category": "Armor & Shields",
+    "description": "These rigid leather (medium) vambraces are a +2 spell adder for Clerics and provide a +10 bonus to SCRs when casting spells from the Repulsions list.",
+    "recipe": "Work Mundane Leather (3), Spell Adder II (9 x 1/2 for single profession x 2 for wearable), Casting Focus II (7 x 1/10 for single list x 2 for wearable). Days: 14. Standard cost: 164sp. Level 9 item.",
+    "level": "9",
+    "cost": "164 sp",
+    "days": "14"
+  },
+  {
+    "name": "Breastplate of Channeling",
+    "category": "Armor & Shields",
+    "description": "This body armor (AT 10) of high steel has been enchanted to provide a +15 DB, and it further provides a +15 bonus to both the Channeling and Transcendence skills.",
+    "recipe": "Work Mundane Metal II (14), General III (15), General III (15), Armor III (14). Days: 48. Standard cost: 984sp. Level 15 item.",
+    "level": "15",
+    "cost": "984 sp",
+    "days": "48"
+  },
+  {
+    "name": "Breastplate of Thonian",
+    "category": "Armor & Shields",
+    "description": "This +10 superior bronze breastplate is decorated with symbols of law and order. It negates fully 50% of torso criticals inflicted on the wearer. It also allows its wearer to cast Fly II (Lofty Bridge) and Reverse Spell I (Spell Reins) each once per day, at a 60th level of effect. It fits any Medium humanoid.",
+    "recipe": "Work Mundane Metal I (7), Augmented Casting (11), Automatic Sizing Inorganic (8), Crit Negation X (60), Reverse Spell I (10), Embed X (19), Daily X (25), Fly II (7), Embed VII (15), Daily VII (18), Armor II (9). Days: 194. Standard cost: 12,864sp. Level 60 item.",
+    "level": "60",
+    "cost": "12,864 sp",
+    "days": "194"
+  },
+  {
+    "name": "Channeling Shield",
+    "category": "Armor & Shields",
+    "description": "This normal shield is of oak, bound with Low Steel (46sp) and enchanted to +10 Shield skill. It gives its bearer a +15 bonus to the Channeling skill.",
+    "recipe": "Work Mundane Metal I (7), Armor II (9), General III (15). Days: 26. Standard cost: 488sp. Level 15 item.",
+    "level": "15",
+    "cost": "488 sp",
+    "days": "26"
+  },
+  {
+    "name": "Circlet of Mentalism",
+    "category": "Armor & Shields",
+    "description": "This silver circlet (60 sp) is worn on the head, where it protects as a light helm and serves as a x1.25 PP Multiplier for Mentalism. It provides a +10 bonus to RRs against Mentalism as well.",
+    "recipe": "Work Lesser Metals (5), Power Multiplier I (6 x 2 wearable), General II (10), Increase Armor Type (4). Days: 31. Standard cost: 432sp. Level 10 item.",
+    "level": "10",
+    "cost": "432 sp",
+    "days": "31"
+  },
+  {
+    "name": "Crushing Shield",
+    "category": "Armor & Shields",
+    "description": "This full shield of superior bronze (with leather grip and straps) bears the image of a clenched fist. It has a +10 Shield skill bonus, and when used for a shield bash, the Size of the shield bash attack is increased by one.",
+    "recipe": "Work Mundane Metal I (7), Increased Size (30), Armor II (9). Days: 41. Standard cost: 1,400sp. Level 30 item.",
+    "level": "30",
+    "cost": "1,400 sp",
+    "days": "41"
+  },
+  {
+    "name": "Darkling Leather",
+    "category": "Armor & Shields",
+    "description": "Intended to be the ultimate stealth armor, this leather jerkin (AT 6) grants a +30 bonus to Stalking, but due to a spell failure, this bonus only applies if the wearer is already getting a bonus to his maneuver due to poor lighting.",
+    "recipe": "Work Mundane Leather (3), General VI (75). Days: 78. Standard cost: 6,089sp. Due to the limitation of the effect, the price drops to 5,480 sp. (It is not all that bad a limitation, as you want to sneak around in the dark anyway.) Level 75 item.211 Dragonskin Armor, AT 5 (+10 DB): This is a full armor suit for a Medium wearer made from some suitable draconian being’s hide and enchanted to provide a +10 bonus to the wearer’s DB, in addition to the normal benefits of the material from which it is made (see Section 3.2). Work Organic True (20), Armor II (9). Days: 29. Standard cost: 1,074sp. Level 20 item. Dragonskin Armor, AT 7 (+15 DB): This is a full armor suit for a Medium wearer made from some suitable draconian being’s hide and enchanted to provide a +15 bonus to the wearer’s DB, in addition to the normal benefits of the material from which it is made (see Section 3.2). Work Organic True (20), Armor III (14). Days: 34. Standard cost: 1,187sp. Level 20 item. Dragonskin Armor, AT 8 (+15 DB): This is a full armor suit for a Medium wearer made from some suitable draconian being’s hide and enchanted to provide a +15 bonus to the wearer’s DB, in addition to the normal benefits of the material from which it is made (see Section 3.2). Work Organic True (20), Armor III (14). Days: 34. Standard cost: 1,208sp. Level 20 item. Dragonskin Armor, AT 9 (+20 DB): This is a full armor suit for a Medium wearer made from some suitable draconian being’s hide and enchanted to provide a +20 bonus to the wearer’s DB, in addition to the normal benefits of the material from which it is made (see Section 3.2). Work Organic True (20), Armor IV (25). Days: 45. Standard cost: 1,715sp. Level 25 item.",
+    "level": "25",
+    "cost": "1,715 sp",
+    "days": "45"
+  },
+  {
+    "name": "Death Crown",
+    "category": "Armor & Shields",
+    "description": "This is a crown of bright silver with black gems, which would be worth 1000 sp as jewelry alone. It is a x2 Essence PP Multiplier, as well as acting as a +7 Spell Adder for the Necromancy Mastery list and as a +7 Spell Adder for the Necromantic Ways list. Furthermore, the (attuned) wearer may cast Army of the Dead True once per month.",
+    "recipe": "Work Mundane Gemstone (8), Army of the Dead True (40), Embed True (50), Daily X (25), Power Multiplier IV (25 x 2 wearable), Spell Adder VII (40 x 1/10 for single list x 2 wearable), Spell Adder VII (40 x 1/10 for single list x 2 wearable). Days: 189. Standard cost: 11,584sp. Level 50 item.",
+    "level": "50",
+    "cost": "11,584 sp",
+    "days": "189"
+  },
+  {
+    "name": "Elven Mail",
+    "category": "Armor & Shields",
+    "description": "This is a quality full set of mail armor (AT 8) typically worn by elven soldiers of moderate status. This includes a mail shirt with full sleeves, mail leggings, and a mail coif protecting the head. Each component (the sleeves being enchanted separately) is enchanted to reduce maneuver penalties by 10, so the total maneuver bonus is -40, while the armor is made from Elven High Steel (+10 DB), reducing the weight to 13% of the wearer’s own weight (40% lighter than ordinary AT 8).",
+    "recipe": "Work Mundane Metal II (9), Armor II (9). Days: 9. Standard cost: 99sp coif + 99sp sleeves + 99sp greaves + 99sp torso - 360sp base armor = 756sp total. Level 9 item.",
+    "level": "9",
+    "cost": "99 sp",
+    "days": "9"
+  },
+  {
+    "name": "Elven Splinted Leather",
+    "category": "Armor & Shields",
+    "description": "This armor is a special Elven design, providing protection equivalent to laminar armor (AT 5) by reinforcing regular leather with hardwood pieces. A standard set includes vambraces and greaves. It functions as normal AT 5, except that it provides a non-magic bonus of +10 to Stalking in vegetation due to design. For this reason, the price of the base item is increased by 100sp. To this has been added an enchantment to provide +10 DB.",
+    "recipe": "Work Organic (6), Armor II (9). Days: 15. Standard cost: 301sp. Level 9 item.",
+    "level": "9",
+    "cost": "301 sp",
+    "days": "15"
+  },
+  {
+    "name": "Forester’s Helm",
+    "category": "Armor & Shields",
+    "description": "This leather (light) helmet provides a +10 bonus to Tracking maneuvers when worn, as well as providing the ability to cast Hues (Nature’s Guises list) three times per day.",
+    "recipe": "Work Mundane Leather (3), Hues (1), Embed I (3), Daily III (11), General II (10). Days: 28. Standard cost: 367sp. Level 11 item. Dragonskin Armor",
+    "level": "11",
+    "cost": "367 sp",
+    "days": "28"
+  },
+  {
+    "name": "Gauntlets of Regal Adora",
+    "category": "Armor & Shields",
+    "description": "These gauntlets of basilisk hide (25sp, 90 Str) allow the wearer to make Unarmed: Strikes attacks as if one Size larger and also do an additional Heat critical equal in severity to the normal critical. They also act as a x2 PP Multiplier for Monks. The wearer may use Turn Missile (Attack Avoidance) at will and gains a constant Monk’s Strength II (Body Reins) effect.",
+    "recipe": "Work Organic True (20), Constant X (40), Embed X (20), Monk’s Strength II (8), Constant III (18 x 2 at will), Embed I (3), Turn Missile (1), Increased Size (30), Additional Crit III (19), Power Multiplier IV (25 x 1/2 single profession x 2 worn). Days: 202. Standard cost: 9,519sp. Level 40 item.",
+    "level": "40",
+    "cost": "9,519 sp",
+    "days": "202"
+  },
+  {
+    "name": "Helm of Might",
+    "category": "Armor & Shields",
+    "description": "This high steel heavy helm fits any Medium humanoid head. It provides a +35 bonus to Body Development and a +30 bonus to base hits (Tough talent, Tier VI). It also provides the talent Prodigy: Melee Weapons, Tier V (+25 melee OB).",
+    "recipe": "Work Mundane Metal II (9), Automatic Sizing Inorganic (8), General VII (90), Talent Embedding VI (35), Talent Embedding IV (19). Days: 151. Standard cost: 14,611sp. Level 90 item.",
+    "level": "90",
+    "cost": "14,611 sp",
+    "days": "151"
+  },
+  {
+    "name": "Helm of Sense Mastery",
+    "category": "Armor & Shields",
+    "description": "This medium helm allows its wearer to cast Nightvision once per day, Scent once per day, and Sly Ears twice per day. All spells are from the Senses list and are cast at third level.",
+    "recipe": "Work Lesser Metals (5), Daily VII (18), Embed III (7), List Embedding (2), Sly Ears (1), Nightvision (2), Scent (3). Days: 38. Standard cost: 769sp. Level 18 item.",
+    "level": "18",
+    "cost": "769 sp",
+    "days": "38"
+  },
+  {
+    "name": "Helm of Sight",
+    "category": "Armor & Shields",
+    "description": "This visored (heavy) helm of Low Steel provides constant Nightvision and Sidevision when worn.",
+    "recipe": "Work Mundane Metal I (7), Nightvision (2, Senses), Embed II (5), Constant III (17), Sidevision (5, Physical Enhancement), Embed V (11), Constant X (35). Days: 77. Standard cost: 3,058sp. Level 35 item.",
+    "level": "35",
+    "cost": "3,058 sp",
+    "days": "77"
+  },
+  {
+    "name": "Helm of Stature",
+    "category": "Armor & Shields",
+    "description": "This is a low steel medium helmet that gives the wearer a +20 bonus to Leadership and a +10 bonus to Influence maneuvers. It does not penalize Perception.",
+    "recipe": "Work Mundane Metal I (7), General IV (30), General II (10 x 2 for all specializations), Armor II (9). Days: 61. Standard cost: 2,062sp. Level 30 item.",
+    "level": "30",
+    "cost": "2,062 sp",
+    "days": "61"
+  },
+  {
+    "name": "Helm of Strength",
+    "category": "Armor & Shields",
+    "description": "If the wearer of this low steel medium helmet, which fits any Small humanoid head, has a Strength stat bonus of less than +10, the helm raises it to +10.",
+    "recipe": "Work Mundane Metal I (7), Automatic Sizing Inorganic (8), Fixed Bonus III (13). Days: 23. Standard cost: 387sp. Level 13 item. An equivalent item for a Medium wearer would cost 398sp and otherwise have the same stats.",
+    "level": "13",
+    "cost": "387 sp",
+    "days": "23"
+  },
+  {
+    "name": "Helm of the Weapon Master",
+    "category": "Armor & Shields",
+    "description": "This eog medium helm negates 50% of head criticals and provides both a +5 Knack for Melee and a +20 Prodigy (Melee) Tier IV bonus, not cumulative with the wearer’s Knack or Prodigy (Melee) bonus (if any).",
+    "recipe": "Work Metal VI (50), Crit Negation X (60), Talent Embedding VI (35), Knack (12). Days: 127. Standard cost: 14,264sp. Level 60 item.",
+    "level": "60",
+    "cost": "14,264 sp",
+    "days": "127"
+  },
+  {
+    "name": "Helm of Two Faces",
+    "category": "Armor & Shields",
+    "description": "This black alloy heavy helm is inlaid with jade and silver. A claw-like spike at the top holds a black pearl. Its most distinctive feature, however, is that the back of the helmet exactly matches the front, save that where the eye holes in the visor would be, it is filled in with silver “eyes” and jade “pupils”. Unenchanted, it would be valued at 850sp. When worn, the wearer gains the ability to see around himself in a full circle, as constant Global Vision (Physical Enhancement). He can also see invisible things, as constant See Invisible I (Invisible Ways). Lastly, he gains +20 to Reverse Strike skill.",
+    "recipe": "Work Mundane Metal IV (15), Constant True (90), Embed XX (30), Global Vision (17), Constant X (35), Embed X (19), See Invisible I (9), General IV (30). Days: 225. Standard cost: 22,900sp. Level 90 item.",
+    "level": "90",
+    "cost": "22,900 sp",
+    "days": "225"
+  },
+  {
+    "name": "Helm of Uncleaving",
+    "category": "Armor & Shields",
+    "description": "This black alloy full (heavy) helm negates 50% of criticals to the wearer’s head. It will fit any Medium-sized head.",
+    "recipe": "Work Mundane Metal IV (15), Automatic Sizing Inorganic (8), Crit Negation X (60). Days: 63. Standard cost: 4,647sp. Level 60 item.",
+    "level": "60",
+    "cost": "4,647 sp",
+    "days": "63"
+  },
+  {
+    "name": "Mighty Gauntlets",
+    "category": "Armor & Shields",
+    "description": "These mail gauntlets (1.6 lbs., 10sp, Str 75) add +5 to the wearer’s Strength bonus and are +10 weapons when used for Unarmed: Strikes attacks. Once per day, they provide a Bladeturn I (Shield Mastery).",
+    "recipe": "Work Lesser Metals (5), Stat Bonus V (50), Daily X (25), Embed VII (15), Bladeturn I (7), Weapon II (8). Days: 110. Standard cost: 5,950sp. Level 50 item.",
+    "level": "50",
+    "cost": "5,950 sp",
+    "days": "110"
+  },
+  {
+    "name": "Overlord Shield",
+    "category": "Armor & Shields",
+    "description": "This is a wall shield of adamant steel (+25 Shield skill) which grants the wielder +20 to Leadership skill and +8 Leadership ranks. Once per day, the wielder may cast Heal True (Surface Ways) on himself.",
+    "recipe": "Work Metal V (35), Daily XL (75), Hybrid Embedding (2), Embed True (60), Heal True (25), General IV (30), General IV (30). Days: 232. Standard cost: 22,265sp. Level 75 item.",
+    "level": "75",
+    "cost": "22,265 sp",
+    "days": "232"
+  },
+  {
+    "name": "Paladin Shield",
+    "category": "Armor & Shields",
+    "description": "This all-metal normal shield is made of White Alloy and is a gleaming silver in color. It has a +20 Shield skill bonus and is a x2 Power Point Multiplier for Paladins.",
+    "recipe": "Work Mundane Metal III (12), Power Multiplier IV (25 x 1/2 for single Profession), Armor IV (25). Days: 35. Standard cost: 1,186sp. Level 25 item.",
+    "level": "25",
+    "cost": "1,186 sp",
+    "days": "35"
+  },
+  {
+    "name": "Plate Armor of the Dwarves",
+    "category": "Armor & Shields",
+    "description": "This is a complete suit of plate armor (AT 10) made from zataak and enchanted to +50 DB. Decorated with amber, gold, and topazes, this would easily be worth 50,000 sp unenchanted. While it will fit itself to any Medium humanoid, it is regarded as a sacred relic by the Dwarves, and they will demand it back from any non-Dwarf found with it, while any Dwarf recovering this armor would be greatly honored.",
+    "recipe": "Work Metal I (11), Automatic Sizing Inorganic (8), Armor V (50). Days: 69. Standard cost: 59,657sp. Level 50 item.",
+    "level": "50",
+    "cost": "59,657 sp",
+    "days": "69"
+  },
+  {
+    "name": "Portal Shield",
+    "category": "Armor & Shields",
+    "description": "This normal shield with a +10 Shield skill bonus bears the emblem of a gateway. Once per day, the bearer can cast Portal (Lofty Bridge).",
+    "recipe": "Work Lesser Metals (5), Portal (6), Embed VI (13), Daily VII (18), Armor II (9). Days: 51. Standard cost: 1,077sp. Level 18 item.",
+    "level": "18",
+    "cost": "1,077 sp",
+    "days": "51"
+  },
+  {
+    "name": "Red Shield of Diff-Marash",
+    "category": "Armor & Shields",
+    "description": "This normal shield is ash reinforced with iron and painted a solid red. It has a +10 Shield skill bonus and negates 25% of criticals to the shield arm and 10% of other criticals by attackers against which it is defending. It also casts Deflections I (from the Shield Mastery list) once per day.",
+    "recipe": "Work Organic (6), Deflections I (5), Embed V (11), Daily V (14), Crit Negation V (20), Armor II (9). Days: 65. Standard cost: 1,501sp. Level 20 item.",
+    "level": "20",
+    "cost": "1,501 sp",
+    "days": "65"
+  },
+  {
+    "name": "Rhino Armor",
+    "category": "Armor & Shields",
+    "description": "This armor is a full suit of AT 5, made from rhinoceros hide (valued at 50 sp for exotic hide). The horn is placed on the wearer’s forehead and may be used to make a (Medium) Horn attack. The wearer benefits from a +10 DB enchantment and the wearer’s movement penalties (to OB or maneuver) due to pace are reduced by 10 when charging. It will fit any Medium humanoid.",
+    "recipe": "Work Organic (6), Consecration (2), Automatic Sizing Organic (6), Armor II (9), Sacred Protections II (9), Talent Embedding I (6). Days: 38. Standard cost: 468sp. Level 9 item.",
+    "level": "9",
+    "cost": "468 sp",
+    "days": "38"
+  },
+  {
+    "name": "Robe of Protection",
+    "category": "Armor & Shields",
+    "description": "These fine robes are light clothing, but provide protection as AT 4 with a +10 DB and a constant Protection I (Spell Wall) effect on the wearer.",
+    "recipe": "Work Weave III (12), Armoring Cloth III (13), Armor II (9), Constant III (17), Embed I (3), Protection I (1). Days: 55. Standard cost: 1,102sp. Level 17 item.",
+    "level": "17",
+    "cost": "1,102 sp",
+    "days": "55"
+  },
+  {
+    "name": "Robes of Illusion",
+    "category": "Armor & Shields",
+    "description": "These blue robes are AT 1, but do provide a +10 DB and are a +1 Spell Adder for Illusionists.",
+    "recipe": "Work Mundane Cloth (2), Armor II (9), Spell Adder I (5 x 1/2 single profession). Days: 14. Standard cost: 156sp. Level 9 item.",
+    "level": "9",
+    "cost": "156 sp",
+    "days": "14"
+  },
+  {
+    "name": "Rune Shield",
+    "category": "Armor & Shields",
+    "description": "This normal shield (constructed of hickory and high steel) granting +10 Shield skill may have its back side (conveniently facing the bearer) act as a sheet of rune paper.",
+    "recipe": "Work Mundane Metal II (9), Organic Rune (12), Make Rune Paper (5). Days: 16. Standard cost: 330sp. Level 12 item.",
+    "level": "12",
+    "cost": "330 sp",
+    "days": "16"
+  },
+  {
+    "name": "Shield of Arn",
+    "category": "Armor & Shields",
+    "description": "This normal shield is of a simple appearance, but grants a +10 bonus to Shield skill and it also grants its bearer a +10 bonus to RRs against all magic.",
+    "recipe": "Work Organic (6), Armor II (9), General II (10) x 3. Days: 45. Standard cost: 591sp. Level 10 item.",
+    "level": "10",
+    "cost": "591 sp",
+    "days": "45"
+  },
+  {
+    "name": "Shield of Camouflage",
+    "category": "Armor & Shields",
+    "description": "The bearer of this full shield is affected by a constant Hues (Nature’s Guises) effect. It also provides a +10 bonus to Shield skill and +10 to Stalking.",
+    "recipe": "Work Organic (6), Hues (1), Embed I (3), Constant III (18), General II (10), Armor II (9). Days: 47. Standard cost: 994sp. Level 18 item.",
+    "level": "18",
+    "cost": "994 sp",
+    "days": "47"
+  },
+  {
+    "name": "Shield of Death",
+    "category": "Armor & Shields",
+    "description": "This full shield is shaped and painted to resemble an oversized human skull. It is of low steel construction with a bone handgrip. It grants +15 to Shield skill. Five times per day, the bearer can cast Major Pain (Mind Destruction). It also serves as a +2 spell adder for any Evil spellcaster.",
+    "recipe": "Work Mundane Metal I (7), Major Pain (7), Embed VII (17), Daily XL (75), Hybrid Embedding (2), Spell Adder II (10), Armor III (14). Days: 127. Standard cost: 10,207sp. Level 75 item.",
+    "level": "75",
+    "cost": "10,207 sp",
+    "days": "127"
+  },
+  {
+    "name": "Shield of Flows",
+    "category": "Armor & Shields",
+    "description": "This hickory full shield is effectively weightless due to a constant Staying III (Telekinesis) set to oppose gravity. In liquids, it will support its bearer, lightening him by up to 380 pounds, allowing even a heavy man to float like a cork. This is achieved through a Staying True (Telekinesis) spell triggered by immersion. It also grants +10 Shield skill and, once per day, the bearer can Command Current (Water Law), using the shield as his “boat” if desired.",
+    "recipe": "Work Organic (6), Constant XX (90 x 2 triggered), Embed XX (35), Staying True (19), Daily XX (40), Embed XX (30), Command Current (17), Constant X (40), Embed IV (12), Staying III (4). Days: 373. Standard cost: 37,780sp. Level 90 item.",
+    "level": "90",
+    "cost": "37,780 sp",
+    "days": "373"
+  },
+  {
+    "name": "Shield of the Gate",
+    "category": "Armor & Shields",
+    "description": "This vaal full shield allows the bearer to cast Demonic Gate III (Summons) once each day, in addition to granting +20 to the bearer’s Shield skill.",
+    "recipe": "Work Organic True (20), Demonic Gate III (20), Embed XX (35), Daily XX (50). Days: 105. Standard cost: 6,382sp. Level 50 item.",
+    "level": "50",
+    "cost": "6,382 sp",
+    "days": "105"
+  },
+  {
+    "name": "Shield of the Green Woods",
+    "category": "Armor & Shields",
+    "description": "This is a normal shield made of oak (+5 Shield skill), and it allows its bearer to cast Hues (Nature’s Protection) once per day. If damaged, it will grow back to full strength the next round, due to a constant Repair (Earth Law) effect.",
+    "recipe": "Work Organic (6), Constant X (35), Embed VI (13), Repair (6), Daily III (11), Embed III (8), Hues (3). Days: 77. Standard cost: 3,049sp. Level 35 item.",
+    "level": "35",
+    "cost": "3,049 sp",
+    "days": "77"
+  },
+  {
+    "name": "Shield of Troll Skin",
+    "category": "Armor & Shields",
+    "description": "This wall shield of +10 hardened troll hide has been enchanted to +20, and its bearer also gains the natural (unencumbering) armor of a troll (AT 4). There is no knowing how a troll will react to this shield. Some find it highly offensive, while others think it is rather clever and possibly even funny.",
+    "recipe": "Work Organic (6), Talent Embedding III (14), Armor IV (25). Days: 35. Standard cost: 1,089sp. Level 25 item.",
+    "level": "25",
+    "cost": "1,089 sp",
+    "days": "35"
+  },
+  {
+    "name": "Shield/Rod",
+    "category": "Armor & Shields",
+    "description": "This curious device has three forms: the first is a 4' long High Steel rod of 1\" diameter (5sp), the second is a 10' pole of vaal wood (3\" diameter, 39sp), and the third is a +15 wall shield of leather, ash, and iron.",
+    "recipe": "Work Mundane Metal II (9). Days: 9. Standard cost: 160sp. Level 9 item. Pole: Work Wood (18). Days: 9. Standard cost: 819sp. Level 18 item. Shield: Work Organic (6), Armor III (14), Multiform III (7). Days: 27. Standard cost: 441sp. Level 14 item. The combined set will take 45 work days, but more than one form could be crafted at once so it might not require 45 calendar days. The total standard cost is 1,420sp, and the combined form is a Level 18 item.",
+    "level": "18",
+    "cost": "1,420 sp",
+    "days": "27"
+  },
+  {
+    "name": "Tunic of Essence",
+    "category": "Armor & Shields",
+    "description": "This linen tunic is a x2 PP Multiplier for Essence. It provides a +15 bonus to RRs against Essence, protects as AT 3 (covering chest, groin, and legs), and provides +10 DB. It fits perfectly on any Medium humanoid.",
+    "recipe": "Work Weave III (12), Automatic Sizing Organic (6), Power Multiplier IV (25 x 2 wearable), General III (15), Armor II (9), Armoring Cloth II (8). Days: 100. Standard cost: 2,900sp. Level 25 item.",
+    "level": "25",
+    "cost": "2,900 sp",
+    "days": "100"
+  },
+  {
+    "name": "Vambraces of Power",
+    "category": "Armor & Shields",
+    "description": "Made of Low Steel, with straps of red leather, these medium vambraces negate 25% of arm criticals and cast Monk’s Strength II (off the Body Reins list) once per day.",
+    "recipe": "Work Mundane Metal I (7), Crit Negation V (20), Monk’s Strength II (8), Embed X (20), Daily X (25). Days: 75. Standard cost: 2,225sp. Level 25 item.",
+    "level": "25",
+    "cost": "2,225 sp",
+    "days": "75"
+  },
+  {
+    "name": "Vanishing Shield",
+    "category": "Armor & Shields",
+    "description": "This full shield can become invisible once per day. It is useful for bringing a shield into a place without being obvious that you are planning to fight. It also has a +10 bonus.",
+    "recipe": "Work Organic (6), Armor II (9), Unseen I (2), Embed II (5), Daily III (10). Days: 32. Standard cost: 391sp. Level 10 item.",
+    "level": "10",
+    "cost": "391 sp",
+    "days": "32"
+  },
+  {
+    "name": "Amulet of Arnd",
+    "category": "Jewelry",
+    "description": "This simple silver necklace with a shield-shaped pendant (80 sp value) provides a constant Blur (Shield Mastery) effect on the wearer.",
+    "recipe": "Work Lesser Metals (5), Constant III (17), Embed III (7), Blur (3). Days: 32. Standard cost: 688sp. Level 17 item.",
+    "level": "17",
+    "cost": "688 sp",
+    "days": "32"
+  },
+  {
+    "name": "Amulet of Beastform",
+    "category": "Jewelry",
+    "description": "An Amulet of Beastform is a silver figurine of an animal, usually kept on a silver chain and worn as a necklace (200 sp). The wearer can transform at will into the depicted animal, though his possessions (other than the necklace) will not transform. These are not the work of any mortal alchemy, being gifts from the beast-gods to their mortal servants long ago. Two values are calculated, the value depending on whether or not the animal into which the wearer may transform is dangerous or not.",
+    "recipe": "Work Lesser Metals (5), Lesser Transformation (30 x 2). Days: 65. Standard cost: 2,345sp. Level 30 item. Work Lesser Metals (5), Transformation (40 x 2). Days: 85. Standard cost: 3,940sp. Level 40 item.",
+    "level": "40",
+    "cost": "3,940 sp",
+    "days": "85"
+  },
+  {
+    "name": "Amulet of Warding",
+    "category": "Jewelry",
+    "description": "This silver religious symbol on a silver chain (95 sp) allows casting Repel Undead IX (Repulsions) at will and provides a +15 bonus to SCRs when casting spells from the Repulsions list.",
+    "recipe": "Work Lesser Metals (5), Constant X (40 x 2 at will), Embed VII (17), Repel Undead IX (6), Casting Focus III (11 x 1/10 for single list x 2 wearable). Days: 110. Standard cost: 4,935sp. Level 40 item.",
+    "level": "40",
+    "cost": "4,935 sp",
+    "days": "110"
+  },
+  {
+    "name": "Choker of Azrak",
+    "category": "Jewelry",
+    "description": "This bejeweled gold choker has a jewelry value of 300 sp. It is “indestructible”, negates 50% of head criticals, and is a universal x3 PP Multiplier.",
+    "recipe": "Work Mundane Gemstone (8), Power Multiplier VI (75 x 3 universal x 2 wearable), Unbreakable Work (90), Crit Negation X (60). Days: 608. Standard cost: 65,356sp. Level 90 item.",
+    "level": "90",
+    "cost": "65,356 sp",
+    "days": "608"
+  },
+  {
+    "name": "Choker of Whispers",
+    "category": "Jewelry",
+    "description": "This is a coral bead choker set with a large topaz (value: 310 sp). Both coral and stone are pink. It is a +2 Spell Adder for Bards, and it allows the use of Long Whisper I (Sound Projection) five times per day.",
+    "recipe": "Work Mundane Gemstone (8), Daily V (14), Embed I (3), Long Whisper I (1), Spell Adder II (9 x 1/2 for single profession x 2 for wearable). Days: 35. Standard cost: 695sp. Level 9 item. Amulet of Warding",
+    "level": "9",
+    "cost": "695 sp",
+    "days": "35"
+  },
+  {
+    "name": "Dog-ring",
+    "category": "Jewelry",
+    "description": "This is a silver ring which will fit any Small or Medium finger. Crushed sapphires appear in the design of four paw-prints (ring value: 175 sp). The wearer gains a +20 bonus to Animal Handling: Canines, as well as the sensory gifts of a dog (the talents Hearing: Dog, Acute Smell V, and Prodigy: Tracking +15).",
+    "recipe": "Work Mundane Gemstone (8), Multisize (12), Talent Embedding IV (19), General IV (30), Talent Embedding III (14), Talent Embedding III (14). Days: 97. Standard cost: 3,473sp. Level 30 item.",
+    "level": "30",
+    "cost": "3,473 sp",
+    "days": "97"
+  },
+  {
+    "name": "Marlor’s Crown",
+    "category": "Jewelry",
+    "description": "A silver crown set with diamonds, rubies, and aquamarines, this object would be worth 12,500 sp even without enchantment. It provides a constant True Aura (Brilliance) to its wearer, and it allows the wearer to cast Monk’s Strength II (Body Reins) and Haste II (Rapid Ways) on a daily basis. It provides a +35 bonus to Body Development and grants Tier IV Prodigy: Body Development talent, for a total +55 bonus for most wearers.",
+    "recipe": "Work Mundane Gemstone (8), Daily XX (50), Embed XX (35), Haste II (15), General VII (90), Constant X (40), Embed X (20), True Aura (8), Daily X (25), Embed X (20), Monk’s Strength II (8), Talent Embedding VI (35). Days: 354. Standard cost: 47,900sp. Level 90 item.",
+    "level": "90",
+    "cost": "47,900 sp",
+    "days": "354"
+  },
+  {
+    "name": "Medallion of the Myrmidon",
+    "category": "Jewelry",
+    "description": "This is a gold medallion depicting an armored warrior (250 sp), with a loop through which a ribbon or chain may be put in order to wear it. When worn around the neck, it provides a +20 to Maneuvering in Armor skill and raises the wearer’s Strength bonus to +15 if it is lower.",
+    "recipe": "Work Lesser Metals (5), General IV (30), Fixed Bonus IV (20). Days: 55. Standard cost: 2,065sp. Level 30 item.",
+    "level": "30",
+    "cost": "2,065 sp",
+    "days": "55"
+  },
+  {
+    "name": "Mentalists’ Crown",
+    "category": "Jewelry",
+    "description": "This silver diadem (400 sp) is a +1 Mentalism spell adder that provides a constant Aura (Brilliance list) when worn by a user of the Realm of Mentalism.",
+    "recipe": "Work Lesser Metals (5), Aura (4), Embed IV (12), Constant X (40), Spell Adder I (5 x 2 wearable). Days: 71. Standard cost: 3,453sp. Limitation to Mentalism users will restrict utility so that it may be harder to find a buyer, but is not a real limitation for the right user (and the restriction is broad enough such folk are common). It also has a secondary utility as an identifier of Mentalism users, which balances the restriction out as well. Level 40 item.",
+    "level": "40",
+    "cost": "3,453 sp",
+    "days": "71"
+  },
+  {
+    "name": "Necklace of Vanity",
+    "category": "Jewelry",
+    "description": "These necklaces are made in whatever current style suits the intended wearer, though their charms can keep them popular long after styles change, for this necklace not only adorns the wearer, it enhances the wearer’s own appearance. They will be quality jewelry or better.",
+    "recipe": "Work Mundane Gemstone (8), Beautify (2, Living Change), Embed II (5), Constant III (17). Days: 32. Standard cost: 608sp plus the value of the necklace as jewelry. Level 17 item.",
+    "level": "17",
+    "cost": "608 sp",
+    "days": "32"
+  },
+  {
+    "name": "Opal Necklace",
+    "category": "Jewelry",
+    "description": "This large (90 carat) black opal (2550 sp) is set in a gold necklace, adding another 1200 sp value. Only the opal is enchanted, but it offers considerable power. It is a universal +4 Spell Adder and provides a constant Aura (Light’s Way) on the wearer. Once each day, the wearer may invoke a Lightning Bolt I (Light Law) and an Illusions III (Lesser Illusions).",
+    "recipe": "Work Mundane Gemstone (8), Spell Adder IV (19 x 2 wearable x 3 universal), Daily X (25), Embed X (19), Lightning Bolt I (10), Daily X (25), Embed X (19) Illusions III (8), Constant III (18), Embed III (8), Aura (3). Days: 257. Standard cost: 12,231sp. Level 25 item.",
+    "level": "25",
+    "cost": "12,231 sp",
+    "days": "257"
+  },
+  {
+    "name": "Pendant of Potency",
+    "category": "Jewelry",
+    "description": "This silver necklace bears a golden talon holding a large white pearl (1,250 sp total value). It is a +5 Spell Adder and a x1.75 PP multiplier, and it increases the casting level of all spells by five.",
+    "recipe": "Work Mundane Gemstone (8), Spell Adder V (30 x 3 universal x 2 wearable), Power Multiplier III (17 x 3 universal x 2 wearable), Increase Power (16 x 3 universal x 2 wearable). Days: 386. Standard cost: 17,076sp. Level 30 item.",
+    "level": "30",
+    "cost": "17,076 sp",
+    "days": "386"
+  },
+  {
+    "name": "Ring of Endless Shock Bolts",
+    "category": "Jewelry",
+    "description": "This silver ring (5 sp) will fit to any Medium-sized hand, but otherwise has but a single power: the (attuned) wearer may throw a Shock Bolt every round.",
+    "recipe": "Work Lesser Metals (5), Constant III (17, doubled for “at will” power), Embed II (5), Shock Bolt I (2), Automatic Sizing Inorganic (8). Days: 54. Standard cost: 1,085sp. Level 17 item.",
+    "level": "17",
+    "cost": "1,085 sp",
+    "days": "54"
+  },
+  {
+    "name": "Ring of Fire Bolts",
+    "category": "Jewelry",
+    "description": "This is a silver ring with a red Jasper stone (45 sp). It allows the wearer to cast a Fire Bolt I (Fire Law) once per day.",
+    "recipe": "Work Mundane Gemstone (8), Daily VII (18), Embed VI (13), Fire Bolt I (6). Days: 45. Standard cost: 990sp. Level 18 item.",
+    "level": "18",
+    "cost": "990 sp",
+    "days": "45"
+  },
+  {
+    "name": "Ring of Invisibility",
+    "category": "Jewelry",
+    "description": "This is a copper ring (0.1 sp value) enchanted with a constant Invisibility I (Invisible Ways) effect. If the invisibility is negated for any reason, the wearer will remain visible for the entirety of the next round, then become invisible again on his initiative on the round after that.",
+    "recipe": "Work Lesser Metals (5), Constant X (35), Embed IV (9), Invisibility I (4). Days: 53. Standard cost: 2,014sp. Level 35 item.",
+    "level": "35",
+    "cost": "2,014 sp",
+    "days": "53"
+  },
+  {
+    "name": "Ring of Kaylaikas",
+    "category": "Jewelry",
+    "description": "This adamantese ring is adorned with a 30 carat colorless diamond (total value 6000 sp). It is a x3 universal PP Multiplier and grants constant Nightvision, Sly Ears (Senses), and Fly II (Lofty Bridge) when worn. Finally, it negates 40% of spell failure results by the wearer.",
+    "recipe": "Work Metal I (11), Power Multiplier VI (75 x 3 universal x 2 wearable), Constant X (35), Embed VII (15), Fly II (7), Spell Discipline IV (30), Constant III (17), Embed II (5), Nightvision (2), Constant III (17), Embed I (3), Sly Ears (1). Days: 593. Standard cost: 59,963sp. Level 75 item.",
+    "level": "75",
+    "cost": "59,963 sp",
+    "days": "593"
+  },
+  {
+    "name": "Ring of Lammoth",
+    "category": "Jewelry",
+    "description": "The wearer of this silver ring set with an emerald (85 sp) is under the effect of a constant Cancel Essence (Spell Wall), Cancel Channeling (Spell Defense), and Cancel Mentalism (Spell Resistance) without the need to concentrate.",
+    "recipe": "Work Inorganic (13), Cancel Channeling (2), Embed II (6), Constant III (19), Maintain Spell (4), Cancel Mentalism (2), Embed II (6), Constant III (19), Maintain Spell (4), Cancel Essence (2), Embed II (5), Constant III (17), Maintain Spell (4). Days: 103. Standard cost: 2,454sp. Level 19 item.",
+    "level": "19",
+    "cost": "2,454 sp",
+    "days": "103"
+  },
+  {
+    "name": "Ring of Long Spells",
+    "category": "Jewelry",
+    "description": "This plain gold ring (40 sp) doubles the duration of all spells cast by the wearer (unless otherwise extended). It will fit any Medium-sized hand.",
+    "recipe": "Work Lesser Metals (5), Automatic Sizing Inorganic (8), Extension II (2, Spell Enhancement), Embed II (5), Constant III (17). Days: 37. Standard cost: 743sp. Level 17 item.",
+    "level": "17",
+    "cost": "743 sp",
+    "days": "37"
+  },
+  {
+    "name": "Ring of Medicine",
+    "category": "Jewelry",
+    "description": "This ring takes the form of a golden serpent with its tail in its mouth (90 sp). It provides a +25 skill bonus for Medicine.",
+    "recipe": "Work Lesser Metals (5), General V (60). Days: 65. Standard cost: 4,185sp. Level 60 item.",
+    "level": "60",
+    "cost": "4,185 sp",
+    "days": "65"
+  },
+  {
+    "name": "Ring of Sculpting",
+    "category": "Jewelry",
+    "description": "The wearer of this bronze ring (1 sp) gains a +15 bonus to Stonecraft.",
+    "recipe": "Work Lesser Metals (5), General III (15). Days: 20. Standard cost: 341sp. Level 15 item.",
+    "level": "15",
+    "cost": "341 sp",
+    "days": "20"
+  },
+  {
+    "name": "Ring of Swimming",
+    "category": "Jewelry",
+    "description": "This copper ring (0.1 sp) provides a +15 bonus to Swimming skill. It can provide Waterlungs (Physical Enhancement) once per day.",
+    "recipe": "Work Lesser Metals (5), General III (15), Daily X (25), Embed X (19), Waterlungs (8). Days: 72. Standard cost: 2,016sp. Level 25 item.",
+    "level": "25",
+    "cost": "2,016 sp",
+    "days": "72"
+  },
+  {
+    "name": "Ring of the Lady",
+    "category": "Jewelry",
+    "description": "This silver ring (8 sp) provides a +30 bonus to Trickery.",
+    "recipe": "Work Lesser Metals (5), General VI (75). Days: 80. Standard cost: 6,328sp. Level 75 item.",
+    "level": "75",
+    "cost": "6,328 sp",
+    "days": "80"
+  },
+  {
+    "name": "Ruby Ring",
+    "category": "Jewelry",
+    "description": "This ring of gold is set with a ruby (220 sp) and acts as a +1 Spell Adder for anyone.",
+    "recipe": "Work Inorganic (13), Spell Adder I (5 x 3 for universal x 2 for wearable). Days: 43. Standard cost: 908sp. Level 13 item.",
+    "level": "13",
+    "cost": "908 sp",
+    "days": "43"
+  },
+  {
+    "name": "Shaman’s Mask",
+    "category": "Jewelry",
+    "description": "This ironwood mask weighs three pounds and is valued at 12 sp as an art object, and is enchanted with both Sanctifier and Adept enchantments. It is a x1.5 PP Multiplier for Druids and a +3 Spell Adder for spells dealing with animals. It provides the wearer with a +20 bonus to Animal Handling maneuvers.",
+    "recipe": "Work Mundane Wood (4), Consecration (2), General IV (30 x 2 for all specializations), Sacred Adder III (11), Power Multiplier II (12 x 1/2 for single profession x 2 wearable). Days: 89. Standard cost: 3,038sp. Level 30 item.",
+    "level": "30",
+    "cost": "3,038 sp",
+    "days": "89"
+  },
+  {
+    "name": "Thiru’s Ring of Shouting",
+    "category": "Jewelry",
+    "description": "The wearer of this simple loop of green glass (0.05 sp) may raise his voice (by concentrating) to carry up to a mile away without loss of volume. He may also use its power to cast Sudden Sound (Sound Control) four times per day by shouting.",
+    "recipe": "Work Inorganic (13), Sounding True (14, Sound Projection), Embed XX (30), Constant True (90), Sudden Sound (7), Embed VII (15), Daily XXX (60). Days: 229. Standard cost: 22,213sp. Level 90 item.",
+    "level": "90",
+    "cost": "22,213 sp",
+    "days": "229"
+  },
+  {
+    "name": "Tracker’s Ring",
+    "category": "Jewelry",
+    "description": "A silver ring (6 sp value) engraved with various foot and paw prints, this item is a x1.5 PP multiplier for Rangers, provides a +20 bonus to Tracking maneuvers, and allows the casting of Path Tale (Pathmastery) once per day.",
+    "recipe": "Work Lesser Metals (5), General IV (30), Daily IV (13), Embed IV (12), Path Tale (4), Power Multiplier II (12 x 1/2 for single profession x 2 wearable). Days: 76. Standard cost: 2,514sp. Level 30 item.",
+    "level": "30",
+    "cost": "2,514 sp",
+    "days": "76"
+  },
+  {
+    "name": "Abrol, the Elf-Drinker",
+    "category": "Melee Weapons",
+    "description": "This broadsword of Inferior Bronze appears worn and tarnished when first found, and has the expected +0 OB bonus. However, once it slays an Elf, the corrosion will drop away and the blade gleam as if newly forged. If it should go a year without slaying an Elf, the tarnished look will return. When it slays an Elf, it feeds off the soul, and for each level of the slain Elf, the wielder may heal a concussion hit, a -1 of breakage penalty may be removed from the blade, or the wielder may recover 1 PP. Furthermore, for every level of the Elf slain, Abrol gains +1 to its OB, up to a maximum of +25. This bonus fades at a loss of +1 for each day that passes since Abrol has killed an Elf. A rare combination of extreme serendipity (extra OB when serial-killing Elves) and a flaw (it only feeds on Elvish souls), Abrol is notorious among (7), Weapon III (13), Additional Crit III (19), Fire Ball (8), Embed X (19), Daily X (25). Days: 86. Standard cost: 2,544sp. Level 25 item.",
+    "recipe": "",
+    "level": "25",
+    "cost": "2,544 sp",
+    "days": "86"
+  },
+  {
+    "name": "Blade of Crevice-fighting",
+    "category": "Melee Weapons",
+    "description": "This high steel (+10) epee has a grip of blue cloth. In confined spaces, it will vary its length in response to the wielder’s desires, granting a +30 bonus to Restricted Quarters skill with this weapon.",
+    "recipe": "Work Mundane Metal II (9), General VI (75). Days: 74. Standard cost: 5,962sp. Level 75 item.",
+    "level": "75",
+    "cost": "5,962 sp",
+    "days": "74"
+  },
+  {
+    "name": "Blade of Flame",
+    "category": "Melee Weapons",
+    "description": "This blade is of Low Steel, with a grip made from the skin of a desert snake. It comes in two versions: the Lesser and the Greater Blade of Flame. The Lesser Blade is a +10 weapon that does an extra Heat crit of one less severity than the normal critical and casts Fire Bolt I once a day. The Greater Blade is a +15 weapon doing an extra Heat crit equal in severity to the normal critical and casting Fire Ball once per day. Both have flames running along the blade when drawn. Any sword type may be found with this enchantment, and the listed price (based on a 10sp weapon) is appropriate for a broadsword, scimitar, or falchion.",
+    "recipe": "Work Mundane Metal I (7), Weapon II (8), Additional Crit II (14), Fire Bolt I (6), Embed VI (13), Daily VII (18). Days: 61. Standard cost: 1,331sp. Level 18 item. Greater: Work Mundane Metal I",
+    "level": "18",
+    "cost": "1,331 sp",
+    "days": "61"
+  },
+  {
+    "name": "Blade of Frost",
+    "category": "Melee Weapons",
+    "description": "This blade is of Low Steel, with a grip made of furry snow hare hide. It comes in two versions: the Lesser and the Greater Blade of Frost. The Lesser Blade is a +10 weapon that does an extra Cold crit of one less severity than the normal critical and casts Ice Bolt I once a day. The Greater Blade is a +15 weapon doing an extra Cold crit equal in severity to the normal critical and casting Cold Ball II once per day. Both have frost spreading across the blade when drawn. Any sword type may be found with this enchantment, and the listed price (based on a 10sp weapon) is appropriate for a broadsword, scimitar, or falchion.",
+    "recipe": "Work Mundane Metal I (7), Weapon II (8), Additional Crit II (14), Ice Bolt I (6), Embed VI (13), Daily VII (18). Days: 61. Standard cost: 1,331sp. Level 18 item. Greater: Work Mundane Metal I (7), Weapon III (13), Additional Crit III (19), Cold Ball II (7), Embed VII (15), Daily VII (18). Days: 74. Standard cost: 1,604sp. Level 18 item.",
+    "level": "18",
+    "cost": "1,604 sp",
+    "days": "74"
+  },
+  {
+    "name": "Blade of Warning",
+    "category": "Melee Weapons",
+    "description": "These high steel (+10) blades have an extra +5 OB against any creature of darkness and an extra +10 OB against orcs and trolls (these bonuses are cumulative with the base +10 but not with each other). The blade will glow when “evil” is within 100'. This enchantment is normally found on an arming sword, a broadsword, a dagger, a falchion, a longsword, or a short sword. The listed price is for a broadsword, scimitar, or falchion.",
+    "recipe": "Work Mundane Metal II (9), Consecration (2), Detection (21 x 2 broad category), Weapon II (8), Blessed Weapon I (5), Weapon II (8 x 1/2 Variety). Days: 60. Standard cost: 1,550sp. Level 21 item.",
+    "level": "21",
+    "cost": "1,550 sp",
+    "days": "60"
+  },
+  {
+    "name": "Bonebane",
+    "category": "Melee Weapons",
+    "description": "This iron-headed mace is a +10 weapon, but the power for which it is named is the delivery of a Break Limb (Flesh Destruction list) spell with every critical inflicted.",
+    "recipe": "Work Lesser Metals (5), Constant X (40 x 2 for triggered effect), Embed V (14), Hybrid Embedding (2), Break Limb (5), Weapon II (8). Days: 114. Standard cost: 5,022sp. Level 40 item.",
+    "level": "40",
+    "cost": "5,022 sp",
+    "days": "114"
+  },
+  {
+    "name": "Claw Hand Gloves",
+    "category": "Melee Weapons",
+    "description": "Commonly found in Small or Medium sizes, these gloves (15 sp base value) have long been favored by scouts, bandits, assassins, and spies who wish to make their kills look like animal attacks. They may be used as Unarmed: Strikes weapons, or they may be used to make an Unarmed: Claw attack (at the wearer’s Size). In either case, they grant +10 OB and an additional Slash critical one severity less than the primary critical.",
+    "recipe": "Work Organic (6), Additional Crit II (14), Weapon II (8), Talent Embedding I (6). Days: 34. Standard cost: 559sp. Level 14 item.",
+    "level": "14",
+    "cost": "559 sp",
+    "days": "34"
+  },
+  {
+    "name": "Crossbow Wand",
+    "category": "Melee Weapons",
+    "description": "Misnamed by explorers who first encountered them, the name stuck as these magical blowpipes were exported. They have an increased range (+25' range increment), and their darts strike as if a Size larger. They have been produced for both Small and Medium users.",
+    "recipe": "Work Mundane Wood (4), Increased Size (30), Range Improvement II (11). Days: 45. Standard cost: 1,485sp. Level 30 item.",
+    "level": "30",
+    "cost": "1,485 sp",
+    "days": "45"
+  },
+  {
+    "name": "Crowga’s Quarterstaff",
+    "category": "Melee Weapons",
+    "description": "This oak (+5) quarterstaff will cast a spell on any target it strikes when wielded by a Sorcerer. If the crit is on a limb, a Break Limb (Flesh Destruction) spell is cast, otherwise a Touch of Disruption (Flesh Destruction) is cast.",
+    "recipe": "Work Mundane Wood (4), Consecration (2), Constant X (40 x 2 for trigger), Hybrid Embedding (2), Embed V (14), Break Limb (5), Chosen Kind (3), Constant III (18 x 2 for trigger), Hybrid Embedding (2), Embed III (8), Touch of Disruption (3), Chosen Kind (3). Days: 162. Standard cost: 7,262sp. Level 40 item. Note that since it is only of value to a Sorcerer who fights with a staff, finding a buyer may be quite difficult. Work Mundane Metal II (9), Weapon V (50), Increased Size (30), Range Improvement III (17). Days: 96. Standard cost: 5,584sp. Level 50 item.",
+    "level": "50",
+    "cost": "5,584 sp",
+    "days": "96"
+  },
+  {
+    "name": "Crystal Knife",
+    "category": "Melee Weapons",
+    "description": "This unique dagger has a blade made of a slender rock crystal that glistens with rainbow colors, but has the strength of steel (+10 Strength for breakage checks). The gripping end is wrapped in elephant leather as a simple handle. It is a +10 weapon and a +3 Spell Adder for non-Evil Channeling. It provides a +20 bonus to DB against Directed Spells. It is said to be a gift from a god of earth and stone, made from one of his own teeth. Because of its unique nature and attractive blade, this item is estimated at 200 sp unenchanted.",
+    "recipe": "Work Stone (10), Consecration (2), Spell Adder III (14), Sacred Protections IV (14), Sacred Weapon II (7). Days: 47. Standard cost: 999sp. Level 14 item.",
+    "level": "14",
+    "cost": "999 sp",
+    "days": "47"
+  },
+  {
+    "name": "Dagger of Assassination",
+    "category": "Melee Weapons",
+    "description": "This iron dagger has a pommel in the shape of a skull and the grip is wrapped in black linen. The metal itself has been stained black, almost eliminating the gleam of the metal. When this +10 weapon is drawn, its wielder gains a +10 bonus to Stalking, a +10 bonus to Ambush: Melee Weapons, and most notably, an extra 10 ranks of Ambush: Melee Weapons.",
+    "recipe": "Work Lesser Metals (5), General V (60), General II (10), General II (10), Weapon II (8). Days: 93. Standard cost: 5,955sp. Level 60 item.",
+    "level": "60",
+    "cost": "5,955 sp",
+    "days": "93"
+  },
+  {
+    "name": "Darts of Staying",
+    "category": "Melee Weapons",
+    "description": "These darts have a single-use enchantment. Upon first delivering a critical, one of these darts will also deliver a Hold True (Spirit Mastery) spell to the target.",
+    "recipe": "Work Organic (6), Embed XX (30), Hold True (14). Days: 55. The total PP requirement for a batch of five darts is 74, resulting in a standard price of 33sp per day, or 1,815sp for the batch. The standard price per dart is thus 363sp. Level 30 item.",
+    "level": "30",
+    "cost": "363 sp",
+    "days": "55"
+  },
+  {
+    "name": "Demonslayer",
+    "category": "Melee Weapons",
+    "description": "This high steel arming sword is enchanted to +20, with an additional +15 against all beings of darkness. It is a Holy Weapon, and against Extra Planar Creatures it is Slaying II and does an additional Cold critical of equal severity to the normal critical. Holy Weapons strike as if one Size larger when used against Evil entities, do an additional Holy critical two severities less than the regular critical, inflict a B Holy critical of the creature’s size on Evil creatures directly touching them, and are Slaying I against demons and undead of a larger size than the wielder (this is cumulative with this weapon’s Slaying II effect against extra-planar creatures if both apply).",
+    "recipe": "Work Mundane Metal II (9) Consecration (2), Slaying II (20 x 5 Category), Holy Weapon (25), Additional Crit III (19), Blessed Weapon III (16), Weapon IV (25). Days: 126. Standard cost: 3,898sp. Level 25 item.",
+    "level": "25",
+    "cost": "3,898 sp",
+    "days": "126"
+  },
+  {
+    "name": "Dermik Dral’s Omba",
+    "category": "Melee Weapons",
+    "description": "This curious throwing weapon is shaped like a cross, combining four hand axe blades at a total weight of 3 pounds (Str 80, 20 sp). This has been enchanted to a +20 OB and it strikes on the battle axe table at +1 Size. It possesses a 20' range increment as a thrown weapon, and is unsuitable for melee (treat as an Exotic weapon with poor design canceling out the magic OB bonus to +0 and a fumble number of 15 if someone insists on trying).",
+    "recipe": "Work Lesser Metals (5), Increased Size True (90), Weapon IV (25), Range Improvement III (17). Days: 137. Standard cost: 13,035sp. Level 90 item.",
+    "level": "90",
+    "cost": "13,035 sp",
+    "days": "137"
+  },
+  {
+    "name": "Dragonslayer",
+    "category": "Melee Weapons",
+    "description": "This low steel (+5) long spear gains an additional +20 OB (+25 total) and is Slaying II against Great Drakes.",
+    "recipe": "Work Mundane Metal I (7), Slaying II (20 x 3 Type), Weapon IV (25). Days: 87. Standard cost: 2,564sp. Level 25 item.",
+    "level": "25",
+    "cost": "2,564 sp",
+    "days": "87"
+  },
+  {
+    "name": "Fang of the Long Sleep",
+    "category": "Melee Weapons",
+    "description": "This long bow arrow is tipped with eog (+30 OB) and has a vaal shaft. It is enchanted to strike as if it were one Size greater. The strength of the arrow (for breakage purposes) is 110, based on the vaal shaft and the enchantment, so it will normally be reusable if it can be recovered.",
+    "recipe": "Work Metal VI (50), Increased Size (30). Days: 50. Standard cost: 8,700sp. Level 50 item.",
+    "level": "50",
+    "cost": "8,700 sp",
+    "days": "50"
+  },
+  {
+    "name": "Flail of Fire and Ice",
+    "category": "Melee Weapons",
+    "description": "This mighty +10 heavy flail has two heads. Both are of iron and on iron chains, one of which is darkened as if smudged with smoke, while the other shows a smattering of rust. In combat, the first head bursts into blue fire, while the second grows a covering of ice. Anyone struck takes both an extra Heat and an extra Cold critical of equal severity to the normal critical. On the hickory haft of the weapon is the inscription, “In diversity, strength.”",
+    "recipe": "Work Lesser Metals (5), Additional Crit III (19), Additional Crit III (19), Weapon II (8). Days: 51. Standard cost: 1,141sp. Level 19 item.",
+    "level": "19",
+    "cost": "1,141 sp",
+    "days": "51"
+  },
+  {
+    "name": "Great Axe of the Dwarves",
+    "category": "Melee Weapons",
+    "description": "This is a long axe of Dwarven white alloy steel (+15) with an ironwood haft. It is enchanted to +20, and it gains an additional +5 when wielded by a Dwarf and an additional +10 when used against an Orc. It increases the wielder’s Constitution bonus by 3. Due to the materials and enchantment, it has a strength (for breakage purposes) of 130.",
+    "recipe": "Work Mundane Metal III (12), Stat Bonus III (25), Weapon IV (25), Weapon II (8 x 1/2 Variety), Racial Weapon (3). Days: 54. Standard cost: 1,929sp. Level 25 item.",
+    "level": "25",
+    "cost": "1,929 sp",
+    "days": "54"
+  },
+  {
+    "name": "Great Elven Blade",
+    "category": "Melee Weapons",
+    "description": "This is a +20 high steel longsword with a grip of silk. It is a Lesser Holy Weapon that provides a +10 RR bonus against Evil spells, as well as constant Resist Heat and Resist Cold (Elemental Shields). The wielder may Detect Undead (Holy War) at will. Lesser Holy Weapons strike as if one Size larger when used against Evil entities, and inflict an A Holy critical of the creature’s size on Evil creatures directly touching them.",
+    "recipe": "Work Mundane Metal II (9), Consecration (2), Constant III (18 x 2 at will), Embed I (3), Detect Undead (1), Constant III (17), Embed III (7), Resist Cold (3), Constant III (17), Embed II (5), Resist Heat (2), Lesser Holy Weapon (18), Weapon IV (25), Sacred Protections II (9). Days: 144. Standard cost: 4,442sp. Level 25 item.",
+    "level": "25",
+    "cost": "4,442 sp",
+    "days": "144"
+  },
+  {
+    "name": "Great Falchion of the Yreck",
+    "category": "Melee Weapons",
+    "description": "This starfall (+15) great falchion is Slaying I and +25 against Elves.",
+    "recipe": "Work Metal III (19), Slaying I (15), Weapon II (8 x 1/2 Variety). Days: 23. Standard cost: 908sp. Level 19 item.",
+    "level": "19",
+    "cost": "908 sp",
+    "days": "23"
+  },
+  {
+    "name": "Great Mace of Tung",
+    "category": "Melee Weapons",
+    "description": "A great mace of adamant steel with a vaal haft, this weapon has a +25 OB, attacks at increased Size, and does an additional Unbalancing critical at one severity less than the normal critical. It also allows the casting of Light I (Luminous Elements) once per day.",
+    "recipe": "Work Metal V (35), Increased Size (30), Daily V (14), Embed IV (9), Light I (4), Additional Crit II (14). Days: 81. Standard cost: 6,171sp. Level 35 item.",
+    "level": "35",
+    "cost": "6,171 sp",
+    "days": "81"
+  },
+  {
+    "name": "Great Sword of Vrak Tanuk",
+    "category": "Melee Weapons",
+    "description": "This longsword is lighter than expected (3.6 pounds), due to its construction from Elven High Steel. The grip is of mastodon ivory, carven with the images of peculiar birds, increasing the price of the base weapon from 322sp (for an Elven High Steel longsword) to 400sp. It is a +25 weapon with increased Size, attacking on the Arming Sword table as a Large attack. It can be thrown with a range increment of 20'.223 when held and adds four to ranks of Ambush when modifying a crit through successful Ambush.",
+    "recipe": "Work Lesser Metals (5), General II (10), Weapon II (8), General I (6). Days: 29. Standard cost: 351sp. Level 10 item.",
+    "level": "10",
+    "cost": "351 sp",
+    "days": "29"
+  },
+  {
+    "name": "Hammer of Frost",
+    "category": "Melee Weapons",
+    "description": "This +15 war hammer also acts as a magical staff of Cold Ball II (Ice Law).",
+    "recipe": "Work Lesser Metals (5), Metallic Wand (6), Size Reduction Inorganic (16), Make Staff (14), Cold Ball II (7), Embed VII (15), Weapon III (13). Days: 76. Standard cost: 1,459sp. Level 16 item.",
+    "level": "16",
+    "cost": "1,459 sp",
+    "days": "76"
+  },
+  {
+    "name": "Hammer of the Hills",
+    "category": "Melee Weapons",
+    "description": "This war hammer has a hickory haft and a head of High Steel. It is a +10 weapon against most foes, but a +25 weapon against Goblinoids.",
+    "recipe": "Work Mundane Metal II (9), Weapon III (13). Days: 12. Standard cost: 295sp. Level 13 item.",
+    "level": "13",
+    "cost": "295 sp",
+    "days": "12"
+  },
+  {
+    "name": "Holy Morning Star",
+    "category": "Melee Weapons",
+    "description": "This spiked light flail is a +10 Holy Weapon with a constant Smite Undead II (Holy War) effect. Holy Weapons strike as if one Size larger when used against Evil entities, do an additional Holy critical two severities less than the regular critical, inflict a B Holy critical of the creature’s size on Evil creatures directly touching them, and are Slaying I against demons and undead of a larger size than the wielder.",
+    "recipe": "Work Lesser Metals (5), Consecration (2), Constant X (40), Embed VII (17), Smite Undead II (7), Holy Weapon (25), Weapon II (8). Days: 104. Standard cost: 4,583sp. Level 40 item.",
+    "level": "40",
+    "cost": "4,583 sp",
+    "days": "104"
+  },
+  {
+    "name": "Irgaak Stone",
+    "category": "Melee Weapons",
+    "description": "This is a blue quartz crystal (sapphire quartz) of around 80 carats and valued at 7.5 sp, convenient for inconspicuous carrying, but it has a second form, becoming a +10 low steel claymore that is Slaying III against Giants.",
+    "recipe": "Work Mundane Gemstone (8). Days: 8. Standard cost: 88sp. Level 8 item. Sword: Work Mundane Metal I (7), Slaying III (40 x 3 for Type), Weapon II (8), Multiform II (3). Days: 133. Standard cost: 6,046sp. Level 40 item. The combined item will take a total of 141 working days to create, although the crystal could be prepared at the same time as the sword to complete the project in 133 calendar days. The total standard cost is 1013sp, and it will be a Level 40 item.",
+    "level": "40",
+    "cost": "1013 sp",
+    "days": "133"
+  },
+  {
+    "name": "Ithalmar, the Fist of Venusa",
+    "category": "Melee Weapons",
+    "description": "This white alloy light flail has been enchanted to +20. The grip is of human bone, wrapped in horse hide, with metallic reinforcement for strength. The user can cast spells up to 10th level from the Necromancy Mastery and Necromantic Ways list regardless of his Realm.",
+    "recipe": "Work Mundane Metal III (12), Weapon IV (25), Emplace List X (25), Emplace List X (25), Adaptive Power (7). Days: 79. Standard cost: 2,498sp. Level 25 item.",
+    "level": "25",
+    "cost": "2,498 sp",
+    "days": "79"
+  },
+  {
+    "name": "Korin’s Hammer",
+    "category": "Melee Weapons",
+    "description": "This is a common iron and ash war hammer that does an additional Unbalancing critical of one level severity less than the regular critical. It is a +15 weapon, and it will raise the total Strength bonus of the wielder to +10, if it is otherwise lower.",
+    "recipe": "Work Lesser Metals (5), Additional Crit II (14), Weapon III (13), Fixed Bonus III (13). Days: 45. Standard cost: 780sp. Level 14 item.",
+    "level": "14",
+    "cost": "780 sp",
+    "days": "45"
+  },
+  {
+    "name": "Lathe of the Moak",
+    "category": "Melee Weapons",
+    "description": "This item is most commonly found as a laen dagger with a hilt of adamant steel, enchanted to +30, with its thrown range increment increased by 15', and possessing the ability to return to its thrower via teleportation. It possesses Genius Intelligence and speaks, knowing Elvish and human tongues. It will prefer an Elvish wielder, but will tolerate another who is friendly towards Elves. Its purpose is to protect Elvenkind. It provides its wielder with a constant Monk’s Strength III (Body Reins) effect, tripling hits of damage done and adding another +15 OB. It provides Detect Curse (Lore), Detect Evil (Lore), Detect Channeling (Detection Mastery), Detect Mentalism (Detection), and Detect Essence (Detecting Ways) at will. It can transform into a laen and adamant steel arming sword, long sword, or short sword, keeping its powers in each form (having a 20' range increment when thrown in its non-dagger forms).",
+    "recipe": "Work Inorganic True (20), Constant XX (90), Embed XX (35), Monk’s Strength III (12), Constant III (18 x 2 at will), Embed III (8), Detect Curse (3), Constant III (18 x 2 at will), Embed II (6), Detect Evil (2), Constant III (18 x 2), Embed I (3), Detect Channeling (1), Constant III (18 x 2), Embed I (3), Detect Mentalism (1), Constant III (17 x 2), Embed I (3), Detect Essence (1), Artificial Intelligence VI (35), Range Improvement III (17), Weapon VI (75), Returning Weapon True (9), Improved Communication (4 x 2 speech). The last form must also have Multiform IV (12). Each form will individually take 485 days to enchant, except the last will take 497 days. Total standard cost: 215,665sp. Level 90 item.",
+    "level": "90",
+    "cost": "215,665 sp",
+    "days": ""
+  },
+  {
+    "name": "Lesser Dagger of Assassination",
+    "category": "Melee Weapons",
+    "description": "This unassuming iron dagger has a dark blade and a black leather grip. It provides a +10 OB bonus and a +5 Stalking bonus of iron with a snakeskin grip has a +15 OB and may be thrown with a range increment of 20'.",
+    "recipe": "Work Lesser Metals (5), Range Improvement III (17), Weapon III (13). Days: 35. Standard cost: 675sp. Level 17 item.",
+    "level": "17",
+    "cost": "675 sp",
+    "days": "35"
+  },
+  {
+    "name": "Lightning Lance",
+    "category": "Melee Weapons",
+    "description": "This long spear is of humble appearance, with an iron head and oaken shaft of plain design. There is, however, a six-inch section of the shaft behind the head which is wrapped with copper wire (total cost 2 sp). This is a +15 weapon, and it does an additional Electrical critical one severity less than the regular critical. Twice per day, the wielder may cast Lightning Bolt I.",
+    "recipe": "Work Lesser Metals (5), Lightning Bolt I (10), Embed X (19), Daily XX (40), Additional Crit II (14), Weapon III (13). Days: 101. Standard cost: 4,447sp. Level 40 item.",
+    "level": "40",
+    "cost": "4,447 sp",
+    "days": "101"
+  },
+  {
+    "name": "Mace of Crushing",
+    "category": "Melee Weapons",
+    "description": "This plain wood-hafted iron mace has a +25 OB bonus and does an extra Impact critical of equal severity to the normal critical. Even better, although it is a weapon for a Medium Size user, it strikes as a Big weapon.",
+    "recipe": "Work Lesser Metals (5), Weapon V (50), Additional Critical III (19), Increase Size (30). Days: 104. Standard cost: 5,622sp. Level 50 item.",
+    "level": "50",
+    "cost": "5,622 sp",
+    "days": "104"
+  },
+  {
+    "name": "Muldek’s Rapier",
+    "category": "Melee Weapons",
+    "description": "This rapier is made of Starfall (+15 OB) and can cast Blur (Shield Mastery list) once per day.",
+    "recipe": "Work Metal III (19), Blur (3), Embed III (7), Daily III (10). Days: 24. Standard cost: 926sp. Level 19 item. Ny’Calubraithe, the Long Sword of the Elven",
+    "level": "19",
+    "cost": "926 sp",
+    "days": "24"
+  },
+  {
+    "name": "Ny'Calubraithe, the Long Sword of the Elven Smiths",
+    "category": "Melee Weapons",
+    "description": "This +20 white alloy longsword with a grip of red fell beast leather has many powers. It does an extra Impact critical of the same severity as the normal critical inflicted. It is a Slaying I weapon against Elf-Demons, a Slaying II weapon against Orcs, a Slaying III weapon against Trolls, and a Slaying IV weapon against the Undead. It may be thrown with a 10' range increment. Once per day the bearer may cast Spell Bending II (Spell Reins), but only against electrical attacks (e.g., a Shock Bolt). Twice per day the bearer can cast Stun Relief III (Self Healing).",
+    "recipe": "Work Mundane Metal III (12), Slaying IV (60 x 5), Slaying III (40 x 3), Stun Relief III (10), Embed X (20), Daily XX (50), Spell Bending II (8), Embed X (19), Daily X (25), Slaying I (15 x 3), Slaying II (20), Additional Crit III (19), Weapon IV (25), Range Improvement I (6). Days: 649. Standard cost: 50,844sp. The limitation on the Spell Bending is quite narrow, on a power that accounts directly for over 52 days of enchantment, dropping the market value down to 45,760 sp. Level 60 item.",
+    "level": "60",
+    "cost": "50,844 sp",
+    "days": "649"
+  },
+  {
+    "name": "Off-Hand Dagger",
+    "category": "Melee Weapons",
+    "description": "This low steel (+5) dagger provides a +20 bonus to Multiple Attacks, but only when used in conjunction with another weapon. It also provides the Ambidextrous talent.",
+    "recipe": "Work Mundane Metal I (7), General IV (30), Talent Embedding II (10). Days: 42. Standard cost: 1,429sp. Level 30 item.",
+    "level": "30",
+    "cost": "1,429 sp",
+    "days": "42"
+  },
+  {
+    "name": "Parrying Falchion",
+    "category": "Melee Weapons",
+    "description": "This low steel (+5) falchion allows its wielder to cast Anticipate Attack (Anticipations) five times each day.",
+    "recipe": "Work Mundane Metal I (7), Daily V (16), Embed I (3), Anticipate Attack (1). Days: 22. Standard cost: 446sp. Level 16 item.",
+    "level": "16",
+    "cost": "446 sp",
+    "days": "22"
+  },
+  {
+    "name": "Prism Sword",
+    "category": "Melee Weapons",
+    "description": "This iron arming sword has a small prism as its pommel. It has no bonus to OB, but the wielder may cast Shock Bolt I (Light Law) at will. Unfortunately, due to an imperfection in the enchantment, it must draw the energy to do so from surrounding light, so the effect only works in at least torchlight, and each use causes a 5' radius magical darkness around the user (moving with them) for 10 rounds.",
+    "recipe": "Work Lesser Metals (5), Constant III (17 x 2 at will), Embed II (5), Shock Bolt I (2). Days: 46. Standard cost: 938sp. Level 17 item.",
+    "level": "17",
+    "cost": "938 sp",
+    "days": "46"
+  },
+  {
+    "name": "Ranger’s Blade",
+    "category": "Melee Weapons",
+    "description": "This high steel broadsword has been enchanted to +30 and does an additional Electrical critical equal to the normal critical. It is a +8 Spell Adder for Rangers (but only while in hand) and provides a magical Shield (Shield Mastery) at will.",
+    "recipe": "Work Mundane Metal II (9), Weapon VI (75), Constant III (17 x 2 at will), Embed II (5), Shield (2), Spell Adder X (50 x 1/2 single profession), Additional Crit III (19). Days: 123. Standard cost: 9,950sp. Level 75 item.",
+    "level": "75",
+    "cost": "9,950 sp",
+    "days": "123"
+  },
+  {
+    "name": "Red Glowing Axe",
+    "category": "Melee Weapons",
+    "description": "This +10 hand axe of iron and ash has its range increment increased by 5' when thrown. Additionally, it will glow red along the blade if within 10' of magic (active or waiting spell or an enchanted item) outside of the bearer’s aura.",
+    "recipe": "Work Lesser Metals (5), Weapon II (8), Detection (3[increased radius] x 2[broad category]), Range Improvement I (6). Days: 25. Standard cost: 255sp. Level 8 item.",
+    "level": "8",
+    "cost": "255 sp",
+    "days": "25"
+  },
+  {
+    "name": "Red Spear of Diif-Marash",
+    "category": "Melee Weapons",
+    "description": "This spear has a high steel (+10) head and a shaft of ironwood painted red. It is a Slaying II weapon against Orcs and has a 20' range increment enhancement when thrown. Any bleeding results it inflicts are increased by 1 hit per round.",
+    "recipe": "Work Mundane Metal II (9), Slaying II (20), Range Improvement III (17), Vampiric Weapon (16). Days: 52. Standard cost: 1,297sp. Level 20 item.",
+    "level": "20",
+    "cost": "1,297 sp",
+    "days": "52"
+  },
+  {
+    "name": "Scimitar of Throwing",
+    "category": "Melee Weapons",
+    "description": "This ordinary-looking scimitar",
+    "recipe": "Work Metal I (11), Daily XX (40), Embed XX (30), Haste III (20), Reduced Time II (40), Constant III (17), Embed III (7), Blur (3), Weapon IV (25). Days: 193. Standard cost: 14,900sp. Level 40 item.",
+    "level": "40",
+    "cost": "14,900 sp",
+    "days": "193"
+  },
+  {
+    "name": "Shieldsplitter",
+    "category": "Melee Weapons",
+    "description": "This ordinary looking hand axe with an iron head is actually a +15 weapon with the Shield Breaker ability and great utility as a throwing weapon, having its range increment increased to (25') and the ability to teleport back to the thrower after its attack.",
+    "recipe": "Work Lesser Metals (5), Weapon III (13), Shield Breaker (12), Range Improvement II (11), Returning Weapon True (9). Days: 50. Standard cost: 805sp. Level 13 item.",
+    "level": "13",
+    "cost": "805 sp",
+    "days": "50"
+  },
+  {
+    "name": "Skorbaas, the Heart Seeker",
+    "category": "Melee Weapons",
+    "description": "This iron dagger has been enchanted to +15. It provides an extra 10 ranks of Ambush when used as a melee weapon and has the unique ability to make called shots against the torso (of Small, Medium or Big targets) at no penalty (Serendipitous spell failure result). It is a Slaying II weapon against Animals, Monsters, Races, and Vampires, but only against those which have hearts (limitation by spell failure).",
+    "recipe": "Work Lesser Metals (5), Slaying II (20 x 5), Slaying II (20 x 5), Slaying II (20 x 5), Slaying II (20 x 3), General V (60), Weapon III (13). Days: 438. Standard cost: 31,539sp. Level 60 item.",
+    "level": "60",
+    "cost": "31,539 sp",
+    "days": "438"
+  },
+  {
+    "name": "Spear of Battle Spells",
+    "category": "Melee Weapons",
+    "description": "This is a +20 spear (black alloy and vaal) which is a +5 Spell Adder for spells that increase OB (including those doing so indirectly through something like boosting Strength) or melee damage. There is said to be one for each Semi Spellcaster profession, for which the correct spear acts as a x2 PP Multiplier.",
+    "recipe": "Work Wood (18), Consecration (2), Sacred Adder V (19), Power Multiplier IV (25 x 1/2 single profession). Days: 32. Standard cost: 1,497sp. Level 25 item.",
+    "level": "25",
+    "cost": "1,497 sp",
+    "days": "32"
+  },
+  {
+    "name": "Spiritslayer",
+    "category": "Melee Weapons",
+    "description": "This low steel broadsword has been enchanted to +20, with an additional +10 OB against Extra Planar Creatures and Incorporeal Undead. It is Slaying II against Extra Planar Creatures and Slaying III against Incorporeal Undead. It has Medium Intelligence and is hostile to undead and demons, which it will note from their auras at up to 40'.",
+    "recipe": "Work Mundane Metal I (7), Slaying III (40 x 3 Type), Slaying II (20 x 5 Category), Weapon IV (25), Weapon II (8 x 2 Category), Weapon II (8), Artificial Intelligence III (9). Days: 280. Standard cost: 13,770sp. Level 40 item.",
+    "level": "40",
+    "cost": "13,770 sp",
+    "days": "280"
+  },
+  {
+    "name": "Staff of Aristarchus",
+    "category": "Melee Weapons",
+    "description": "This ironwood (+15) quarterstaff will allow casting Dark Stunning (Dark Channels) at will and Absolution (Dark Channels) fortnightly (every two weeks). It provides Black Channel II (Dark Channels) once per month and Diabolical Skill II (Demonic Pacts) once per week.",
+    "recipe": "",
+    "level": "",
+    "cost": "",
+    "days": ""
+  },
+  {
+    "name": "Staff of Cold",
+    "category": "Melee Weapons",
+    "description": "This ash quarterstaff provides a +5 OB and does an additional cold critical of one severity less than the normal critical. It also acts as a +3 Spell Adder usable only for cold spells.",
+    "recipe": "Consecration (2), Work Mundane Wood (4), Additional Crit II (14), Sacred Adder III (11), Weapon I (4). Days: 35. Standard cost: 560sp. Level 14 item.",
+    "level": "14",
+    "cost": "560 sp",
+    "days": "35"
+  },
+  {
+    "name": "Staff of Flames",
+    "category": "Melee Weapons",
+    "description": "This ash quarterstaff provides a +5 OB and does an additional heat critical of one severity less than the normal critical. It also acts as a +3 Spell Adder usable only for fire spells.",
+    "recipe": "Consecration (2), Work Mundane Wood (4), Additional Crit II (14), Sacred Adder III (11), Weapon I (4). Days: 35. Standard cost: 560sp. Level 14 item.",
+    "level": "14",
+    "cost": "560 sp",
+    "days": "35"
+  },
+  {
+    "name": "Staff of Ice",
+    "category": "Melee Weapons",
+    "description": "This is a staff of ice, with a grip of wolf’s fur. A constant Freezing Cold focused on the item itself keeps it frozen. It has been made “indestructible” to allow the brittle material to endure. Pointed at one end, the ice may be used to strike as a spear or as a quarterstaff, doing an additional Cold critical of equal severity to the normal critical. The bearer of this staff gains Tier I of the Slow Bleeder talent. The staff is a +5 Spell Adder for Ice Law spells only. It provides the bearer a constant Heatarmor (Elemental Shields) effect, and it can be used to Freeze Liquid (Liquid Manipulation) at will.",
+    "recipe": "Work Inorganic (13), Unbreakable Work (90), Constant X (35), Embed X (19), Heatarmor (9), Constant III (18 x 2 at will), Embed II (6), Freeze Liquid (2), Talent Embedding VI (35), Constant III (17), Embed I (3), Freezing Cold (1), Additional Crit III (19), Spell Adder V (30 x 1/10 single list). Days: 288. Standard cost: 28,512sp. Level 90 item.",
+    "level": "90",
+    "cost": "28,512 sp",
+    "days": "288"
+  },
+  {
+    "name": "Staff of Light",
+    "category": "Melee Weapons",
+    "description": "This quarterstaff is +10 to OB and does an additional Impact critical equal in severity to the normal critical. Furthermore, it is a magical staff allowing the casting of either Lightning Bolt I or Shock Bolt III.",
+    "recipe": "Work Mundane Wood (4), Make Staff (14), Lightning Bolt I (10), Shock Bolt III (8), Logic Fork (1), Embed X (19), List Embedding (2), Additional Crit III (19), Weapon II (8). Days: 85. Standard cost: 1,955sp. Level 19 item.",
+    "level": "19",
+    "cost": "1,955 sp",
+    "days": "85"
+  },
+  {
+    "name": "Swiftslayer",
+    "category": "Melee Weapons",
+    "description": "This zataak longsword has been enchanted to +40 and provides its bearer with a constant Blur (Shield Mastery). It attacks in 2 AP with no penalty, and casts Haste III (Rapid Ways) once per day.",
+    "recipe": "Work Mundane Metal I (7), Stat Bonus V (50), Slaying III (40), Weapon II (8). Days: 100. Standard cost: 5,459sp. Level 50 item.",
+    "level": "50",
+    "cost": "5,459 sp",
+    "days": "100"
+  },
+  {
+    "name": "Sword of Giant-Slaying",
+    "category": "Melee Weapons",
+    "description": "This high steel (+10) claymore has an additional +10 bonus (+20 total) and is Slaying I against Giants.",
+    "recipe": "Work Mundane Metal II (9), Weapon II (8), Slaying I (15 x 3 for a Type). Days: 52. Standard cost: 1,057sp. Level 15 item.",
+    "level": "15",
+    "cost": "1,057 sp",
+    "days": "52"
+  },
+  {
+    "name": "Sword of Kalis Pathon",
+    "category": "Melee Weapons",
+    "description": "This appears to be a fairly normal white alloy arming sword until looked at edgeon. Then it can be seen to be ridiculously thin, practically invisible when looked at directly from the edge side. This is an “indestructible” weapon; if it were not magically so strengthened, the metal would never withstand the rigors of combat. It has been enchanted to +30 and it strikes as if it were a Size larger. It will always do Slash as its primary critical, regardless of what the attack chart says, due to its construction. It is a Doorcleaver, a Shield Breaker, an Armor Breaker, and a Weapon Breaker. The creation of the uniquely thin blade required exceptional workmanship and extra time, resulting in a base price of 320 sp (including the price of white alloy).",
+    "recipe": "Work Mundane Metal III (12), Unbreakable Work (90), Weapon VI (75), Weapon Breaker (35), Increased Size (30), Armor Breaker (18), Shield Breaker (12), Doorcleaver (10). Days: 267. Standard cost: 26,753sp. Level 90 item.",
+    "level": "90",
+    "cost": "26,753 sp",
+    "days": "267"
+  },
+  {
+    "name": "Sword of Returning",
+    "category": "Melee Weapons",
+    "description": "A variety of sword types have been found in various Sizes with this enchantment; the price is given here as a broadsword, scimitar, or falchion (10sp). The weapon has a +10 bonus, a thrown range increment of 15', and will teleport back to the thrower’s hand after a throwing attack.",
+    "recipe": "Work Lesser Metals (5), Range Improvement II (11), Returning Weapon True (9), Weapon II (8). Days: 33. Standard cost: 439sp. Level 11 item.",
+    "level": "11",
+    "cost": "439 sp",
+    "days": "33"
+  },
+  {
+    "name": "Sword of the Fallen Star",
+    "category": "Melee Weapons",
+    "description": "There are two of these swords, twins made from the same meteorite, working both at the same time (one in the morning, one in the evening). Each is a great falchion of starfall with a grip of jackalope fur, crafted with unusual artistry and with a pommel stone of jet. Such a weapon would easily fetch 500 sp without further enhancement, but it is enchanted up to +20 and is both a Shield Breaker and an Armor Breaker. As for itself, if it fails a breakage check, it may reroll the result (once per day).",
+    "recipe": "Work Metal III (19), Armor Breaker (18), Resilience (15), Shield Breaker (12), Weapon IV (25). Days: 82. Standard cost: 2,878sp. Level 25 item. Work Mundane Wood (4), Constant III (18 x 2 at will), Embed II (6), Dark Stunning (2), Daily XX (50), Embed XX (35), Absolution (13), Daily X (25), Embed X (20), Diabolical Skill II (9), Daily XX (50), Embed XX (35), Black Channel III (15). Days: 300. Standard cost: 17,015sp. Level 50 item.",
+    "level": "50",
+    "cost": "17,015 sp",
+    "days": "300"
+  },
+  {
+    "name": "Sword of the Golden Orb",
+    "category": "Melee Weapons",
+    "description": "This broadsword is made of Inferior Bronze, with a textured metal grip, decorated in solar imagery. When in direct sunlight, the power of this blade manifests, giving it a +15 bonus as it burns redly in the reflected sunlight. It will then also do an additional Heat critical equal in severity to the normal crit done.",
+    "recipe": "Work Lesser Metals (5), Weapon III (13), Additional Crit III (19). Days: 37. Standard cost: 787sp, but the limitation of direct sunlight reduces its value to 708sp. Level 19 item.",
+    "level": "19",
+    "cost": "787 sp",
+    "days": "37"
+  },
+  {
+    "name": "Tarpan Dag",
+    "category": "Melee Weapons",
+    "description": "A dark long scimitar forged of Low Steel, with a black leather grip, Tarpan Dag is a Slaying III weapon against Elves. It is enchanted to +10. If the wielder of this weapon is an Orc, he gains a +5 increase to his Strength bonus. Close inspection of the blade will reveal that it is inscribed, though it may be harder to interpret the letters of archaic Orcish insults regarding Elves. Tentacle Staff",
+    "recipe": "",
+    "level": "",
+    "cost": "",
+    "days": ""
+  },
+  {
+    "name": "Tentacle Staff",
+    "category": "Melee Weapons",
+    "description": "This is a Big staff topped by a 10' squid tentacle. It can be used to attack as a Big Grappling attack, and if the user has less skill, it will do so with a +100 skill bonus. It is too large for a Medium combatant to wield, however.",
+    "recipe": "Work Organic (7), Physical Skill V (90), Talent Embedding I (6). Days: 103. Standard cost: 9,682sp. Level 90 item.",
+    "level": "90",
+    "cost": "9,682 sp",
+    "days": "103"
+  },
+  {
+    "name": "Thumper",
+    "category": "Melee Weapons",
+    "description": "Created for an Adept’s Troll bodyguard, this two-handed club of hickory is a weapon for a Big wielder (doing Large attacks). It has a +20 OB bonus and the wielder has a +2 bonus to Initiative when using it. It also is quite destructive to inanimate objects, possessing both the Doorcleaver and Shield Breaker abilities.",
+    "recipe": "Work Mundane Wood (4), Weapon IV (25), Initiative Bonus (4 x2 for +2 bonus), Doorcleaver (10), Shield Breaker (12). Days: 59. Standard cost: 1,476sp. Level 25 item.",
+    "level": "25",
+    "cost": "1,476 sp",
+    "days": "59"
+  },
+  {
+    "name": "Truncheon of Command",
+    "category": "Melee Weapons",
+    "description": "This club of hickory is a +10 weapon which strikes as if it were one Size larger. The bearer of this weapon gains a +10 bonus to his Leadership skill. Furthermore, he may cast Quest once per week and True Quest (both spells from the Spirit Mastery list) once per fortnight.",
+    "recipe": "Work Mundane Wood (4), Increased Size (30), Quest (11), Embed XX (30), Daily VII (18), True Quest (20), Embed XX (30), Daily VII (18), General II (10). Days: 161. Standard cost: 7,506sp. Level 30 item.",
+    "level": "30",
+    "cost": "7,506 sp",
+    "days": "161"
+  },
+  {
+    "name": "Whip of Beast Mastery",
+    "category": "Melee Weapons",
+    "description": "This whip is a +5 weapon, grants a +5 bonus to Animal Handling, and is a +2 Spell Adder for spells that charm, control, influence, or communicate with animals. It has a mahogany handle carved with dozens of detailed animal forms (35 sp value).",
+    "recipe": "Work Organic (6), Consecration (2), General I (6 x 2 all specializations), Sacred Adder II (7), Weapon I (4). Days: 31. Standard cost: 314sp. Level 7 item.",
+    "level": "7",
+    "cost": "314 sp",
+    "days": "31"
+  },
+  {
+    "name": "Caprayi, the Eternal Wind",
+    "category": "Missile Weapons",
+    "description": "This white longbow is constructed of polished springwood with fittings of gold and adamantese (the bow would be worth 1000 sp even unenchanted). Utterly beautiful to behold, it is equally deadly. It has range increments increased by +50’ and arrows fired from it strike with a +1 Size increase and do an additional Impact critical of equal severity. Against Large or larger creatures, it is also a Slaying II weapon. This was originally the weapon of the God of the East Wind, but he gave it to a mortal champion and it passed out of mythology and into history. The Slaying power of this weapon is broader than allowed by mortal enchantments, but it has a limitation to creatures of great size, which are rarer, but more powerful. A multiplier of x10 is therefore used.",
+    "recipe": "Work Organic True (20), Slaying II (20 x 10 = 200), Increase Size (30), Additional Crit III (19), Range Improvement III (17). Days: 286. Standard cost: 17,874sp. Level 50 item.",
+    "level": "50",
+    "cost": "17,874 sp",
+    "days": "286"
+  },
+  {
+    "name": "Flare Arrow",
+    "category": "Missile Weapons",
+    "description": "These arrows are single use items. When fired, a flare arrow will launch a Flare (Light’s Way) at the top of its trajectory. If fired upward, an arrow can reach half its maximum range. The added height given to the Flare allows it to illuminate a wider area and for a longer time.",
+    "recipe": "Work Organic (6), Embed XX (35), Flare (11). Days: 52. The total PP requirement for a batch of five arrows is 76 PP, so the standard price is 1,976sp for the batch or 395sp each. Level 35 item.",
+    "level": "35",
+    "cost": "1,976 sp",
+    "days": "52"
+  },
+  {
+    "name": "Grazjanni Sling Stone",
+    "category": "Missile Weapons",
+    "description": "Each of these stones is a +10 missile, growing spines once slung that allows it to do an additional Puncture critical of one severity less than the normal critical. Because of these spines, the stones are effective at delivering poisons and are often used with poison applied. The spines will fall off once the stone is removed from its target (or fails to hit) and will grow anew when slung again.",
+    "recipe": "Work Mundane Stone (3), Additional Crit II (14), Weapon II (8). Days: 25. Standard cost: 400sp. Level 14 item.",
+    "level": "14",
+    "cost": "400 sp",
+    "days": "25"
+  },
+  {
+    "name": "Javelin of Lightning",
+    "category": "Missile Weapons",
+    "description": "This javelin will release a Lightning Bolt I (Light Law) upon doing a critical when thrown. This destroys the javelin, giving it the appearance of turning into a lightning bolt as it is shattered by the electrical force traveling through it. The damage from the javelin itself still occurs. While the skill of the attacker is irrelevant to the lightning strike, the target is restricted to DB from armor quality or other sources that are from damage-resistance (e.g., Lightarmor), not from avoiding being hit (e.g., Blur or Quickness bonus), since it has already been determined that the javelin has hit.",
+    "recipe": "Work Lesser Metals (5), Embed X (19), Lightning Bolt I (10). Days: 34. The total PP requirement for the batch is 54 PP, resulting in a standard price of 748sp or 150sp each. Level 19 item.",
+    "level": "19",
+    "cost": "748 sp",
+    "days": "34"
+  },
+  {
+    "name": "Lariat of Honesty",
+    "category": "Missile Weapons",
+    "description": "This spider-silk rope may have its looped end thrown up to 50' in order to deliver a Medium Grapple attack with a +20 bonus. Anyone caught by the rope (any grapple % greater than zero) is affected by an Honest Answer spell.",
+    "recipe": "Work Organic (6), Weapon IV (25), Constant III (18 x 2 for triggered), Honest Answer (1), Embed I (3). Days: 71. Standard cost: 1,993sp. Level 25 item. Work Mundane Liquid (1), Enchanting Elixir III (9), Infuse Mood II (11). Days: 21. Total PP per day: 61. Standard Cost (produced as a batch) = 58.8sp. Level 11 item.",
+    "level": "11",
+    "cost": "58.8 sp",
+    "days": "21"
+  },
+  {
+    "name": "Shoola",
+    "category": "Missile Weapons",
+    "description": "A shoola is a bluish glass orb 2\" in diameter (0.25 sp value). When broken, it releases a Cold Ball II (Ice Law list), centered on the shoola. They may be thrown as rocks, or used in a sling with a -5 penalty.",
+    "recipe": "Work Inorganic (13), Cold Ball II (7), Embed VII (15). Days: 35. The total PP requirement for a batch is 74, resulting in a standard price of 19sp per day, or 665sp. The standard price per shoola is 133sp. Level 15 item.",
+    "level": "15",
+    "cost": "133 sp",
+    "days": "35"
+  },
+  {
+    "name": "White Bow",
+    "category": "Missile Weapons",
+    "description": "The fabled White Bow is a long bow of snow-white springwood enchanted to increase its base range increment by 50' and dealing Slaying II attacks against Fell Creatures and Demons. It provides constant Blur (Shield Mastery) and Holy Attack III (Holy Arms) effects so long as it is on one’s person, and the bearer is protected by an additional +20 DB against arrows and makes RRs against magic as if he were at least 30th level. Note that the bow string is not enchanted.",
+    "recipe": "Work Wood (18), Consecration (2), Slaying II (20 x 5 Category), Slaying II (20 x 5 Category), Constant X (40), Embed VII (17), Holy Attack III (7), Mutual Aura II (40), Constant III (17), Embed III (7), Blur (3), Range Improvement III (17), Sacred Protection IV (14). Days: 362. Standard cost: 31,742sp. Level 75 item.",
+    "level": "75",
+    "cost": "31,742 sp",
+    "days": "362"
+  },
+  {
+    "name": "Woodman’s Bow of Good Aiming",
+    "category": "Missile Weapons",
+    "description": "This English yew (+10' range increment) longbow can be fired as a 1 AP action without penalty. Once per day, it allows the casting of Aiming (Essence Hand).",
+    "recipe": "Work Organic (6), Daily X (25), Embed X (19), Aiming (10), Reduced Time II (40). Days: 90. Standard cost: 4,070sp. Level 40 item.",
+    "level": "40",
+    "cost": "4,070 sp",
+    "days": "90"
+  },
+  {
+    "name": "Flenatir’s Potion",
+    "category": "Potions",
+    "description": "This powerful potion allows the imbiber to take on a natural AT of 5 and fly on temporarily grown wings with a base speed twice his walking speed (see Foul Transformations list for more details). The effect lasts for somewhat over 12 hours (another 30 minutes for the armor, another 300 minutes for the wings, the Greater Extension in the combination lifting all spells to a casting level of 30). These expensive, but highly useful, potions frequently come in a bottle marked with a red minotaur. Flenatir trades them for various favors, and some few of these are traded on or captured.",
+    "recipe": "Work Mundane Liquid (1), Make Potion True (30), Wings III (14, Foul Transformations), Greater Extension (30, Spell Enhancement), Armoring IV (11, Foul Transformations), Greater Extension (30). Days: 116. The total PP requirement is 240 PP, resulting in a standard cost of 4,408sp for the batch. This results in a standard cost per potion of 882sp. Level 30 potion.",
+    "level": "",
+    "cost": "882 sp",
+    "days": "116"
+  },
+  {
+    "name": "Gaseous Potion of Sleep V",
+    "category": "Potions",
+    "description": "A gaseous potion has the effect of the spell being cast separately on each individual within the radius, so rather than Sleep V (on the Spirit Mastery list) distributing its effects over five levels worth of targets as it would in a single normal casting, the gaseous potion will affect every individual within the potion’s 3' radius unless they are sixth level or above (a successful RR against 3rd level Essence magic will also protect them).",
+    "recipe": "Work Mundane Gas (5), Make Potion III (3), Gaseous Potion (13), Sleep V (3). Days = 24. PP per day = 56. Standard Cost = 76.8 sp (batch created, rounded on the table to 77sp). Level 13 item.",
+    "level": "13",
+    "cost": "76.8 sp",
+    "days": ""
+  },
+  {
+    "name": "Mood Potion",
+    "category": "Potions",
+    "description": "A Psychographer can create an elixir that makes the drinker feel a particular mood (which must be selected at the time the potion is created), such as calm, happiness, amorousness, or despair. An RR modified as for Fear (i.e., using SD) against an 11th level effect is required to not act in accord with the mood, actions in accordance gaining +10 while those counter to the mood suffer a -10 modifier.",
+    "recipe": "",
+    "level": "",
+    "cost": "",
+    "days": ""
+  },
+  {
+    "name": "Potion of Magical Competency",
+    "category": "Potions",
+    "description": "Any enchantment that causes the wearer/bearer of an item to be subjected to an effect, rather than the item itself (which excludes Weapon spells, for example), is suitable for inclusion via Enchanting Elixir (subject to GM approval). So, working with an Adept with access to the Enchantment Mastery list, a Potion of Magical Competency can be brewed. The imbiber of this potion gains a +10 bonus to all SCRs for the next hour.",
+    "recipe": "Work Mundane Liquid (1), Enchanting Elixir II (3), Casting Focus II (7). Days: 11. Total PP per day: 27. Standard Cost (produced as a batch) = 19.8sp.",
+    "level": "",
+    "cost": "19.8 sp",
+    "days": "11"
+  },
+  {
+    "name": "Potion of Mightiness",
+    "category": "Potions",
+    "description": "This is an enchanting elixir, created by a Psychographer. If the imbiber's Strength stat bonus is less than +10, it is raised to +10 for one hour following the consumption of this potion.",
+    "recipe": "Work Mundane Liquid (1), Enchanting Elixir II (3), Fixed Bonus III (13). Days: 13. Total PP per day: 33. Standard Cost per potion (produced as a batch) = 51sp. Level 13 item.",
+    "level": "13",
+    "cost": "51 sp",
+    "days": "13"
+  },
+  {
+    "name": "Potion of Nightvision",
+    "category": "Potions",
+    "description": "This potion provides Nightvision (from the Physical Enhancement list, level 4) cast at 4th level and therefore lasting 40 minutes.",
+    "recipe": "Work Mundane Liquid (1), Make Potion VI (9), Nightvision (4). Days = 14. PP per day = 54. Standard cost = 33.6sp each (batch created, rounded on the table to 34sp). Level 9 item.",
+    "level": "9",
+    "cost": "33.6 sp",
+    "days": ""
+  },
+  {
+    "name": "Potion of Power Restoration",
+    "category": "Potions",
+    "description": "This potion allows the imbiber to immediately recover up to 20% of their maximum PP. It comes in two varieties. The lesser version will only restore the PP of a caster of the realm of Essence. The greater version will restore PP to anyone.",
+    "recipe": "Work Mundane Liquid (1), Distill Essence (7). Days: 8. Total PP per day: 40. Standard cost per potion (produced as a batch): 16sp. Level 7 item. Note that Distill Essence must be cast on each dose. Greater version: Work Mundane Liquid (1), Distill Essence True (14). Days: 15. Total PP per day: 75. Standard cost per potion (produced as a batch): 51sp. Level 14 item.",
+    "level": "14",
+    "cost": "51 sp",
+    "days": "15"
+  },
+  {
+    "name": "Potion of Trollskin",
+    "category": "Potions",
+    "description": "A Psychographer can grant unusual abilities if they have a suitable template to work with. If the imbiber's intrinsic AT is less than 4, it is raised to 4 for fifteen minutes following the consumption of this potion.",
+    "recipe": "Work Mundane Liquid (1), Enchanting Elixir I (1), Talent Embedding III (14). Days: 16. Total PP per day: 24. Standard Cost (produced as a batch) = 51.2sp. Level 14 item.",
+    "level": "14",
+    "cost": "51.2 sp",
+    "days": "16"
+  },
+  {
+    "name": "Access Book",
+    "category": "Wands, Rods & Staves",
+    "description": "This appears as a slender, portable religious text, and it is. (Minimum value: 2 sp.) However, it is also a method of gaining a knowledge of passwords, countersigns, and the like. Any approach within 100' of a guard or checkpoint will trigger a Commune True (Communal Ways) which will cause the password (or similar information) for the guard/ checkpoint to appear on a certain page. The word or phrase thus written will disappear once read.",
+    "recipe": "Work Organic (6), Constant XX (90 x 2 triggered), Embed XX (35), Commune True (20). Days: 241. Standard cost: 23,620sp. Level 90 item.",
+    "level": "90",
+    "cost": "23,620 sp",
+    "days": "241"
+  },
+  {
+    "name": "Akarak, Slayer of Fire Spirits",
+    "category": "Wands, Rods & Staves",
+    "description": "This oak rod casts Water Bolt I (Water Law) with the bolts enchanted to be Slaying I against fire elementals.",
+    "recipe": "Work Mundane Wood (4), Make Rod (10), Slaying I (15 x 2 for elemental bolt x 3 for creature Type x 1/2 for subgroup), Embed IV (9), Water Bolt I (4). Days: 72. Standard cost: 1,336sp. Level 15 item.",
+    "level": "15",
+    "cost": "1,336 sp",
+    "days": "72"
+  },
+  {
+    "name": "Anvil of Forging",
+    "category": "Wands, Rods & Staves",
+    "description": "This anvil provides significant benefits when incorporated into a metalcrafting workshop. It will provide up to 10 levels of spells per day from the Inorganic Skills list and is a +3 Spell Adder for Adapts.",
+    "recipe": "Work Lesser Metals (5), Daily X (25), Embed X (19), List Embedding (2), Logic Fork (1), Metal Analysis (1), Stone Analysis (2), Work Mundane Stone (3), Create Alloy (4), Work Lesser Metals (5), Metallic Wand (6), Work Mundane Metal I (7), Work Mundane Gemstone (8), Work Mundane Metal II (9), Work Stone (10), Spell Adder III (14 x 1/2 single profession x 2 hands free). Days: 121. Standard cost: 3,645sp. Level 25 item.",
+    "level": "25",
+    "cost": "3,645 sp",
+    "days": "121"
+  },
+  {
+    "name": "Bands of Tumbling",
+    "category": "Wands, Rods & Staves",
+    "description": "This pair of bright cloth armbands add +10 to all Gymnastic maneuvers when worn and allow the wearer to cast Landing (Lofty Bridge) once a day.",
+    "recipe": "Work Mundane Cloth (2), General II (10 x 4 for skill category), Daily III (10), Embed II (5), Landing (2). Days: 59. Standard cost: 767sp. Level 10 item.",
+    "level": "10",
+    "cost": "767 sp",
+    "days": "59"
+  },
+  {
+    "name": "Bell of Awe-Inspiring",
+    "category": "Wands, Rods & Staves",
+    "description": "This hand bell of silver (15 sp) is decorated with small, but elegant scenes of gods and goddesses performing acts of creation. The first time each day which this bell is rung, the ringer is provided with a True Aura (Light’s Way list) and this is backed up with an hour (equal in duration to the True Aura) of producing a mood of awe (±20 effect), as described in the Mood Impressions list, in all others within 20' of the bearer.",
+    "recipe": "Work Lesser Metals (5), True Aura (6), Triggered Item (9), Embed VII (17), Daily X (25), Infuse Mood IV (25), Conditional Mood (4), Projected Mood IV (16). Days: 107. Standard cost: 3,118sp. Level 25 item.",
+    "level": "25",
+    "cost": "3,118 sp",
+    "days": "107"
+  },
+  {
+    "name": "Bell of Healing",
+    "category": "Wands, Rods & Staves",
+    "description": "This small golden bell with a handle in the form of a rearing unicorn (80 sp) is a +3 Spell Adder for healing spells only. When rung, it creates a peaceful mood (±10 effect) in a 20' radius.",
+    "recipe": "Work Precious Metals (6), Consecration (2), Infuse Mood II (11), Conditional Mood (4), Projected Mood IV (16), Sacred Adder III (11). Days: 50. Standard cost: 1,030sp. Level 16 item.",
+    "level": "16",
+    "cost": "1,030 sp",
+    "days": "50"
+  },
+  {
+    "name": "Bell of Stunning",
+    "category": "Wands, Rods & Staves",
+    "description": "This is a silver bell (20 sp) decorated with spiral designs. Up to five times each day, the wielder of this bell may cast Stunning Song (Controlling Songs), playing the bell as his performance.",
+    "recipe": "Work Lesser Metals (5), Daily XX (40), Embed IV (9), Stunning Song (4). Days: 58. Standard cost: 2,514sp. Level 40 item.",
+    "level": "40",
+    "cost": "2,514 sp",
+    "days": "58"
+  },
+  {
+    "name": "Blanket of Warming",
+    "category": "Wands, Rods & Staves",
+    "description": "This blanket has a constant Rain Deflection (Weather Ways) and a constant Resist Cold (Elemental Shields) effect, assuring a warm, dry place of rest for the user.",
+    "recipe": "Work Mundane Cloth (2), Constant X (40), Embed V (14), Rain Deflection (5), Constant III (17), Embed III (7), Resist Cold (3). Days: 88. Standard cost: 3,872sp. Level 40 item.",
+    "level": "40",
+    "cost": "3,872 sp",
+    "days": "88"
+  },
+  {
+    "name": "Bole of Transport",
+    "category": "Wands, Rods & Staves",
+    "description": "casts Mass Teleport (level 30 on the Lofty Bridge spell list). It requires",
+    "recipe": "Work Mundane Wood (level 4) and Make Bole (level 25) to create the base item, Mass Teleport itself, and Embed True (level 50) to actually embed the spell. Thus the Adept creating it must expend 109 PP per day (79 if someone else casts the Mass Teleport) over 109 days in order to create this item. It will cost the Adept 5,450sp (plus cost of the bole itself, assume oak for 80sp) in materials alone, while the market value of the bole will be 5,966sp. If the bole was made of dask, Work Wood (level 18) would be required, increasing the required time to 123 days and raising the cost of enchantment to 6,150sp, while the wood of the bole itself would be an additional 800sp base (but increasingly expensive as one got further from the dask forests) for a total of 7,565sp.",
+    "level": "",
+    "cost": "7,565 sp",
+    "days": ""
+  },
+  {
+    "name": "Boots of Agility",
+    "category": "Wands, Rods & Staves",
+    "description": "These bright green boots with silver ornaments (8 sp) add +2 to the wearer’s Agility stat bonus.",
+    "recipe": "Work Mundane Leather (3), Stat Bonus II (19). Days: 22. Standard cost: 470sp. Level 19 item.",
+    "level": "19",
+    "cost": "470 sp",
+    "days": "22"
+  },
+  {
+    "name": "Boots of Escape",
+    "category": "Wands, Rods & Staves",
+    "description": "These boots are commonly found in Small or Medium size, and will fit any humanoid of the correct Size. The wearer can cast a combined Dash and Spider’s Walk (Movement Mastery) once each day.",
+    "recipe": "Work Organic (6), Automatic Sizing Organic (6), Embed True (50), List Embedding (2), Daily L (75), Spider’s Walk (12), Dash (35). Days: 186. Standard cost: 15,066sp. Level 75 item.",
+    "level": "75",
+    "cost": "15,066 sp",
+    "days": "186"
+  },
+  {
+    "name": "Boots of Landing",
+    "category": "Wands, Rods & Staves",
+    "description": "The wearer of these green leather boots takes no damage from falls of up to 40' and reduces the effective height of falls from greater heights by 40'. They fit any feet of the right Size and have been found in Small, Medium, and Big.",
+    "recipe": "Automatic Sizing Organic (6), Work Mundane Leather (3), Landing (2, Lofty Bridge), Embed II (5), Constant III (17). Days: 33. Standard cost: 627sp. Level 17 item.",
+    "level": "17",
+    "cost": "627 sp",
+    "days": "33"
+  },
+  {
+    "name": "Boots of Leaping",
+    "category": "Wands, Rods & Staves",
+    "description": "The wearer of these red leather boots may make a vertical leap of 20' or a lateral leap of 50' each round. They fit any feet of the right Size and have been found in Small, Medium, and Big.",
+    "recipe": "Automatic Sizing Organic (6), Work Mundane Leather (3), Leaping (1, Lofty Bridge), Embed I (3), Constant III (17). Days: 30. Standard cost: 570sp. Level 17 item.",
+    "level": "17",
+    "cost": "570 sp",
+    "days": "30"
+  },
+  {
+    "name": "Boots of Light Feet",
+    "category": "Wands, Rods & Staves",
+    "description": "These blue leather boots fit any humanoid feet of the right Size (and they have been found in Small, Medium, and Big), allow the wearer to use Leaping or Landing (Lofty Bridge list) once each round, prevent foot odor, provide a +50 RR bonus against fungal or parasitic attacks on the feet. If worn while recovering from a foot or ankle injury, they halve the recovery time.",
+    "recipe": "Work Mundane Organic Material (2), Magic Shoes (3), Lightfoot Shoes (11). Days: 16. Standard cost: 208sp. Level 11 item. Note: These boots demonstrate the power of specialization when compared to the Boots of Landing or Boots of Leaping above. These boots are superior to either at approximately half the cost. This also demonstrates that there are two possibilities once such specialization appears: (1) the generalists stop competing in the area of specialization, so the generalist items stop being made, or (2) the specialist secrets are closely guarded, the items priced so as to leave consumer options (say, 1,000sp for these boots), and a great profit goes to the specialists without entirely driving out the generalists.",
+    "level": "11",
+    "cost": "208 sp",
+    "days": "16"
+  },
+  {
+    "name": "Boots of Silence",
+    "category": "Wands, Rods & Staves",
+    "description": "These dark brown leather boots add +20 to the wearer’s Stalking maneuvers and allow the casting of Sphere of Silence I (Sound Molding) thrice a day. They fit any Medium humanoid feet.",
+    "recipe": "Work Mundane Leather (3), Automatic Sizing Organic (6), General IV (30), Daily VII (18), Embed II (5), Sphere of Silence I (2). Days: 64. Standard cost: 2,112sp. Level 30 item.",
+    "level": "30",
+    "cost": "2,112 sp",
+    "days": "64"
+  },
+  {
+    "name": "Boots of Speed",
+    "category": "Wands, Rods & Staves",
+    "description": "These boots allow the wearer to cast up to 20 PP per day of spells from the Rapid Ways list up to 7th level. They will fit any humanoid feet of the right Size (and they have been found in Small, Medium, and Large).",
+    "recipe": "Work Organic (6), Automatic Sizing Organic (6), Daily XX (40), Logic Fork (1), List Embedding (2), Embed VII (15), Swiftness II (7), Haste I (6), Instant Spell Prep (5), Swiftness I (4), Speed I (3), Rapid Steps (2), Ready Weapon (1). Days: 98. Standard cost: 4,312sp. Level 40 item.",
+    "level": "40",
+    "cost": "4,312 sp",
+    "days": "98"
+  },
+  {
+    "name": "Boots of Wind Walking",
+    "category": "Wands, Rods & Staves",
+    "description": "These fine (3 sp) boots of blue leather and brass provide Wind Drift (Movement) twice per day.",
+    "recipe": "Work Mundane Leather (3), Work Lesser Metals (5), Daily X (25), Embed IV (12), Wind Drift (4). Days: 49. Standard cost: 1,375sp. Level 25 item.",
+    "level": "25",
+    "cost": "1,375 sp",
+    "days": "49"
+  },
+  {
+    "name": "Boots of Yark",
+    "category": "Wands, Rods & Staves",
+    "description": "These Medium-sized brown leather boots fit any wearer. In addition to all the powers of Boots of Light Feet, these boots also provide a constant Sprint spell (Movement Mastery list) and allow the casting of Fly II (Lofty Bridge) once per day.",
+    "recipe": "Work Mundane Organic Material (2), Magic Shoes (3), Constant True (90), Embed XX (30), Sprint (18), Fly II (7), Embed VII (15), Daily VII (18), Lightfoot Shoes (11). Days: 194. Standard cost: 18,627sp. Level 90 item.",
+    "level": "90",
+    "cost": "18,627 sp",
+    "days": "194"
+  },
+  {
+    "name": "Capacious Storage",
+    "category": "Wands, Rods & Staves",
+    "description": "A common category of item, these backpacks and boxes are enchanted to hold more than they appear, reduce the weight of their contents, protect those contents from harm, and permit the possessor to immediately find whatever contents they are looking for.",
+    "recipe": "Work Mundane Leather (3), Isolate Contents (8), Self-Organizing Storage (14), and both Enhance Portability (17) and Dimensional Relativity (13) are cast one, two, three, or four times depending on the version. All versions are Level 17 items. Minor: As a backpack, holds 2 cu.ft. (double normal), at half weight. Days: 55. Standard cost: 1,100sp. A box with the same enchantments takes one additional day (based on Work Mundane Wood in place of Work Mundane Leather) and increases the price to 1,120sp. Lesser: Holds 4 cu.ft., one quarter weight. Days: 85. Standard cost: 1,785sp. A box adds one day and costs 1,806sp. Moderate: Holds 8 cu.ft., one eighth weight. Days: 115. Standard cost: 2,415sp. A box adds one day and costs 2,436sp. Greater: Holds 16 cu.ft., one sixteenth weight. Days:145. Standard cost: 3,190sp. A box adds one day and costs 3,212sp.",
+    "level": "17",
+    "cost": "3,190 sp",
+    "days": "145"
+  },
+  {
+    "name": "Cape of the Black Hand",
+    "category": "Wands, Rods & Staves",
+    "description": "This stylish dark grey cloak (1 sp) bears a life-sized silhouette of a right hand in black in the lower right corner. Once per day, the wearer may cast Darkness I (from Light Law) linked with Darkvision (from Physical Enhancement). This provides two hours of a 10' radius magical darkness around the wearer, through which he can see (as well as seeing through any other darkness to 10').",
+    "recipe": "Work Mundane Cloth (2), Darkvision (12), Embed XX (30), Darkness I (6), Embed VI (13), Daily XX (40). Days: 103. Standard cost: 4,533sp. Level 40 item.",
+    "level": "40",
+    "cost": "4,533 sp",
+    "days": "103"
+  },
+  {
+    "name": "Cloak of Cloaking",
+    "category": "Wands, Rods & Staves",
+    "description": "This cloak allows the wearer to cast Cloaking I twice per day and gives a +15 Stalking bonus.",
+    "recipe": "Work Mundane Cloth (2), General III (15), Embed IV (12), Cloaking I (4, Cloaking), Daily X (25). Days: 58. Standard cost: 1,624sp. Level 25 item.",
+    "level": "25",
+    "cost": "1,624 sp",
+    "days": "58"
+  },
+  {
+    "name": "Cloak of Darkness",
+    "category": "Wands, Rods & Staves",
+    "description": "This is a x1.5 PP Multiplier and a +3 Spell Adder for Evil spellcasters. It adds 10 ranks (does not increase skill bonus) to Running (which improves passive dodging). If anyone not an Evil spellcaster puts on the cloak, this triggers a Demonic Possession II (Mind Domination) spell, cast on the wearer.",
+    "recipe": "Work Mundane Cloth (2), Constant X (40 x 2 triggered), Embed X (20), Demonic Possession II (10), General V (60), Spell Adder III (14 x 3 universal x 1/3 Evil), Power Multiplier II (12 x 3 x 1/3). Days: 198. Standard cost: 13,068sp. Level 60 item.",
+    "level": "60",
+    "cost": "13,068 sp",
+    "days": "198"
+  },
+  {
+    "name": "Cloak of Stealth",
+    "category": "Wands, Rods & Staves",
+    "description": "The wearer of this cloak gains a +20 bonus to Stalking skill.",
+    "recipe": "Work Mundane Cloth (2), General IV (30). Days: 32. Standard cost: 1,024sp. Level 30 item.",
+    "level": "30",
+    "cost": "1,024 sp",
+    "days": "32"
+  },
+  {
+    "name": "Collar of Animal Speech",
+    "category": "Wands, Rods & Staves",
+    "description": "This adjustable collar will fit any animal of a given Size (roll randomly on 1d100: 1-5, Diminutive; 6-25, Tiny; 26-60, Small; 61-80, Medium; 81-90, Big; 91-97, Large; 98-00, Huge). The animal wearing the collar will be able to speak and unCapacious Storage derstand the native language of a person attuned to the collar. This does not otherwise change the intelligence or personality of the animal. These items are produced by a sect of Sanctifiers that worship animal spirits and learn a variant Divine Touch list where Sacred Script is replaced with a spell that produces this effect, called Animal Speech. The collars are decorative, with a minimum cost of 10 sp.",
+    "recipe": "Consecration (2), Animal Speech (6). Days: 8. Standard cost: 74sp. Level 6 item.",
+    "level": "6",
+    "cost": "74 sp",
+    "days": "8"
+  },
+  {
+    "name": "Collar of Unpain",
+    "category": "Wands, Rods & Staves",
+    "description": "A collar of eog (450 sp) that can be worn with any armor, this device will negate 30% of criticals to the head. Additionally, the wearer can cast Unpain II (Body Reins) once per day.",
+    "recipe": "Work Metal VI (50), Unpain II (9), Embed X (20), Daily X (25), Crit Negation VI (30). Days: 134. Standard cost: 7,820sp. Level 50 item.",
+    "level": "50",
+    "cost": "7,820 sp",
+    "days": "134"
+  },
+  {
+    "name": "Daywalking Cloak",
+    "category": "Wands, Rods & Staves",
+    "description": "Usually a simple black, brown, or gray hooded cloak, these items are used by many important members of the sun-sensitive Races. It provides constant protection as the Resist Light spell (Elemental Shields list). They may be found in various Sizes, to fit the various Races that need such protection.",
+    "recipe": "Work Mundane Cloth (2), Resist Light (1), Embed I (3), Constant III (17). Days: 23. Standard cost: 437sp. Level 17 item.",
+    "level": "17",
+    "cost": "437 sp",
+    "days": "23"
+  },
+  {
+    "name": "Delving Text of Yol",
+    "category": "Wands, Rods & Staves",
+    "description": "This large book (5 sp) serves as a magical reference on items. It allows casting each of the following spells once per week: Armor Analysis (Armor Enchantment), Fluid Analysis (Fluid Skills), Item Analysis (General Enchantment), Metal Analysis (Inorganic Skills), Stone Analysis (Inorganic Skills), Machine Analysis (Mechanical Mastery), Weapon Analysis (Weapon Enchantment).",
+    "recipe": "Work Organic (6), Daily V (14), Embed V (11), Item Analysis (5), Daily III (10), Embed II (5), List Embedding (2), Metal Analysis (1), Stone Analysis (2), Daily III (10), Embed II (5), Fluid Analysis (2), Daily I (6), Embed I (3), Armor Analysis (1), Daily I (6), Embed I (3), Machine Analysis (1), Daily I (6), Embed I (3), Weapon Analysis (1). Days: 103. Standard cost: 1,859sp. Level 14 item.",
+    "level": "14",
+    "cost": "1,859 sp",
+    "days": "103"
+  },
+  {
+    "name": "Dervish Drum",
+    "category": "Wands, Rods & Staves",
+    "description": "This small drum uses mastodon hide and ivory in its construction, as well as wood. It is painted with the symbols of a long-lost culture. (Value is 45 sp without considering historical significance.) It is a +25 instrument and a x 1.5 PP Multiplier for Monks. The attuned user can play the drum to produce a Dancing Song (Controlling Songs) up to three times each day.",
+    "recipe": "Work Organic (6), General V (60), Daily X (25), Embed III (7), Dancing Song (3), Power Multiplier II (12 x 1/2 single profession). Days: 107. Standard cost: 6,893sp. Level 60 item.",
+    "level": "60",
+    "cost": "6,893 sp",
+    "days": "107"
+  },
+  {
+    "name": "Desert Suit",
+    "category": "Wands, Rods & Staves",
+    "description": "These desert robes have been enchanted to provide a constant Hues (Nature’s Guises) effect. Unfortunately, this effect only works when in a desert environment, so its value will drop considerably outside of such areas.",
+    "recipe": "Work Mundane Cloth (2), Constant III (18), Embed I (3), Hues (1). Days: 24. Standard cost: 480sp. Level 18 item.",
+    "level": "18",
+    "cost": "480 sp",
+    "days": "24"
+  },
+  {
+    "name": "Dragonwand",
+    "category": "Wands, Rods & Staves",
+    "description": "This is a wand of ebony (+25 to item Strength), carved to look like a dagger (though it has no edge and would make an ineffective weapon). It would be worth 15 sp as an art object, but its magical powers are of far greater worth. Merely bearing this item protects the bearer with a constant True Armor (Elemental Shields). The wand has the power of a staff, allowing the use of any of the following spells: Fire Bolt I (Fire Law), Fire Ball (Fire Law), Lightning Bolt I (Light Law), or Fly II (Lofty Bridge).",
+    "recipe": "Work Mundane Wood (4), Make Staff (14), Size Reduction (13), Size Reduction (13), Constant True (90), Embed True (50), True Armor (50), Embed X (19), List Embedding (2), Fire Bolt I (6), Fire Ball (8), Embed X (19), Lightning Bolt I (10), Embed VII (15), Fly II (7), Logic Fork (1). Days: 321. Standard cost: 32,115sp. Level 90 item. Eye Staff",
+    "level": "90",
+    "cost": "32,115 sp",
+    "days": "321"
+  },
+  {
+    "name": "Eggs of Divination",
+    "category": "Wands, Rods & Staves",
+    "description": "These eggs are occasionally laid by sacred birds, usually those in the vicinity of an exceptionally devout follower of the faith associated with the bird. They are immediately distinguishable from ordinary eggs by their luminescent royal purple color. When cracked open, the egg releases a spirit, which will answer a single yes/no question, as a Commune I (Communal Ways) spell. This is a low-power example of a “fallen from heaven” type item which is easily given a price by calculating an Adept-produced equivalent.",
+    "recipe": "Work Organic (6), Embed XX (35), Commune I (12). Days: 53. Total PP per day: 77. Standard cost: 403sp each if produced as a batch. Level 35 item. Eggs of Divination",
+    "level": "35",
+    "cost": "403 sp",
+    "days": "53"
+  },
+  {
+    "name": "Elven Cloak",
+    "category": "Wands, Rods & Staves",
+    "description": "An Elven Cloak is gray, hooded, and light. It provides constant Resist Cold (Elemental Shields list) and Hues (Nature’s Guises list) when worn.",
+    "recipe": "Work Mundane Cloth (2), Resist Cold (3), Embed III (7), Constant III (17), Hues (1), Embed I (3), Constant III (18). Days: 51. Standard cost: 1,020sp. Level 17 item.",
+    "level": "17",
+    "cost": "1,020 sp",
+    "days": "51"
+  },
+  {
+    "name": "Eye Staff",
+    "category": "Wands, Rods & Staves",
+    "description": "This staff is four feet of wood ending in two feet of tentacle tipped with a large eye (weight 3 lbs., Str 60). The tentacle was taken from an octopus, the eye from a sphinx. This bizarre design has been evaluated at 80 sp. This staff can be used to invoke a number of spells: Lightning Bolt I (Light Law), See Invisible I (Invisible Ways), Long Eye I (Essence’s Perceptions) or Darkvision (Senses). The eye will sway on the tentacle when within 25' of a trap and glow when within 25' of a secret door.",
+    "recipe": "Work Organic (6), Make Staff (14), Embed X (19), Lightning Bolt I (10), Embed X (19), See Invisible I (9), Embed VII (15), Long Eye I (7), Embed X (19), Darkvision (9), Logic Fork (1), Detection (6), Detection (6). Days: 140. Standard cost: 3,440sp. Level 19 item.",
+    "level": "19",
+    "cost": "3,440 sp",
+    "days": "140"
+  },
+  {
+    "name": "Fireball Thrower",
+    "category": "Wands, Rods & Staves",
+    "description": "This is a bronze rod with the likeness of a small hand at one end, curved as if grasping a ball (10 lbs. of inferior bronze, 100 sp). Six times per day, it will fling a Fire Ball (Fire Law) from the rod’s “hand.” It has a range of 200' thanks to a Ranging I constant effect on the item. An Elemental Power IV applied to the item gives the fire balls a +20 OB. Although it is in the shape of a rod, this is a daily and constant item, and is limited in uses per day but not to a fixed number of charges.",
+    "recipe": "Work Lesser Metals (5), Daily L (75), Embed X (19), Fire Ball (8), Constant X (35), Embed V (19), Ranging I (8), Elemental Power IV (18). Days: 187. Standard cost: 15,247sp. Level 75 item.",
+    "level": "75",
+    "cost": "15,247 sp",
+    "days": "187"
+  },
+  {
+    "name": "Flute of the Fair Elves",
+    "category": "Wands, Rods & Staves",
+    "description": "This +10 wooden flute is a +1 Spell Adder for Bards and its sound carries twice as far as a normal flute. Double all effects in the hands of an Elf (i.e., +20 bonus to maneuvers to play it, +2 Bard Spell Adder, sound carries four times as far).",
+    "recipe": "Work Mundane Wood (4), Sounding II (2), Embed II (5), Constant III (17), General II (10), Spell Adder I (5 x 1/2 for single Profession). Days: 41. Standard cost: 820sp. Elves may pay half again as much for this item (1,230sp). The doubled effects are the result of serendipitous spell failure. Level 17 item.",
+    "level": "17",
+    "cost": "820 sp",
+    "days": "41"
+  },
+  {
+    "name": "Forest Mask of the Wood Elves",
+    "category": "Wands, Rods & Staves",
+    "description": "This wooden mask with leather straps is a mix of various green hues and the irregular contours of its form give it an unearthly look. Regarded as an art piece alone, it is extraordinary and might fetch in the range of 80 sp. However, it also has two powers from the Nature’s Guises list: a constant Self Cloaking when within 50' of a tree, plus the use of Plant Façade twice per day.",
+    "recipe": "Work Organic (6), Daily XX (50), Embed X (20), Plant Façade (8), Constant X (40), Embed V (14), Self Cloaking (5). Days: 143. Standard cost: 7,945sp. The limitation on Self Cloaking will affect utility when actually negotiating a price. In woodlands, this is not a serious restriction, but in a desert, this item is essentially a curiosity, not a practical device. Level 50 item.",
+    "level": "50",
+    "cost": "7,945 sp",
+    "days": "143"
+  },
+  {
+    "name": "Gauntlet of Healing",
+    "category": "Wands, Rods & Staves",
+    "description": "This beautiful azure and silver gauntlet (180 sp value) for the right hand is a +5 Spell Adder for healing spells only. It also provides a +10 bonuses to both Medicine and Herbalism maneuvers. Finally, it casts Staunch Wound VI (Blood Law) once per day. It is a holy relic of much renown, and unauthorized use is sure to draw attention.",
+    "recipe": "Consecration (2), Sacred Spell True (75), Staunch Wound VI (15), Sacred Adder (19), Sacred Skill II (8), Sacred Skill II (8). Days: 127. Standard cost: 10,340sp. Level 75 item.",
+    "level": "75",
+    "cost": "10,340 sp",
+    "days": "127"
+  },
+  {
+    "name": "Gloves of Subdual",
+    "category": "Wands, Rods & Staves",
+    "description": "These black leather gloves provide a +15 bonus to Subdual when used in conjunction with an Unarmed attack.",
+    "recipe": "Work Mundane Leather (3), General III (15). Days: 18. Standard cost: 306sp. Level 15 item.",
+    "level": "15",
+    "cost": "306 sp",
+    "days": "18"
+  },
+  {
+    "name": "Gloves of Unbarring Ways",
+    "category": "Wands, Rods & Staves",
+    "description": "These leather gloves allow the wearer to cast up to 20 levels of spells each day off of the Unbarring Ways list up to level 5.",
+    "recipe": "Work Mundane Leather (3), Embed V (11), List Embedding (2), Daily XX (40), Logic Fork (1), Lock (1), Magic Lock (2), Locklore (3), Opening I (4), Traplore (5). Days: 72. Standard cost: 3,096sp. Level 40 item.",
+    "level": "40",
+    "cost": "3,096 sp",
+    "days": "72"
+  },
+  {
+    "name": "Janik’s Belt of Movement",
+    "category": "Wands, Rods & Staves",
+    "description": "This broad leather belt with a bold brass buckle (1 sp) allows the caster to cast Leaping three times per day and Landing and Fly I (all Lofty Bridge) once each per day, all cast at 5th level.",
+    "recipe": "Work Lesser Metals (5), Leaping (1), Landing (2), Fly I (5), List Embedding (2), Embed V (11), Daily X (25). Days: 51. Standard cost: 1,429sp. Level 25 item.",
+    "level": "25",
+    "cost": "1,429 sp",
+    "days": "51"
+  },
+  {
+    "name": "King’s Flagon",
+    "category": "Wands, Rods & Staves",
+    "description": "This is a golden chalice finely worked with elaborately detailed scenes appropriate to the interests of the monarch or other notable for which it was made (typical value: 500 sp). Although a magnificent status symbol, it is also of practical value, with a constant Sustenance Purification (Purifications) effect on its contents. Furthermore, an attuned user may also control the temperature of the contents to his tastes due to a constant Boil/Freeze Liquid (Liquid Alteration) effect.",
+    "recipe": "Work Lesser Metals (5), Boil/Freeze Liquid (1), Hybrid Embedding (2), Embed I (3), Constant III (18), Sustenance Purification (1), Embed I (3), Constant III (18). Days: 51. Standard cost: 1,571sp. Level 18 item. King’s Flagon",
+    "level": "18",
+    "cost": "1,571 sp",
+    "days": "51"
+  },
+  {
+    "name": "Minstrel Cloak",
+    "category": "Wands, Rods & Staves",
+    "description": "This cloak is of fine silk (2.5 sp), silver-gray in color. It is said by some to have been discarded or lost by a god of music; others say it was a gift to the god’s long-ago favorite. This cloak is a +2 spell adder for Bards, but more notably, it provides a constant Music (Sound Control) effect, except that the music automatically adjusts to be appropriate for whatever the wearer’s situation (though the “sneakysneaky” music for stalking may be inconvenient). If the wearer sings or plays an instrument or simply hums, the cloak will join in harmony.",
+    "recipe": "Work Mundane Cloth (2), Music (10), Embed X (19), Constant X (35), Spell Adder II (9 x 1/2 single profession x 2 wearable). Days: 75. Standard cost: 2,853sp. Level 35 item.",
+    "level": "35",
+    "cost": "2,853 sp",
+    "days": "75"
+  },
+  {
+    "name": "Montebanc Cape",
+    "category": "Wands, Rods & Staves",
+    "description": "This brilliant blue cape is a +3 Spell Adder for Dabblers and allows the wearer to Long Door I (Lofty Bridge) once per day.",
+    "recipe": "Work Mundane Cloth (2), Daily X (25), Embed X (19), Long Door I (8), Spell Adder III (15 x 1/2 for single profession x 2 wearable). Days: 69. Standard cost: 1,932sp. Level 25 item.",
+    "level": "25",
+    "cost": "1,932 sp",
+    "days": "69"
+  },
+  {
+    "name": "Nerro’s Displacer",
+    "category": "Wands, Rods & Staves",
+    "description": "This dark gray cloak provides a constant Displacement II (Guises) effect on the wearer. The wearer may also cast Leaving I (Lofty Bridge) three times per day.",
+    "recipe": "Work Mundane Cloth (2), Displacement II (10), Embed X (19), Constant X (35), Leaving I (3), Embed III (7), Daily X (25). Days: 101. Standard cost: 3,939sp. Level 35 item.",
+    "level": "35",
+    "cost": "3,939 sp",
+    "days": "101"
+  },
+  {
+    "name": "Pauper’s Purse",
+    "category": "Wands, Rods & Staves",
+    "description": "This battered-looking leather purse always looks empty, whether examined from the outside or opened to peer within. It also sounds empty, never jingling with coins, no matter how many it may actually carry. It can carry quite a bit, as well, for it holds eight times the volume that its size would indicate and the weight of any contents are reduced to one-quarter actual weight.",
+    "recipe": "Work Mundane Leather (3), Constant X (35), Embed VI (13), Sound Glamour (6, Sound Molding), Constant X (35), Embed VI (13), Light Glamour (6, Light Molding), Enhance Portability (13), Enhance Portability (13), Dimensional Relativity (17), Dimensional Relativity (17), Dimensional Relativity (17). Days: 188. Standard cost: 7,708sp. Level 35 item.",
+    "level": "35",
+    "cost": "7,708 sp",
+    "days": "188"
+  },
+  {
+    "name": "Pot of Battle Smoke",
+    "category": "Wands, Rods & Staves",
+    "description": "This small clay jar (1 pound weight) may be thrown with a range increment of 50'. When it breaks, it casts a Thick Fog V (Gas Manipulation) spell that has been spellmastered to billow and smell like smoke (although it is harmless). It is often effective in making an enemy believe a fire has started, adding confusion and possibly even panic to the cover provided by the fog.",
+    "recipe": "Work Inorganic (13), Embed VII (17), Thick Fog V (7). Days: 37. Total PP required: 89. Standard cost: 189sp each. Level 17 item.",
+    "level": "17",
+    "cost": "189 sp",
+    "days": "37"
+  },
+  {
+    "name": "Quill of Spell-Scribing",
+    "category": "Wands, Rods & Staves",
+    "description": "A fine feather quill typically from a goose (though showier choices have been made), this item can write one Rune II each day. Investing in a good supply of rune paper is advised for the owner of this implement.",
+    "recipe": "Work Organic (6), Rune II (6, Rune Mastery), Embed VI (13), Daily VII (18). Days: 43. Standard cost: 903sp. Level 18 item.",
+    "level": "18",
+    "cost": "903 sp",
+    "days": "43"
+  },
+  {
+    "name": "Rod of Animating the Dead",
+    "category": "Wands, Rods & Staves",
+    "description": "This rod of ebony is capped with silver at both ends (20 sp). It casts Animate Dead II (Necromantic Ways). It also functions as a +3 Spell Adder for Evil spellcasters.",
+    "recipe": "Work Mundane Wood (4), Make Rod (10), Animate Dead II (4), Embed IV (9), Spell Adder III (14 x 3 universal x 1/3 Evil only). Days: 41. Standard cost: 717sp. Level 14 item.",
+    "level": "14",
+    "cost": "717 sp",
+    "days": "41"
+  },
+  {
+    "name": "Rod of Exchange",
+    "category": "Wands, Rods & Staves",
+    "description": "This mysterious device comes from another dimension. It is a 2' rod of an unknown red metal, weighing three pounds. As a curiosity, it would be valued at 500 sp. It has, however, practical application, because when two people both grip the rod, they can exchange power points (regardless of realm), hits, and thoughts. Normal maximums apply to hits and PP after exchange. This device can only be approximated with spells, but we can get close enough to provide a price. Exchanging thoughts and power points may be covered by Mind Merge I (Mind Merge). The range is reduced to touch, but the ability to exchange PP across realms can be useful. The exchange of hits is just a limited Transference effect from the Healer’s Cleansing list. We will take this limitation to balance the advantageous PP exchange allowed for purposes of evaluating a price.",
+    "recipe": "Work Lesser Metals (5), Constant X (40 x 2 “at will”), Embed VII (17), Mind Merge I (6), Constant III (18 x 2 “at will”), Embed II (6), Hybrid Embedding (2), Transference (2). Days: 154. Standard cost: 7,430sp. Level 40 item. Quill of Spell Scribing",
+    "level": "40",
+    "cost": "7,430 sp",
+    "days": "154"
+  },
+  {
+    "name": "Rod of Melting",
+    "category": "Wands, Rods & Staves",
+    "description": "The Rod of Melting is a 3' rod of dask wood carved with patterns of flame (worth 450 sp due to artistry). Each charge may be used to cast either Heat Solid or Fire Bolt I (Fire Law). Although rod-sized, it has the power of a staff (and will require Charge Staff to recharge). Because it is made of dask, it will have 150 charges at full capacity.",
+    "recipe": "Work Wood (18), Make Staff (14), Size Reduction (13), List Embedding (2), Logic Fork (1), Embed VI (13), Fire Bolt I (6), Heat Solid (5). Days: 72. Standard cost: 1,962sp. Level 18 item.",
+    "level": "18",
+    "cost": "1,962 sp",
+    "days": "72"
+  },
+  {
+    "name": "Rope of Entanglement",
+    "category": "Wands, Rods & Staves",
+    "description": "This 60' length of spider-silk rope has a constant Enchanted Rope spell on it, and the attuned user can, at a range of up to 90', mentally command the rope to attack the nearest target as a +74 Medium Grapple.",
+    "recipe": "Work Organic (6), Constant III (18), Embed I (3), Hybrid Embedding (2), Enchanted Rope (1), Increase Power (16), Trapping (16). Days: 62. Standard cost: 1,307sp. Level 18 item.",
+    "level": "18",
+    "cost": "1,307 sp",
+    "days": "62"
+  },
+  {
+    "name": "Scarab of Absolution",
+    "category": "Wands, Rods & Staves",
+    "description": "This large topaz is carved in the form of a beetle, with a flat underside into which are scratched several strange runes (350 carats, 2100 sp value). Once per week, it can cast Absolution (Dark Channels), triggered by being touched by (or touched to) any vertebrate that is not an Evil Cleric. For an Evil Cleric, it serves as a x2 PP multiplier.",
+    "recipe": "Work Mundane Gemstone (8), Absolution (13), Embed XX (35), Daily X (25), Triggered Item (9), Power Multiplier IV (25 x 1/2 single profession x 1/3 Evil only x 2 need only be kept on person). Days: 99. Standard cost: 5,961sp. Level 35 item.",
+    "level": "35",
+    "cost": "5,961 sp",
+    "days": "99"
+  },
+  {
+    "name": "Scarab of Poisons",
+    "category": "Wands, Rods & Staves",
+    "description": "Usually carved from yellow or green stone, these imitation beetles (typically about 0.6 sp value, though better work and materials are not unknown) provide the bearer with a +10 bonus to Poison Mastery maneuvers and a +5 bonus to RRs against poison. Finally, the bearer can cast",
+    "recipe": "Work Poison II (Fluid Skills) once per day. Work Mundane Stone (3), Daily X (25), Embed X (19), Work Poison II (10), General II (10), General I (6 x 1/2 poison only). Days: 70. Standard cost: 1,961sp. Level 25 item.",
+    "level": "25",
+    "cost": "1,961 sp",
+    "days": "70"
+  },
+  {
+    "name": "Scroll of Knowledge",
+    "category": "Wands, Rods & Staves",
+    "description": "This vellum scroll with ivory rollers (2.5 pounds, 120 sp value) is a +4 Spell Adder which can be used only for Informational spells. The scrolls are carved with the images of animals associated with memory and wisdom (e.g., elephants and owls).",
+    "recipe": "Consecration (2), Sacred Adder IV (15). Days: 17. Standard cost: 409sp. Level 15 item.",
+    "level": "15",
+    "cost": "409 sp",
+    "days": "17"
+  },
+  {
+    "name": "Selkar’s Girdle",
+    "category": "Wands, Rods & Staves",
+    "description": "This broad belt is of stained and worn brown leather, but possesses a large, bright gold buckle (400 sp). It grants a +5 Knack for Unarmed combat (if the wearer does not already have such a Knack), the Pressing The Advantage Tier II talent for Wrestling, and provides a +60 Wrestling skill if the wearer’s own skill is less. (This is a Psychographer creation and uses Psychographer Work spells.)",
+    "recipe": "Work Precious Metals (6), Physical Skill IV (35), Knack (12), Talent Embedding II (10). Days: 63. Standard cost: 2,794sp. Level 35 item.",
+    "level": "35",
+    "cost": "2,794 sp",
+    "days": "63"
+  },
+  {
+    "name": "Shimmering Cloak",
+    "category": "Wands, Rods & Staves",
+    "description": "This cloak shimmers and sparkles, making the image of the wearer unclear, acting as a constant Blur (Guises) effect. It is a x2 PP Multiplier for Mystics, and it allows the wearer to use Reverse Spell I (Spell Reins) once each day.",
+    "recipe": "Work Mundane Cloth (2), Daily X (25), Embed X (19), Reverse Spell I (10), Power Multiplier IV (25 x 2 hybrid x 2 wearable), Constant III (17), Embed I (3), Blur (1). Days: 177. Standard cost: 5,487sp. Level 25 item.",
+    "level": "25",
+    "cost": "5,487 sp",
+    "days": "177"
+  },
+  {
+    "name": "Skeleton Key of Opening",
+    "category": "Wands, Rods & Staves",
+    "description": "This iron key has a constant Opening I (Unbarring Ways) effect on it. It can only be tried on any given lock once: if it succeeds in opening that lock, it will always work on that lock. If it fails, it will never open that lock.",
+    "recipe": "Work Lesser Metals (5), Constant X (35), Embed IV (9), Opening I (4). Days: 53. Standard cost: 2,014sp. Level 35 item.",
+    "level": "35",
+    "cost": "2,014 sp",
+    "days": "53"
+  },
+  {
+    "name": "Skull of Rie-talin",
+    "category": "Wands, Rods & Staves",
+    "description": "Rie-talin was a powerful Evil Sorcerer, but when he attempted to cheat death by becoming a lich, it all went horribly wrong. He died, and only his skull was left behind, now nigh indestructible and endowed with power. When held, it serves as a x2 PP Multiplier, a +4 Spell Adder, and a +20 SCR device for Sorcerers. Legends say that if it were to be destroyed, the destroyer would gain powerful protection against Sorcerers.",
+    "recipe": "Work Organic (6), Unbreakable Work (90), Unbreakable Work (90), Power Multiplier IV (25 x 2 hybrid), Spell Adder IV (19 x 2 hybrid), Casting Focus IV (15 x 2 hybrid). Days: 304. Standard cost: 30,096sp. Level 90 item.",
+    "level": "90",
+    "cost": "30,096 sp",
+    "days": "304"
+  },
+  {
+    "name": "Staff of Healing",
+    "category": "Wands, Rods & Staves",
+    "description": "This staff of warm yellow wood (equivalent to oak) is quite plain in appearance, but powerful. It is equivalent to a half-bole and two staves. The half-bole ability provides 200 charges of Undisease or Unpoison (Purifications), while the two staff abilities offer 100 charges of Sense Restoration (Nerve and Organ Mastery) and 100 charges of Heal V (Concussion Mastery).",
+    "recipe": "Work Mundane Wood (4), Make Half-Bole (19), Size Reduction (13), Make Staff (14), Make Staff (14), Embed XX (35), Embed XX (35), Unpoison (15), Undisease (14), Logic Fork (1), Embed X (20), Heal V (8), Embed VII (17), Sense Restoration (6). Days: 215. Standard cost: 9,070sp. Level 35 item.",
+    "level": "35",
+    "cost": "9,070 sp",
+    "days": "215"
+  },
+  {
+    "name": "Staff of Life",
+    "category": "Wands, Rods & Staves",
+    "description": "This 7' staff has an elaborate upper end in the form of a flattened representation of a great tree (Str 75, 6 lbs., 12 sp). It provides the bearer access to the Life Mastery list regardless of his own Realm and acts as a +7 Spell Adder for healing spells. Once each day, it may reroll a failed breakage roll.",
+    "recipe": "Work Mundane Wood (4), Consecration (2), Emplace List True (90), Adaptive Power (7), Sacred Adder VII (30), Resilience (15). Days: 148. Standard cost: 14,072sp. Level 90 item.",
+    "level": "90",
+    "cost": "14,072 sp",
+    "days": "148"
+  },
+  {
+    "name": "Staff of Light’s Echoes",
+    "category": "Wands, Rods & Staves",
+    "description": "This is a walking staff of twisted ironwood. It is a +9 Spell Adder for both Channeling and Essence. Channeling and Essence users will also gain a +35 bonus to all SCRs. The user can cast Word of Return once a month, Rereturning once a fortnight, and Store Sanctuary (all Lofty Movements) once per week. It also allows the wielder to cast spells up to 20th level from the Spell Reins list, regardless of his Realm.",
+    "recipe": "Work Mundane Wood (4), Daily XX (50), Embed True (60), Rereturning (50), Spell Adder X (70 x 2 two Realms), Casting Focus VII (35 x 2 two Realms), Lord Emplace List (50), Daily XL (75), Embed True (60), Word of Return (30), Daily X (25), Embed X (20), Store Sanctuary (8), Adaptive Power (7). Days: 649. Standard cost: 70,292sp. Level 90 item.",
+    "level": "90",
+    "cost": "70,292 sp",
+    "days": "649"
+  },
+  {
+    "name": "Staff of Sorcery",
+    "category": "Wands, Rods & Staves",
+    "description": "This is a x2 PP Multiplier for Sorcerers and provides a +15 RR bonus against spells cast by Hybrid spellcasters. This oak staff is topped with a rock crystal sphere (80 sp). It is a walking staff, not balanced for fighting, and any attempt to use it for melee will be at -20.",
+    "recipe": "Work Mundane Wood (4), Consecration (2), Power Multiplier IV (25), Sacred Protections IV (14). Days: 45. Standard cost would be 1,340sp, but spell failure reduced the RR bonus, so price drops to 1,206sp. Level 25 item.",
+    "level": "25",
+    "cost": "1,340 sp",
+    "days": "45"
+  },
+  {
+    "name": "Staff of the Coast Runners",
+    "category": "Wands, Rods & Staves",
+    "description": "This elm staff provides the power of a half-bole with the effect of either Command Current (Water Law) or Reverse Wind (Wind Law). Furthermore, the bearer is the target of a constant Waterrunning (Moving Ways) spell.",
+    "recipe": "Work Mundane Wood (4), Make Half-Bole (19), Size Reduction (13), Embed XX (30), Embed XX (30), Reverse Winds (20), Command Current (17), Logic Fork (1), Constant X (40), Embed X (20), Waterrunning (9). Days: 203. Standard cost: 9,541sp. Level 40 item.",
+    "level": "40",
+    "cost": "9,541 sp",
+    "days": "203"
+  },
+  {
+    "name": "Staff of the Winds",
+    "category": "Wands, Rods & Staves",
+    "description": "This vaal staff is beautifully carved with images of clouds, wind spirits, birds, and all manner of winged creatures. It would be worth 800 sp unenchanted. It provides the wielder with constant powers of Levitation (Lofty Bridge), Fly I (Lofty Bridge), and Wind Control (Fluid Elements). The wielder may also invoke Slumber Mist (Wind Law) six times per day and Death Cloud I (Wind Law) four times per day.",
+    "recipe": "Work Wood (18), Constant True (90), Embed XX (30), Wind Control (18), Daily L (75), Embed XX (30), Death Cloud I (11), Constant X (35), Embed V (11), Fly I (5), Daily XX (40), Embed III (7), Slumber Mist (3), Constant X (35), Embed IV (9), Levitation (4). Days: 421. Standard cost: 43,742sp. Level 90 item.",
+    "level": "90",
+    "cost": "43,742 sp",
+    "days": "421"
+  },
+  {
+    "name": "Throne of Trent",
+    "category": "Wands, Rods & Staves",
+    "description": "This enormous throne is made of basalt set with a multitude of precious stones, making it sparkle like the starriest night. It is known by many names, depending on which of its previous owners is most locally famous. Weighing five tons, valued at 100,000 sp base on its material worth alone, it is most notable for the many powers it grants the one seated upon it (and attuned to its power, of course). Each of the following spells is available for casting on a daily basis: Wall of Force, Spell Shield True, Lord Summons, Fly III, and Teleport I. A Fire Bolt I spell may be cast three times each day. A constant See Invisible I is provided, while Delving and Detect Evil are available for use at will. The throne’s interaction with the attuned user’s aura is especially strong (due, it is believed, to properties of the many gems), allowing the Fly III and Teleport I spells to encompass the great mass of the throne as if it were the weight of the caster when determining how much may be carried along by these spells. Since daily Wall of Force is not available from an Adept, this capability is assumed to come from a Sanctifier.",
+    "recipe": "Work Mundane Gemstone (8), Consecration (2), Wall of Force (50, Barrier Law), Sacred Spell True (75), Delving (10, Delving Ways), Embed X (19), Constant X (35 x 2 for at will), Spell Shield True (18, Spell Wall), Embed XX (30), Daily XX (40), Lord Summons (16, Gate Mastery), Embed XX (30), Daily XX (40), Fly III (11, Lofty Bridge), Embed XX (30), Daily XX (40), See Invisible I (9, Invisible Ways), Embed X (19), Constant X (35), Fire Bolt I (6, Fire Law), Embed VI (13), Daily XX (40), Teleport I (10, Lofty Bridge), Embed X (19), Daily X (25), Detect Evil (2, Lore), Embed II (6), Constant III (18 x 2 for at will). Days: 709. Standard cost: 166,646sp. Level 75 item. Note that the listed value does not include the artistic or historical value of the throne. Such a price is pretty much a theoretical valuing in any case. This is a typical ‘priceless’ item, and any exchange is unlikely to be in the form of money alone. Skull of Rie-talin",
+    "level": "75",
+    "cost": "166,646 sp",
+    "days": "709"
+  },
+  {
+    "name": "Wand of +10 Shock Bolts",
+    "category": "Wands, Rods & Staves",
+    "description": "This is a wand of ash, forked at the business end. As one would guess from the name, it provides Shock Bolt I, with a +10 bonus to the OB.",
+    "recipe": "Work Mundane Wood (4), Make Wand (7), Embed II (5), Shock Bolt I (2), Weapon II (8, doubled for Directed Spell weapon). Days: 34. Standard cost: 340sp. Level 8 item. 6.9. OTHER These are items that do not fit into the above categories.",
+    "level": "8",
+    "cost": "340 sp",
+    "days": "34"
+  },
+  {
+    "name": "Wand of Fire Balls",
+    "category": "Wands, Rods & Staves",
+    "description": "This plain wand of ash wood has the power of a magical staff, reduced to a conveniently-carried and concealable size. Compare this to a regular staff of Fire Balls, which would only require only 45 days and cost 990sp. The convenience of compact size has a considerable price. The highest level spell required in either case is Embed X, so both the normal staff and the wand-sized version are both 19th level items.",
+    "recipe": "Work Mundane Wood (4), Make Staff (14), Size Reduction (13), Size Reduction (13), Embed X (19), Fire Ball (8 from Fire Law). Days: 71. Standard cost: 1,562sp. Level 19 item.",
+    "level": "19",
+    "cost": "1,562 sp",
+    "days": "71"
+  },
+  {
+    "name": "Wand of Lightning",
+    "category": "Wands, Rods & Staves",
+    "description": "This vaal wand is an undersized staff providing a Lightning Bolt I (Light Law) spell. The wand provides a +10 OB bonus to those bolts.",
+    "recipe": "Work Wood (18), Make Staff (14), Size Reduction (13), Size Reduction (13), Weapon II (8 x 2 Directed Spell), Embed X (19), Lightning Bolt I (10). Days: 103. Standard cost: 2,969sp. Level 19 item.",
+    "level": "19",
+    "cost": "2,969 sp",
+    "days": "103"
+  },
+  {
+    "name": "Wand of Sleep",
+    "category": "Wands, Rods & Staves",
+    "description": "This ash wand provides a Sleep III (level 1 on the Spirit Mastery spell list) spell. It requires",
+    "recipe": "Work Mundane Wood (level 4), Make Wand (level 7), Embed I (3), and Sleep III (1). It will require 15 days of work, for a cost of 135sp. It is a level 7 item.",
+    "level": "",
+    "cost": "135 sp",
+    "days": ""
+  },
+  {
+    "name": "Armor-Slaying Sword",
+    "category": "Melee Weapons",
+    "description": "This +10 claymore is made of Low Steel with a plain leather grip. The blade is inscribed \"Let metal eat metal\". It has the Armor Breaker and Shield Breaker abilities.",
+    "recipe": "Work Mundane Metal I (7), Armor Breaker (18), Shield Breaker (12), Weapon II (8). Days: 40. Standard cost: 901sp. Level 18 item.",
+    "level": "18",
+    "cost": "901 sp",
+    "days": "40"
+  },
+  {
+    "name": "Assassin Slayer",
+    "category": "Melee Weapons",
+    "description": "This high steel (+10) arming sword is Slaying III against Magents and Slaying II against Thieves. It provides a +20 bonus to Reverse Strike skill.",
+    "recipe": "Work Mundane Metal II (9), Slaying III (40), General IV (30), Slaying II (20). Days: 89. Standard cost: 4,034sp. Level 40 item.",
+    "level": "40",
+    "cost": "4,034 sp",
+    "days": "89"
+  },
+  {
+    "name": "Axe of Foul Summons",
+    "category": "Melee Weapons",
+    "description": "This +10 long axe has a head of High Steel etched with the design of a summoning circle. The oaken haft is stained with irregular dark blotches. Once per day, the wielder may cast Summon Demon IV, with a 90% chance that Control Demon V will be cast at the same time.",
+    "recipe": "Work Mundane Metal II (9), Embed XX (35), Daily XX (50), Control Demon V (20), Embed XX (35), Daily XX (50), Summon Demon IV (15). Days: 204. Standard cost: 10,571sp (would be 11,745sp, but the unreliability of Control Demon casting reduces marketability). Level 50 item.",
+    "level": "50",
+    "cost": "10,571 sp",
+    "days": "204"
+  },
+  {
+    "name": "Axe of Orc Slaying",
+    "category": "Melee Weapons",
+    "description": "Made from Dwarven High Steel and stout hickory, this battle axe has a +15 bonus except against Orcs. Against Orcs it is +25 and Slaying I. Dwarven High Steel improves the strength of the weapon (for breakage purposes) to 95, increased by the level of the enchantment to 110.",
+    "recipe": "Work Mundane Metal II (9), Slaying I (15), Weapon III (13), Weapon II (8 x 1/2 Variety). Days: 31. Standard cost: 771sp. Level 15 item.",
+    "level": "15",
+    "cost": "771 sp",
+    "days": "31"
+  },
+  {
+    "name": "Beamguard’s Staff",
+    "category": "Melee Weapons",
+    "description": "This hickory (+10) quarterstaff allows its wielder to cast Fire Ball (Fire Law) once per week, spellmastered to exclude the wielder from the area of effect, allowing it to be used at close range. It also provides a +20 Grace bonus for both the Fire Law and Luminous Elements lists.",
+    "recipe": "Work Mundane Wood (4), General IV (30), General IV (30), Daily X (25), Embed X (19), Fire Ball (8). Days: 116. Standard cost: 3,704sp. Level 30 item.",
+    "level": "30",
+    "cost": "3,704 sp",
+    "days": "116"
+  },
+  {
+    "name": "Veils of Tanu",
+    "category": "Jewelry",
+    "description": "Three gauzy veils glittering with tiny diamonds (300 sp), this item allows the wearer to cast Face Shifting True (Mystical Change) five times per day and provides a constant Beautify (Living Change) effect so long as the veils cover the wearer’s face.",
+    "recipe": "Work Mundane Gemstone (8), Face Shifting True (2), Hybrid Embedding (2), Embed II (6), Daily X (25), Beautify (2), Embed II (5), Constant III (17). Days: 67. Standard cost: 2,176sp. Level 25 item.",
+    "level": "25",
+    "cost": "2,176 sp",
+    "days": "67"
+  },
+  {
+    "name": "Witch’s Eye",
+    "category": "Jewelry",
+    "description": "This silver necklace has an eye-shaped pendant with a heliotrope \"pupil\" (total value 210 sp). It is a +1 Spell Adder for Druids and gives the wearer the Petrifying Gaze of a gorgon (50 DP talent, see Creature Law).",
+    "recipe": "Work Mundane Gemstone (8), Talent Embedding True (75), Spell Adder I (5 x 1/2 single profession). Days: 86. Standard cost: 7,004sp. Level 75 item.",
+    "level": "75",
+    "cost": "7,004 sp",
+    "days": "86"
+  }
+]

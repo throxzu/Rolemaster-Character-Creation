@@ -33,7 +33,7 @@
                         <div class="ms-auto" style="min-width: 200px;">
                             <select class="form-select form-select-sm qp-input" @bind="_column">
                                 <option value="">All columns</option>
-                                @foreach (var c in sf.ColumnNames)
+                                @foreach (var c in sf.ColumnNames.Where(n => !string.IsNullOrWhiteSpace(n)))
                                 {
                                     <option value="@c">@c</option>
                                 }
@@ -119,6 +119,7 @@
     private IEnumerable<(string Name, int Index)> ShownColumns(SpellFailureTable sf) =>
         sf.ColumnNames
             .Select((n, i) => (Name: n, Index: i))
+            .Where(c => !string.IsNullOrWhiteSpace(c.Name))
             .Where(c => string.IsNullOrEmpty(_column) || c.Name == _column);
 
     protected override async Task OnInitializedAsync()
@@ -136,5 +137,7 @@
     private void Select(SpellFailureTable t) { _selected = t; _column = ""; }
 
     private static string RollLabel(SpellFailureTableRow r) =>
-        r.RollLow == r.RollHigh ? r.RollLow.ToString() : $"{r.RollLow}–{r.RollHigh}";
+        r.RollHigh >= 9999 ? $"{r.RollLow}+"
+        : r.RollLow == r.RollHigh ? r.RollLow.ToString()
+        : $"{r.RollLow}–{r.RollHigh}";
 }
