@@ -12,6 +12,15 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="mb-0">Dungeons</h2>
+    @if (_isGm)
+    {
+        <div class="d-flex gap-2">
+            <button class="btn btn-success btn-sm" @onclick="() => _showUpload = !_showUpload">
+                @(_showUpload ? "Close" : "+ Upload")
+            </button>
+            <a class="btn btn-outline-secondary btn-sm" href="/campaign/dungeon-categories">Legend</a>
+        </div>
+    }
 </div>
 
 @if (!string.IsNullOrEmpty(_message))
@@ -22,7 +31,7 @@
     </div>
 }
 
-@if (_isGm)
+@if (_isGm && _showUpload)
 {
     <div class="card mb-4">
         <div class="card-body">
@@ -47,6 +56,16 @@
                     </button>
                 </div>
             </div>
+            <div class="alert alert-info py-2 px-3 small mb-0 mt-3">
+                <strong>Best results &mdash; in <a href="https://watabou.itch.io/one-page-dungeon" target="_blank" rel="noopener">One-Page Dungeon</a>, set:</strong>
+                <ul class="mb-2 ps-3">
+                    <li><strong>Layers &rarr; Title &amp; Story:</strong> Off</li>
+                    <li><strong>Style &rarr; Preset:</strong> Modern</li>
+                </ul>
+                Then export the <strong>JSON</strong> (the dungeon data, not the PNG/print image) and upload it here.
+                The app re-draws rooms and doors and imports the generator's <strong>notes as legends</strong>,
+                so add your room notes before exporting.
+            </div>
             @if (_pendingJson is not null)
             {
                 <div class="small text-success mt-2">Map file loaded &mdash; ready to upload.</div>
@@ -55,71 +74,122 @@
     </div>
 }
 
-@if (_dungeons.Count == 0)
+@if (!_showUpload)
 {
-    <p class="text-muted">No dungeons yet.@(_isGm ? " Upload one above." : " Ask your Gamemaster to add one.")</p>
+    <div class="row g-2 mb-3">
+        <div class="col-md-5">
+            <input class="form-control qp-input" placeholder="Search by name…"
+                   @bind="_search" @bind:event="oninput" />
+        </div>
+        <div class="col-md-4">
+            <select class="form-select qp-input" @bind="_mapFilter">
+                <option value="">All world maps</option>
+                @foreach (var name in _mapOptions)
+                {
+                    <option value="@name">@name</option>
+                }
+                <option value="@NoneFilter">— Unassigned —</option>
+            </select>
+        </div>
+    </div>
+}
+
+@if (_showUpload)
+{
+    @* Upload mode: only the upload card above is shown. *@
+}
+else if (!Filtered.Any())
+{
+    <p class="text-muted">
+        @(_dungeons.Count == 0
+            ? (_isGm ? "No dungeons yet. Use + Upload above." : "No dungeons yet. Ask your Gamemaster to add one.")
+            : "No matches for your search.")
+    </p>
 }
 else
 {
-    <div class="row g-3">
-        @foreach (var d in _dungeons)
-        {
-            <div class="col-md-4">
-                <div class="card h-100">
-                    <div class="card-body d-flex flex-column">
-                        @if (_editId == d.Id)
-                        {
-                            <input class="form-control form-control-sm mb-2" @bind="_editName" placeholder="Dungeon name" />
-                            <textarea class="form-control form-control-sm mb-2" rows="2" @bind="_editDescription"
-                                      placeholder="Description (optional)"></textarea>
-                            <div class="mt-auto d-flex gap-2">
-                                <button class="btn btn-sm btn-primary" @onclick="() => SaveEditAsync(d)">Save</button>
-                                <button class="btn btn-sm btn-secondary" @onclick="() => _editId = null">Cancel</button>
-                            </div>
-                        }
-                        else
-                        {
-                            <h5 class="card-title mb-1">@d.Name</h5>
-                            <div class="text-muted small mb-2">
-                                @d.Locations.Count location@(d.Locations.Count == 1 ? "" : "s") marked
-                            </div>
-                            @if (!string.IsNullOrWhiteSpace(d.Description))
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th style="width:8rem">Locations</th>
+                <th>World map</th>
+                <th>Description</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var d in Filtered)
+            {
+                @if (_editId == d.Id)
+                {
+                    <tr>
+                        <td><input class="form-control form-control-sm" @bind="_editName" placeholder="Dungeon name" /></td>
+                        <td>@d.Locations.Count</td>
+                        <td class="@(MapFor(d) is null ? "text-muted" : null)">@(MapFor(d) ?? "—")</td>
+                        <td><input class="form-control form-control-sm" @bind="_editDescription" placeholder="Description (optional)" /></td>
+                        <td class="text-end text-nowrap">
+                            <button class="btn btn-sm btn-success me-1" @onclick="() => SaveEditAsync(d)">Save</button>
+                            <button class="btn btn-sm btn-secondary" @onclick="() => _editId = null">Cancel</button>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td>@d.Name</td>
+                        <td>@d.Locations.Count</td>
+                        <td class="@(MapFor(d) is null ? "text-muted" : null)">@(MapFor(d) ?? "Unassigned")</td>
+                        <td class="text-muted">@(string.IsNullOrWhiteSpace(d.Description) ? "—" : d.Description)</td>
+                        <td class="text-end text-nowrap">
+                            <a class="btn btn-sm btn-outline-primary me-1" href="/campaign/dungeons/@d.Id">Open</a>
+                            @if (_isGm)
                             {
-                                <p class="card-text small">@d.Description</p>
-                            }
-                            <div class="mt-auto d-flex justify-content-between align-items-center">
-                                <a class="btn btn-sm btn-primary" href="/campaign/dungeons/@d.Id">Open Map</a>
-                                @if (_isGm)
+                                @if (_deleteId == d.Id)
                                 {
-                                    @if (_deleteId == d.Id)
-                                    {
-                                        <span>
-                                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteAsync(d)">Delete?</button>
-                                            <button class="btn btn-sm btn-secondary" @onclick="() => _deleteId = null">No</button>
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="d-flex gap-1">
-                                            <button class="btn btn-sm btn-outline-secondary" @onclick="() => BeginEdit(d)">Rename</button>
-                                            <button class="btn btn-sm btn-outline-danger" @onclick="() => _deleteId = d.Id">Delete</button>
-                                        </span>
-                                    }
+                                    <button class="btn btn-sm btn-danger me-1" @onclick="() => DeleteAsync(d)">Delete?</button>
+                                    <button class="btn btn-sm btn-secondary" @onclick="() => _deleteId = null">No</button>
                                 }
-                            </div>
-                        }
-                    </div>
-                </div>
-            </div>
-        }
-    </div>
+                                else
+                                {
+                                    <button class="btn btn-sm btn-outline-secondary me-1" @onclick="() => BeginEdit(d)">Rename</button>
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => _deleteId = d.Id">Delete</button>
+                                }
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
 }
 
 @code {
     private const long MaxBytes = 5 * 1024 * 1024;
 
     private List<DungeonMap> _dungeons = [];
+    private Dictionary<int, List<string>> _dungeonMaps = [];
+    private List<string> _mapOptions = [];
     private bool _isGm;
+    private string _search = "";
+    private bool _showUpload;
+
+    private const string NoneFilter = "::none::";
+    private string _mapFilter = "";
+
+    private IEnumerable<DungeonMap> Filtered =>
+        _dungeons.Where(d =>
+            (string.IsNullOrWhiteSpace(_search)
+                || (d.Name?.Contains(_search, StringComparison.OrdinalIgnoreCase) ?? false)
+                || (d.Description?.Contains(_search, StringComparison.OrdinalIgnoreCase) ?? false))
+            && MatchesMap(d));
+
+    private bool MatchesMap(DungeonMap d)
+    {
+        if (string.IsNullOrEmpty(_mapFilter)) return true;
+        var has = _dungeonMaps.TryGetValue(d.Id, out var names) && names.Count > 0;
+        return _mapFilter == NoneFilter ? !has : has && names!.Contains(_mapFilter);
+    }
     private string? _currentUserId;
     private string _uploadName = "";
     private string? _pendingJson;
@@ -146,7 +216,20 @@ else
             .Include(d => d.Locations)
             .OrderBy(d => d.Name)
             .ToListAsync();
+
+        // Which world map(s) link to each dungeon, via their points of interest.
+        var links = await Db.WorldLocations
+            .Where(l => l.LinkedDungeonId != null)
+            .Select(l => new { DungeonId = l.LinkedDungeonId!.Value, MapName = l.WorldMap!.Name })
+            .ToListAsync();
+        _dungeonMaps = links
+            .GroupBy(x => x.DungeonId)
+            .ToDictionary(g => g.Key, g => g.Select(x => x.MapName).Distinct().OrderBy(n => n).ToList());
+        _mapOptions = _dungeonMaps.Values.SelectMany(v => v).Distinct().OrderBy(n => n).ToList();
     }
+
+    private string? MapFor(DungeonMap d) =>
+        _dungeonMaps.TryGetValue(d.Id, out var n) && n.Count > 0 ? string.Join(", ", n) : null;
 
     private async Task OnFileSelected(InputFileChangeEventArgs e)
     {

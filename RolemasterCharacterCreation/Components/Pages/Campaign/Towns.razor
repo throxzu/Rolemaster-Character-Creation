@@ -12,6 +12,15 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="mb-0">Towns &amp; Cities</h2>
+    @if (_isGm)
+    {
+        <div class="d-flex gap-2">
+            <button class="btn btn-success btn-sm" @onclick="() => _showUpload = !_showUpload">
+                @(_showUpload ? "Close" : "+ Upload")
+            </button>
+            <a class="btn btn-outline-secondary btn-sm" href="/campaign/map-categories">Legend</a>
+        </div>
+    }
 </div>
 
 @if (!string.IsNullOrEmpty(_message))
@@ -22,7 +31,7 @@
     </div>
 }
 
-@if (_isGm)
+@if (_isGm && _showUpload)
 {
     <div class="card mb-4">
         <div class="card-body">
@@ -46,6 +55,17 @@
                     </button>
                 </div>
             </div>
+            <div class="alert alert-info py-2 px-3 small mb-0 mt-3">
+                <strong>Best results &mdash; in the <a href="https://watabou.github.io/city-generator/" target="_blank" rel="noopener">Medieval Fantasy City Generator</a>, set:</strong>
+                <ul class="mb-2 ps-3">
+                    <li><strong>Style &rarr; Color scheme:</strong> Natural</li>
+                    <li><strong>Style &rarr; Elements &rarr; Title:</strong> Off</li>
+                    <li><strong>Style &rarr; Elements &rarr; Compass:</strong> Off</li>
+                    <li><strong>Style &rarr; Elements &rarr; Grid:</strong> Off</li>
+                </ul>
+                Then use <strong>Export &rarr; JSON</strong> (not the image) and upload the <code>.json</code> here.
+                You colour-code the city in the app afterwards.
+            </div>
             @if (_pendingJson is not null)
             {
                 <div class="small text-success mt-2">Map file loaded &mdash; ready to upload.</div>
@@ -54,71 +74,125 @@
     </div>
 }
 
-@if (_towns.Count == 0)
+@if (!_showUpload)
 {
-    <p class="text-muted">No towns yet.@(_isGm ? " Upload one above." : " Ask your Gamemaster to add one.")</p>
-}
-else
-{
-    <div class="row g-3">
-        @foreach (var t in _towns)
+    <div class="row g-2 mb-3">
+        <div class="col-md-5">
+            <input class="form-control qp-input" placeholder="Search by name…"
+                   @bind="_search" @bind:event="oninput" />
+        </div>
+        @if (_mapOptions.Any())
         {
             <div class="col-md-4">
-                <div class="card h-100">
-                    <div class="card-body d-flex flex-column">
-                        @if (_editId == t.Id)
-                        {
-                            <input class="form-control form-control-sm mb-2" @bind="_editName" placeholder="Town name" />
-                            <textarea class="form-control form-control-sm mb-2" rows="2" @bind="_editDescription"
-                                      placeholder="Description (optional)"></textarea>
-                            <div class="mt-auto d-flex gap-2">
-                                <button class="btn btn-sm btn-primary" @onclick="() => SaveEditAsync(t)">Save</button>
-                                <button class="btn btn-sm btn-secondary" @onclick="() => _editId = null">Cancel</button>
-                            </div>
-                        }
-                        else
-                        {
-                            <h5 class="card-title mb-1">@t.Name</h5>
-                            <div class="text-muted small mb-2">
-                                @t.Locations.Count location@(t.Locations.Count == 1 ? "" : "s") marked
-                            </div>
-                            @if (!string.IsNullOrWhiteSpace(t.Description))
-                            {
-                                <p class="card-text small">@t.Description</p>
-                            }
-                            <div class="mt-auto d-flex justify-content-between align-items-center">
-                                <a class="btn btn-sm btn-primary" href="/campaign/towns/@t.Id">Open Map</a>
-                                @if (_isGm)
-                                {
-                                    @if (_deleteId == t.Id)
-                                    {
-                                        <span>
-                                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteAsync(t)">Delete?</button>
-                                            <button class="btn btn-sm btn-secondary" @onclick="() => _deleteId = null">No</button>
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="d-flex gap-1">
-                                            <button class="btn btn-sm btn-outline-secondary" @onclick="() => BeginEdit(t)">Rename</button>
-                                            <button class="btn btn-sm btn-outline-danger" @onclick="() => _deleteId = t.Id">Delete</button>
-                                        </span>
-                                    }
-                                }
-                            </div>
-                        }
-                    </div>
-                </div>
+                <select class="form-select qp-input" @bind="_mapFilter">
+                    <option value="">All world maps</option>
+                    @foreach (var name in _mapOptions)
+                    {
+                        <option value="@name">@name</option>
+                    }
+                    <option value="@NoneFilter">— Unassigned —</option>
+                </select>
             </div>
         }
     </div>
+}
+
+@if (_showUpload)
+{
+    @* Upload mode: only the upload card above is shown. *@
+}
+else if (!Filtered.Any())
+{
+    <p class="text-muted">
+        @(_towns.Count == 0
+            ? (_isGm ? "No towns yet. Use + Upload above." : "No towns yet. Ask your Gamemaster to add one.")
+            : "No matches for your search.")
+    </p>
+}
+else
+{
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th style="width:8rem">Locations</th>
+                <th>World map</th>
+                <th>Description</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var t in Filtered)
+            {
+                @if (_editId == t.Id)
+                {
+                    <tr>
+                        <td><input class="form-control form-control-sm" @bind="_editName" placeholder="Town name" /></td>
+                        <td>@t.Locations.Count</td>
+                        <td class="@(MapFor(t) is null ? "text-muted" : null)">@(MapFor(t) ?? "—")</td>
+                        <td><input class="form-control form-control-sm" @bind="_editDescription" placeholder="Description (optional)" /></td>
+                        <td class="text-end text-nowrap">
+                            <button class="btn btn-sm btn-success me-1" @onclick="() => SaveEditAsync(t)">Save</button>
+                            <button class="btn btn-sm btn-secondary" @onclick="() => _editId = null">Cancel</button>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td>@t.Name</td>
+                        <td>@t.Locations.Count</td>
+                        <td class="@(MapFor(t) is null ? "text-muted" : null)">@(MapFor(t) ?? "Unassigned")</td>
+                        <td class="text-muted">@(string.IsNullOrWhiteSpace(t.Description) ? "—" : t.Description)</td>
+                        <td class="text-end text-nowrap">
+                            <a class="btn btn-sm btn-outline-primary me-1" href="/campaign/towns/@t.Id">Open</a>
+                            @if (_isGm)
+                            {
+                                @if (_deleteId == t.Id)
+                                {
+                                    <button class="btn btn-sm btn-danger me-1" @onclick="() => DeleteAsync(t)">Delete?</button>
+                                    <button class="btn btn-sm btn-secondary" @onclick="() => _deleteId = null">No</button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-sm btn-outline-secondary me-1" @onclick="() => BeginEdit(t)">Rename</button>
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => _deleteId = t.Id">Delete</button>
+                                }
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
 }
 
 @code {
     private const long MaxBytes = 5 * 1024 * 1024;
 
     private List<Town> _towns = [];
+    private Dictionary<int, List<string>> _townMaps = [];
+    private List<string> _mapOptions = [];
     private bool _isGm;
+    private string _search = "";
+    private bool _showUpload;
+
+    private const string NoneFilter = "::none::";
+    private string _mapFilter = "";
+
+    private IEnumerable<Town> Filtered =>
+        _towns.Where(t =>
+            (string.IsNullOrWhiteSpace(_search)
+                || (t.Name?.Contains(_search, StringComparison.OrdinalIgnoreCase) ?? false)
+                || (t.Description?.Contains(_search, StringComparison.OrdinalIgnoreCase) ?? false))
+            && MatchesMap(t));
+
+    private bool MatchesMap(Town t)
+    {
+        if (string.IsNullOrEmpty(_mapFilter)) return true;
+        var has = _townMaps.TryGetValue(t.Id, out var names) && names.Count > 0;
+        return _mapFilter == NoneFilter ? !has : has && names!.Contains(_mapFilter);
+    }
     private string? _currentUserId;
     private string _uploadName = "";
     private string? _pendingJson;
@@ -145,7 +219,20 @@ else
             .Include(t => t.Locations)
             .OrderBy(t => t.Name)
             .ToListAsync();
+
+        // Which world map(s) link to each town, via their points of interest.
+        var links = await Db.WorldLocations
+            .Where(l => l.LinkedTownId != null)
+            .Select(l => new { TownId = l.LinkedTownId!.Value, MapName = l.WorldMap!.Name })
+            .ToListAsync();
+        _townMaps = links
+            .GroupBy(x => x.TownId)
+            .ToDictionary(g => g.Key, g => g.Select(x => x.MapName).Distinct().OrderBy(n => n).ToList());
+        _mapOptions = _townMaps.Values.SelectMany(v => v).Distinct().OrderBy(n => n).ToList();
     }
+
+    private string? MapFor(Town t) =>
+        _townMaps.TryGetValue(t.Id, out var n) && n.Count > 0 ? string.Join(", ", n) : null;
 
     private async Task OnFileSelected(InputFileChangeEventArgs e)
     {

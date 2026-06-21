@@ -12,6 +12,15 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="mb-0">Caves</h2>
+    @if (_isGm)
+    {
+        <div class="d-flex gap-2">
+            <button class="btn btn-success btn-sm" @onclick="() => _showUpload = !_showUpload">
+                @(_showUpload ? "Close" : "+ Upload")
+            </button>
+            <a class="btn btn-outline-secondary btn-sm" href="/campaign/cave-categories">Legend</a>
+        </div>
+    }
 </div>
 
 @if (!string.IsNullOrEmpty(_message))
@@ -22,7 +31,7 @@
     </div>
 }
 
-@if (_isGm)
+@if (_isGm && _showUpload)
 {
     <div class="card mb-4">
         <div class="card-body">
@@ -47,6 +56,16 @@
                     </button>
                 </div>
             </div>
+            <div class="alert alert-info py-2 px-3 small mb-0 mt-3">
+                <strong>Best results &mdash; in the Watabou Caves generator, set:</strong>
+                <ul class="mb-2 ps-3">
+                    <li><strong>Grid:</strong> Hidden</li>
+                    <li><strong>Display &rarr; Title:</strong> Off</li>
+                    <li><strong>Style &rarr; Preset:</strong> Moonlight</li>
+                </ul>
+                Then export as <strong>SVG</strong> (vector, not PNG) and upload the <code>.svg</code> here.
+                The app overlays its own grid for revealing and legends.
+            </div>
             @if (_pendingSvg is not null)
             {
                 <div class="small text-success mt-2">Map file loaded &mdash; ready to upload.</div>
@@ -55,71 +74,122 @@
     </div>
 }
 
-@if (_caves.Count == 0)
+@if (!_showUpload)
 {
-    <p class="text-muted">No caves yet.@(_isGm ? " Upload one above." : " Ask your Gamemaster to add one.")</p>
+    <div class="row g-2 mb-3">
+        <div class="col-md-5">
+            <input class="form-control qp-input" placeholder="Search by name…"
+                   @bind="_search" @bind:event="oninput" />
+        </div>
+        <div class="col-md-4">
+            <select class="form-select qp-input" @bind="_mapFilter">
+                <option value="">All world maps</option>
+                @foreach (var name in _mapOptions)
+                {
+                    <option value="@name">@name</option>
+                }
+                <option value="@NoneFilter">— Unassigned —</option>
+            </select>
+        </div>
+    </div>
+}
+
+@if (_showUpload)
+{
+    @* Upload mode: only the upload card above is shown. *@
+}
+else if (!Filtered.Any())
+{
+    <p class="text-muted">
+        @(_caves.Count == 0
+            ? (_isGm ? "No caves yet. Use + Upload above." : "No caves yet. Ask your Gamemaster to add one.")
+            : "No matches for your search.")
+    </p>
 }
 else
 {
-    <div class="row g-3">
-        @foreach (var c in _caves)
-        {
-            <div class="col-md-4">
-                <div class="card h-100">
-                    <div class="card-body d-flex flex-column">
-                        @if (_editId == c.Id)
-                        {
-                            <input class="form-control form-control-sm mb-2" @bind="_editName" placeholder="Cave name" />
-                            <textarea class="form-control form-control-sm mb-2" rows="2" @bind="_editDescription"
-                                      placeholder="Description (optional)"></textarea>
-                            <div class="mt-auto d-flex gap-2">
-                                <button class="btn btn-sm btn-primary" @onclick="() => SaveEditAsync(c)">Save</button>
-                                <button class="btn btn-sm btn-secondary" @onclick="() => _editId = null">Cancel</button>
-                            </div>
-                        }
-                        else
-                        {
-                            <h5 class="card-title mb-1">@c.Name</h5>
-                            <div class="text-muted small mb-2">
-                                @c.Locations.Count location@(c.Locations.Count == 1 ? "" : "s") marked
-                            </div>
-                            @if (!string.IsNullOrWhiteSpace(c.Description))
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th style="width:8rem">Locations</th>
+                <th>World map</th>
+                <th>Description</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in Filtered)
+            {
+                @if (_editId == c.Id)
+                {
+                    <tr>
+                        <td><input class="form-control form-control-sm" @bind="_editName" placeholder="Cave name" /></td>
+                        <td>@c.Locations.Count</td>
+                        <td class="@(MapFor(c) is null ? "text-muted" : null)">@(MapFor(c) ?? "—")</td>
+                        <td><input class="form-control form-control-sm" @bind="_editDescription" placeholder="Description (optional)" /></td>
+                        <td class="text-end text-nowrap">
+                            <button class="btn btn-sm btn-success me-1" @onclick="() => SaveEditAsync(c)">Save</button>
+                            <button class="btn btn-sm btn-secondary" @onclick="() => _editId = null">Cancel</button>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td>@c.Name</td>
+                        <td>@c.Locations.Count</td>
+                        <td class="@(MapFor(c) is null ? "text-muted" : null)">@(MapFor(c) ?? "Unassigned")</td>
+                        <td class="text-muted">@(string.IsNullOrWhiteSpace(c.Description) ? "—" : c.Description)</td>
+                        <td class="text-end text-nowrap">
+                            <a class="btn btn-sm btn-outline-primary me-1" href="/campaign/caves/@c.Id">Open</a>
+                            @if (_isGm)
                             {
-                                <p class="card-text small">@c.Description</p>
-                            }
-                            <div class="mt-auto d-flex justify-content-between align-items-center">
-                                <a class="btn btn-sm btn-primary" href="/campaign/caves/@c.Id">Open Map</a>
-                                @if (_isGm)
+                                @if (_deleteId == c.Id)
                                 {
-                                    @if (_deleteId == c.Id)
-                                    {
-                                        <span>
-                                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteAsync(c)">Delete?</button>
-                                            <button class="btn btn-sm btn-secondary" @onclick="() => _deleteId = null">No</button>
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="d-flex gap-1">
-                                            <button class="btn btn-sm btn-outline-secondary" @onclick="() => BeginEdit(c)">Rename</button>
-                                            <button class="btn btn-sm btn-outline-danger" @onclick="() => _deleteId = c.Id">Delete</button>
-                                        </span>
-                                    }
+                                    <button class="btn btn-sm btn-danger me-1" @onclick="() => DeleteAsync(c)">Delete?</button>
+                                    <button class="btn btn-sm btn-secondary" @onclick="() => _deleteId = null">No</button>
                                 }
-                            </div>
-                        }
-                    </div>
-                </div>
-            </div>
-        }
-    </div>
+                                else
+                                {
+                                    <button class="btn btn-sm btn-outline-secondary me-1" @onclick="() => BeginEdit(c)">Rename</button>
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => _deleteId = c.Id">Delete</button>
+                                }
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
 }
 
 @code {
     private const long MaxBytes = 8 * 1024 * 1024;
 
     private List<CaveMap> _caves = [];
+    private Dictionary<int, List<string>> _caveMaps = [];
+    private List<string> _mapOptions = [];
     private bool _isGm;
+    private string _search = "";
+    private bool _showUpload;
+
+    private const string NoneFilter = "::none::";
+    private string _mapFilter = "";
+
+    private IEnumerable<CaveMap> Filtered =>
+        _caves.Where(c =>
+            (string.IsNullOrWhiteSpace(_search)
+                || (c.Name?.Contains(_search, StringComparison.OrdinalIgnoreCase) ?? false)
+                || (c.Description?.Contains(_search, StringComparison.OrdinalIgnoreCase) ?? false))
+            && MatchesMap(c));
+
+    private bool MatchesMap(CaveMap c)
+    {
+        if (string.IsNullOrEmpty(_mapFilter)) return true;
+        var has = _caveMaps.TryGetValue(c.Id, out var names) && names.Count > 0;
+        return _mapFilter == NoneFilter ? !has : has && names!.Contains(_mapFilter);
+    }
     private string? _currentUserId;
     private string _uploadName = "";
     private string? _pendingSvg;
@@ -146,7 +216,20 @@ else
             .Include(c => c.Locations)
             .OrderBy(c => c.Name)
             .ToListAsync();
+
+        // Which world map(s) link to each cave, via their points of interest.
+        var links = await Db.WorldLocations
+            .Where(l => l.LinkedCaveId != null)
+            .Select(l => new { CaveId = l.LinkedCaveId!.Value, MapName = l.WorldMap!.Name })
+            .ToListAsync();
+        _caveMaps = links
+            .GroupBy(x => x.CaveId)
+            .ToDictionary(g => g.Key, g => g.Select(x => x.MapName).Distinct().OrderBy(n => n).ToList());
+        _mapOptions = _caveMaps.Values.SelectMany(v => v).Distinct().OrderBy(n => n).ToList();
     }
+
+    private string? MapFor(CaveMap c) =>
+        _caveMaps.TryGetValue(c.Id, out var n) && n.Count > 0 ? string.Join(", ", n) : null;
 
     private async Task OnFileSelected(InputFileChangeEventArgs e)
     {

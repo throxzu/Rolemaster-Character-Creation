@@ -12,6 +12,15 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="mb-0">Buildings</h2>
+    @if (_isGm)
+    {
+        <div class="d-flex gap-2">
+            <button class="btn btn-success btn-sm" @onclick="() => _showUpload = !_showUpload">
+                @(_showUpload ? "Close" : "+ Upload")
+            </button>
+            <a class="btn btn-outline-secondary btn-sm" href="/campaign/building-categories">Legend</a>
+        </div>
+    }
 </div>
 
 @if (!string.IsNullOrEmpty(_message))
@@ -22,7 +31,7 @@
     </div>
 }
 
-@if (_isGm)
+@if (_isGm && _showUpload)
 {
     <div class="card mb-4">
         <div class="card-body">
@@ -48,6 +57,20 @@
                     </button>
                 </div>
             </div>
+            <div class="alert alert-info py-2 px-3 small mb-0 mt-3">
+                <strong>Best results &mdash; in the Watabou building generator, set:</strong>
+                <ul class="mb-2 ps-3">
+                    <li><strong>Layers &rarr; Grid:</strong> Hidden</li>
+                    <li><strong>Layers &rarr; Doors:</strong> Simple</li>
+                    <li><strong>Layers &rarr; Labels:</strong> Hidden</li>
+                    <li><strong>Layers &rarr; Roof:</strong> Hidden</li>
+                    <li><strong>Layers &rarr; Props:</strong> Off</li>
+                    <li><strong>Style &rarr; Preset:</strong> Blueprint</li>
+                    <li><strong>Export &rarr; Advanced:</strong> Floors <strong>On</strong>, As Table &rarr; Max &times; 1, Dots per cell: Max, Format: <strong>SVG</strong></li>
+                </ul>
+                Then export and upload the <code>.svg</code> here. The app shows each floor one at a
+                time and overlays its own grid for revealing and legends.
+            </div>
             @if (_pendingSvg is not null)
             {
                 <div class="small text-success mt-2">Map file loaded &mdash; ready to upload.</div>
@@ -56,71 +79,125 @@
     </div>
 }
 
-@if (_buildings.Count == 0)
+@if (!_showUpload)
 {
-    <p class="text-muted">No buildings yet.@(_isGm ? " Upload one above." : " Ask your Gamemaster to add one.")</p>
-}
-else
-{
-    <div class="row g-3">
-        @foreach (var b in _buildings)
+    <div class="row g-2 mb-3">
+        <div class="col-md-5">
+            <input class="form-control qp-input" placeholder="Search by name…"
+                   @bind="_search" @bind:event="oninput" />
+        </div>
+        @if (_placeOptions.Any())
         {
             <div class="col-md-4">
-                <div class="card h-100">
-                    <div class="card-body d-flex flex-column">
-                        @if (_editId == b.Id)
-                        {
-                            <input class="form-control form-control-sm mb-2" @bind="_editName" placeholder="Building name" />
-                            <textarea class="form-control form-control-sm mb-2" rows="2" @bind="_editDescription"
-                                      placeholder="Description (optional)"></textarea>
-                            <div class="mt-auto d-flex gap-2">
-                                <button class="btn btn-sm btn-primary" @onclick="() => SaveEditAsync(b)">Save</button>
-                                <button class="btn btn-sm btn-secondary" @onclick="() => _editId = null">Cancel</button>
-                            </div>
-                        }
-                        else
-                        {
-                            <h5 class="card-title mb-1">@b.Name</h5>
-                            <div class="text-muted small mb-2">
-                                @b.Locations.Count location@(b.Locations.Count == 1 ? "" : "s") marked
-                            </div>
-                            @if (!string.IsNullOrWhiteSpace(b.Description))
-                            {
-                                <p class="card-text small">@b.Description</p>
-                            }
-                            <div class="mt-auto d-flex justify-content-between align-items-center">
-                                <a class="btn btn-sm btn-primary" href="/campaign/buildings/@b.Id">Open Map</a>
-                                @if (_isGm)
-                                {
-                                    @if (_deleteId == b.Id)
-                                    {
-                                        <span>
-                                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteAsync(b)">Delete?</button>
-                                            <button class="btn btn-sm btn-secondary" @onclick="() => _deleteId = null">No</button>
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="d-flex gap-1">
-                                            <button class="btn btn-sm btn-outline-secondary" @onclick="() => BeginEdit(b)">Rename</button>
-                                            <button class="btn btn-sm btn-outline-danger" @onclick="() => _deleteId = b.Id">Delete</button>
-                                        </span>
-                                    }
-                                }
-                            </div>
-                        }
-                    </div>
-                </div>
+                <select class="form-select qp-input" @bind="_placeFilter">
+                    <option value="">All towns &amp; villages</option>
+                    @foreach (var name in _placeOptions)
+                    {
+                        <option value="@name">@name</option>
+                    }
+                    <option value="@NoneFilter">— Unassigned —</option>
+                </select>
             </div>
         }
     </div>
+}
+
+@if (_showUpload)
+{
+    @* Upload mode: only the upload card above is shown. *@
+}
+else if (!Filtered.Any())
+{
+    <p class="text-muted">
+        @(_buildings.Count == 0
+            ? (_isGm ? "No buildings yet. Use + Upload above." : "No buildings yet. Ask your Gamemaster to add one.")
+            : "No matches for your search.")
+    </p>
+}
+else
+{
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th style="width:8rem">Locations</th>
+                <th>Town / Village</th>
+                <th>Description</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var b in Filtered)
+            {
+                @if (_editId == b.Id)
+                {
+                    <tr>
+                        <td><input class="form-control form-control-sm" @bind="_editName" placeholder="Building name" /></td>
+                        <td>@b.Locations.Count</td>
+                        <td class="@(PlaceFor(b) is null ? "text-muted" : null)">@(PlaceFor(b) ?? "—")</td>
+                        <td><input class="form-control form-control-sm" @bind="_editDescription" placeholder="Description (optional)" /></td>
+                        <td class="text-end text-nowrap">
+                            <button class="btn btn-sm btn-success me-1" @onclick="() => SaveEditAsync(b)">Save</button>
+                            <button class="btn btn-sm btn-secondary" @onclick="() => _editId = null">Cancel</button>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td>@b.Name</td>
+                        <td>@b.Locations.Count</td>
+                        <td class="@(PlaceFor(b) is null ? "text-muted" : null)">@(PlaceFor(b) ?? "Unassigned")</td>
+                        <td class="text-muted">@(string.IsNullOrWhiteSpace(b.Description) ? "—" : b.Description)</td>
+                        <td class="text-end text-nowrap">
+                            <a class="btn btn-sm btn-outline-primary me-1" href="/campaign/buildings/@b.Id">Open</a>
+                            @if (_isGm)
+                            {
+                                @if (_deleteId == b.Id)
+                                {
+                                    <button class="btn btn-sm btn-danger me-1" @onclick="() => DeleteAsync(b)">Delete?</button>
+                                    <button class="btn btn-sm btn-secondary" @onclick="() => _deleteId = null">No</button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-sm btn-outline-secondary me-1" @onclick="() => BeginEdit(b)">Rename</button>
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => _deleteId = b.Id">Delete</button>
+                                }
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
 }
 
 @code {
     private const long MaxBytes = 8 * 1024 * 1024;
 
     private List<BuildingMap> _buildings = [];
+    private Dictionary<int, List<string>> _buildingPlaces = [];
+    private List<string> _placeOptions = [];
     private bool _isGm;
+    private string _search = "";
+    private bool _showUpload;
+
+    private const string NoneFilter = "::none::";
+    private string _placeFilter = "";
+
+    private IEnumerable<BuildingMap> Filtered =>
+        _buildings.Where(b =>
+            (string.IsNullOrWhiteSpace(_search)
+                || (b.Name?.Contains(_search, StringComparison.OrdinalIgnoreCase) ?? false)
+                || (b.Description?.Contains(_search, StringComparison.OrdinalIgnoreCase) ?? false))
+            && MatchesPlace(b));
+
+    private bool MatchesPlace(BuildingMap b)
+    {
+        if (string.IsNullOrEmpty(_placeFilter)) return true;
+        var has = _buildingPlaces.TryGetValue(b.Id, out var names) && names.Count > 0;
+        return _placeFilter == NoneFilter ? !has : has && names!.Contains(_placeFilter);
+    }
     private string? _currentUserId;
     private string _uploadName = "";
     private string? _pendingSvg;
@@ -147,7 +224,24 @@ else
             .Include(b => b.Locations)
             .OrderBy(b => b.Name)
             .ToListAsync();
+
+        // Which town(s)/village(s) link to each building, via their marked places.
+        var townLinks = await Db.TownLocations
+            .Where(l => l.LinkedBuildingId != null)
+            .Select(l => new { BuildingId = l.LinkedBuildingId!.Value, Place = l.Town!.Name })
+            .ToListAsync();
+        var villageLinks = await Db.VillageLocations
+            .Where(l => l.LinkedBuildingId != null)
+            .Select(l => new { BuildingId = l.LinkedBuildingId!.Value, Place = l.Village!.Name })
+            .ToListAsync();
+        _buildingPlaces = townLinks.Concat(villageLinks)
+            .GroupBy(x => x.BuildingId)
+            .ToDictionary(g => g.Key, g => g.Select(x => x.Place).Distinct().OrderBy(n => n).ToList());
+        _placeOptions = _buildingPlaces.Values.SelectMany(v => v).Distinct().OrderBy(n => n).ToList();
     }
+
+    private string? PlaceFor(BuildingMap b) =>
+        _buildingPlaces.TryGetValue(b.Id, out var n) && n.Count > 0 ? string.Join(", ", n) : null;
 
     private async Task OnFileSelected(InputFileChangeEventArgs e)
     {
