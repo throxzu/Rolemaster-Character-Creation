@@ -62,6 +62,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<ChatRead> ChatReads => Set<ChatRead>();
     public DbSet<CampaignSettings> CampaignSettings => Set<CampaignSettings>();
     public DbSet<SessionNote> SessionNotes => Set<SessionNote>();
+    public DbSet<GameSession> GameSessions => Set<GameSession>();
+    public DbSet<SessionAttendance> SessionAttendances => Set<SessionAttendance>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -661,6 +663,24 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
 
         modelBuilder.Entity<SessionNote>()
             .HasIndex(s => s.SessionDate);
+
+        modelBuilder.Entity<GameSession>()
+            .Property(s => s.Title)
+            .HasMaxLength(160);
+
+        modelBuilder.Entity<GameSession>()
+            .HasIndex(s => s.Date);
+
+        modelBuilder.Entity<SessionAttendance>()
+            .HasOne(a => a.GameSession)
+            .WithMany(s => s.Attendances)
+            .HasForeignKey(a => a.GameSessionId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // One response per user per session.
+        modelBuilder.Entity<SessionAttendance>()
+            .HasIndex(a => new { a.GameSessionId, a.UserId })
+            .IsUnique();
     }
 
     // Writes audit log entries for tracked Character changes.

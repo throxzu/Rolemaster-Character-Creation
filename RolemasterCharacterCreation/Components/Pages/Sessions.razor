@@ -1,0 +1,447 @@
+@page "/sessions"
+@rendermode InteractiveServer
+@attribute [Authorize]
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Identity
+@using RolemasterCharacterCreation.Data
+@using RolemasterCharacterCreation.Identity
+@using RolemasterCharacterCreation.Models
+@inject AppDbContext Db
+@inject AuthenticationStateProvider AuthState
+@inject UserManager<ApplicationUser> UserManager
+
+<PageTitle>Sessions</PageTitle>
+
+<h2 class="mb-3">Session Calendar</h2>
+<p class="text-muted">
+    @if (_isGm)
+    {
+        <text>Click a day to plan a session. Players can then mark whether they can attend.</text>
+    }
+    else
+    {
+        <text>Click a marked day to see the session and tell the GM whether you can attend.</text>
+    }
+</p>
+
+@if (!string.IsNullOrEmpty(_message))
+{
+    <div class="alert alert-success alert-dismissible py-2">
+        @_message
+        <button type="button" class="btn-close" @onclick="() => _message = null"></button>
+    </div>
+}
+
+<!-- Month navigation -->
+<div class="d-flex align-items-center gap-2 mb-2">
+    <button class="btn btn-sm btn-outline-secondary" @onclick="PrevMonth">◀</button>
+    <button class="btn btn-sm btn-outline-secondary" @onclick="GoToday">Today</button>
+    <button class="btn btn-sm btn-outline-secondary" @onclick="NextMonth">▶</button>
+    <h4 class="mb-0 ms-2">@_month.ToString("MMMM yyyy")</h4>
+</div>
+
+<!-- Calendar grid -->
+<table class="qp-cal table-bordered">
+    <thead>
+        <tr>
+            @foreach (var d in WeekdayHeaders)
+            {
+                <th>@d</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @for (int w = 0; w < 6; w++)
+        {
+            <tr>
+                @for (int dow = 0; dow < 7; dow++)
+                {
+                    var day = GridStart.AddDays(w * 7 + dow);
+                    var sessions = SessionsOn(day);
+                    <td class="qp-cal-cell @(day == _selectedDate ? "selected" : "") @(day == _today ? "today" : "") @(day.Month != _month.Month ? "other-month" : "")"
+                        @onclick="() => SelectDate(day)">
+                        <div class="qp-cal-daynum">@day.Day</div>
+                        @if (sessions.Count > 0)
+                        {
+                            <div class="qp-cal-marks">
+                                @foreach (var s in sessions)
+                                {
+                                    <span class="qp-cal-dot @(s.Cancelled ? "cancelled" : "")"
+                                          title="@(s.Title ?? "Session")"></span>
+                                }
+                            </div>
+                        }
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Detail panel -->
+@if (_selectedDate is { } sel)
+{
+    <div class="card mt-3" style="max-width:760px">
+        <div class="card-body">
+            <h5 class="card-title">@sel.ToString("dddd, d MMMM yyyy")</h5>
+
+            @{ var daySessions = SessionsOn(sel); }
+            @if (daySessions.Count == 0)
+            {
+                <p class="fst-italic text-muted">No session planned for this day.</p>
+            }
+            else
+            {
+                @foreach (var s in daySessions)
+                {
+                    <div class="border rounded p-3 mb-3">
+                        @if (_editId == s.Id)
+                        {
+                            <div class="row g-2 mb-2">
+                                <div class="col-sm-8">
+                                    <label class="form-label mb-1">Title</label>
+                                    <input class="form-control form-control-sm" @bind="_editTitle" />
+                                </div>
+                                <div class="col-sm-4">
+                                    <label class="form-label mb-1">Start time</label>
+                                    <input type="time" class="form-control form-control-sm" @bind="_editTime" />
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label mb-1">Note</label>
+                                <textarea class="form-control form-control-sm" rows="2" @bind="_editNote"></textarea>
+                            </div>
+                            <button class="btn btn-sm btn-primary" @onclick="() => SaveEditAsync(s)">Save</button>
+                            <button class="btn btn-sm btn-outline-secondary" @onclick="() => _editId = null">Cancel</button>
+                        }
+                        else
+                        {
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <strong class="@(s.Cancelled ? "text-decoration-line-through text-muted" : "")">
+                                        @(s.Title ?? "Game session")
+                                    </strong>
+                                    @if (s.StartTime is { } t)
+                                    {
+                                        <span class="text-muted"> · @t.ToString("HH:mm")</span>
+                                    }
+                                    @if (s.Cancelled)
+                                    {
+                                        <span class="badge bg-danger ms-2">Cancelled</span>
+                                    }
+                                </div>
+                                @if (_isGm)
+                                {
+                                    <div class="text-end">
+                                        <button class="btn btn-sm btn-outline-primary" @onclick="() => BeginEdit(s)">Edit</button>
+                                        @if (s.Cancelled)
+                                        {
+                                            <button class="btn btn-sm btn-outline-success" @onclick="() => SetCancelledAsync(s, false)">Reactivate</button>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-sm btn-outline-warning" @onclick="() => SetCancelledAsync(s, true)">Cancel</button>
+                                        }
+                                        <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteAsync(s)">Delete</button>
+                                    </div>
+                                }
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(s.Note))
+                            {
+                                <p class="mt-2 mb-2" style="white-space:pre-wrap">@s.Note</p>
+                            }
+
+                            <!-- My RSVP -->
+                            @if (IsPlayer)
+                            {
+                                var mine = MyResponse(s);
+                                <div class="mt-2">
+                                    <span class="small text-muted me-2">Can you attend?</span>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button class="btn @(mine == AttendanceResponse.Yes ? "btn-success" : "btn-outline-success")"
+                                                disabled="@s.Cancelled" @onclick="() => SetResponseAsync(s, AttendanceResponse.Yes)">Yes</button>
+                                        <button class="btn @(mine == AttendanceResponse.Maybe ? "btn-warning" : "btn-outline-warning")"
+                                                disabled="@s.Cancelled" @onclick="() => SetResponseAsync(s, AttendanceResponse.Maybe)">Maybe</button>
+                                        <button class="btn @(mine == AttendanceResponse.No ? "btn-danger" : "btn-outline-danger")"
+                                                disabled="@s.Cancelled" @onclick="() => SetResponseAsync(s, AttendanceResponse.No)">No</button>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Roster -->
+                            <div class="mt-3">
+                                <div class="small text-muted">
+                                    Attending @Count(s, AttendanceResponse.Yes) ·
+                                    Maybe @Count(s, AttendanceResponse.Maybe) ·
+                                    Can't @Count(s, AttendanceResponse.No) ·
+                                    No reply @NoReplyCount(s)
+                                </div>
+                                <ul class="list-unstyled small mb-0 mt-1">
+                                    @foreach (var p in _players)
+                                    {
+                                        var resp = ResponseOf(s, p.Id);
+                                        <li>
+                                            <span class="badge @BadgeClass(resp)">@Label(resp)</span>
+                                            <span class="ms-1">@(p.DisplayName ?? p.Email)</span>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+                    </div>
+                }
+            }
+
+            <!-- GM: plan a new session on this day -->
+            @if (_isGm)
+            {
+                <div class="border-top pt-3 mt-2">
+                    <h6>Plan a session on this day</h6>
+                    <div class="row g-2 mb-2">
+                        <div class="col-sm-8">
+                            <label class="form-label mb-1">Title <span class="text-muted">(optional)</span></label>
+                            <input class="form-control form-control-sm" @bind="_newTitle" placeholder="e.g. Session 13" />
+                        </div>
+                        <div class="col-sm-4">
+                            <label class="form-label mb-1">Start time <span class="text-muted">(optional)</span></label>
+                            <input type="time" class="form-control form-control-sm" @bind="_newTime" />
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label mb-1">Note <span class="text-muted">(optional)</span></label>
+                        <textarea class="form-control form-control-sm" rows="2" @bind="_newNote"></textarea>
+                    </div>
+                    <button class="btn btn-primary btn-sm" @onclick="() => AddAsync(sel)">+ Plan session</button>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<style>
+    .qp-cal { width: 100%; max-width: 760px; table-layout: fixed; }
+    .qp-cal th { text-align: center; padding: .35rem; font-size: .8rem; color: var(--qp-teal, #5bc8c0); }
+    .qp-cal-cell { height: 78px; vertical-align: top; padding: .25rem; cursor: pointer; }
+    .qp-cal-cell:hover { background: rgba(255,255,255,.05); }
+    .qp-cal-cell.other-month { opacity: .4; }
+    .qp-cal-cell.today .qp-cal-daynum { font-weight: 700; color: var(--qp-teal, #5bc8c0); }
+    .qp-cal-cell.selected { outline: 2px solid var(--qp-teal, #5bc8c0); outline-offset: -2px; }
+    .qp-cal-daynum { font-size: .85rem; }
+    .qp-cal-marks { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
+    .qp-cal-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--qp-teal, #5bc8c0); display: inline-block; }
+    .qp-cal-dot.cancelled { background: #888; }
+</style>
+
+@code {
+    private DateOnly _month = new(DateTime.Today.Year, DateTime.Today.Month, 1);
+    private readonly DateOnly _today = DateOnly.FromDateTime(DateTime.Today);
+    private DateOnly? _selectedDate;
+
+    private List<ApplicationUser> _players = [];
+    private Dictionary<DateOnly, List<GameSession>> _sessionsByDate = new();
+    private string _myId = "";
+    private bool _isGm;
+    private string? _message;
+
+    // Create form
+    private string? _newTitle;
+    private TimeOnly? _newTime;
+    private string? _newNote;
+
+    // Edit form
+    private int? _editId;
+    private string? _editTitle;
+    private TimeOnly? _editTime;
+    private string? _editNote;
+
+    private static readonly string[] WeekdayHeaders = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+    // First (Monday-aligned) cell of the 6-week grid for the current month.
+    private DateOnly GridStart
+    {
+        get
+        {
+            int offset = ((int)_month.DayOfWeek + 6) % 7; // Monday = 0
+            return _month.AddDays(-offset);
+        }
+    }
+
+    private bool IsPlayer => _players.Any(p => p.Id == _myId);
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthState.GetAuthenticationStateAsync();
+        _myId = auth.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
+        _isGm = auth.User.IsInRole(Roles.Gamemaster);
+
+        _players = (await UserManager.GetUsersInRoleAsync(Roles.Player))
+            .OrderBy(p => p.DisplayName ?? p.Email)
+            .ToList();
+
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        var start = GridStart;
+        var end = start.AddDays(42);
+        var sessions = await Db.GameSessions
+            .Include(s => s.Attendances)
+            .Where(s => s.Date >= start && s.Date < end)
+            .OrderBy(s => s.StartTime)
+            .ToListAsync();
+
+        _sessionsByDate = sessions
+            .GroupBy(s => s.Date)
+            .ToDictionary(g => g.Key, g => g.ToList());
+    }
+
+    private IReadOnlyList<GameSession> SessionsOn(DateOnly day) =>
+        _sessionsByDate.TryGetValue(day, out var list) ? list : [];
+
+    private void SelectDate(DateOnly day)
+    {
+        _selectedDate = day;
+        _editId = null;
+        ResetNewForm();
+    }
+
+    private async Task PrevMonth() { _month = _month.AddMonths(-1); _selectedDate = null; await LoadAsync(); }
+    private async Task NextMonth() { _month = _month.AddMonths(1); _selectedDate = null; await LoadAsync(); }
+    private async Task GoToday() { _month = new(_today.Year, _today.Month, 1); _selectedDate = _today; await LoadAsync(); }
+
+    // ── Attendance helpers ────────────────────────────────────────────────────
+    private AttendanceResponse? ResponseOf(GameSession s, string userId) =>
+        s.Attendances.FirstOrDefault(a => a.UserId == userId)?.Response;
+
+    private AttendanceResponse? MyResponse(GameSession s) => ResponseOf(s, _myId);
+
+    private int Count(GameSession s, AttendanceResponse r) =>
+        _players.Count(p => ResponseOf(s, p.Id) == r);
+
+    private int NoReplyCount(GameSession s) =>
+        _players.Count(p => ResponseOf(s, p.Id) is null);
+
+    private static string BadgeClass(AttendanceResponse? r) => r switch
+    {
+        AttendanceResponse.Yes   => "bg-success",
+        AttendanceResponse.Maybe => "bg-warning text-dark",
+        AttendanceResponse.No    => "bg-danger",
+        _                        => "bg-secondary"
+    };
+
+    private static string Label(AttendanceResponse? r) => r switch
+    {
+        AttendanceResponse.Yes   => "Yes",
+        AttendanceResponse.Maybe => "Maybe",
+        AttendanceResponse.No    => "No",
+        _                        => "—"
+    };
+
+    private async Task SetResponseAsync(GameSession s, AttendanceResponse r)
+    {
+        if (s.Cancelled || !IsPlayer) return;
+
+        var existing = await Db.SessionAttendances
+            .FirstOrDefaultAsync(a => a.GameSessionId == s.Id && a.UserId == _myId);
+
+        if (existing is null)
+        {
+            Db.SessionAttendances.Add(new SessionAttendance
+            {
+                GameSessionId = s.Id,
+                UserId = _myId,
+                Response = r,
+                RespondedAt = DateTime.UtcNow
+            });
+        }
+        else
+        {
+            existing.Response = r;
+            existing.RespondedAt = DateTime.UtcNow;
+        }
+
+        await Db.SaveChangesAsync();
+        await LoadAsync();
+    }
+
+    // ── GM session management ─────────────────────────────────────────────────
+    private async Task AddAsync(DateOnly date)
+    {
+        if (!_isGm) return;
+
+        Db.GameSessions.Add(new GameSession
+        {
+            Date = date,
+            Title = Clean(_newTitle),
+            Note = Clean(_newNote),
+            StartTime = _newTime
+        });
+        await Db.SaveChangesAsync();
+
+        ResetNewForm();
+        await LoadAsync();
+        SetMessage($"Session planned for {date:d MMMM}.");
+    }
+
+    private void BeginEdit(GameSession s)
+    {
+        _editId = s.Id;
+        _editTitle = s.Title;
+        _editTime = s.StartTime;
+        _editNote = s.Note;
+    }
+
+    private async Task SaveEditAsync(GameSession s)
+    {
+        if (!_isGm) return;
+
+        var entity = await Db.GameSessions.FindAsync(s.Id);
+        if (entity is null) { _editId = null; return; }
+
+        entity.Title = Clean(_editTitle);
+        entity.Note = Clean(_editNote);
+        entity.StartTime = _editTime;
+        await Db.SaveChangesAsync();
+
+        _editId = null;
+        await LoadAsync();
+        SetMessage("Session updated.");
+    }
+
+    private async Task SetCancelledAsync(GameSession s, bool cancelled)
+    {
+        if (!_isGm) return;
+
+        var entity = await Db.GameSessions.FindAsync(s.Id);
+        if (entity is null) return;
+
+        entity.Cancelled = cancelled;
+        await Db.SaveChangesAsync();
+        await LoadAsync();
+        SetMessage(cancelled ? "Session cancelled." : "Session reactivated.");
+    }
+
+    private async Task DeleteAsync(GameSession s)
+    {
+        if (!_isGm) return;
+
+        Db.GameSessions.Remove(s);
+        await Db.SaveChangesAsync();
+        if (_editId == s.Id) _editId = null;
+        await LoadAsync();
+        SetMessage("Session deleted.");
+    }
+
+    // ── Small helpers ─────────────────────────────────────────────────────────
+    private static string? Clean(string? s) => string.IsNullOrWhiteSpace(s) ? null : s.Trim();
+
+    private void ResetNewForm()
+    {
+        _newTitle = _newNote = null;
+        _newTime = null;
+    }
+
+    private void SetMessage(string msg) => _message = msg;
+}
