@@ -165,7 +165,8 @@ public partial class CharacterWizard
     string _genericAddSkill = "";
     string _genericAddSpec  = "";
 
-    int _dpBudget;
+    // 60 base + up to 25 racial bonus DP this level + GM manual adjustment.
+    int _dpBudget => _char is null ? 60 : 60 + Math.Min(25, _char.RaceBonusDp) + _char.GmDpAdjust;
     int _dpSpent        => CalcDpSpent();
     int _talentDpSpent  => _isLevelUp
         ? (_char?.Talents.Where(t => !_baselineTalentIds.Contains(t.Id)).Sum(t => TalentRules.TierCost(t.TalentName, t.Tier)) ?? 0)
@@ -200,7 +201,17 @@ public partial class CharacterWizard
         if (!_authorized) return;
 
         _step = _char.WizardStep;
-        _dpBudget = 60 + Math.Min(25, _char.RaceBonusDp);
+
+        // Level-1 characters haven't consumed any racial bonus DP yet (that happens at Finish),
+        // so the remaining pool must equal the race's full bonus. Repair it in case the character
+        // was created with a race pre-selected (which skips OnRaceChanged).
+        if (_char.Level == 1 && _char.Race is not null
+            && RaceRules.ByName.TryGetValue(_char.Race, out var raceDef)
+            && _char.RaceBonusDp != raceDef.BonusDP)
+        {
+            _char.RaceBonusDp = raceDef.BonusDP;
+            await Db.SaveChangesAsync();
+        }
 
         LoadProfSkillState();
         LoadPurchasedState();
@@ -398,9 +409,11 @@ public partial class CharacterWizard
         if (!ValidateStep(_step)) return;
         await SaveStepAsync();
 
-        // Consume bonus DPs from the racial pool (capped at 25 per level).
-        int bonusDpAvailable = Math.Min(25, _char!.RaceBonusDp);
-        int bonusDpConsumed  = Math.Max(0, Math.Min(bonusDpAvailable, _dpSpent + _talentDpSpent - 60));
+        // Consume bonus DPs from the racial pool (capped at 25 per level). The free base is
+        // 60 plus any GM adjustment, so GM-granted DP isn't drawn from the racial pool.
+        int baseDp           = 60 + _char!.GmDpAdjust;
+        int bonusDpAvailable = Math.Min(25, _char.RaceBonusDp);
+        int bonusDpConsumed  = Math.Max(0, Math.Min(bonusDpAvailable, _dpSpent + _talentDpSpent - baseDp));
         _char.RaceBonusDp   -= bonusDpConsumed;
 
         if (_isLevelUp)
@@ -908,13 +921,19 @@ public partial class CharacterWizard
         if (raceName is not null && RaceRules.ByName.TryGetValue(raceName, out var race))
         {
             _char.RaceBonusDp = race.BonusDP;
-            _dpBudget = 60 + Math.Min(25, race.BonusDP);
         }
         else
         {
             _char.RaceBonusDp = 0;
-            _dpBudget = 60;
         }
+    }
+
+    // GM-only: nudge the DP budget up or down on the Talents step.
+    async Task AdjustGmDp(int delta)
+    {
+        if (!_isGm || _char is null) return;
+        _char.GmDpAdjust += delta;
+        await Db.SaveChangesAsync();
     }
 
     // ── Weapon alloc helpers ──────────────────────────────────────────────────

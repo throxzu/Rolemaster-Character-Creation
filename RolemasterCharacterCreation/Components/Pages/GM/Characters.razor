@@ -179,6 +179,8 @@
             Name = _createModel.Name,
             Race = _createModel.Race,
             Profession = _createModel.Profession,
+            RaceBonusDp = _createModel.Race is not null
+                && RaceRules.ByName.TryGetValue(_createModel.Race, out var rd) ? rd.BonusDP : 0,
             UserId = string.IsNullOrEmpty(_createModel.UserId) ? null : _createModel.UserId,
             CreatedAt = DateTime.UtcNow
         };

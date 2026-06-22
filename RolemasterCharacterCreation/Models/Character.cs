@@ -17,6 +17,10 @@ public class Character
 
     public int WizardStep { get; set; } = 0;
     public int RaceBonusDp { get; set; } = 0;
+
+    // GM-only manual adjustment (+/-) to the Development Point budget, set on the wizard's
+    // Talents step. Added on top of the base 60 + racial bonus; can be negative.
+    public int GmDpAdjust { get; set; } = 0;
     public int? HeightCm { get; set; }
     public int? WeightKg { get; set; }
     public string? Gender { get; set; }

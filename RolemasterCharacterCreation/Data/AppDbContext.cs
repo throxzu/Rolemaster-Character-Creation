@@ -61,6 +61,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
     public DbSet<ChatRead> ChatReads => Set<ChatRead>();
     public DbSet<CampaignSettings> CampaignSettings => Set<CampaignSettings>();
+    public DbSet<SessionNote> SessionNotes => Set<SessionNote>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -652,6 +653,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             .Property(c => c.LoginUrl)
             .HasMaxLength(400)
             .IsRequired();
+
+        modelBuilder.Entity<SessionNote>()
+            .Property(s => s.Title)
+            .HasMaxLength(160)
+            .IsRequired();
+
+        modelBuilder.Entity<SessionNote>()
+            .HasIndex(s => s.SessionDate);
     }
 
     // Writes audit log entries for tracked Character changes.

@@ -1,0 +1,227 @@
+@page "/gm/session-notes"
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = Roles.Gamemaster)]
+@using RolemasterCharacterCreation.Data
+@using RolemasterCharacterCreation.Identity
+@using RolemasterCharacterCreation.Models
+@inject AppDbContext Db
+
+<PageTitle>Session Notes</PageTitle>
+
+<h2 class="mb-3">Session Notes</h2>
+
+<p class="text-muted">
+    Keep a record for each game session. <strong>Public notes</strong> are visible to your players
+    on their read-only Session Notes page; <strong>GM notes</strong> are only ever shown here.
+</p>
+
+@if (!string.IsNullOrEmpty(_message))
+{
+    <div class="alert @(_isError ? "alert-danger" : "alert-success") alert-dismissible">
+        @_message
+        <button type="button" class="btn-close" @onclick="() => _message = null"></button>
+    </div>
+}
+
+<div class="card mb-4" style="max-width:820px">
+    <div class="card-body">
+        <h5 class="card-title">Add a session</h5>
+        <div class="row g-2 mb-2">
+            <div class="col-sm-3">
+                <label class="form-label mb-1">Date</label>
+                <input type="date" class="form-control form-control-sm" @bind="_newDate" />
+            </div>
+            <div class="col-sm-9">
+                <label class="form-label mb-1">Title</label>
+                <input class="form-control form-control-sm" @bind="_newTitle" placeholder="e.g. Session 12 — Into the Crypt" />
+            </div>
+        </div>
+        <div class="mb-2">
+            <label class="form-label mb-1">Public notes <span class="text-muted">(players can read these)</span></label>
+            <textarea class="form-control form-control-sm" rows="3" @bind="_newPublic"></textarea>
+        </div>
+        <div class="mb-3">
+            <label class="form-label mb-1">GM notes <span class="text-muted">(GM only)</span></label>
+            <textarea class="form-control form-control-sm" rows="3" @bind="_newGm"></textarea>
+        </div>
+        <button class="btn btn-primary" @onclick="AddAsync">+ Add session</button>
+    </div>
+</div>
+
+@if (_notes.Count == 0)
+{
+    <p class="fst-italic text-muted">No sessions recorded yet. Add your first one above.</p>
+}
+else
+{
+    @foreach (var n in _notes)
+    {
+        <div class="card mb-3" style="max-width:820px">
+            <div class="card-body">
+                @if (_editId == n.Id)
+                {
+                    <div class="row g-2 mb-2">
+                        <div class="col-sm-3">
+                            <label class="form-label mb-1">Date</label>
+                            <input type="date" class="form-control form-control-sm" @bind="_editDate" />
+                        </div>
+                        <div class="col-sm-9">
+                            <label class="form-label mb-1">Title</label>
+                            <input class="form-control form-control-sm" @bind="_editTitle" />
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label mb-1">Public notes</label>
+                        <textarea class="form-control form-control-sm" rows="4" @bind="_editPublic"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label mb-1">GM notes</label>
+                        <textarea class="form-control form-control-sm" rows="4" @bind="_editGm"></textarea>
+                    </div>
+                    <button class="btn btn-sm btn-primary" @onclick="SaveAsync">Save</button>
+                    <button class="btn btn-sm btn-outline-secondary" @onclick="CancelEdit">Cancel</button>
+                }
+                else
+                {
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 class="card-title mb-0">@n.Title</h5>
+                            <div class="small text-muted">@n.SessionDate.ToString("dddd, d MMMM yyyy")</div>
+                        </div>
+                        <div class="text-end">
+                            <button class="btn btn-sm btn-outline-primary" @onclick="() => BeginEdit(n)">Edit</button>
+                            <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteAsync(n)">Delete</button>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <div class="fw-semibold small text-uppercase text-muted">Public notes</div>
+                        @if (string.IsNullOrWhiteSpace(n.PublicNotes))
+                        {
+                            <p class="fst-italic text-muted mb-0">None.</p>
+                        }
+                        else
+                        {
+                            <p class="mb-0" style="white-space:pre-wrap">@n.PublicNotes</p>
+                        }
+                    </div>
+
+                    <div class="mt-3">
+                        <div class="fw-semibold small text-uppercase text-muted">GM notes</div>
+                        @if (string.IsNullOrWhiteSpace(n.GmNotes))
+                        {
+                            <p class="fst-italic text-muted mb-0">None.</p>
+                        }
+                        else
+                        {
+                            <p class="mb-0" style="white-space:pre-wrap">@n.GmNotes</p>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+}
+
+@code {
+    private List<SessionNote> _notes = [];
+
+    private DateTime _newDate = DateTime.Today;
+    private string? _newTitle;
+    private string? _newPublic;
+    private string? _newGm;
+
+    private int? _editId;
+    private DateTime _editDate;
+    private string? _editTitle;
+    private string? _editPublic;
+    private string? _editGm;
+
+    private string? _message;
+    private bool _isError;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync() =>
+        _notes = await Db.SessionNotes
+            .OrderByDescending(n => n.SessionDate)
+            .ThenByDescending(n => n.Id)
+            .ToListAsync();
+
+    private async Task AddAsync()
+    {
+        var title = _newTitle?.Trim();
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            SetMessage("A title is required.", error: true);
+            return;
+        }
+
+        Db.SessionNotes.Add(new SessionNote
+        {
+            SessionDate = _newDate,
+            Title = title,
+            PublicNotes = Clean(_newPublic),
+            GmNotes = Clean(_newGm)
+        });
+        await Db.SaveChangesAsync();
+
+        _newDate = DateTime.Today;
+        _newTitle = _newPublic = _newGm = null;
+        await LoadAsync();
+        SetMessage($"Added \"{title}\".");
+    }
+
+    private void BeginEdit(SessionNote n)
+    {
+        _editId = n.Id;
+        _editDate = n.SessionDate;
+        _editTitle = n.Title;
+        _editPublic = n.PublicNotes;
+        _editGm = n.GmNotes;
+        _message = null;
+    }
+
+    private void CancelEdit() => _editId = null;
+
+    private async Task SaveAsync()
+    {
+        var note = _notes.FirstOrDefault(n => n.Id == _editId);
+        if (note is null) { _editId = null; return; }
+
+        var title = _editTitle?.Trim();
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            SetMessage("A title is required.", error: true);
+            return;
+        }
+
+        note.SessionDate = _editDate;
+        note.Title = title;
+        note.PublicNotes = Clean(_editPublic);
+        note.GmNotes = Clean(_editGm);
+        note.UpdatedAt = DateTime.UtcNow;
+        await Db.SaveChangesAsync();
+
+        _editId = null;
+        await LoadAsync();
+        SetMessage($"Saved \"{title}\".");
+    }
+
+    private async Task DeleteAsync(SessionNote n)
+    {
+        Db.SessionNotes.Remove(n);
+        await Db.SaveChangesAsync();
+        if (_editId == n.Id) _editId = null;
+        await LoadAsync();
+        SetMessage($"Deleted \"{n.Title}\".");
+    }
+
+    private static string? Clean(string? s) => string.IsNullOrWhiteSpace(s) ? null : s.Trim();
+
+    private void SetMessage(string msg, bool error = false)
+    {
+        _message = msg;
+        _isError = error;
+    }
+}

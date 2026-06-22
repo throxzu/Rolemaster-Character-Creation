@@ -586,6 +586,31 @@
             Remaining: <strong class="@(_dpBudget - _dpSpent < 0 ? "text-danger" : "text-success")">@(_dpBudget - _dpSpent)</strong>
         </p>
 
+        @if (_isGm)
+        {
+            <!-- GM-only manual DP adjustment -->
+            <div class="card border-warning mb-3">
+                <div class="card-body py-2 d-flex align-items-center flex-wrap gap-2">
+                    <span class="badge bg-warning text-dark">GM</span>
+                    <strong class="small">Adjust DP budget:</strong>
+                    <button class="btn btn-sm btn-outline-secondary" @onclick="() => AdjustGmDp(-5)">−5</button>
+                    <button class="btn btn-sm btn-outline-secondary" @onclick="() => AdjustGmDp(-1)">−1</button>
+                    <span class="px-2">
+                        Adjustment:
+                        <strong class="@(_char!.GmDpAdjust < 0 ? "text-danger" : _char!.GmDpAdjust > 0 ? "text-success" : "")">
+                            @(_char!.GmDpAdjust > 0 ? $"+{_char!.GmDpAdjust}" : _char!.GmDpAdjust.ToString())
+                        </strong> DP
+                    </span>
+                    <button class="btn btn-sm btn-outline-secondary" @onclick="() => AdjustGmDp(1)">+1</button>
+                    <button class="btn btn-sm btn-outline-secondary" @onclick="() => AdjustGmDp(5)">+5</button>
+                    @if (_char!.GmDpAdjust != 0)
+                    {
+                        <button class="btn btn-sm btn-outline-warning ms-2" @onclick="() => AdjustGmDp(-_char!.GmDpAdjust)">Reset</button>
+                    }
+                </div>
+            </div>
+        }
+
         @foreach (var cat in SkillRules.Categories)
         {
             <div class="skills-section">

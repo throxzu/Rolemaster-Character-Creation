@@ -23,6 +23,9 @@
                     <li class="nav-item">
                         <NavLink class="nav-link" href="characters">My Characters</NavLink>
                     </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="session-notes">Session Notes</NavLink>
+                    </li>
                 </AuthorizeView>
 
                 <AuthorizeView Roles="Gamemaster">
@@ -52,6 +55,9 @@
                             </li>
                             <li>
                                 <NavLink class="dropdown-item" href="gm/campaign-settings">Campaign Settings</NavLink>
+                            </li>
+                            <li>
+                                <NavLink class="dropdown-item" href="gm/session-notes">Session Notes</NavLink>
                             </li>
                             <li>
                                 <NavLink class="dropdown-item" href="gm/useful-links">Useful Links</NavLink>
@@ -193,11 +199,6 @@
                             <NavLink class="btn btn-primary btn-sm" href="account/logout">Log out</NavLink>
                         </li>
                     </Authorized>
-                    <NotAuthorized>
-                        <li class="nav-item">
-                            <NavLink class="btn btn-primary btn-sm" href="account/login">Log in</NavLink>
-                        </li>
-                    </NotAuthorized>
                 </AuthorizeView>
 
             </ul>
