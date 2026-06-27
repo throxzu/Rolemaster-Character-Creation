@@ -1,0 +1,76 @@
+@page "/gm/sms-test"
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = Roles.Gamemaster)]
+@using RolemasterCharacterCreation.Identity
+@using RolemasterCharacterCreation.Services
+@inject ISmsSender Sms
+
+<PageTitle>SMS Test</PageTitle>
+
+<h2 class="mb-3">SMS Test</h2>
+
+<p class="text-muted">
+    Send an SMS through the configured provider and see exactly what it returns. The message is
+    sent as typed — useful for checking what content (e.g. links) the provider accepts.
+</p>
+
+<div class="card" style="max-width:640px">
+    <div class="card-body">
+        <div class="mb-2">
+            <label class="form-label mb-1">Phone number</label>
+            <input class="form-control form-control-sm" @bind="_phone" placeholder="+4512345678" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label mb-1">Message</label>
+            <textarea class="form-control form-control-sm" rows="4" @bind="_message"
+                      placeholder="Type the SMS text…"></textarea>
+        </div>
+        <button class="btn btn-primary" @onclick="SendAsync"
+                disabled="@(_sending || string.IsNullOrWhiteSpace(_phone) || string.IsNullOrWhiteSpace(_message))">
+            @(_sending ? "Sending…" : "Send")
+        </button>
+    </div>
+</div>
+
+@if (_result is { } r)
+{
+    <div class="card mt-3 @(r.Success ? "border-success" : "border-danger")" style="max-width:640px">
+        <div class="card-body py-2">
+            <div>
+                <strong>Success:</strong>
+                <span class="@(r.Success ? "text-success" : "text-danger")">@r.Success</span>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(r.Error))
+            {
+                <div><strong>Error:</strong> @r.Error</div>
+            }
+            @if (r.QuotaRemaining is { } q)
+            {
+                <div><strong>Quota remaining:</strong> @q</div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private string? _phone;
+    private string? _message;
+    private bool _sending;
+    private SmsResult? _result;
+
+    private async Task SendAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_phone) || string.IsNullOrWhiteSpace(_message)) return;
+
+        _sending = true;
+        _result = null;
+        try
+        {
+            _result = await Sms.SendAsync(_phone.Trim(), _message.Trim());
+        }
+        finally
+        {
+            _sending = false;
+        }
+    }
+}
