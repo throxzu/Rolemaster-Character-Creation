@@ -36,6 +36,10 @@ public sealed class TextbeltSmsSender : ISmsSender
         if (string.IsNullOrWhiteSpace(_apiKey))
             return new SmsResult(false, "SMS is not configured (TEXTBELT_API_KEY is missing).");
 
+        // Strip URLs and fancy formatting so the provider doesn't reject the message.
+        // Applies to every SMS sent from the solution.
+        message = SmsText.Sanitize(message);
+
         try
         {
             var form = new FormUrlEncodedContent(new Dictionary<string, string>

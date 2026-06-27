@@ -245,8 +245,9 @@
                 .Replace("{password}", password);
         }
 
+        // URLs are stripped from all outgoing SMS, so the invite points to the site by name only.
         return $"You are invited to join the campaign {campaign}. " +
-               $"Log in at {url} using your phone number. " +
+               $"Log in with your phone number. " +
                $"Your first-time password is: {password}";
     }
 
