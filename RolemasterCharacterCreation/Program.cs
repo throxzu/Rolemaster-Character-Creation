@@ -18,6 +18,8 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
     {
         options.SignIn.RequireConfirmedAccount = false;
         options.Password.RequiredLength = 8;
+        // Passwords use only digits + upper/lower letters (easy to type from an SMS).
+        options.Password.RequireNonAlphanumeric = false;
     })
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()
