@@ -1,0 +1,12 @@
+[
+  {
+    "Name": "Broadsword of the Steady Hand",
+    "Category": "Melee Weapons",
+    "Description": "This well-balanced high steel (\u002B5) broadsword has a grip wrapped in grey leather and a pommel of polished granite. The wielder gains a \u002B15 bonus to Parry skill and finds their hands steady even in slippery or unstable conditions. The blade hums faintly when drawn, a sign of its protective enchantment.",
+    "Recipe": "Work Mundane Metal I (7), Weapon I (5), Constant V (9). Days: 18. Standard cost: 412 sp. Level 9 item.",
+    "Level": "9",
+    "Cost": "412 sp",
+    "Days": "18",
+    "Created": true
+  }
+]

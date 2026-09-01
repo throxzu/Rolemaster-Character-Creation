@@ -1,0 +1,2007 @@
+{
+  ".claude/settings.json": {
+    "mtime": 1784129461.577162,
+    "ast_hash": "e4798ff0ba411d8d2846b742fe49e40e",
+    "semantic_hash": "e4798ff0ba411d8d2846b742fe49e40e"
+  },
+  ".claude/settings.local.json": {
+    "mtime": 1783526830.8446639,
+    "ast_hash": "949f3105b8996aa6fd3dade6dc4a39dc",
+    "semantic_hash": "949f3105b8996aa6fd3dade6dc4a39dc"
+  },
+  ".claude/skills/impeccable/scripts/cleanup-deprecated.mjs": {
+    "mtime": 1779979782.9444902,
+    "ast_hash": "51208407b06e051bb6d8ceab244db39c",
+    "semantic_hash": "51208407b06e051bb6d8ceab244db39c"
+  },
+  ".claude/skills/impeccable/scripts/command-metadata.json": {
+    "mtime": 1779979782.9457662,
+    "ast_hash": "b25ed9a4d6c24c83d5af46ec69b99a97",
+    "semantic_hash": "b25ed9a4d6c24c83d5af46ec69b99a97"
+  },
+  ".claude/skills/impeccable/scripts/critique-storage.mjs": {
+    "mtime": 1779979782.9457662,
+    "ast_hash": "69825b7f6236350030e72dd7dd3212b7",
+    "semantic_hash": "69825b7f6236350030e72dd7dd3212b7"
+  },
+  ".claude/skills/impeccable/scripts/design-parser.mjs": {
+    "mtime": 1779979782.9467697,
+    "ast_hash": "df65268bfe73ad8202ca309c2da3805c",
+    "semantic_hash": "df65268bfe73ad8202ca309c2da3805c"
+  },
+  ".claude/skills/impeccable/scripts/detect-csp.mjs": {
+    "mtime": 1779979782.9467697,
+    "ast_hash": "0d3243060e66ba0d0a64684f9684ecc7",
+    "semantic_hash": "0d3243060e66ba0d0a64684f9684ecc7"
+  },
+  ".claude/skills/impeccable/scripts/detect.mjs": {
+    "mtime": 1779979782.9467697,
+    "ast_hash": "db2157bcff7ab1b222d68cf96cb8643c",
+    "semantic_hash": "db2157bcff7ab1b222d68cf96cb8643c"
+  },
+  ".claude/skills/impeccable/scripts/impeccable-paths.mjs": {
+    "mtime": 1779979782.9467697,
+    "ast_hash": "0e34c40e77c7a30eeabb1bac897f58a2",
+    "semantic_hash": "0e34c40e77c7a30eeabb1bac897f58a2"
+  },
+  ".claude/skills/impeccable/scripts/is-generated.mjs": {
+    "mtime": 1779979782.9467697,
+    "ast_hash": "81ada1894b5f562b0993fdff1756d82c",
+    "semantic_hash": "81ada1894b5f562b0993fdff1756d82c"
+  },
+  ".claude/skills/impeccable/scripts/live-accept.mjs": {
+    "mtime": 1779979782.9467697,
+    "ast_hash": "feee297789fa52b5901e21bb354e8a4f",
+    "semantic_hash": "feee297789fa52b5901e21bb354e8a4f"
+  },
+  ".claude/skills/impeccable/scripts/live-browser-session.js": {
+    "mtime": 1779979782.9467697,
+    "ast_hash": "e54c01fe1a8287f757161759beaab916",
+    "semantic_hash": "e54c01fe1a8287f757161759beaab916"
+  },
+  ".claude/skills/impeccable/scripts/live-browser.js": {
+    "mtime": 1779979782.9467697,
+    "ast_hash": "09d5959c4f68346ac3e032a1e16f8924",
+    "semantic_hash": "09d5959c4f68346ac3e032a1e16f8924"
+  },
+  ".claude/skills/impeccable/scripts/live-complete.mjs": {
+    "mtime": 1779979782.9499686,
+    "ast_hash": "0ed6226feb3d80adf38f2098b6d7efd4",
+    "semantic_hash": "0ed6226feb3d80adf38f2098b6d7efd4"
+  },
+  ".claude/skills/impeccable/scripts/live-completion.mjs": {
+    "mtime": 1779979782.9499686,
+    "ast_hash": "c51f1de5c7aae5aa3f2c67f5d9875d3e",
+    "semantic_hash": "c51f1de5c7aae5aa3f2c67f5d9875d3e"
+  },
+  ".claude/skills/impeccable/scripts/live-inject.mjs": {
+    "mtime": 1779979782.9499686,
+    "ast_hash": "01365c3718e920dbeee5eeb9159093fa",
+    "semantic_hash": "01365c3718e920dbeee5eeb9159093fa"
+  },
+  ".claude/skills/impeccable/scripts/live-poll.mjs": {
+    "mtime": 1779979782.950982,
+    "ast_hash": "7b78710647b202a90d99852bdb7a5135",
+    "semantic_hash": "7b78710647b202a90d99852bdb7a5135"
+  },
+  ".claude/skills/impeccable/scripts/live-resume.mjs": {
+    "mtime": 1779979782.950982,
+    "ast_hash": "9187fc4ae434c0573b7c84c95b05f744",
+    "semantic_hash": "9187fc4ae434c0573b7c84c95b05f744"
+  },
+  ".claude/skills/impeccable/scripts/live-server.mjs": {
+    "mtime": 1779979782.950982,
+    "ast_hash": "2754268fc4579377e0d40d6a2e34679a",
+    "semantic_hash": "2754268fc4579377e0d40d6a2e34679a"
+  },
+  ".claude/skills/impeccable/scripts/live-session-store.mjs": {
+    "mtime": 1779979782.9519815,
+    "ast_hash": "b0c628113419432d164204b18587d681",
+    "semantic_hash": "b0c628113419432d164204b18587d681"
+  },
+  ".claude/skills/impeccable/scripts/live-status.mjs": {
+    "mtime": 1779979782.9519815,
+    "ast_hash": "f7f787396f44ef06c890f97c45d0ba75",
+    "semantic_hash": "f7f787396f44ef06c890f97c45d0ba75"
+  },
+  ".claude/skills/impeccable/scripts/live-wrap.mjs": {
+    "mtime": 1779979782.9519815,
+    "ast_hash": "9612f1254ce763221690053592892110",
+    "semantic_hash": "9612f1254ce763221690053592892110"
+  },
+  ".claude/skills/impeccable/scripts/live.mjs": {
+    "mtime": 1779979782.953497,
+    "ast_hash": "073965c7d10925f8ad9651a336220ee8",
+    "semantic_hash": "073965c7d10925f8ad9651a336220ee8"
+  },
+  ".claude/skills/impeccable/scripts/load-context.mjs": {
+    "mtime": 1779979782.953497,
+    "ast_hash": "f96317a92230153a77069e4f81bd8e11",
+    "semantic_hash": "f96317a92230153a77069e4f81bd8e11"
+  },
+  ".claude/skills/impeccable/scripts/modern-screenshot.umd.js": {
+    "mtime": 1779979782.9545128,
+    "ast_hash": "c6afaf6ebceb162206f6a2e5b0ed653c",
+    "semantic_hash": "c6afaf6ebceb162206f6a2e5b0ed653c"
+  },
+  ".claude/skills/impeccable/scripts/pin.mjs": {
+    "mtime": 1779979782.9545128,
+    "ast_hash": "59e1f8315c2083fb7997e5ff3edfcb57",
+    "semantic_hash": "59e1f8315c2083fb7997e5ff3edfcb57"
+  },
+  ".verify/drive.mjs": {
+    "mtime": 1781850441.0518963,
+    "ast_hash": "e285fa79fc3d0864c692e92e18ae256b",
+    "semantic_hash": "e285fa79fc3d0864c692e92e18ae256b"
+  },
+  "RolemasterCharacterCreation.Client/Layout/MainLayout.razor": {
+    "mtime": 1781462800.0830767,
+    "ast_hash": "495e2e21d932b9bf5ed422cdccb87d63",
+    "semantic_hash": "495e2e21d932b9bf5ed422cdccb87d63"
+  },
+  "RolemasterCharacterCreation.Client/Layout/NavMenu.razor": {
+    "mtime": 1782545755.7702966,
+    "ast_hash": "b68a083357f1172ef221503a698fc078",
+    "semantic_hash": "b68a083357f1172ef221503a698fc078"
+  },
+  "RolemasterCharacterCreation.Client/Layout/ReconnectModal.razor": {
+    "mtime": 1779886245.2706711,
+    "ast_hash": "77cde4a4122bbb1416e77f3320ef679c",
+    "semantic_hash": "77cde4a4122bbb1416e77f3320ef679c"
+  },
+  "RolemasterCharacterCreation.Client/Layout/ReconnectModal.razor.js": {
+    "mtime": 1779886245.2736673,
+    "ast_hash": "bdc7a0873231c569cd31aa85311186a3",
+    "semantic_hash": "bdc7a0873231c569cd31aa85311186a3"
+  },
+  "RolemasterCharacterCreation.Client/Pages/Home.razor": {
+    "mtime": 1781634452.4320354,
+    "ast_hash": "df4a68666b2f7a400d565810c79099a6",
+    "semantic_hash": "df4a68666b2f7a400d565810c79099a6"
+  },
+  "RolemasterCharacterCreation.Client/Pages/NotFound.razor": {
+    "mtime": 1779886244.7375722,
+    "ast_hash": "b43132764687de5710f24e46d3d3f7ff",
+    "semantic_hash": "b43132764687de5710f24e46d3d3f7ff"
+  },
+  "RolemasterCharacterCreation.Client/PersistentAuthenticationStateProvider.cs": {
+    "mtime": 1779904248.9421206,
+    "ast_hash": "ed7a282ce02f6f450b336eb6790c1c26",
+    "semantic_hash": "ed7a282ce02f6f450b336eb6790c1c26"
+  },
+  "RolemasterCharacterCreation.Client/Program.cs": {
+    "mtime": 1779904306.1670165,
+    "ast_hash": "c4ce6060822bf6ca88604eae71b34b1d",
+    "semantic_hash": "c4ce6060822bf6ca88604eae71b34b1d"
+  },
+  "RolemasterCharacterCreation.Client/RolemasterCharacterCreation.Client.csproj": {
+    "mtime": 1779904412.23499,
+    "ast_hash": "a5cb0b8e6cf58f1fa459fdace218b090",
+    "semantic_hash": "a5cb0b8e6cf58f1fa459fdace218b090"
+  },
+  "RolemasterCharacterCreation.Client/Routes.razor": {
+    "mtime": 1779886244.8519423,
+    "ast_hash": "e7369bc27ad40e65009faaaa1e965d93",
+    "semantic_hash": "e7369bc27ad40e65009faaaa1e965d93"
+  },
+  "RolemasterCharacterCreation.Client/UserInfo.cs": {
+    "mtime": 1779904275.7730715,
+    "ast_hash": "2ece13a42673fb6fded72107a2bc589c",
+    "semantic_hash": "2ece13a42673fb6fded72107a2bc589c"
+  },
+  "RolemasterCharacterCreation.Client/_Imports.razor": {
+    "mtime": 1779904738.0096498,
+    "ast_hash": "1fa291254c3a5693db373215b303f2e1",
+    "semantic_hash": "1fa291254c3a5693db373215b303f2e1"
+  },
+  "RolemasterCharacterCreation.Client/wwwroot/appsettings.json": {
+    "mtime": 1779886245.2415729,
+    "ast_hash": "804b473502a4c415cf75db61c56c32aa",
+    "semantic_hash": "804b473502a4c415cf75db61c56c32aa"
+  },
+  "RolemasterCharacterCreation.sln": {
+    "mtime": 1779886244.7215538,
+    "ast_hash": "021decb7dea77db0a57742dd89e9ac55",
+    "semantic_hash": "021decb7dea77db0a57742dd89e9ac55"
+  },
+  "RolemasterCharacterCreation/Components/Account/CompleteProfile.razor": {
+    "mtime": 1782066474.8726134,
+    "ast_hash": "4b5a8d4ef835226e6335715d4721b61e",
+    "semantic_hash": "4b5a8d4ef835226e6335715d4721b61e"
+  },
+  "RolemasterCharacterCreation/Components/Account/Login.razor": {
+    "mtime": 1782066474.886033,
+    "ast_hash": "60aef67a9fed59ad95cbe02585b76c6b",
+    "semantic_hash": "60aef67a9fed59ad95cbe02585b76c6b"
+  },
+  "RolemasterCharacterCreation/Components/Account/Logout.razor": {
+    "mtime": 1779904365.9468775,
+    "ast_hash": "4884ca5c1ff7b4f39c0a118db8792a50",
+    "semantic_hash": "4884ca5c1ff7b4f39c0a118db8792a50"
+  },
+  "RolemasterCharacterCreation/Components/App.razor": {
+    "mtime": 1781990872.4791741,
+    "ast_hash": "b2657326112a84747a5a885f8363bd28",
+    "semantic_hash": "b2657326112a84747a5a885f8363bd28"
+  },
+  "RolemasterCharacterCreation/Components/Pages/AttackTables.razor": {
+    "mtime": 1781813561.9803858,
+    "ast_hash": "c22c72d8924ce99eea0d2e84f5905a9a",
+    "semantic_hash": "c22c72d8924ce99eea0d2e84f5905a9a"
+  },
+  "RolemasterCharacterCreation/Components/Pages/Campaign/BuildingCategories.razor": {
+    "mtime": 1781948395.736724,
+    "ast_hash": "5e82248a3caa63a29229e9a676e18178",
+    "semantic_hash": "5e82248a3caa63a29229e9a676e18178"
+  },
+  "RolemasterCharacterCreation/Components/Pages/Campaign/BuildingMapView.razor": {
+    "mtime": 1781948755.6434407,
+    "ast_hash": "e6ff6a47cbc87e568f52e783e5d74ed2",
+    "semantic_hash": "e6ff6a47cbc87e568f52e783e5d74ed2"
+  },
+  "RolemasterCharacterCreation/Components/Pages/Campaign/Buildings.razor": {
+    "mtime": 1782066474.886033,
+    "ast_hash": "34f72601387c5d3d19907a9c2734cbc9",
+    "semantic_hash": "34f72601387c5d3d19907a9c2734cbc9"
+  },
+  "RolemasterCharacterCreation/Components/Pages/Campaign/CaveCategories.razor": {
+    "mtime": 1781945113.1586747,
+    "ast_hash": "658e69fdf2ae0aa2b6049fa76194b2e4",
+    "semantic_hash": "658e69fdf2ae0aa2b6049fa76194b2e4"
+  },
+  "RolemasterCharacterCreation/Components/Pages/Campaign/CaveMapView.razor": {
+    "mtime": 1781946569.1118226,
+    "ast_hash": "fb87352183303b742e0da880371c6ac5",
+    "semantic_hash": "fb87352183303b742e0da880371c6ac5"
+  },
+  "RolemasterCharacterCreation/Components/Pages/Campaign/Caves.razor": {
+    "mtime": 1782066474.886033,
+    "ast_hash": "d2949cca21a9329982f7265b82c4b6e5",
+    "semantic_hash": "d2949cca21a9329982f7265b82c4b6e5"
+  },
+  "RolemasterCharacterCreation/Components/Pages/Campaign/DungeonCategories.razor": {
+    "mtime": 1781901580.421282,
+    "ast_hash": "9b2b176cae34a25343623736d3c2181a",
+    "semantic_hash": "9b2b176cae34a25343623736d3c2181a"
+  },
+  "RolemasterCharacterCreation/Components/Pages/Campaign/DungeonMapView.razor": {
+    "mtime": 1781946344.839043,
+    "ast_hash": "2a64ed4696bd71cf3fcb105f843a2c3f",
+    "semantic_hash": "2a64ed4696bd71cf3fcb105f843a2c3f"
+  },
+  "RolemasterCharacterCreation/Components/Pages/Campaign/Dungeons.razor": {
+    "mtime": 1782066474.8882556,
+    "ast_hash": "848a32c3822ad2b883ed82ed429150a7",
+    "semantic_hash": "848a32c3822ad2b883ed82ed429150a7"
+  },
+  "RolemasterCharacterCreation/Components/Pages/Campaign/MapCategories.razor": {
+    "mtime": 1781882822.195781,
+    "ast_hash": "f5b72e5cc525bfdb985fb3b7064cc939",
+    "semantic_hash": "f5b72e5cc525bfdb985fb3b7064cc939"
+  },
+  "RolemasterCharacterCreation/Components/Pages/Campaign/TownMap.razor": {
+    "mtime": 1781966977.1520474,
+    "ast_hash": "9ff60925e22dc1a2c63b0d1bcf466549",
+    "semantic_hash": "9ff60925e22dc1a2c63b0d1bcf466549"
+  },
+  "RolemasterCharacterCreation/Components/Pages/Campaign/Towns.razor": {
+    "mtime": 1782066474.8882556,
+    "ast_hash": "469ba4773c8eae06399cbe95886c7d3e",
+    "semantic_hash": "469ba4773c8eae06399cbe95886c7d3e"
+  },
+  "RolemasterCharacterCreation/Components/Pages/Campaign/VillageCategories.razor": {
+    "mtime": 1781898747.371102,
+    "ast_hash": "e331dee57bdfef49f35ce323a0bc5cc8",
+    "semantic_hash": "e331dee57bdfef49f35ce323a0bc5cc8"
+  },
+  "RolemasterCharacterCreation/Components/Pages/Campaign/VillageMap.razor": {
+    "mtime": 1781967103.6751947,
+    "ast_hash": "f230841718aaaa405468bddee22515c6",
+    "semantic_hash": "f230841718aaaa405468bddee22515c6"
+  },
+  "RolemasterCharacterCreation/Components/Pages/Campaign/Villages.razor": {
+    "mtime": 1782066474.8882556,
+    "ast_hash": "68df94fa206799955bb70e75bd04046a",
+    "semantic_hash": "68df94fa206799955bb70e75bd04046a"
+  },
+  "RolemasterCharacterCreation/Components/Pages/Campaign/WorldCategories.razor": {
+    "mtime": 1781894120.9595492,
+    "ast_hash": "fd97945f3b03b658d3c4c3d762243cd4",
+    "semantic_hash": "fd97945f3b03b658d3c4c3d762243cd4"
+  },
+  "RolemasterCharacterCreation/Components/Pages/Campaign/WorldMapView.razor": {
+    "mtime": 1781948720.7691412,
+    "ast_hash": "aa48f275ecc9f16b00dc818c213de196",
+    "semantic_hash": "aa48f275ecc9f16b00dc818c213de196"
+  },
+  "RolemasterCharacterCreation/Components/Pages/Campaign/WorldMaps.razor": {
+    "mtime": 1782066474.8882556,
+    "ast_hash": "fcecbc33621a72621b9bc6471498db7c",
+    "semantic_hash": "fcecbc33621a72621b9bc6471498db7c"
+  },
+  "RolemasterCharacterCreation/Components/Pages/CharacterEdit.razor": {
+    "mtime": 1781636003.55251,
+    "ast_hash": "73351c51cb2c34684b5e6eef287599c5",
+    "semantic_hash": "73351c51cb2c34684b5e6eef287599c5"
+  },
+  "RolemasterCharacterCreation/Components/Pages/CharacterSheet.razor": {
+    "mtime": 1781872685.3510776,
+    "ast_hash": "45baa59fc2cf2460f355229a5f01d26d",
+    "semantic_hash": "45baa59fc2cf2460f355229a5f01d26d"
+  },
+  "RolemasterCharacterCreation/Components/Pages/CharacterWizard.razor": {
+    "mtime": 1782151463.221456,
+    "ast_hash": "867915944424967a81ad63e7ee2b1404",
+    "semantic_hash": "867915944424967a81ad63e7ee2b1404"
+  },
+  "RolemasterCharacterCreation/Components/Pages/CharacterWizard.razor.cs": {
+    "mtime": 1782151117.8690162,
+    "ast_hash": "e738ed6e89ef2deed95d8ab2fa78ee62",
+    "semantic_hash": "e738ed6e89ef2deed95d8ab2fa78ee62"
+  },
+  "RolemasterCharacterCreation/Components/Pages/Chat.razor": {
+    "mtime": 1781980931.969466,
+    "ast_hash": "acf165730e363d568c8a14f571763cfa",
+    "semantic_hash": "acf165730e363d568c8a14f571763cfa"
+  },
+  "RolemasterCharacterCreation/Components/Pages/CreatureTables.razor": {
+    "mtime": 1781977915.4427624,
+    "ast_hash": "0a88b9c457b2efcb786e8af2555205b3",
+    "semantic_hash": "0a88b9c457b2efcb786e8af2555205b3"
+  },
+  "RolemasterCharacterCreation/Components/Pages/CriticalTables.razor": {
+    "mtime": 1781799171.412081,
+    "ast_hash": "63e3205b5a235647cb71fab97d8be783",
+    "semantic_hash": "63e3205b5a235647cb71fab97d8be783"
+  },
+  "RolemasterCharacterCreation/Components/Pages/Error.razor": {
+    "mtime": 1779886244.7235518,
+    "ast_hash": "895aa385b310af50d09fd583be83b251",
+    "semantic_hash": "895aa385b310af50d09fd583be83b251"
+  },
+  "RolemasterCharacterCreation/Components/Pages/FumbleTables.razor": {
+    "mtime": 1781806561.5785284,
+    "ast_hash": "663c75c141633dd62589b4a5dc5ad52a",
+    "semantic_hash": "663c75c141633dd62589b4a5dc5ad52a"
+  },
+  "RolemasterCharacterCreation/Components/Pages/GM/CampaignSettingsPage.razor": {
+    "mtime": 1782066474.8882556,
+    "ast_hash": "fff2061ef0b9960c55b9e091b106bb18",
+    "semantic_hash": "fff2061ef0b9960c55b9e091b106bb18"
+  },
+  "RolemasterCharacterCreation/Components/Pages/GM/CharacterGmEdit.razor": {
+    "mtime": 1781638037.537809,
+    "ast_hash": "68de42fa69d14d2e80c8b00c7d380dc7",
+    "semantic_hash": "68de42fa69d14d2e80c8b00c7d380dc7"
+  },
+  "RolemasterCharacterCreation/Components/Pages/GM/Characters.razor": {
+    "mtime": 1782150842.054111,
+    "ast_hash": "05bb5c75f9ebd8714536fb4f1598567e",
+    "semantic_hash": "05bb5c75f9ebd8714536fb4f1598567e"
+  },
+  "RolemasterCharacterCreation/Components/Pages/GM/Creatures.razor": {
+    "mtime": 1781977894.580825,
+    "ast_hash": "c8e9d25c60edcf2445385bffc7297013",
+    "semantic_hash": "c8e9d25c60edcf2445385bffc7297013"
+  },
+  "RolemasterCharacterCreation/Components/Pages/GM/GmTools.razor": {
+    "mtime": 1781968628.866123,
+    "ast_hash": "2f1f5f5f581e2c9bfffe5a591751bf92",
+    "semantic_hash": "2f1f5f5f581e2c9bfffe5a591751bf92"
+  },
+  "RolemasterCharacterCreation/Components/Pages/GM/Players.razor": {
+    "mtime": 1782546592.346597,
+    "ast_hash": "22daeb63abc8c86beb04b6585ff7cf02",
+    "semantic_hash": "22daeb63abc8c86beb04b6585ff7cf02"
+  },
+  "RolemasterCharacterCreation/Components/Pages/GM/SessionNotes.razor": {
+    "mtime": 1782149882.2092986,
+    "ast_hash": "fecc60f8c84fba0ca82d2e9afa64e396",
+    "semantic_hash": "fecc60f8c84fba0ca82d2e9afa64e396"
+  },
+  "RolemasterCharacterCreation/Components/Pages/GM/SmsTest.razor": {
+    "mtime": 1782545749.3172593,
+    "ast_hash": "0c154c5bd6740c0d4d89002cb5baa3be",
+    "semantic_hash": "0c154c5bd6740c0d4d89002cb5baa3be"
+  },
+  "RolemasterCharacterCreation/Components/Pages/GM/UsefulLinks.razor": {
+    "mtime": 1781897838.4679153,
+    "ast_hash": "ffc3167482469fe34c2a54246e33b963",
+    "semantic_hash": "ffc3167482469fe34c2a54246e33b963"
+  },
+  "RolemasterCharacterCreation/Components/Pages/Player/Characters.razor": {
+    "mtime": 1783526784.2236872,
+    "ast_hash": "b8248e8a44ab0588b484dd281aacccbf",
+    "semantic_hash": "b8248e8a44ab0588b484dd281aacccbf"
+  },
+  "RolemasterCharacterCreation/Components/Pages/ReferenceTables.razor": {
+    "mtime": 1782072799.5589204,
+    "ast_hash": "d8b1c39b2d8064a12483e2280381ecb2",
+    "semantic_hash": "d8b1c39b2d8064a12483e2280381ecb2"
+  },
+  "RolemasterCharacterCreation/Components/Pages/SessionNotes.razor": {
+    "mtime": 1782149903.081197,
+    "ast_hash": "4cec4aca6bcc40ab3166285f6683ce07",
+    "semantic_hash": "4cec4aca6bcc40ab3166285f6683ce07"
+  },
+  "RolemasterCharacterCreation/Components/Pages/Sessions.razor": {
+    "mtime": 1782153761.7912624,
+    "ast_hash": "1cdcff4e6ddc2cca7de0a95d10e21e80",
+    "semantic_hash": "1cdcff4e6ddc2cca7de0a95d10e21e80"
+  },
+  "RolemasterCharacterCreation/Components/Pages/SpellFailures.razor": {
+    "mtime": 1782074793.9856417,
+    "ast_hash": "834430eb0732961d42aa1b7c64abcdf4",
+    "semantic_hash": "834430eb0732961d42aa1b7c64abcdf4"
+  },
+  "RolemasterCharacterCreation/Components/Pages/Spells.razor": {
+    "mtime": 1782154390.3921828,
+    "ast_hash": "5e2547d4ae8be3125a6ebce9a7d1f1e7",
+    "semantic_hash": "5e2547d4ae8be3125a6ebce9a7d1f1e7"
+  },
+  "RolemasterCharacterCreation/Components/Pages/Treasure/CreateMagicItem.razor": {
+    "mtime": 1782073661.2962747,
+    "ast_hash": "521b7cab2eeb5457b9a84d7650e12138",
+    "semantic_hash": "521b7cab2eeb5457b9a84d7650e12138"
+  },
+  "RolemasterCharacterCreation/Components/Pages/Treasure/MagicItems.razor": {
+    "mtime": 1782073692.5476425,
+    "ast_hash": "c6337f74447fac97fda94933d4e3ef8c",
+    "semantic_hash": "c6337f74447fac97fda94933d4e3ef8c"
+  },
+  "RolemasterCharacterCreation/Components/Routes.razor": {
+    "mtime": 1779906296.3946562,
+    "ast_hash": "0bc55fe9c2e5312e69fd337b1c8f0473",
+    "semantic_hash": "0bc55fe9c2e5312e69fd337b1c8f0473"
+  },
+  "RolemasterCharacterCreation/Components/RuleBookDownloads.razor": {
+    "mtime": 1781794293.9339483,
+    "ast_hash": "edf13d176b1211da5c9545f897928768",
+    "semantic_hash": "edf13d176b1211da5c9545f897928768"
+  },
+  "RolemasterCharacterCreation/Components/RulesAssistant.razor": {
+    "mtime": 1781989594.530832,
+    "ast_hash": "76f59e985e38b1cc571a8a20194d4d2e",
+    "semantic_hash": "76f59e985e38b1cc571a8a20194d4d2e"
+  },
+  "RolemasterCharacterCreation/Components/_Imports.razor": {
+    "mtime": 1781705348.2720215,
+    "ast_hash": "4f67fb2aa18769d3e9f465ea5ef3a0e5",
+    "semantic_hash": "4f67fb2aa18769d3e9f465ea5ef3a0e5"
+  },
+  "RolemasterCharacterCreation/Data/AppDbContext.cs": {
+    "mtime": 1782153564.0252483,
+    "ast_hash": "13109e68cf973a658a9b304e3421b824",
+    "semantic_hash": "13109e68cf973a658a9b304e3421b824"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260527175403_InitialCreate.Designer.cs": {
+    "mtime": 1779904444.0421593,
+    "ast_hash": "92f5b4a9fdd5682a4fff74d0ca8fd857",
+    "semantic_hash": "92f5b4a9fdd5682a4fff74d0ca8fd857"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260527175403_InitialCreate.cs": {
+    "mtime": 1779904444.0411603,
+    "ast_hash": "aae6fcadfadfc2898134fe8b144c50fa",
+    "semantic_hash": "aae6fcadfadfc2898134fe8b144c50fa"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260527190801_AddCharacterSkills.Designer.cs": {
+    "mtime": 1779908881.819279,
+    "ast_hash": "30b440428a181ecb896045acd189fc0f",
+    "semantic_hash": "30b440428a181ecb896045acd189fc0f"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260527190801_AddCharacterSkills.cs": {
+    "mtime": 1779908881.819279,
+    "ast_hash": "29cdce3c3fbedb7c7f1eee870006be81",
+    "semantic_hash": "29cdce3c3fbedb7c7f1eee870006be81"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260530155746_AddHeightWeight.Designer.cs": {
+    "mtime": 1780156666.8086047,
+    "ast_hash": "9ce8e1da308b1a45d6ad6907e264fb5d",
+    "semantic_hash": "9ce8e1da308b1a45d6ad6907e264fb5d"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260530155746_AddHeightWeight.cs": {
+    "mtime": 1780156666.8086047,
+    "ast_hash": "f471a0af331ad023f5ca926b8085e4d0",
+    "semantic_hash": "f471a0af331ad023f5ca926b8085e4d0"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260530161351_AddGender.Designer.cs": {
+    "mtime": 1780157631.3620214,
+    "ast_hash": "611de08c8ff524ea4861fa6bed21d214",
+    "semantic_hash": "611de08c8ff524ea4861fa6bed21d214"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260530161351_AddGender.cs": {
+    "mtime": 1780157631.3620214,
+    "ast_hash": "3da22b35f1e48130893cf3f2bec0a809",
+    "semantic_hash": "3da22b35f1e48130893cf3f2bec0a809"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260530164854_AddAppearanceFields.Designer.cs": {
+    "mtime": 1780159734.055156,
+    "ast_hash": "1336a438e45f43a3d078f92fb25a875b",
+    "semantic_hash": "1336a438e45f43a3d078f92fb25a875b"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260530164854_AddAppearanceFields.cs": {
+    "mtime": 1780159734.055156,
+    "ast_hash": "e98128b28e5613d5480e0e3556565665",
+    "semantic_hash": "e98128b28e5613d5480e0e3556565665"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260530165356_AddStatSpecial.Designer.cs": {
+    "mtime": 1780160036.5703852,
+    "ast_hash": "404c596ec52e1cf49b347728ac4872f3",
+    "semantic_hash": "404c596ec52e1cf49b347728ac4872f3"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260530165356_AddStatSpecial.cs": {
+    "mtime": 1780160036.5703852,
+    "ast_hash": "d79fa1d63a9468ef417f73a4d975a305",
+    "semantic_hash": "d79fa1d63a9468ef417f73a4d975a305"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260530170845_AddArmorSelection.Designer.cs": {
+    "mtime": 1780160925.747513,
+    "ast_hash": "b4ae936c49d758b013e7ffc521dc1be0",
+    "semantic_hash": "b4ae936c49d758b013e7ffc521dc1be0"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260530170845_AddArmorSelection.cs": {
+    "mtime": 1780160925.747513,
+    "ast_hash": "854ef0670b01de25cd0ef568d52ba56e",
+    "semantic_hash": "854ef0670b01de25cd0ef568d52ba56e"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260530183904_AddCharacterTalents.Designer.cs": {
+    "mtime": 1780166344.3021984,
+    "ast_hash": "f7a67ed82b57f8c2da8306ed6d923d4a",
+    "semantic_hash": "f7a67ed82b57f8c2da8306ed6d923d4a"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260530183904_AddCharacterTalents.cs": {
+    "mtime": 1780166344.3011992,
+    "ast_hash": "7a83ed222f8640e1c603dcdb2702bd40",
+    "semantic_hash": "7a83ed222f8640e1c603dcdb2702bd40"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260530201050_AddEquipmentItems.Designer.cs": {
+    "mtime": 1780171850.910223,
+    "ast_hash": "0a9b6d9cfd643ba9a0abc9caa9c23d89",
+    "semantic_hash": "0a9b6d9cfd643ba9a0abc9caa9c23d89"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260530201050_AddEquipmentItems.cs": {
+    "mtime": 1780171850.9092107,
+    "ast_hash": "7d4250a258ea4088185b846f413cd1a0",
+    "semantic_hash": "7d4250a258ea4088185b846f413cd1a0"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260616170521_AddCurrentXp.Designer.cs": {
+    "mtime": 1781629521.6580563,
+    "ast_hash": "5cb9891538f459e491b03168af9150a2",
+    "semantic_hash": "5cb9891538f459e491b03168af9150a2"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260616170521_AddCurrentXp.cs": {
+    "mtime": 1781629521.6570556,
+    "ast_hash": "f90ec64c9747f0608ef8f32c4c4acfa4",
+    "semantic_hash": "f90ec64c9747f0608ef8f32c4c4acfa4"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260616184748_AddLevelUpBaseline.Designer.cs": {
+    "mtime": 1781635668.68493,
+    "ast_hash": "cb4945962c3b5b6b484a08b796f978eb",
+    "semantic_hash": "cb4945962c3b5b6b484a08b796f978eb"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260616184748_AddLevelUpBaseline.cs": {
+    "mtime": 1781635668.683929,
+    "ast_hash": "fec9115277a0f6a5e118b34e46101cfd",
+    "semantic_hash": "fec9115277a0f6a5e118b34e46101cfd"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260617000001_CapRaceBonusDpToRemaining.cs": {
+    "mtime": 1781704203.9690347,
+    "ast_hash": "aa926ed24d6afd8ba33650203c27306f",
+    "semantic_hash": "aa926ed24d6afd8ba33650203c27306f"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260617173036_AddCreatureDescriptions.Designer.cs": {
+    "mtime": 1781717436.5165844,
+    "ast_hash": "415b9e4b531ac387ff78a408a924dffc",
+    "semantic_hash": "415b9e4b531ac387ff78a408a924dffc"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260617173036_AddCreatureDescriptions.cs": {
+    "mtime": 1781717436.5155718,
+    "ast_hash": "1ee244b561ef03964ff32cb801539824",
+    "semantic_hash": "1ee244b561ef03964ff32cb801539824"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260618150618_AddAttackTables.Designer.cs": {
+    "mtime": 1781795178.9632552,
+    "ast_hash": "958b1eb41d682be34264748aff62f904",
+    "semantic_hash": "958b1eb41d682be34264748aff62f904"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260618150618_AddAttackTables.cs": {
+    "mtime": 1781795178.9622548,
+    "ast_hash": "45dc6b8bf96889fabb34eb35fdfd5d79",
+    "semantic_hash": "45dc6b8bf96889fabb34eb35fdfd5d79"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260618161205_AddCriticalTables.Designer.cs": {
+    "mtime": 1781799125.642862,
+    "ast_hash": "490e113c60bc5910a483ac16029be603",
+    "semantic_hash": "490e113c60bc5910a483ac16029be603"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260618161205_AddCriticalTables.cs": {
+    "mtime": 1781799125.641859,
+    "ast_hash": "58d33bc5ec74c4831d8794fca8127de7",
+    "semantic_hash": "58d33bc5ec74c4831d8794fca8127de7"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260618181526_AddFumbleTables.Designer.cs": {
+    "mtime": 1781806526.116719,
+    "ast_hash": "917dff8d66c4c8e03d910a72c1b0cbb0",
+    "semantic_hash": "917dff8d66c4c8e03d910a72c1b0cbb0"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260618181526_AddFumbleTables.cs": {
+    "mtime": 1781806526.114706,
+    "ast_hash": "5dddc6846fdb5cc034b504d871f83683",
+    "semantic_hash": "5dddc6846fdb5cc034b504d871f83683"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260618182736_AddSpellFailureTables.Designer.cs": {
+    "mtime": 1781807256.508181,
+    "ast_hash": "4dbc566f24ec2d812fabe72529c5c28c",
+    "semantic_hash": "4dbc566f24ec2d812fabe72529c5c28c"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260618182736_AddSpellFailureTables.cs": {
+    "mtime": 1781807256.508181,
+    "ast_hash": "bb6d98792c935806178005abba708727",
+    "semantic_hash": "bb6d98792c935806178005abba708727"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260618191640_AddSpellLists.Designer.cs": {
+    "mtime": 1781810200.724889,
+    "ast_hash": "ce6e5f491116979905e5a4550880807b",
+    "semantic_hash": "ce6e5f491116979905e5a4550880807b"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260618191640_AddSpellLists.cs": {
+    "mtime": 1781810200.724889,
+    "ast_hash": "0ebd82c8cc08356a4b501a377d821d2c",
+    "semantic_hash": "0ebd82c8cc08356a4b501a377d821d2c"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260619152926_AddCampaignTowns.Designer.cs": {
+    "mtime": 1781882967.0295916,
+    "ast_hash": "0a2a73a5c0bcbe9935ced74c66ae74b3",
+    "semantic_hash": "0a2a73a5c0bcbe9935ced74c66ae74b3"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260619152926_AddCampaignTowns.cs": {
+    "mtime": 1781882967.0295916,
+    "ast_hash": "29babe5b193d532c2a30abacc7e4ff01",
+    "semantic_hash": "29babe5b193d532c2a30abacc7e4ff01"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260619160018_AddTownLocationNotesAndCategoryNames.Designer.cs": {
+    "mtime": 1781884818.4440331,
+    "ast_hash": "d35da68c5fbab0b6efa4491f23cead75",
+    "semantic_hash": "d35da68c5fbab0b6efa4491f23cead75"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260619160018_AddTownLocationNotesAndCategoryNames.cs": {
+    "mtime": 1781884818.4440331,
+    "ast_hash": "31fb3543abaaec864e0378aede402c51",
+    "semantic_hash": "31fb3543abaaec864e0378aede402c51"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260619175739_AddTownLocationGmNotes.Designer.cs": {
+    "mtime": 1781891859.620612,
+    "ast_hash": "cfe1e2da7f843e245e879c454c6d8d4c",
+    "semantic_hash": "cfe1e2da7f843e245e879c454c6d8d4c"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260619175739_AddTownLocationGmNotes.cs": {
+    "mtime": 1781891859.6193068,
+    "ast_hash": "addcb45507bb8c9d394c41f78655cc3c",
+    "semantic_hash": "addcb45507bb8c9d394c41f78655cc3c"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260619183559_AddWorldMaps.Designer.cs": {
+    "mtime": 1781894160.0467222,
+    "ast_hash": "fd33868a2558288f61ceedecade3792a",
+    "semantic_hash": "fd33868a2558288f61ceedecade3792a"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260619183559_AddWorldMaps.cs": {
+    "mtime": 1781894160.0456994,
+    "ast_hash": "f639732300db04283203a7131d85e5ec",
+    "semantic_hash": "f639732300db04283203a7131d85e5ec"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260619190743_AddWorldReveals.Designer.cs": {
+    "mtime": 1781896063.2916749,
+    "ast_hash": "ca519dbb4f3d4311158c56090e285732",
+    "semantic_hash": "ca519dbb4f3d4311158c56090e285732"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260619190743_AddWorldReveals.cs": {
+    "mtime": 1781896063.2906804,
+    "ast_hash": "5025943ef073d1602bcd662762d86dcb",
+    "semantic_hash": "5025943ef073d1602bcd662762d86dcb"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260619192357_AddWorldLocationLinkedTown.Designer.cs": {
+    "mtime": 1781897037.5254543,
+    "ast_hash": "5c19f2f69fa4a96c2dac6ddeaf3e1761",
+    "semantic_hash": "5c19f2f69fa4a96c2dac6ddeaf3e1761"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260619192357_AddWorldLocationLinkedTown.cs": {
+    "mtime": 1781897037.5244553,
+    "ast_hash": "3d14c61797c3fa19c57d36201a855c3f",
+    "semantic_hash": "3d14c61797c3fa19c57d36201a855c3f"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260619193821_AddUsefulLinks.Designer.cs": {
+    "mtime": 1781897901.823433,
+    "ast_hash": "1c27cb602c4bc643100d66c083af4b9a",
+    "semantic_hash": "1c27cb602c4bc643100d66c083af4b9a"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260619193821_AddUsefulLinks.cs": {
+    "mtime": 1781897901.8224242,
+    "ast_hash": "17030454c141f00cc5ca132f33ebad87",
+    "semantic_hash": "17030454c141f00cc5ca132f33ebad87"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260619195313_AddCampaignVillages.Designer.cs": {
+    "mtime": 1781898793.7151315,
+    "ast_hash": "27da66851736872c49c9f6803102afb3",
+    "semantic_hash": "27da66851736872c49c9f6803102afb3"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260619195313_AddCampaignVillages.cs": {
+    "mtime": 1781898793.7151315,
+    "ast_hash": "1b4db8b8c352dcfdead4758ca399d84e",
+    "semantic_hash": "1b4db8b8c352dcfdead4758ca399d84e"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260619201224_AddWorldLocationVillageLink.Designer.cs": {
+    "mtime": 1781899944.871931,
+    "ast_hash": "7488f978215fe5f13c4d9f8d40a6e22f",
+    "semantic_hash": "7488f978215fe5f13c4d9f8d40a6e22f"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260619201224_AddWorldLocationVillageLink.cs": {
+    "mtime": 1781899944.8709323,
+    "ast_hash": "d6db563d2046949fcfce1976ee03894d",
+    "semantic_hash": "d6db563d2046949fcfce1976ee03894d"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260619204026_AddCampaignDungeons.Designer.cs": {
+    "mtime": 1781901626.4488363,
+    "ast_hash": "715dc7c2317346b97a6a0aae40577079",
+    "semantic_hash": "715dc7c2317346b97a6a0aae40577079"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260619204026_AddCampaignDungeons.cs": {
+    "mtime": 1781901626.4488363,
+    "ast_hash": "cc51b8a3c3715b7a307f9de0dc7b9abf",
+    "semantic_hash": "cc51b8a3c3715b7a307f9de0dc7b9abf"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260619204353_AddWorldLocationDungeonLink.Designer.cs": {
+    "mtime": 1781901833.1921244,
+    "ast_hash": "c27f66aad5fc9a8011338ec04b9bdad6",
+    "semantic_hash": "c27f66aad5fc9a8011338ec04b9bdad6"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260619204353_AddWorldLocationDungeonLink.cs": {
+    "mtime": 1781901833.1911204,
+    "ast_hash": "0fae2cbbb24df74546f995a229e96efe",
+    "semantic_hash": "0fae2cbbb24df74546f995a229e96efe"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260619210400_AddDungeonNotes.Designer.cs": {
+    "mtime": 1781903040.9417064,
+    "ast_hash": "411ceed7fd800047efcec8eac7b56fe7",
+    "semantic_hash": "411ceed7fd800047efcec8eac7b56fe7"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260619210400_AddDungeonNotes.cs": {
+    "mtime": 1781903040.9417064,
+    "ast_hash": "3417b0673c6664f61cfced35a4804837",
+    "semantic_hash": "3417b0673c6664f61cfced35a4804837"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260620064728_DungeonMarksPerCell.Designer.cs": {
+    "mtime": 1781938049.0524838,
+    "ast_hash": "38e98a26b06b817a802ddeb586975d78",
+    "semantic_hash": "38e98a26b06b817a802ddeb586975d78"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260620064728_DungeonMarksPerCell.cs": {
+    "mtime": 1781938074.5406022,
+    "ast_hash": "4f31de0de59f48a5c9cf5fcfec4b4d09",
+    "semantic_hash": "4f31de0de59f48a5c9cf5fcfec4b4d09"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260620065621_PruneDungeonLegendNames.Designer.cs": {
+    "mtime": 1781938581.9822364,
+    "ast_hash": "85059e8b7b8d51fe8ba0574128146d8f",
+    "semantic_hash": "85059e8b7b8d51fe8ba0574128146d8f"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260620065621_PruneDungeonLegendNames.cs": {
+    "mtime": 1781938599.0399091,
+    "ast_hash": "68e0b7b0dfaa08d21d0a2ed9591b05a8",
+    "semantic_hash": "68e0b7b0dfaa08d21d0a2ed9591b05a8"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260620070535_AddDungeonLocationVisibility.Designer.cs": {
+    "mtime": 1781939135.852029,
+    "ast_hash": "a843e0fc883bc5560b00d7da03010cd1",
+    "semantic_hash": "a843e0fc883bc5560b00d7da03010cd1"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260620070535_AddDungeonLocationVisibility.cs": {
+    "mtime": 1781939135.852029,
+    "ast_hash": "d8043944f19f79fbde06e72d03597d20",
+    "semantic_hash": "d8043944f19f79fbde06e72d03597d20"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260620071206_AddDungeonNoteVisibility.Designer.cs": {
+    "mtime": 1781939526.3173218,
+    "ast_hash": "b43bd2614c765958fe3f97ed514175cf",
+    "semantic_hash": "b43bd2614c765958fe3f97ed514175cf"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260620071206_AddDungeonNoteVisibility.cs": {
+    "mtime": 1781939526.3173218,
+    "ast_hash": "97986c74b9d9ada074939da60ef1104c",
+    "semantic_hash": "97986c74b9d9ada074939da60ef1104c"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260620085233_AddCampaignCaves.Designer.cs": {
+    "mtime": 1781945553.8698103,
+    "ast_hash": "660eb5c53d80a24fc6bdfc291c21e039",
+    "semantic_hash": "660eb5c53d80a24fc6bdfc291c21e039"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260620085233_AddCampaignCaves.cs": {
+    "mtime": 1781945553.8698103,
+    "ast_hash": "d888f1c40455f2a5d41b4cf4504dc356",
+    "semantic_hash": "d888f1c40455f2a5d41b4cf4504dc356"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260620094619_AddCampaignBuildings.Designer.cs": {
+    "mtime": 1781948779.0857837,
+    "ast_hash": "063d01cc97b4599135f864dc0b298662",
+    "semantic_hash": "063d01cc97b4599135f864dc0b298662"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260620094619_AddCampaignBuildings.cs": {
+    "mtime": 1781948779.0857837,
+    "ast_hash": "bcb830f743b4fedc3f4f97e20183a31b",
+    "semantic_hash": "bcb830f743b4fedc3f4f97e20183a31b"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260620145224_LinkTownVillageToBuilding.Designer.cs": {
+    "mtime": 1781967144.6897957,
+    "ast_hash": "10246afd8ba1b21456755a9d4841746e",
+    "semantic_hash": "10246afd8ba1b21456755a9d4841746e"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260620145224_LinkTownVillageToBuilding.cs": {
+    "mtime": 1781967144.6897957,
+    "ast_hash": "36010083210eea01772fc040886b6667",
+    "semantic_hash": "36010083210eea01772fc040886b6667"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260620184305_AddChat.Designer.cs": {
+    "mtime": 1781980985.7778778,
+    "ast_hash": "1ca8e1b44d3f10999a452ce2b74d65a6",
+    "semantic_hash": "1ca8e1b44d3f10999a452ce2b74d65a6"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260620184305_AddChat.cs": {
+    "mtime": 1781980985.7778778,
+    "ast_hash": "6a5ab255edd44a6f52f3155b32126ef3",
+    "semantic_hash": "6a5ab255edd44a6f52f3155b32126ef3"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260621141633_AddSpellListGmOnly.Designer.cs": {
+    "mtime": 1782066474.8882556,
+    "ast_hash": "00ecf3003ecfa298255bf6a2961f176f",
+    "semantic_hash": "00ecf3003ecfa298255bf6a2961f176f"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260621141633_AddSpellListGmOnly.cs": {
+    "mtime": 1782066474.8882556,
+    "ast_hash": "b66816c5905e91de7625a7589771ef52",
+    "semantic_hash": "b66816c5905e91de7625a7589771ef52"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260621174625_AddCampaignSettings.Designer.cs": {
+    "mtime": 1782066474.8882556,
+    "ast_hash": "93f11cced26bf19e9712bc2160b59097",
+    "semantic_hash": "93f11cced26bf19e9712bc2160b59097"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260621174625_AddCampaignSettings.cs": {
+    "mtime": 1782066474.8882556,
+    "ast_hash": "4c1b75a56b21ff4f73a455754c6bc6d1",
+    "semantic_hash": "4c1b75a56b21ff4f73a455754c6bc6d1"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260622174011_AddSessionNotes.Designer.cs": {
+    "mtime": 1782150011.6152327,
+    "ast_hash": "8bda3b9841a46fcd7f497725ea8dbc50",
+    "semantic_hash": "8bda3b9841a46fcd7f497725ea8dbc50"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260622174011_AddSessionNotes.cs": {
+    "mtime": 1782150011.6152327,
+    "ast_hash": "08c56c235541b8e72d2f8608d1bbbc7d",
+    "semantic_hash": "08c56c235541b8e72d2f8608d1bbbc7d"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260622175911_AddGmDpAdjust.Designer.cs": {
+    "mtime": 1782151151.1305723,
+    "ast_hash": "227ec099dfcca8e31c310a5db1d67768",
+    "semantic_hash": "227ec099dfcca8e31c310a5db1d67768"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260622175911_AddGmDpAdjust.cs": {
+    "mtime": 1782151151.1305723,
+    "ast_hash": "39fef94576e3fc9d0d2d0f01ff547072",
+    "semantic_hash": "39fef94576e3fc9d0d2d0f01ff547072"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260622184256_AddGameSessions.Designer.cs": {
+    "mtime": 1782153776.280311,
+    "ast_hash": "bedd66b01a3b1be37e454967ae884e1d",
+    "semantic_hash": "bedd66b01a3b1be37e454967ae884e1d"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20260622184256_AddGameSessions.cs": {
+    "mtime": 1782153776.2793121,
+    "ast_hash": "1ad820ebf406172d9a9835eda496158d",
+    "semantic_hash": "1ad820ebf406172d9a9835eda496158d"
+  },
+  "RolemasterCharacterCreation/Data/Migrations/AppDbContextModelSnapshot.cs": {
+    "mtime": 1782153776.280311,
+    "ast_hash": "1ff209281504d395ea8f7fb64c2731f6",
+    "semantic_hash": "1ff209281504d395ea8f7fb64c2731f6"
+  },
+  "RolemasterCharacterCreation/Identity/CountryDialCodes.cs": {
+    "mtime": 1782066474.8882556,
+    "ast_hash": "79b1e0b3069082111484480811c5138a",
+    "semantic_hash": "79b1e0b3069082111484480811c5138a"
+  },
+  "RolemasterCharacterCreation/Identity/IdentityRevalidatingAuthenticationStateProvider.cs": {
+    "mtime": 1779904238.4511223,
+    "ast_hash": "d242039cb149624db0ccd8f5d90f9c10",
+    "semantic_hash": "d242039cb149624db0ccd8f5d90f9c10"
+  },
+  "RolemasterCharacterCreation/Identity/InviteClaims.cs": {
+    "mtime": 1782066474.8882556,
+    "ast_hash": "f5f23022ec96a4f2c68d7b3bed17b890",
+    "semantic_hash": "f5f23022ec96a4f2c68d7b3bed17b890"
+  },
+  "RolemasterCharacterCreation/Identity/PersistingAuthenticationStateProvider.cs": {
+    "mtime": 1779904294.9561388,
+    "ast_hash": "22989d25e597c52ced23548cb5b2cae8",
+    "semantic_hash": "22989d25e597c52ced23548cb5b2cae8"
+  },
+  "RolemasterCharacterCreation/Identity/Roles.cs": {
+    "mtime": 1779904337.5041592,
+    "ast_hash": "09bd4deb224517031fbf348322bb3ea6",
+    "semantic_hash": "09bd4deb224517031fbf348322bb3ea6"
+  },
+  "RolemasterCharacterCreation/Identity/TempPassword.cs": {
+    "mtime": 1782547392.7163932,
+    "ast_hash": "5b2e71f0dafa19755a7e66dfad090b9f",
+    "semantic_hash": "5b2e71f0dafa19755a7e66dfad090b9f"
+  },
+  "RolemasterCharacterCreation/Models/ApplicationUser.cs": {
+    "mtime": 1779904165.0277858,
+    "ast_hash": "3c67f26963d03073aa4b83868c7a9ab1",
+    "semantic_hash": "3c67f26963d03073aa4b83868c7a9ab1"
+  },
+  "RolemasterCharacterCreation/Models/AttackTable.cs": {
+    "mtime": 1781794389.1511734,
+    "ast_hash": "288decc46f4b7091d8eb4244e8987a45",
+    "semantic_hash": "288decc46f4b7091d8eb4244e8987a45"
+  },
+  "RolemasterCharacterCreation/Models/AttackTableRow.cs": {
+    "mtime": 1781794312.4629643,
+    "ast_hash": "3d9f5cc8bebb9fd091664fc809f8739c",
+    "semantic_hash": "3d9f5cc8bebb9fd091664fc809f8739c"
+  },
+  "RolemasterCharacterCreation/Models/AttackTableWeapon.cs": {
+    "mtime": 1781794304.7504082,
+    "ast_hash": "982e3f212003ff7c7dbf8a3445deeae5",
+    "semantic_hash": "982e3f212003ff7c7dbf8a3445deeae5"
+  },
+  "RolemasterCharacterCreation/Models/BuildingCategory.cs": {
+    "mtime": 1781948218.69437,
+    "ast_hash": "750e902604564571b9af6be9795d556f",
+    "semantic_hash": "750e902604564571b9af6be9795d556f"
+  },
+  "RolemasterCharacterCreation/Models/BuildingCategoryName.cs": {
+    "mtime": 1781948223.8505569,
+    "ast_hash": "692c324f8fdfd0f9267c619550afc4ef",
+    "semantic_hash": "692c324f8fdfd0f9267c619550afc4ef"
+  },
+  "RolemasterCharacterCreation/Models/BuildingLocation.cs": {
+    "mtime": 1781948232.3756597,
+    "ast_hash": "c2dc1c1e443a8d490c2f2f49c97da658",
+    "semantic_hash": "c2dc1c1e443a8d490c2f2f49c97da658"
+  },
+  "RolemasterCharacterCreation/Models/BuildingMap.cs": {
+    "mtime": 1781948211.6249435,
+    "ast_hash": "3be957cede42a31f265f2e4851cc2747",
+    "semantic_hash": "3be957cede42a31f265f2e4851cc2747"
+  },
+  "RolemasterCharacterCreation/Models/BuildingNote.cs": {
+    "mtime": 1781948238.7210898,
+    "ast_hash": "ec5658314f7a93a61335898fbe19ea3f",
+    "semantic_hash": "ec5658314f7a93a61335898fbe19ea3f"
+  },
+  "RolemasterCharacterCreation/Models/BuildingReveal.cs": {
+    "mtime": 1781948244.1736963,
+    "ast_hash": "d50f8d92a566b6c47d18b0485522b15a",
+    "semantic_hash": "d50f8d92a566b6c47d18b0485522b15a"
+  },
+  "RolemasterCharacterCreation/Models/CampaignSettings.cs": {
+    "mtime": 1782066474.8882556,
+    "ast_hash": "8dec1c78a42dcd89ade59cdf21d6af3e",
+    "semantic_hash": "8dec1c78a42dcd89ade59cdf21d6af3e"
+  },
+  "RolemasterCharacterCreation/Models/CaveCategory.cs": {
+    "mtime": 1781944895.4058588,
+    "ast_hash": "f4d1169825208546e4a0847e782276ae",
+    "semantic_hash": "f4d1169825208546e4a0847e782276ae"
+  },
+  "RolemasterCharacterCreation/Models/CaveCategoryName.cs": {
+    "mtime": 1781944901.8064775,
+    "ast_hash": "cd75ec67ae2be3aa6bd6dfce05057b8c",
+    "semantic_hash": "cd75ec67ae2be3aa6bd6dfce05057b8c"
+  },
+  "RolemasterCharacterCreation/Models/CaveLocation.cs": {
+    "mtime": 1781944925.152745,
+    "ast_hash": "7adbfc6ab9f2c9926f50beced1980216",
+    "semantic_hash": "7adbfc6ab9f2c9926f50beced1980216"
+  },
+  "RolemasterCharacterCreation/Models/CaveMap.cs": {
+    "mtime": 1781944885.1082773,
+    "ast_hash": "94f93d47ba0c2eecc83351d09ed3ecfa",
+    "semantic_hash": "94f93d47ba0c2eecc83351d09ed3ecfa"
+  },
+  "RolemasterCharacterCreation/Models/CaveNote.cs": {
+    "mtime": 1781944915.732695,
+    "ast_hash": "4f212719b17e09b98d6ade7ec4bd8700",
+    "semantic_hash": "4f212719b17e09b98d6ade7ec4bd8700"
+  },
+  "RolemasterCharacterCreation/Models/CaveReveal.cs": {
+    "mtime": 1781944908.5878654,
+    "ast_hash": "979acdb08fa8c60fba5e69751d3dba8c",
+    "semantic_hash": "979acdb08fa8c60fba5e69751d3dba8c"
+  },
+  "RolemasterCharacterCreation/Models/Character.cs": {
+    "mtime": 1782151050.5562685,
+    "ast_hash": "1016bb643a47b06f8f7a45345be036e1",
+    "semantic_hash": "1016bb643a47b06f8f7a45345be036e1"
+  },
+  "RolemasterCharacterCreation/Models/CharacterAuditLog.cs": {
+    "mtime": 1779904186.5355792,
+    "ast_hash": "036a5477b5cfb28355911cc87e57947d",
+    "semantic_hash": "036a5477b5cfb28355911cc87e57947d"
+  },
+  "RolemasterCharacterCreation/Models/CharacterEquipmentItem.cs": {
+    "mtime": 1780171571.0257738,
+    "ast_hash": "7e5f12d856ab57f805e847a5ee921cd2",
+    "semantic_hash": "7e5f12d856ab57f805e847a5ee921cd2"
+  },
+  "RolemasterCharacterCreation/Models/CharacterFavoriteAttack.cs": {
+    "mtime": 1781794319.5320382,
+    "ast_hash": "253b086b38b24084b66126bfbd4065b7",
+    "semantic_hash": "253b086b38b24084b66126bfbd4065b7"
+  },
+  "RolemasterCharacterCreation/Models/CharacterSkill.cs": {
+    "mtime": 1779908746.192231,
+    "ast_hash": "115a77afc6b72d4ed94cf9878ca01187",
+    "semantic_hash": "115a77afc6b72d4ed94cf9878ca01187"
+  },
+  "RolemasterCharacterCreation/Models/CharacterStat.cs": {
+    "mtime": 1780159982.2637372,
+    "ast_hash": "3b080727073801399a113488eaf90372",
+    "semantic_hash": "3b080727073801399a113488eaf90372"
+  },
+  "RolemasterCharacterCreation/Models/CharacterTalent.cs": {
+    "mtime": 1780166082.5300252,
+    "ast_hash": "2c8e7e1912cc8bc67ebcb9c103022a2a",
+    "semantic_hash": "2c8e7e1912cc8bc67ebcb9c103022a2a"
+  },
+  "RolemasterCharacterCreation/Models/ChatMessage.cs": {
+    "mtime": 1781980711.0139153,
+    "ast_hash": "e42ecab5f19b5eef11536f7df8c1fa39",
+    "semantic_hash": "e42ecab5f19b5eef11536f7df8c1fa39"
+  },
+  "RolemasterCharacterCreation/Models/ChatRead.cs": {
+    "mtime": 1781980717.4089956,
+    "ast_hash": "4f7b87fb0c8785f6b65e155fa48ef7cc",
+    "semantic_hash": "4f7b87fb0c8785f6b65e155fa48ef7cc"
+  },
+  "RolemasterCharacterCreation/Models/CreatureDescription.cs": {
+    "mtime": 1781717352.4358206,
+    "ast_hash": "fb4e0f74608d92f05822a2a54b15adfc",
+    "semantic_hash": "fb4e0f74608d92f05822a2a54b15adfc"
+  },
+  "RolemasterCharacterCreation/Models/CriticalTable.cs": {
+    "mtime": 1781799051.9999003,
+    "ast_hash": "571b348fad2b33dca4c6377b6804c176",
+    "semantic_hash": "571b348fad2b33dca4c6377b6804c176"
+  },
+  "RolemasterCharacterCreation/Models/CriticalTableRow.cs": {
+    "mtime": 1781799061.7836,
+    "ast_hash": "73b779aa8acefe6c2df06cf2dffa8bb2",
+    "semantic_hash": "73b779aa8acefe6c2df06cf2dffa8bb2"
+  },
+  "RolemasterCharacterCreation/Models/DungeonCategory.cs": {
+    "mtime": 1781901103.0518613,
+    "ast_hash": "b80841384894a14266dc891865b59a43",
+    "semantic_hash": "b80841384894a14266dc891865b59a43"
+  },
+  "RolemasterCharacterCreation/Models/DungeonCategoryName.cs": {
+    "mtime": 1781901108.2600255,
+    "ast_hash": "0e1dbb06b7090e8c1e27b39912bb1be2",
+    "semantic_hash": "0e1dbb06b7090e8c1e27b39912bb1be2"
+  },
+  "RolemasterCharacterCreation/Models/DungeonLocation.cs": {
+    "mtime": 1781939056.6222248,
+    "ast_hash": "d9e4babe7be418f382f202dcd8aaf707",
+    "semantic_hash": "d9e4babe7be418f382f202dcd8aaf707"
+  },
+  "RolemasterCharacterCreation/Models/DungeonMap.cs": {
+    "mtime": 1781901086.3852618,
+    "ast_hash": "28265df00f8ecb640e3304ac545f688f",
+    "semantic_hash": "28265df00f8ecb640e3304ac545f688f"
+  },
+  "RolemasterCharacterCreation/Models/DungeonNote.cs": {
+    "mtime": 1781939401.9688542,
+    "ast_hash": "a5cc73b7c8dad84aab132ee980bfda88",
+    "semantic_hash": "a5cc73b7c8dad84aab132ee980bfda88"
+  },
+  "RolemasterCharacterCreation/Models/DungeonReveal.cs": {
+    "mtime": 1781901114.234111,
+    "ast_hash": "d86707203dccdad1dd1062810c802724",
+    "semantic_hash": "d86707203dccdad1dd1062810c802724"
+  },
+  "RolemasterCharacterCreation/Models/FumbleTable.cs": {
+    "mtime": 1781806240.1509078,
+    "ast_hash": "b428aa9075683d01883811b429784072",
+    "semantic_hash": "b428aa9075683d01883811b429784072"
+  },
+  "RolemasterCharacterCreation/Models/FumbleTableRow.cs": {
+    "mtime": 1781806247.6670842,
+    "ast_hash": "fadb076110136c67441b11128517d273",
+    "semantic_hash": "fadb076110136c67441b11128517d273"
+  },
+  "RolemasterCharacterCreation/Models/GameSession.cs": {
+    "mtime": 1782153546.56162,
+    "ast_hash": "1e8ec7d8c326d346bdc1fb6cb6eaea8c",
+    "semantic_hash": "1e8ec7d8c326d346bdc1fb6cb6eaea8c"
+  },
+  "RolemasterCharacterCreation/Models/MagicItem.cs": {
+    "mtime": 1782073526.3924992,
+    "ast_hash": "21ee462c64e0d8cf1f106e35aa58a6c6",
+    "semantic_hash": "21ee462c64e0d8cf1f106e35aa58a6c6"
+  },
+  "RolemasterCharacterCreation/Models/MapCategory.cs": {
+    "mtime": 1781884554.7872343,
+    "ast_hash": "3daa8c36ad79ca4fc2832816773f5841",
+    "semantic_hash": "3daa8c36ad79ca4fc2832816773f5841"
+  },
+  "RolemasterCharacterCreation/Models/MapCategoryName.cs": {
+    "mtime": 1781884560.147082,
+    "ast_hash": "34704045cbdfbdd2a134d0e6a7c7a351",
+    "semantic_hash": "34704045cbdfbdd2a134d0e6a7c7a351"
+  },
+  "RolemasterCharacterCreation/Models/ReferenceTable.cs": {
+    "mtime": 1781875637.7179902,
+    "ast_hash": "1075278556c5b72911c6af6c4af9a8ec",
+    "semantic_hash": "1075278556c5b72911c6af6c4af9a8ec"
+  },
+  "RolemasterCharacterCreation/Models/SessionNote.cs": {
+    "mtime": 1782149836.2120123,
+    "ast_hash": "832f7ead402257b5a7fdd133bc6b64ce",
+    "semantic_hash": "832f7ead402257b5a7fdd133bc6b64ce"
+  },
+  "RolemasterCharacterCreation/Models/Spell.cs": {
+    "mtime": 1781810088.075849,
+    "ast_hash": "0ebf26794d2a45e6c25f4d0ea298f511",
+    "semantic_hash": "0ebf26794d2a45e6c25f4d0ea298f511"
+  },
+  "RolemasterCharacterCreation/Models/SpellFailureTable.cs": {
+    "mtime": 1781807154.375155,
+    "ast_hash": "0c19890302be331e9cb5f09ce6fe2829",
+    "semantic_hash": "0c19890302be331e9cb5f09ce6fe2829"
+  },
+  "RolemasterCharacterCreation/Models/SpellFailureTableRow.cs": {
+    "mtime": 1781807161.266407,
+    "ast_hash": "cf1058b20ba6e15820f101baee7f40fe",
+    "semantic_hash": "cf1058b20ba6e15820f101baee7f40fe"
+  },
+  "RolemasterCharacterCreation/Models/SpellList.cs": {
+    "mtime": 1782066474.8882556,
+    "ast_hash": "393fdde84959b0a7fb7a8f3ed5a5543c",
+    "semantic_hash": "393fdde84959b0a7fb7a8f3ed5a5543c"
+  },
+  "RolemasterCharacterCreation/Models/StatName.cs": {
+    "mtime": 1779903209.260238,
+    "ast_hash": "f937eff47d8bd03e265fd13751527636",
+    "semantic_hash": "f937eff47d8bd03e265fd13751527636"
+  },
+  "RolemasterCharacterCreation/Models/Town.cs": {
+    "mtime": 1781882506.4742703,
+    "ast_hash": "25de1bf1a26016bd28bc329dc61c2fdc",
+    "semantic_hash": "25de1bf1a26016bd28bc329dc61c2fdc"
+  },
+  "RolemasterCharacterCreation/Models/TownLocation.cs": {
+    "mtime": 1781966860.4346344,
+    "ast_hash": "635dd04a5da1b73e0e6520c6b01afdfe",
+    "semantic_hash": "635dd04a5da1b73e0e6520c6b01afdfe"
+  },
+  "RolemasterCharacterCreation/Models/UsefulLink.cs": {
+    "mtime": 1781897809.3940842,
+    "ast_hash": "55a25cd7e850a8f6c57faf59f9a67965",
+    "semantic_hash": "55a25cd7e850a8f6c57faf59f9a67965"
+  },
+  "RolemasterCharacterCreation/Models/Village.cs": {
+    "mtime": 1781898515.0946412,
+    "ast_hash": "830042cf3eae54ab2d6340e263d96a4c",
+    "semantic_hash": "830042cf3eae54ab2d6340e263d96a4c"
+  },
+  "RolemasterCharacterCreation/Models/VillageCategory.cs": {
+    "mtime": 1781898529.82628,
+    "ast_hash": "0ea187b9c505cf3f8527a9615163e08a",
+    "semantic_hash": "0ea187b9c505cf3f8527a9615163e08a"
+  },
+  "RolemasterCharacterCreation/Models/VillageCategoryName.cs": {
+    "mtime": 1781898536.2850113,
+    "ast_hash": "7dbddfaca727dc92f121ae12618ba739",
+    "semantic_hash": "7dbddfaca727dc92f121ae12618ba739"
+  },
+  "RolemasterCharacterCreation/Models/VillageLocation.cs": {
+    "mtime": 1781966866.8266828,
+    "ast_hash": "39c14c33d12e164d143efd2a69468270",
+    "semantic_hash": "39c14c33d12e164d143efd2a69468270"
+  },
+  "RolemasterCharacterCreation/Models/WorldCategory.cs": {
+    "mtime": 1781893848.3832805,
+    "ast_hash": "ff4b03ea977ce48f644089cf3950a6e4",
+    "semantic_hash": "ff4b03ea977ce48f644089cf3950a6e4"
+  },
+  "RolemasterCharacterCreation/Models/WorldLocation.cs": {
+    "mtime": 1781948253.1480541,
+    "ast_hash": "feb62cc4111422326e337a7deb0034de",
+    "semantic_hash": "feb62cc4111422326e337a7deb0034de"
+  },
+  "RolemasterCharacterCreation/Models/WorldMap.cs": {
+    "mtime": 1781893836.3611038,
+    "ast_hash": "274284f338bcd786ab3b6a9015ed43f4",
+    "semantic_hash": "274284f338bcd786ab3b6a9015ed43f4"
+  },
+  "RolemasterCharacterCreation/Models/WorldReveal.cs": {
+    "mtime": 1781895814.9409785,
+    "ast_hash": "de7c7e39921894fa8e2331a132f89f04",
+    "semantic_hash": "de7c7e39921894fa8e2331a132f89f04"
+  },
+  "RolemasterCharacterCreation/Program.cs": {
+    "mtime": 1782547403.1834264,
+    "ast_hash": "b85df0cb41d939d07350fe97e6245a43",
+    "semantic_hash": "b85df0cb41d939d07350fe97e6245a43"
+  },
+  "RolemasterCharacterCreation/Properties/launchSettings.json": {
+    "mtime": 1779886244.7530913,
+    "ast_hash": "27b9993c8a2fa6a8b436dd9ddd2ea874",
+    "semantic_hash": "27b9993c8a2fa6a8b436dd9ddd2ea874"
+  },
+  "RolemasterCharacterCreation/RolemasterCharacterCreation.csproj": {
+    "mtime": 1781985984.2158713,
+    "ast_hash": "531ff24303c90505e2fccba72ecfb9ee",
+    "semantic_hash": "531ff24303c90505e2fccba72ecfb9ee"
+  },
+  "RolemasterCharacterCreation/Rules/Character/CultureRules.cs": {
+    "mtime": 1779908727.4848661,
+    "ast_hash": "65c05facc1077fa9f990a4e2833d3812",
+    "semantic_hash": "65c05facc1077fa9f990a4e2833d3812"
+  },
+  "RolemasterCharacterCreation/Rules/Character/ProfessionRules.cs": {
+    "mtime": 1779908838.9111,
+    "ast_hash": "4b48e50779c1e648ab365cd4d37937f9",
+    "semantic_hash": "4b48e50779c1e648ab365cd4d37937f9"
+  },
+  "RolemasterCharacterCreation/Rules/Character/RaceRules.cs": {
+    "mtime": 1780166135.3485482,
+    "ast_hash": "21db04f2979ceec80a4ef9b87784c15e",
+    "semantic_hash": "21db04f2979ceec80a4ef9b87784c15e"
+  },
+  "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs": {
+    "mtime": 1780160886.5375068,
+    "ast_hash": "2e8b984e68881bc2769e68a6ee8ef6ab",
+    "semantic_hash": "2e8b984e68881bc2769e68a6ee8ef6ab"
+  },
+  "RolemasterCharacterCreation/Rules/Combat/TalentRules.cs": {
+    "mtime": 1780166075.8959055,
+    "ast_hash": "8950936bf9fd7dfaa760eafe078c79d8",
+    "semantic_hash": "8950936bf9fd7dfaa760eafe078c79d8"
+  },
+  "RolemasterCharacterCreation/Rules/EquipmentRules.cs": {
+    "mtime": 1780171561.1400404,
+    "ast_hash": "ec528ab85f13075bdb477f95d2074b43",
+    "semantic_hash": "ec528ab85f13075bdb477f95d2074b43"
+  },
+  "RolemasterCharacterCreation/Rules/Skills/SkillRules.cs": {
+    "mtime": 1781630553.8973382,
+    "ast_hash": "1f850271f2efdeb863983b67a883c3a4",
+    "semantic_hash": "1f850271f2efdeb863983b67a883c3a4"
+  },
+  "RolemasterCharacterCreation/Rules/Skills/SpellAttackTable.cs": {
+    "mtime": 1781836509.8402176,
+    "ast_hash": "64691ba91e842d4f6d3841e814b81e02",
+    "semantic_hash": "64691ba91e842d4f6d3841e814b81e02"
+  },
+  "RolemasterCharacterCreation/Rules/Skills/WeaponAttackTable.cs": {
+    "mtime": 1781813529.1713057,
+    "ast_hash": "060d46f439d57d9523fb7369aba55e79",
+    "semantic_hash": "060d46f439d57d9523fb7369aba55e79"
+  },
+  "RolemasterCharacterCreation/Rules/Skills/WeaponRules.cs": {
+    "mtime": 1779994088.4932017,
+    "ast_hash": "9504b1a87189c2d2e859a8df02edd70c",
+    "semantic_hash": "9504b1a87189c2d2e859a8df02edd70c"
+  },
+  "RolemasterCharacterCreation/Rules/SpellListRules.cs": {
+    "mtime": 1780168423.2692606,
+    "ast_hash": "51dc4c7a4c8111c166b0df8916a6a24f",
+    "semantic_hash": "51dc4c7a4c8111c166b0df8916a6a24f"
+  },
+  "RolemasterCharacterCreation/Services/BuildingMapService.cs": {
+    "mtime": 1781948193.7516098,
+    "ast_hash": "9bfd7ffced2948011110b62105ab3143",
+    "semantic_hash": "9bfd7ffced2948011110b62105ab3143"
+  },
+  "RolemasterCharacterCreation/Services/CaveMapService.cs": {
+    "mtime": 1781944963.05196,
+    "ast_hash": "3681bb37ae55ef6a9e3f9682ed521777",
+    "semantic_hash": "3681bb37ae55ef6a9e3f9682ed521777"
+  },
+  "RolemasterCharacterCreation/Services/ChatService.cs": {
+    "mtime": 1781980741.546635,
+    "ast_hash": "5c45c0589b732560450eef627398d4a8",
+    "semantic_hash": "5c45c0589b732560450eef627398d4a8"
+  },
+  "RolemasterCharacterCreation/Services/CreatureEntry.cs": {
+    "mtime": 1781970575.564821,
+    "ast_hash": "38cada67691270e712d926361bb211be",
+    "semantic_hash": "38cada67691270e712d926361bb211be"
+  },
+  "RolemasterCharacterCreation/Services/CreatureService.cs": {
+    "mtime": 1781985998.4270823,
+    "ast_hash": "6e46fa1131847af565b90fe2bcab1ec6",
+    "semantic_hash": "6e46fa1131847af565b90fe2bcab1ec6"
+  },
+  "RolemasterCharacterCreation/Services/CreatureSpells.cs": {
+    "mtime": 1781973298.8375306,
+    "ast_hash": "c82cc76678d0e97f802154b068e377b0",
+    "semantic_hash": "c82cc76678d0e97f802154b068e377b0"
+  },
+  "RolemasterCharacterCreation/Services/CreatureTableService.cs": {
+    "mtime": 1781985999.5928328,
+    "ast_hash": "6a5ed64ebf57975ea89467f27a461723",
+    "semantic_hash": "6a5ed64ebf57975ea89467f27a461723"
+  },
+  "RolemasterCharacterCreation/Services/DocsLocator.cs": {
+    "mtime": 1781985964.852816,
+    "ast_hash": "1804f1928baee41e3ee909a72deaa4be",
+    "semantic_hash": "1804f1928baee41e3ee909a72deaa4be"
+  },
+  "RolemasterCharacterCreation/Services/DungeonMapService.cs": {
+    "mtime": 1781937829.9886913,
+    "ast_hash": "2af68d9c9850e4c774df83f63409803c",
+    "semantic_hash": "2af68d9c9850e4c774df83f63409803c"
+  },
+  "RolemasterCharacterCreation/Services/IEmbeddingClient.cs": {
+    "mtime": 1781973239.409473,
+    "ast_hash": "75e75e16ab12ad50b114563bec0443ca",
+    "semantic_hash": "75e75e16ab12ad50b114563bec0443ca"
+  },
+  "RolemasterCharacterCreation/Services/ISmsSender.cs": {
+    "mtime": 1782066474.9039774,
+    "ast_hash": "ffcf48ae281aafe0fc7914d34dc42c87",
+    "semantic_hash": "ffcf48ae281aafe0fc7914d34dc42c87"
+  },
+  "RolemasterCharacterCreation/Services/MagicItemGenerator.cs": {
+    "mtime": 1782075799.1859338,
+    "ast_hash": "0f78bdacc4820846c2f99c51881de36c",
+    "semantic_hash": "0f78bdacc4820846c2f99c51881de36c"
+  },
+  "RolemasterCharacterCreation/Services/MagicItemService.cs": {
+    "mtime": 1782073556.554367,
+    "ast_hash": "6c354210b105b7cdf84aae2d206ced85",
+    "semantic_hash": "6c354210b105b7cdf84aae2d206ced85"
+  },
+  "RolemasterCharacterCreation/Services/MarkdownParser.cs": {
+    "mtime": 1781710623.4383545,
+    "ast_hash": "09e81b604028b3767dc0a56e6f5399c9",
+    "semantic_hash": "09e81b604028b3767dc0a56e6f5399c9"
+  },
+  "RolemasterCharacterCreation/Services/MobileDetection.cs": {
+    "mtime": 1781990809.855651,
+    "ast_hash": "ce5993210b9e17b55170f9da8ccddb1f",
+    "semantic_hash": "ce5993210b9e17b55170f9da8ccddb1f"
+  },
+  "RolemasterCharacterCreation/Services/ReferenceTableService.cs": {
+    "mtime": 1781986000.9993238,
+    "ast_hash": "693b969faaff579cd980815c9bed1b52",
+    "semantic_hash": "693b969faaff579cd980815c9bed1b52"
+  },
+  "RolemasterCharacterCreation/Services/RulesAssistantOptions.cs": {
+    "mtime": 1781982641.1126258,
+    "ast_hash": "ebe13bf73003e19d0cad6d2db98e5cbf",
+    "semantic_hash": "ebe13bf73003e19d0cad6d2db98e5cbf"
+  },
+  "RolemasterCharacterCreation/Services/RulesChatMessage.cs": {
+    "mtime": 1781705127.6171842,
+    "ast_hash": "4b4e05d691ecc014fd78ab6c61aa6525",
+    "semantic_hash": "4b4e05d691ecc014fd78ab6c61aa6525"
+  },
+  "RolemasterCharacterCreation/Services/RulesChunk.cs": {
+    "mtime": 1781982634.15562,
+    "ast_hash": "ee3d166c262607093fcbf1d961fcdaa7",
+    "semantic_hash": "ee3d166c262607093fcbf1d961fcdaa7"
+  },
+  "RolemasterCharacterCreation/Services/RulesIndexService.cs": {
+    "mtime": 1781990255.7546344,
+    "ast_hash": "7af7b28d46c28ef49aa57d88728096ed",
+    "semantic_hash": "7af7b28d46c28ef49aa57d88728096ed"
+  },
+  "RolemasterCharacterCreation/Services/RulesParser.cs": {
+    "mtime": 1781705150.3415751,
+    "ast_hash": "f6c0023d8a6927f0e3a63c33bb07425c",
+    "semantic_hash": "f6c0023d8a6927f0e3a63c33bb07425c"
+  },
+  "RolemasterCharacterCreation/Services/SmsText.cs": {
+    "mtime": 1782546573.9270184,
+    "ast_hash": "f1f112205eb59d5ca4e5b423d0cba0dc",
+    "semantic_hash": "f1f112205eb59d5ca4e5b423d0cba0dc"
+  },
+  "RolemasterCharacterCreation/Services/TextbeltOptions.cs": {
+    "mtime": 1782066474.9039774,
+    "ast_hash": "7b99640526e2ba0dadb753e46aeda6ad",
+    "semantic_hash": "7b99640526e2ba0dadb753e46aeda6ad"
+  },
+  "RolemasterCharacterCreation/Services/TextbeltSmsSender.cs": {
+    "mtime": 1782546582.6616924,
+    "ast_hash": "28069acfad2364f9736754f5cfd4ef21",
+    "semantic_hash": "28069acfad2364f9736754f5cfd4ef21"
+  },
+  "RolemasterCharacterCreation/Services/TownMapService.cs": {
+    "mtime": 1781899162.2507145,
+    "ast_hash": "7f993400ee2cc96d4ffaeeebc5a91024",
+    "semantic_hash": "7f993400ee2cc96d4ffaeeebc5a91024"
+  },
+  "RolemasterCharacterCreation/Services/VoyageEmbeddingClient.cs": {
+    "mtime": 1781974648.4891849,
+    "ast_hash": "6a15c14a8ea6c1443163355ed157f1b6",
+    "semantic_hash": "6a15c14a8ea6c1443163355ed157f1b6"
+  },
+  "RolemasterCharacterCreation/Services/WorldMapService.cs": {
+    "mtime": 1781895854.1599922,
+    "ast_hash": "1a4b14b2016b2222a785d810b59ed156",
+    "semantic_hash": "1a4b14b2016b2222a785d810b59ed156"
+  },
+  "RolemasterCharacterCreation/appsettings.json": {
+    "mtime": 1782066474.9039774,
+    "ast_hash": "3a95c0f40e645b181215b0b29defceac",
+    "semantic_hash": "3a95c0f40e645b181215b0b29defceac"
+  },
+  "RolemasterCharacterCreation/wwwroot/app.js": {
+    "mtime": 1781899719.2983806,
+    "ast_hash": "1262d888ef4cfcca863f631c5f178186",
+    "semantic_hash": "1262d888ef4cfcca863f631c5f178186"
+  },
+  "docs/game-data/attack-tables.json": {
+    "mtime": 1781794276.4748785,
+    "ast_hash": "f66e5f8a34d76aa02984d8c64c6cc033",
+    "semantic_hash": "f66e5f8a34d76aa02984d8c64c6cc033"
+  },
+  "docs/game-data/building-category-names.json": {
+    "mtime": 1781948340.7519884,
+    "ast_hash": "364fe6a2de3aa3a1709ead7a537ff048",
+    "semantic_hash": "364fe6a2de3aa3a1709ead7a537ff048"
+  },
+  "docs/game-data/cave-category-names.json": {
+    "mtime": 1781945056.716645,
+    "ast_hash": "78ac68da9feb3534831e5581409efcc4",
+    "semantic_hash": "78ac68da9feb3534831e5581409efcc4"
+  },
+  "docs/game-data/created-magic-items.json": {
+    "mtime": 1782076505.5888455,
+    "ast_hash": "a6f016d75d503a598c2d22814dde17a6",
+    "semantic_hash": "a6f016d75d503a598c2d22814dde17a6"
+  },
+  "docs/game-data/creature-descriptions.json": {
+    "mtime": 1781793125.7923782,
+    "ast_hash": "3cb79e9915ae807ca1efc6c2f2540ebe",
+    "semantic_hash": "3cb79e9915ae807ca1efc6c2f2540ebe"
+  },
+  "docs/game-data/creature-tables.json": {
+    "mtime": 1781978053.1652653,
+    "ast_hash": "db645b64d03d8a550b04d7ee69d76113",
+    "semantic_hash": "db645b64d03d8a550b04d7ee69d76113"
+  },
+  "docs/game-data/critical-tables.json": {
+    "mtime": 1781799029.8784232,
+    "ast_hash": "8d34183ba89795ad5b6f77652f677e22",
+    "semantic_hash": "8d34183ba89795ad5b6f77652f677e22"
+  },
+  "docs/game-data/dungeon-category-names.json": {
+    "mtime": 1781938569.3095,
+    "ast_hash": "4dc680a6ef42ff6bb3772091a8c611b8",
+    "semantic_hash": "4dc680a6ef42ff6bb3772091a8c611b8"
+  },
+  "docs/game-data/fumble-tables.json": {
+    "mtime": 1781806216.3078082,
+    "ast_hash": "f48f957a83742b51dc6230a07df7a929",
+    "semantic_hash": "f48f957a83742b51dc6230a07df7a929"
+  },
+  "docs/game-data/magic-items.json": {
+    "mtime": 1782072673.4799232,
+    "ast_hash": "8b34fb41be2d0f6dcd9d9a7e62e36e4f",
+    "semantic_hash": "8b34fb41be2d0f6dcd9d9a7e62e36e4f"
+  },
+  "docs/game-data/map-category-names.json": {
+    "mtime": 1781884641.4793756,
+    "ast_hash": "c3ce5023525d49ed911ab236fe584b17",
+    "semantic_hash": "c3ce5023525d49ed911ab236fe584b17"
+  },
+  "docs/game-data/reference-tables.json": {
+    "mtime": 1782072673.48692,
+    "ast_hash": "f868d4a18b28cadb15837b8d790a7051",
+    "semantic_hash": "f868d4a18b28cadb15837b8d790a7051"
+  },
+  "docs/game-data/skills-lock.json": {
+    "mtime": 1779979994.4932332,
+    "ast_hash": "7a302a983e808e74b5f76f4789f44363",
+    "semantic_hash": "7a302a983e808e74b5f76f4789f44363"
+  },
+  "docs/game-data/spell-failure-tables.json": {
+    "mtime": 1782074757.9550233,
+    "ast_hash": "6051b233eb1f07d557d6591da60abd48",
+    "semantic_hash": "6051b233eb1f07d557d6591da60abd48"
+  },
+  "docs/game-data/spell-lists.json": {
+    "mtime": 1782066474.9039774,
+    "ast_hash": "8d3e87c03bbfa7221a1bdb0bcc580bdc",
+    "semantic_hash": "8d3e87c03bbfa7221a1bdb0bcc580bdc"
+  },
+  "docs/game-data/village-category-names.json": {
+    "mtime": 1781898604.4677875,
+    "ast_hash": "6a55cc97f42b0ae7f0d7b6bba77f9f2c",
+    "semantic_hash": "6a55cc97f42b0ae7f0d7b6bba77f9f2c"
+  },
+  "package.json": {
+    "mtime": 1781850103.3332117,
+    "ast_hash": "d5a46e6939e551c0f5a0c8ac29082d79",
+    "semantic_hash": "d5a46e6939e551c0f5a0c8ac29082d79"
+  },
+  "scripts/extract_attack_tables.py": {
+    "mtime": 1781794250.3107104,
+    "ast_hash": "43ca52714b56e5ab1ab376b3b1775728",
+    "semantic_hash": "43ca52714b56e5ab1ab376b3b1775728"
+  },
+  "scripts/extract_critical_tables.py": {
+    "mtime": 1781798998.8428955,
+    "ast_hash": "3958d1db29f158936fe30a18a1b833d3",
+    "semantic_hash": "3958d1db29f158936fe30a18a1b833d3"
+  },
+  "scripts/extract_descriptions.py": {
+    "mtime": 1781729393.9290802,
+    "ast_hash": "467094d9ec77074caec7572b1af371ba",
+    "semantic_hash": "467094d9ec77074caec7572b1af371ba"
+  },
+  "scripts/extract_fumble_tables.py": {
+    "mtime": 1781800364.3418317,
+    "ast_hash": "f7f09bc10d512a2921d150180a9713b7",
+    "semantic_hash": "f7f09bc10d512a2921d150180a9713b7"
+  },
+  "scripts/extract_spell_failure_tables.py": {
+    "mtime": 1781807122.6777656,
+    "ast_hash": "c3f1dfcd3b0402a4b9d9a908ddf944a4",
+    "semantic_hash": "c3f1dfcd3b0402a4b9d9a908ddf944a4"
+  },
+  "scripts/extract_spell_lists.py": {
+    "mtime": 1781811597.834831,
+    "ast_hash": "13268b38999fb46700d510e6c8844c5c",
+    "semantic_hash": "13268b38999fb46700d510e6c8844c5c"
+  },
+  "scripts/fix_flagged.py": {
+    "mtime": 1781751616.7716596,
+    "ast_hash": "3b0c87c1b001915b3190be6d43c884ba",
+    "semantic_hash": "3b0c87c1b001915b3190be6d43c884ba"
+  },
+  "scripts/fix_misattrib.py": {
+    "mtime": 1781753549.0466528,
+    "ast_hash": "8d5ad19152d74e967e07e54c0156aba6",
+    "semantic_hash": "8d5ad19152d74e967e07e54c0156aba6"
+  },
+  "scripts/merge_descriptions.py": {
+    "mtime": 1781729538.7029543,
+    "ast_hash": "32be6094a1afe14eb5d3143eadea523e",
+    "semantic_hash": "32be6094a1afe14eb5d3143eadea523e"
+  },
+  "scripts/propagate_variants.py": {
+    "mtime": 1781793098.4524102,
+    "ast_hash": "3b325cf4543a41feb4038bd76bbfcdb6",
+    "semantic_hash": "3b325cf4543a41feb4038bd76bbfcdb6"
+  },
+  "scripts/reconstruct_columns.py": {
+    "mtime": 1781727565.5198169,
+    "ast_hash": "48cfea3db318f46ddf1537965fe15007",
+    "semantic_hash": "48cfea3db318f46ddf1537965fe15007"
+  },
+  ".claude/CLAUDE.md": {
+    "mtime": 1784129461.571633,
+    "ast_hash": "c232166e6492ba1ed955030b16979b05",
+    "semantic_hash": "c232166e6492ba1ed955030b16979b05"
+  },
+  ".claude/agents.md": {
+    "mtime": 1779887588.2204711,
+    "ast_hash": "af61f7a8702b5b48d7b928d77e9cd3fa",
+    "semantic_hash": "af61f7a8702b5b48d7b928d77e9cd3fa"
+  },
+  ".claude/agents/Character sheet.md": {
+    "mtime": 1780149422.3914592,
+    "ast_hash": "dd72d95325b9573df4ac44f28fd7be05",
+    "semantic_hash": "dd72d95325b9573df4ac44f28fd7be05"
+  },
+  ".claude/agents/Creation wizard.md": {
+    "mtime": 1780149300.9023767,
+    "ast_hash": "0b8644b44f2a1208f1720f84b3ae4689",
+    "semantic_hash": "0b8644b44f2a1208f1720f84b3ae4689"
+  },
+  ".claude/agents/impeccable-asset-producer.md": {
+    "mtime": 1779979782.9251597,
+    "ast_hash": "892906b3db9443e58267e77d4038a0fb",
+    "semantic_hash": "892906b3db9443e58267e77d4038a0fb"
+  },
+  ".claude/memory.md": {
+    "mtime": 1779887583.952366,
+    "ast_hash": "3ba1f2e7328342c96c6bd5380a10d07b",
+    "semantic_hash": "3ba1f2e7328342c96c6bd5380a10d07b"
+  },
+  ".claude/skills/graphify/SKILL.md": {
+    "mtime": 1784129461.5696313,
+    "ast_hash": "f7f1087d99798a5f77fffb0a01e8e582",
+    "semantic_hash": "f7f1087d99798a5f77fffb0a01e8e582"
+  },
+  ".claude/skills/graphify/references/add-watch.md": {
+    "mtime": 1784129112.3172612,
+    "ast_hash": "d59d027fe449f06aa03905a01184e779",
+    "semantic_hash": "d59d027fe449f06aa03905a01184e779"
+  },
+  ".claude/skills/graphify/references/exports.md": {
+    "mtime": 1784129112.3209682,
+    "ast_hash": "9da2a2152e60a22f07f05fed5158f287",
+    "semantic_hash": "9da2a2152e60a22f07f05fed5158f287"
+  },
+  ".claude/skills/graphify/references/extraction-spec.md": {
+    "mtime": 1784129112.3209682,
+    "ast_hash": "42fef56a01698118f7fd722acdadea34",
+    "semantic_hash": "42fef56a01698118f7fd722acdadea34"
+  },
+  ".claude/skills/graphify/references/github-and-merge.md": {
+    "mtime": 1784129112.3255615,
+    "ast_hash": "cde13df085e4c492aeb7ba298a996d0d",
+    "semantic_hash": "cde13df085e4c492aeb7ba298a996d0d"
+  },
+  ".claude/skills/graphify/references/hooks.md": {
+    "mtime": 1784129112.3255615,
+    "ast_hash": "3f545db6ce646650bb9de588f5512a27",
+    "semantic_hash": "3f545db6ce646650bb9de588f5512a27"
+  },
+  ".claude/skills/graphify/references/query.md": {
+    "mtime": 1784129112.3255615,
+    "ast_hash": "3c46f8ad006874260614ed8657d02307",
+    "semantic_hash": "3c46f8ad006874260614ed8657d02307"
+  },
+  ".claude/skills/graphify/references/transcribe.md": {
+    "mtime": 1784129112.3255615,
+    "ast_hash": "67b6a5fa6c0974e18f60db9f8932fbd8",
+    "semantic_hash": "67b6a5fa6c0974e18f60db9f8932fbd8"
+  },
+  ".claude/skills/graphify/references/update.md": {
+    "mtime": 1784129112.3255615,
+    "ast_hash": "c698309979460d0f02ba616417844399",
+    "semantic_hash": "c698309979460d0f02ba616417844399"
+  },
+  ".claude/skills/impeccable/SKILL.md": {
+    "mtime": 1779979782.9251597,
+    "ast_hash": "259cfd39515b1b390c02c811de7491f9",
+    "semantic_hash": "259cfd39515b1b390c02c811de7491f9"
+  },
+  ".claude/skills/impeccable/reference/adapt.md": {
+    "mtime": 1779979782.9251597,
+    "ast_hash": "27c29f5a41c6104b89a5ac22d6476853",
+    "semantic_hash": "27c29f5a41c6104b89a5ac22d6476853"
+  },
+  ".claude/skills/impeccable/reference/animate.md": {
+    "mtime": 1779979782.9251597,
+    "ast_hash": "b62d806becc589f6e322568dbf1643ec",
+    "semantic_hash": "b62d806becc589f6e322568dbf1643ec"
+  },
+  ".claude/skills/impeccable/reference/audit.md": {
+    "mtime": 1779979782.9251597,
+    "ast_hash": "bfa673574701e2910ca2b3473aa1c6ad",
+    "semantic_hash": "bfa673574701e2910ca2b3473aa1c6ad"
+  },
+  ".claude/skills/impeccable/reference/bolder.md": {
+    "mtime": 1779979782.9251597,
+    "ast_hash": "633d0f931184a8aac040a37ba0c2c0f6",
+    "semantic_hash": "633d0f931184a8aac040a37ba0c2c0f6"
+  },
+  ".claude/skills/impeccable/reference/brand.md": {
+    "mtime": 1779979782.9251597,
+    "ast_hash": "74e97fbbaad8eba976b3fd29943f4424",
+    "semantic_hash": "74e97fbbaad8eba976b3fd29943f4424"
+  },
+  ".claude/skills/impeccable/reference/clarify.md": {
+    "mtime": 1779979782.9251597,
+    "ast_hash": "9dc6a767d5bbd31e9117d36d06e1261e",
+    "semantic_hash": "9dc6a767d5bbd31e9117d36d06e1261e"
+  },
+  ".claude/skills/impeccable/reference/codex.md": {
+    "mtime": 1779979782.9334054,
+    "ast_hash": "c044e7cf44c58dea75e9c6a3413e8d70",
+    "semantic_hash": "c044e7cf44c58dea75e9c6a3413e8d70"
+  },
+  ".claude/skills/impeccable/reference/cognitive-load.md": {
+    "mtime": 1779979782.9334054,
+    "ast_hash": "464d1b1b3566c74909fadcd2c13bc544",
+    "semantic_hash": "464d1b1b3566c74909fadcd2c13bc544"
+  },
+  ".claude/skills/impeccable/reference/color-and-contrast.md": {
+    "mtime": 1779979782.9334054,
+    "ast_hash": "c51e5bca12b63f220ad15454852a8594",
+    "semantic_hash": "c51e5bca12b63f220ad15454852a8594"
+  },
+  ".claude/skills/impeccable/reference/colorize.md": {
+    "mtime": 1779979782.9334054,
+    "ast_hash": "c9702b3f0c17fa6846747d369ad82699",
+    "semantic_hash": "c9702b3f0c17fa6846747d369ad82699"
+  },
+  ".claude/skills/impeccable/reference/craft.md": {
+    "mtime": 1779979782.9334054,
+    "ast_hash": "59729d8216df64493363d604df736563",
+    "semantic_hash": "59729d8216df64493363d604df736563"
+  },
+  ".claude/skills/impeccable/reference/critique.md": {
+    "mtime": 1779979782.9334054,
+    "ast_hash": "ccf66bd0f3b8fd0d11592290d078418e",
+    "semantic_hash": "ccf66bd0f3b8fd0d11592290d078418e"
+  },
+  ".claude/skills/impeccable/reference/delight.md": {
+    "mtime": 1779979782.9334054,
+    "ast_hash": "c302379f6c88c20d4886636aaf5e6dde",
+    "semantic_hash": "c302379f6c88c20d4886636aaf5e6dde"
+  },
+  ".claude/skills/impeccable/reference/distill.md": {
+    "mtime": 1779979782.9334054,
+    "ast_hash": "15b690d4b8f6bf9c8a0d5208f1f6f1fb",
+    "semantic_hash": "15b690d4b8f6bf9c8a0d5208f1f6f1fb"
+  },
+  ".claude/skills/impeccable/reference/document.md": {
+    "mtime": 1779979782.9334054,
+    "ast_hash": "8faba1b504418148860d159448194fc9",
+    "semantic_hash": "8faba1b504418148860d159448194fc9"
+  },
+  ".claude/skills/impeccable/reference/extract.md": {
+    "mtime": 1779979782.9334054,
+    "ast_hash": "bcbed7005945d9de131f69985cbc5e6f",
+    "semantic_hash": "bcbed7005945d9de131f69985cbc5e6f"
+  },
+  ".claude/skills/impeccable/reference/harden.md": {
+    "mtime": 1779979782.9334054,
+    "ast_hash": "b8c6ce7f60733c8dab39b12c7957750b",
+    "semantic_hash": "b8c6ce7f60733c8dab39b12c7957750b"
+  },
+  ".claude/skills/impeccable/reference/heuristics-scoring.md": {
+    "mtime": 1779979782.9334054,
+    "ast_hash": "f1606921268571e14591682483b595ef",
+    "semantic_hash": "f1606921268571e14591682483b595ef"
+  },
+  ".claude/skills/impeccable/reference/interaction-design.md": {
+    "mtime": 1779979782.9334054,
+    "ast_hash": "ea39b98601f17b5a87f7de799b953000",
+    "semantic_hash": "ea39b98601f17b5a87f7de799b953000"
+  },
+  ".claude/skills/impeccable/reference/layout.md": {
+    "mtime": 1779979782.9334054,
+    "ast_hash": "400e8cbbc0688d27d288f80c5b52314a",
+    "semantic_hash": "400e8cbbc0688d27d288f80c5b52314a"
+  },
+  ".claude/skills/impeccable/reference/live.md": {
+    "mtime": 1779979782.9334054,
+    "ast_hash": "443d531ec715bb64e48b660671e3ad78",
+    "semantic_hash": "443d531ec715bb64e48b660671e3ad78"
+  },
+  ".claude/skills/impeccable/reference/motion-design.md": {
+    "mtime": 1779979782.9334054,
+    "ast_hash": "95de769ab6e30a4214a969ebb25ebe89",
+    "semantic_hash": "95de769ab6e30a4214a969ebb25ebe89"
+  },
+  ".claude/skills/impeccable/reference/onboard.md": {
+    "mtime": 1779979782.9334054,
+    "ast_hash": "8def483b066f2c7fb906c313e3653c10",
+    "semantic_hash": "8def483b066f2c7fb906c313e3653c10"
+  },
+  ".claude/skills/impeccable/reference/optimize.md": {
+    "mtime": 1779979782.9334054,
+    "ast_hash": "613f211310d45abd984d0bd610abc1fb",
+    "semantic_hash": "613f211310d45abd984d0bd610abc1fb"
+  },
+  ".claude/skills/impeccable/reference/overdrive.md": {
+    "mtime": 1779979782.9334054,
+    "ast_hash": "891190b0148e5156aa007ca5917a0bb4",
+    "semantic_hash": "891190b0148e5156aa007ca5917a0bb4"
+  },
+  ".claude/skills/impeccable/reference/personas.md": {
+    "mtime": 1779979782.9334054,
+    "ast_hash": "3022b396ec3f0977be627875594bfa81",
+    "semantic_hash": "3022b396ec3f0977be627875594bfa81"
+  },
+  ".claude/skills/impeccable/reference/polish.md": {
+    "mtime": 1779979782.9334054,
+    "ast_hash": "5ba31783c05352cbda780abd9e12d969",
+    "semantic_hash": "5ba31783c05352cbda780abd9e12d969"
+  },
+  ".claude/skills/impeccable/reference/product.md": {
+    "mtime": 1779979782.9334054,
+    "ast_hash": "c073e67bbcec51f31af4ba132730aca9",
+    "semantic_hash": "c073e67bbcec51f31af4ba132730aca9"
+  },
+  ".claude/skills/impeccable/reference/quieter.md": {
+    "mtime": 1779979782.940939,
+    "ast_hash": "9b34ed291f042b1dad31f66f487c4137",
+    "semantic_hash": "9b34ed291f042b1dad31f66f487c4137"
+  },
+  ".claude/skills/impeccable/reference/responsive-design.md": {
+    "mtime": 1779979782.940939,
+    "ast_hash": "3a0e2834961edfe9d44cef19ffc84737",
+    "semantic_hash": "3a0e2834961edfe9d44cef19ffc84737"
+  },
+  ".claude/skills/impeccable/reference/shape.md": {
+    "mtime": 1779979782.9426816,
+    "ast_hash": "aab83193a1a58010b1de9f67074b5915",
+    "semantic_hash": "aab83193a1a58010b1de9f67074b5915"
+  },
+  ".claude/skills/impeccable/reference/spatial-design.md": {
+    "mtime": 1779979782.9430833,
+    "ast_hash": "28fd3d7f36c9ad72fdc5c3a90c7f5505",
+    "semantic_hash": "28fd3d7f36c9ad72fdc5c3a90c7f5505"
+  },
+  ".claude/skills/impeccable/reference/teach.md": {
+    "mtime": 1779979782.9434295,
+    "ast_hash": "ab273dd5cd15e248ebdf7f52671e3f81",
+    "semantic_hash": "ab273dd5cd15e248ebdf7f52671e3f81"
+  },
+  ".claude/skills/impeccable/reference/typeset.md": {
+    "mtime": 1779979782.9434295,
+    "ast_hash": "3b4d239361890c9db44b5484d002f2d2",
+    "semantic_hash": "3b4d239361890c9db44b5484d002f2d2"
+  },
+  ".claude/skills/impeccable/reference/typography.md": {
+    "mtime": 1779979782.9434295,
+    "ast_hash": "841fa5dc3d8cf998ecb63b211b766c7c",
+    "semantic_hash": "841fa5dc3d8cf998ecb63b211b766c7c"
+  },
+  ".claude/skills/impeccable/reference/ux-writing.md": {
+    "mtime": 1779979782.9444902,
+    "ast_hash": "74e4aac960c114a7b8761210f80a8cc5",
+    "semantic_hash": "74e4aac960c114a7b8761210f80a8cc5"
+  },
+  ".github/workflows/deploy.yml": {
+    "mtime": 1781625136.9903233,
+    "ast_hash": "4d27af8f4a191b5d5ecf41fa2c761c47",
+    "semantic_hash": "4d27af8f4a191b5d5ecf41fa2c761c47"
+  },
+  "CLAUDE.md": {
+    "mtime": 1784129461.5726357,
+    "ast_hash": "12735bb58f39df5ebbf69975f76d4fe5",
+    "semantic_hash": "12735bb58f39df5ebbf69975f76d4fe5"
+  },
+  "RolemasterCharacterCreation/applog.err.txt": {
+    "mtime": 1781979267.6982515,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "RolemasterCharacterCreation/applog.txt": {
+    "mtime": 1781979938.4608507,
+    "ast_hash": "b299ac4e184d074792c907e2125bac37",
+    "semantic_hash": "b299ac4e184d074792c907e2125bac37"
+  },
+  "RolemasterCharacterCreation/run.err.txt": {
+    "mtime": 1782065594.9924302,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "RolemasterCharacterCreation/run.out.txt": {
+    "mtime": 1782067404.281599,
+    "ast_hash": "1097e53ecaf65f45cb4f35ee87315c08",
+    "semantic_hash": "1097e53ecaf65f45cb4f35ee87315c08"
+  },
+  "RolemasterCharacterCreation/runlog.err.txt": {
+    "mtime": 1781990915.1625712,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "RolemasterCharacterCreation/runlog.txt": {
+    "mtime": 1782049030.7883937,
+    "ast_hash": "4a82b0be0fa62e65932a7d9baae8db9d",
+    "semantic_hash": "4a82b0be0fa62e65932a7d9baae8db9d"
+  },
+  "applog.txt": {
+    "mtime": 1781874078.6187599,
+    "ast_hash": "b2e19f78492e4aa502b7c6f7318dc160",
+    "semantic_hash": "b2e19f78492e4aa502b7c6f7318dc160"
+  },
+  "docs/game-data/context.md": {
+    "mtime": 1779888138.1760836,
+    "ast_hash": "0b8b96e224f9713ab77dbe4e9213ac76",
+    "semantic_hash": "0b8b96e224f9713ab77dbe4e9213ac76"
+  },
+  "docs/game-data/equipment.md": {
+    "mtime": 1779896818.2704656,
+    "ast_hash": "9fa1c5e7a9da9ee16d3195aa2321986d",
+    "semantic_hash": "9fa1c5e7a9da9ee16d3195aa2321986d"
+  },
+  "docs/game-data/maneuvers.md": {
+    "mtime": 1779895798.5724237,
+    "ast_hash": "57df8de57990dc6466d816ebc517d76d",
+    "semantic_hash": "57df8de57990dc6466d816ebc517d76d"
+  },
+  "docs/game-data/races.md": {
+    "mtime": 1781710947.1164856,
+    "ast_hash": "860092fd2f42469a12e0f20ef1945b01",
+    "semantic_hash": "860092fd2f42469a12e0f20ef1945b01"
+  },
+  "docs/game-data/skills.md": {
+    "mtime": 1779893175.0510736,
+    "ast_hash": "f8a95809361e5abcca8d93e535fe1ee5",
+    "semantic_hash": "f8a95809361e5abcca8d93e535fe1ee5"
+  },
+  "docs/game-data/talents.md": {
+    "mtime": 1779893805.1786397,
+    "ast_hash": "3758350ad7ae9517de5f1d8e0ed1a141",
+    "semantic_hash": "3758350ad7ae9517de5f1d8e0ed1a141"
+  },
+  "docs/prompts/gm-assistant.md": {
+    "mtime": 1781990263.2042444,
+    "ast_hash": "b1944ea6946ceb2316b9bbbfc9bec4a1",
+    "semantic_hash": "b1944ea6946ceb2316b9bbbfc9bec4a1"
+  },
+  "docs/rules/Rolemaster_Core_Law_(RMU).md": {
+    "mtime": 1781710392.3548625,
+    "ast_hash": "32c97ade616eb3f796157e476746eff3",
+    "semantic_hash": "32c97ade616eb3f796157e476746eff3"
+  },
+  "docs/rules/Rolemaster_Creature_Law_I.md": {
+    "mtime": 1781712792.4118176,
+    "ast_hash": "b6d46b92afad5e7b3717331bdc3945cb",
+    "semantic_hash": "b6d46b92afad5e7b3717331bdc3945cb"
+  },
+  "docs/rules/Rolemaster_Spell_Law_(RMU).md": {
+    "mtime": 1780161565.26401,
+    "ast_hash": "d9fd106723b904c36d1874732facc548",
+    "semantic_hash": "d9fd106723b904c36d1874732facc548"
+  },
+  "docs/rules/Rolemaster_Treasure_Law_(RMU).md": {
+    "mtime": 1781713755.4616678,
+    "ast_hash": "e4b7a3d4110e3f62d8cc99c2c164c8d5",
+    "semantic_hash": "e4b7a3d4110e3f62d8cc99c2c164c8d5"
+  },
+  "RolemasterCharacterCreation/wwwroot/rules/Rolemaster_Core_Law.pdf": {
+    "mtime": 1781793788.1909502,
+    "ast_hash": "8229a92f205c09932d86da8d9d4c8d3f",
+    "semantic_hash": "8229a92f205c09932d86da8d9d4c8d3f"
+  },
+  "RolemasterCharacterCreation/wwwroot/rules/Rolemaster_Creature_Law_I.pdf": {
+    "mtime": 1781793788.413282,
+    "ast_hash": "3844f29034fd5746e52fc25983135670",
+    "semantic_hash": "3844f29034fd5746e52fc25983135670"
+  },
+  "RolemasterCharacterCreation/wwwroot/rules/Rolemaster_Spell_Law.pdf": {
+    "mtime": 1781793788.2927854,
+    "ast_hash": "27999eca2d92e53f72af1d2ecbb78a32",
+    "semantic_hash": "27999eca2d92e53f72af1d2ecbb78a32"
+  },
+  "RolemasterCharacterCreation/wwwroot/rules/Rolemaster_Treasure_Law.pdf": {
+    "mtime": 1781793788.3758876,
+    "ast_hash": "55a942f9e10a330fa5b74045ae567d56",
+    "semantic_hash": "55a942f9e10a330fa5b74045ae567d56"
+  },
+  "docs/rules/Rolemaster_Core_Law_(RMU).pdf": {
+    "mtime": 1779886184.928102,
+    "ast_hash": "8229a92f205c09932d86da8d9d4c8d3f",
+    "semantic_hash": "8229a92f205c09932d86da8d9d4c8d3f"
+  },
+  "docs/rules/Rolemaster_Creature_Law_I.pdf": {
+    "mtime": 1781712605.9910038,
+    "ast_hash": "3844f29034fd5746e52fc25983135670",
+    "semantic_hash": "3844f29034fd5746e52fc25983135670"
+  },
+  "docs/rules/Rolemaster_Spell_Law_(RMU).pdf": {
+    "mtime": 1780160661.687826,
+    "ast_hash": "27999eca2d92e53f72af1d2ecbb78a32",
+    "semantic_hash": "27999eca2d92e53f72af1d2ecbb78a32"
+  },
+  "docs/rules/Rolemaster_Treasure_Law_(RMU).pdf": {
+    "mtime": 1781712619.129852,
+    "ast_hash": "55a942f9e10a330fa5b74045ae567d56",
+    "semantic_hash": "55a942f9e10a330fa5b74045ae567d56"
+  },
+  ".verify/shot-default.png": {
+    "mtime": 1781850687.661759,
+    "ast_hash": "4f8612cf73a4113ba6266e311c47bdc2",
+    "semantic_hash": "4f8612cf73a4113ba6266e311c47bdc2"
+  },
+  ".verify/shot-resistance.png": {
+    "mtime": 1781850688.5947256,
+    "ast_hash": "45bbb997caa01ce6c679dc44fbbc23ff",
+    "semantic_hash": "45bbb997caa01ce6c679dc44fbbc23ff"
+  },
+  "RolemasterCharacterCreation/wwwroot/favicon.png": {
+    "mtime": 1779886244.7570932,
+    "ast_hash": "eab4f24ab5ff80be586dcdab8e87dc9c",
+    "semantic_hash": "eab4f24ab5ff80be586dcdab8e87dc9c"
+  },
+  "RolemasterCharacterCreation/wwwroot/flags/dk.svg": {
+    "mtime": 1782066474.9039774,
+    "ast_hash": "3a2f16ac218188e25d427f366edfd11c",
+    "semantic_hash": "3a2f16ac218188e25d427f366edfd11c"
+  }
+}

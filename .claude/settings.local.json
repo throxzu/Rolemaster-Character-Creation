@@ -5,7 +5,13 @@
       "PowerShell(*)",
       "Write(*)",
       "Edit(*)",
-      "Read(*)"
+      "Read(*)",
+      "Bash(seq 1 60)",
+      "Bash(break)",
+      "Bash(sleep 1)",
+      "Bash(curl -s -o /dev/null -w \"GET /characters -> %{http_code}\\\\n\" http://localhost:5224/characters)",
+      "Bash(git check-ignore *)",
+      "Bash(git add *)"
     ]
   }
 }
