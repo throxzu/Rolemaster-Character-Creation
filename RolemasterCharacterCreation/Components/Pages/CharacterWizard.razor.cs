@@ -362,16 +362,40 @@ public partial class CharacterWizard
         if (_char?.Culture is null) return;
         if (!CultureRules.ByName.TryGetValue(_char.Culture, out var cult)) return;
 
+        var fixedRanks = FixedCultureRanks();
+
         foreach (var pool in cult.Skills.Where(s => s.IsPool))
         {
             var eligible = GetPoolSkills(pool.Skill).ToHashSet();
             foreach (var sk in _char.Skills.Where(s => s.CulturalRanks > 0 && eligible.Contains(s.SkillName)))
             {
+                // Only the ranks above the culture's own grant were spent out of the pool.
+                int fromPool = sk.CulturalRanks
+                               - fixedRanks.GetValueOrDefault((sk.SkillName, sk.Specialization));
+                if (fromPool <= 0) continue;
+
                 if (!_poolAllocs.ContainsKey(pool.Skill))
                     _poolAllocs[pool.Skill] = new();
-                _poolAllocs[pool.Skill].Add(new PoolEntry(sk.SkillName, sk.Specialization, sk.CulturalRanks));
+                _poolAllocs[pool.Skill].Add(new PoolEntry(sk.SkillName, sk.Specialization, fromPool));
             }
         }
+    }
+
+    // Ranks the culture hands out outright. A few of them — Region Lore and
+    // Religion/Philosophy — sit inside a pool's categories, so pool bookkeeping has to
+    // hold them apart from the ranks the player chose to spend out of that pool.
+    Dictionary<(string Skill, string? Spec), int> FixedCultureRanks()
+    {
+        var fixedRanks = new Dictionary<(string, string?), int>();
+        if (_char?.Culture is null) return fixedRanks;
+        if (!CultureRules.ByName.TryGetValue(_char.Culture, out var cult)) return fixedRanks;
+
+        foreach (var csk in cult.Skills.Where(s => s.Ranks > 0 && !s.IsPool))
+        {
+            var key = MapCultureSkill(csk.Skill);
+            fixedRanks[key] = fixedRanks.GetValueOrDefault(key) + csk.Ranks;
+        }
+        return fixedRanks;
     }
 
     // ── Navigation ────────────────────────────────────────────────────────────
@@ -468,6 +492,8 @@ public partial class CharacterWizard
 
     async Task SaveConceptAsync()
     {
+        var fixedRanks = FixedCultureRanks();
+
         foreach (var (_, entries) in _poolAllocs)
         {
             foreach (var entry in entries)
@@ -485,7 +511,10 @@ public partial class CharacterWizard
                     _char.Skills.Add(existing);
                     Db.CharacterSkills.Add(existing);
                 }
-                existing.CulturalRanks = entry.Ranks;
+                // Pool ranks stack on top of anything the culture already granted for
+                // this skill, rather than replacing it.
+                existing.CulturalRanks =
+                    fixedRanks.GetValueOrDefault((entry.SkillName, entry.Specialization)) + entry.Ranks;
             }
         }
         Db.WriteAuditLogs(_currentUserId);
