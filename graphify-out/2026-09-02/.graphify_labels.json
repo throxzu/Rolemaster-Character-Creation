@@ -370,5 +370,19 @@
   "368": ".MapCultureSkill",
   "369": "20260619175739_AddTownLocationGmNotes.Designer.cs",
   "370": "20260620070535_AddDungeonLocationVisibility.Designer.cs",
-  "371": "VoyageEmbeddingClient.cs"
+  "371": "VoyageEmbeddingClient.cs",
+  "372": "Button Label Design",
+  "373": "WeaponRules",
+  "374": "CharacterStat",
+  "375": "20260618191640_AddSpellLists.Designer.cs",
+  "376": ".RemovePoolEntry",
+  "377": "Dictionary",
+  "378": "HashSet",
+  "379": "IEnumerable",
+  "380": "IJSRuntime",
+  "381": "int",
+  "382": "IReadOnlyList",
+  "383": "List",
+  "384": "string",
+  "385": "Task"
 }
