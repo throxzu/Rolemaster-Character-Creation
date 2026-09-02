@@ -682,7 +682,15 @@
   <tbody>
   @{
     var profDef = ProfessionRules.ByName.GetValueOrDefault(_char.Profession ?? "");
-    var skByName = _char.Skills.Where(s => s.Specialization == null).ToDictionary(s => s.SkillName, s => s);
+    var skByName = _char.Skills.Where(s => s.Specialization == null)
+                               .GroupBy(s => s.SkillName)
+                               .ToDictionary(g => g.Key, g => g.First());
+    // A specialized skill can be held several times over (Language (Common) and
+    // Language (Elvish)), so each one gets its own row under the skill it belongs to.
+    var specsByName = _char.Skills
+        .Where(s => s.Specialization != null
+                    && (s.CulturalRanks + s.PurchasedRanks > 0 || s.IsKnack))
+        .ToLookup(s => s.SkillName);
   }
   @foreach (var cat in SkillRules.Categories)
   {
@@ -694,8 +702,8 @@
     };
     string dp = profDef is not null && profDef.Costs.TryGetValue(ck, out var ccc)
         ? $"{ccc.First}/{ccc.Second}" : "—";
-    int csb1 = cat.NoStats ? 0 : (cat.Stat1 == "R*" ? _realmStatBonus : SkillRules.StatBonus(Temp(cat.Stat1)));
-    int csb2 = cat.NoStats ? 0 : (cat.Stat2 == "R*" ? _realmStatBonus : (cat.Stat2 == cat.Stat1 ? csb1 : SkillRules.StatBonus(Temp(cat.Stat2))));
+    int csb1 = cat.NoStats ? 0 : (cat.Stat1 == "R*" ? _realmStatBonus : StatBon(cat.Stat1));
+    int csb2 = cat.NoStats ? 0 : (cat.Stat2 == "R*" ? _realmStatBonus : (cat.Stat2 == cat.Stat1 ? csb1 : StatBon(cat.Stat2)));
     int catSum = csb1 + csb2;
     string catStatStr = cat.NoStats ? "-" : $"{cat.Stat1}+{cat.Stat2}";
 
@@ -712,36 +720,11 @@
     @foreach (var skd in cat.Skills)
     {
       skByName.TryGetValue(skd.Name, out var csk);
-      int cult  = csk?.CulturalRanks ?? 0;
-      int purch = csk?.PurchasedRanks ?? 0;
-      int tot   = cult + purch;
-      bool isPro   = csk?.IsProfessionalSkill ?? false;
-      bool isKnack = csk?.IsKnack ?? false;
-
-      int sskBonus = (cat.NoStats || skd.SkillStat is "" or "R*")
-          ? 0 : SkillRules.StatBonus(Temp(skd.SkillStat));
-      int statTotal = cat.NoStats ? 0 : catSum + sskBonus;
-      int rkBon  = tot > 0 ? SkillRules.RankBonus(tot) : 0;
-      int proBon = isPro   ? Math.Min(tot, 30) : 0;
-      int knBon  = isKnack ? 5 : 0;
-      int ttlBon = statTotal + rkBon + proBon + knBon;
-
-      string? skTip = null;
-      if (tot > 0 || isKnack)
-      {
-          var sb = new System.Text.StringBuilder();
-          if (!cat.NoStats)
-          {
-              sb.AppendLine($"{cat.Stat1}+{cat.Stat2}: {Fmt(catSum)}");
-              if (skd.SkillStat is not ("" or "R*" or "St or Ag"))
-                  sb.AppendLine($"+{skd.SkillStat}: {Fmt(sskBonus)}");
-          }
-          if (tot > 0) sb.AppendLine($"Ranks ({tot}): {Fmt(rkBon)}");
-          if (proBon != 0) sb.AppendLine($"Prof: {Fmt(proBon)}");
-          if (knBon  != 0) sb.AppendLine("Knack: +5");
-          sb.Append($"──────────\n= {Fmt(ttlBon)}");
-          skTip = sb.ToString();
-      }
+      var line = SkillLineFor(cat, skd, csk, catSum);
+      int cult = line.Cult, tot = line.Ranks, statTotal = line.StatTotal;
+      int rkBon = line.RankBonus, proBon = line.ProfBonus, knBon = line.KnackBonus, ttlBon = line.TotalBonus;
+      bool isPro = line.IsPro, isKnack = line.IsKnack;
+      string? skTip = line.Tip;
 
       string statsCell = cat.NoStats ? "-"
           : (skd.SkillStat is "" or "R*" ? "←" : $"←+{skd.SkillStat}→");
@@ -774,6 +757,27 @@
         </td>
         <td class="p1 tc muted">□□</td>
       </tr>
+
+      @foreach (var sp in specsByName[skd.Name].OrderBy(s => s.Specialization))
+      {
+        var spLine = SkillLineFor(cat, skd, sp, catSum, csk);
+        <tr class="sk-row sk-spec @(spLine.IsPro ? "sk-pro" : "") @(spLine.IsKnack ? "sk-knack" : "")">
+          <td class="tc">@(spLine.IsPro ? "■" : "□")</td>
+          <td class="p1 sk-spec-of">↳ @skd.Name</td>
+          <td class="p1 fw">@sp.Specialization</td>
+          <td class="p1 tr">@(spLine.Cult > 0 ? spLine.Cult.ToString() : "")</td>
+          <td class="p1 tc sk-stats">@statsCell</td>
+          <td class="p1 tr">@(spLine.Ranks > 0 && !cat.NoStats ? Fmt(spLine.StatTotal) : "")</td>
+          <td class="p1 tr">@(spLine.Ranks > 0 ? spLine.Ranks.ToString() : "")</td>
+          <td class="p1 tr">@(spLine.Ranks > 0 ? Fmt(spLine.RankBonus) : "")</td>
+          <td class="p1 tr">@(spLine.ProfBonus > 0 ? Fmt(spLine.ProfBonus) : "")</td>
+          <td class="p1 tr">@(spLine.KnackBonus > 0 ? "+5" : "")</td>
+          <td class="p1 tr fw @(spLine.TotalBonus >= 0 ? "pos" : "neg")" data-tip="@spLine.Tip">
+            @Fmt(spLine.TotalBonus)
+          </td>
+          <td class="p1 tc muted">□□</td>
+        </tr>
+      }
     }
   }
   </tbody>
@@ -962,6 +966,59 @@
         _char.WizardStep = 1;
         await Db.SaveChangesAsync();
         Nav.NavigateTo($"/character/{Id}/wizard");
+    }
+
+    // One line of the skills table: the skill's own row, or one of its specializations.
+    private sealed record SkillLine(int Cult, int Ranks, bool IsPro, bool IsKnack, int StatTotal,
+                                    int RankBonus, int ProfBonus, int KnackBonus, int TotalBonus, string? Tip);
+
+    // `parent` is the unspecialized row a specialization hangs off. As in the weapon
+    // table, the parent's cultural ranks count towards every specialization of it, and
+    // the professional / knack flags are recorded on the parent rather than the spec.
+    private SkillLine SkillLineFor(SkillCategory cat, SkillDef skd, CharacterSkill? csk, int catSum,
+                                   CharacterSkill? parent = null)
+    {
+        int cult  = (csk?.CulturalRanks ?? 0) + (parent?.CulturalRanks ?? 0);
+        int purch = csk?.PurchasedRanks ?? 0;
+        int tot   = cult + purch;
+        bool isPro   = (csk?.IsProfessionalSkill ?? false) || (parent?.IsProfessionalSkill ?? false);
+        bool isKnack = (csk?.IsKnack ?? false) || (parent?.IsKnack ?? false);
+
+        int sskBonus = (cat.NoStats || skd.SkillStat is "" or "R*")
+            ? 0 : StatBon(skd.SkillStat);
+        int statTotal = cat.NoStats ? 0 : catSum + sskBonus;
+        int rkBon  = tot > 0 ? SkillRules.RankBonus(tot) : 0;
+        int proBon = isPro   ? Math.Min(tot, 30) : 0;
+        int knBon  = isKnack ? 5 : 0;
+        int ttlBon = statTotal + rkBon + proBon + knBon;
+
+        string? tip = null;
+        if (tot > 0 || isKnack)
+        {
+            var sb = new System.Text.StringBuilder();
+            if (!cat.NoStats)
+            {
+                sb.AppendLine($"{cat.Stat1}+{cat.Stat2}: {Fmt(catSum)}");
+                if (skd.SkillStat is not ("" or "R*" or "St or Ag"))
+                    sb.AppendLine($"+{skd.SkillStat}: {Fmt(sskBonus)}");
+            }
+            if (tot > 0) sb.AppendLine($"Ranks ({tot}): {Fmt(rkBon)}");
+            if (proBon != 0) sb.AppendLine($"Prof: {Fmt(proBon)}");
+            if (knBon  != 0) sb.AppendLine("Knack: +5");
+            sb.Append($"──────────\n= {Fmt(ttlBon)}");
+            tip = sb.ToString();
+        }
+
+        return new SkillLine(cult, tot, isPro, isKnack, statTotal, rkBon, proBon, knBon, ttlBon, tip);
+    }
+
+    // Stat bonus including the racial modifier. The stat block, the weapon table and the
+    // defence numbers all add it, so the skills table has to as well or the same skill
+    // reads differently in two places on one sheet.
+    int StatBon(string abbr)
+    {
+        var race = _char?.Race is not null && RaceRules.ByName.TryGetValue(_char.Race, out var rd) ? rd : null;
+        return SkillRules.StatBonus(Temp(abbr)) + (race?.GetStatMod(StatFromAbbr(abbr)) ?? 0);
     }
 
     int Temp(string abbr)

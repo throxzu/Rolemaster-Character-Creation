@@ -60,6 +60,9 @@ tr:has(.brow) td { border: 1px solid var(--qp-border-panel); height: 14px; }
 .sk-stats { font-size: 7pt; }
 .spec-gray { background: var(--qp-bg-panel-alt); }
 .spec-tag  { color: var(--qp-text-muted); font-size: 7pt; margin-left: 3px; }
+/* A specialization sits under the skill it belongs to; the repeated skill name is
+   dimmed so the specialization itself is what reads down the column. */
+.sk-spec-of { color: var(--qp-text-muted); font-size: 7pt; padding-left: 10px !important; }
 
 /* ── Breakdown tooltip ──────────────────────────────────────── */
 [data-tip] { position: relative; cursor: help; }
@@ -131,6 +134,7 @@ tr:has(.brow) td { border: 1px solid var(--qp-border-panel); height: 14px; }
   .val   { color: black !important; }
   .spec-gray { background: #ccc !important; }
   .spec-tag  { color: #888 !important; }
+  .sk-spec-of { color: #777 !important; }
   .sk-table { font-size: 7pt; }
   .pgbrk { page-break-after: always; height: 0; }
   [data-tip]::after { display: none !important; }
