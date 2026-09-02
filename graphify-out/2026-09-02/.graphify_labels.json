@@ -370,19 +370,5 @@
   "368": ".MapCultureSkill",
   "369": "20260619175739_AddTownLocationGmNotes.Designer.cs",
   "370": "20260620070535_AddDungeonLocationVisibility.Designer.cs",
-  "371": "VoyageEmbeddingClient.cs",
-  "372": "Button Label Design",
-  "373": "AddTownLocationNotesAndCategoryNames",
-  "374": "20260530155746_AddHeightWeight.Designer.cs",
-  "375": "20260530165356_AddStatSpecial.Designer.cs",
-  "376": "20260530183904_AddCharacterTalents.Designer.cs",
-  "377": "20260616170521_AddCurrentXp.Designer.cs",
-  "378": "20260618182736_AddSpellFailureTables.Designer.cs",
-  "379": "20260619193821_AddUsefulLinks.Designer.cs",
-  "380": "20260619195313_AddCampaignVillages.Designer.cs",
-  "381": "20260620065621_PruneDungeonLegendNames.Designer.cs",
-  "382": ".OnModelCreating",
-  "383": "MigrationBuilder",
-  "384": "DateTime",
-  "385": "List"
+  "371": "VoyageEmbeddingClient.cs"
 }
