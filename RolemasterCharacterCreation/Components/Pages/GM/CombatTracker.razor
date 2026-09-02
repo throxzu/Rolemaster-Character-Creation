@@ -1,0 +1,915 @@
+@page "/gm/combat"
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = Roles.Gamemaster)]
+@using System.Globalization
+@using RolemasterCharacterCreation.Data
+@inject AppDbContext Db
+
+<PageTitle>Combat Tracker</PageTitle>
+
+<div class="container-fluid mt-3">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+        <h2 class="mb-0">Combat Tracker</h2>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <select class="form-select form-select-sm qp-input" style="width:230px"
+                    @bind="_fightId" @bind:after="LoadFightAsync">
+                <option value="0">— pick a fight —</option>
+                @foreach (var f in _fights)
+                {
+                    <option value="@f.Id">@f.Name (round @f.Round)</option>
+                }
+            </select>
+            <button class="btn btn-sm btn-outline-secondary" @onclick="() => _showNewFight = !_showNewFight">+ New fight</button>
+            <button class="btn btn-sm btn-outline-secondary" @onclick="() => _showTemplates = !_showTemplates">
+                Encounters (@_templates.Count)
+            </button>
+        </div>
+    </div>
+
+    @if (_message is not null)
+    {
+        <div class="alert @(_isError ? "alert-danger" : "alert-success") alert-dismissible py-2">
+            @_message
+            <button type="button" class="btn-close" @onclick="() => _message = null"></button>
+        </div>
+    }
+
+    @* ══════════════ New fight ══════════════ *@
+    @if (_showNewFight)
+    {
+        <div class="qp-card p-3 mb-3">
+            <div class="row g-2 align-items-end">
+                <div class="col-sm-6">
+                    <label class="form-label small mb-1">Fight name</label>
+                    <input class="form-control form-control-sm qp-input" placeholder="e.g. Ambush on the north road"
+                           @bind="_newFightName" @bind:event="oninput" />
+                </div>
+                <div class="col-sm-3">
+                    <button class="btn btn-sm btn-primary w-100" @onclick="CreateFightAsync"
+                            disabled="@string.IsNullOrWhiteSpace(_newFightName)">Start empty fight</button>
+                </div>
+                <div class="col-sm-3">
+                    <button class="btn btn-sm btn-outline-secondary w-100" @onclick="() => _showNewFight = false">Cancel</button>
+                </div>
+            </div>
+        </div>
+    }
+
+    @* ══════════════ Saved encounters ══════════════ *@
+    @if (_showTemplates)
+    {
+        <div class="qp-card p-3 mb-3">
+            <h5 class="tool-heading mb-3">Saved encounters</h5>
+            @if (_templates.Count == 0)
+            {
+                <p class="text-muted mb-0">
+                    None yet. Build a fight below, then use <strong>Save as encounter</strong> to keep its
+                    roster for next time.
+                </p>
+            }
+            else
+            {
+                <table class="table table-sm align-middle qp-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Encounter</th>
+                            <th style="width:120px">Combatants</th>
+                            <th style="width:120px">Saved</th>
+                            <th style="width:200px"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var t in _templates)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@t.Name</td>
+                                <td class="text-muted">@t.Combatants.Count</td>
+                                <td class="text-muted">@t.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd")</td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-primary" @onclick="() => RunTemplateAsync(t)">Load &amp; run</button>
+                                    <button class="btn btn-sm btn-link text-danger" @onclick="() => DeleteEncounterAsync(t)">Delete</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    }
+
+    @if (_fight is null)
+    {
+        <div class="qp-card p-4">
+            <p class="text-muted mb-0">
+                Pick a fight from the dropdown, load a saved encounter, or start a new one.
+            </p>
+        </div>
+    }
+    else
+    {
+        @* ══════════════ Round controls ══════════════ *@
+        <div class="qp-card p-3 mb-3">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-3 flex-wrap">
+                    <span class="round-badge">Round @_fight.Round</span>
+                    <button class="btn btn-sm btn-primary" @onclick="NextRoundAsync">Next round →</button>
+                    <button class="btn btn-sm btn-outline-secondary" @onclick="ResetFightAsync">Reset fight</button>
+                </div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <input class="form-control form-control-sm qp-input" style="width:220px"
+                           placeholder="Save as encounter named…" @bind="_templateName" @bind:event="oninput" />
+                    <button class="btn btn-sm btn-outline-secondary" @onclick="SaveAsTemplateAsync"
+                            disabled="@string.IsNullOrWhiteSpace(_templateName)">Save as encounter</button>
+                    <button class="btn btn-sm btn-link text-danger" @onclick="() => DeleteEncounterAsync(_fight!)">Delete fight</button>
+                </div>
+            </div>
+            @if (_roundLog.Count > 0)
+            {
+                <div class="round-log mt-3">
+                    @foreach (var line in _roundLog)
+                    {
+                        <div>@line</div>
+                    }
+                </div>
+            }
+        </div>
+
+        @* ══════════════ Party & allies ══════════════ *@
+        <div class="qp-card p-3 mb-3">
+            <div class="row g-3 align-items-end">
+                <div class="col-lg-8">
+                    <h5 class="tool-heading mb-2">Party &amp; allies</h5>
+                    <p class="text-muted small mb-2">Tick who is in this fight; they appear on the board below.</p>
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach (var ch in _characters)
+                        {
+                            var tok = TokenForCharacter(ch.Id);
+                            <label class="party-pick @(tok is null ? "" : "party-pick-on")">
+                                <input type="checkbox" checked="@(tok is not null)"
+                                       @onchange="e => TogglePartyMemberAsync(ch, (bool)(e.Value ?? false))" />
+                                <span>@ch.Name</span>
+                            </label>
+                        }
+                        @if (_characters.Count == 0)
+                        {
+                            <span class="text-muted small">No characters in the campaign yet.</span>
+                        }
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <label class="form-label small mb-1">Add ally / NPC token</label>
+                    <div class="input-group input-group-sm">
+                        <input class="form-control qp-input" placeholder="e.g. Bran the guide"
+                               @bind="_newAllyName" @bind:event="oninput" />
+                        <button class="btn btn-outline-secondary" @onclick="AddAllyAsync"
+                                disabled="@string.IsNullOrWhiteSpace(_newAllyName)">+ Ally</button>
+                    </div>
+                </div>
+            </div>
+
+            @if (_fight.Combatants.Any(t => t.Kind == CombatantKind.Ally))
+            {
+                <div class="d-flex flex-wrap gap-2 mt-3">
+                    @foreach (var t in _fight.Combatants.Where(t => t.Kind == CombatantKind.Ally)
+                                                        .OrderBy(t => t.Name))
+                    {
+                        <span class="tok-chip tok-chip-ally">
+                            <span class="tok-dot">@Initials(t)</span>@t.Name
+                            <button class="tok-x" @onclick="() => RemoveCombatantAsync(t)">✕</button>
+                        </span>
+                    }
+                </div>
+            }
+        </div>
+
+        @* ══════════════ Board ══════════════ *@
+        <div class="qp-card p-3 mb-3">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+                <h5 class="tool-heading mb-0">Board</h5>
+                <div class="small">
+                    @if (_moving is not null)
+                    {
+                        <span class="text-warning">
+                            Moving <strong>@NameOf(_moving.Value)</strong> — click its new spot,
+                            or <a href="#" @onclick:preventDefault="true" @onclick="() => _moving = null">cancel</a>.
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">Drag a token to move it, or click it and then click its new spot.</span>
+                    }
+                </div>
+            </div>
+            <div class="cb-board-wrap">
+                <div class="cb-board @(_dragging ? "cb-dragging" : "")"
+                     @onclick="PlaceOnBoardAsync"
+                     @ondragover:preventDefault="true"
+                     @ondrop="DropOnBoardAsync">
+                    @foreach (var t in _fight.Combatants.OrderBy(t => t.Kind == CombatantKind.Enemy ? 0 : 1))
+                    {
+                        <span class="cb-tok @TokClass(t) @(_moving == t.Id ? "cb-tok-sel" : "") @(t.Active ? "" : "cb-tok-out")"
+                              style="@Pos(t)" title="@t.Name" draggable="true"
+                              @ondragstart="() => StartDrag(t)" @ondragend="() => _dragging = false"
+                              @onclick:stopPropagation="true" @onclick="() => ToggleMoving(t)">
+                            @Initials(t)
+                            <span class="cb-cap">@t.Name</span>
+                        </span>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @* ══════════════ Enemy grid ══════════════ *@
+        <div class="qp-card p-3 mb-4">
+            <div class="row g-2 align-items-end mb-3">
+                <div class="col-sm-2">
+                    <label class="form-label small mb-1">Mob no.</label>
+                    <input type="number" class="form-control form-control-sm qp-input" @bind="_newMob" />
+                </div>
+                <div class="col-sm-4">
+                    <label class="form-label small mb-1">Enemy</label>
+                    <input class="form-control form-control-sm qp-input" placeholder="e.g. Orc raider"
+                           @bind="_newName" @bind:event="oninput" />
+                </div>
+                <div class="col-sm-2">
+                    <label class="form-label small mb-1">Total hits</label>
+                    <input type="number" class="form-control form-control-sm qp-input" @bind="_newHits" />
+                </div>
+                <div class="col-sm-2">
+                    <label class="form-label small mb-1">How many</label>
+                    <input type="number" class="form-control form-control-sm qp-input" min="1" max="20" @bind="_newCount" />
+                </div>
+                <div class="col-sm-2">
+                    <button class="btn btn-sm btn-primary w-100" @onclick="AddEnemyAsync"
+                            disabled="@string.IsNullOrWhiteSpace(_newName)">+ Add line</button>
+                </div>
+            </div>
+
+            @if (Enemies.Count == 0)
+            {
+                <p class="text-muted mb-0">No enemies on the board yet. Add a line above.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table align-middle qp-table cb-table mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width:70px">Mob number</th>
+                                <th style="width:210px">Hits</th>
+                                <th style="width:120px">Stun round</th>
+                                <th style="width:120px">Bleed pr round</th>
+                                <th style="width:120px">Dies in round</th>
+                                <th style="width:70px">Prone</th>
+                                <th>Notes</th>
+                                <th style="width:70px">Active</th>
+                                <th style="width:40px"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var c in Enemies)
+                            {
+                                <tr class="@RowClass(c)">
+                                    <td>
+                                        <input type="number" class="form-control form-control-sm qp-input cb-mob"
+                                               value="@c.MobNumber" @onchange="e => SetMobAsync(c, e)" />
+                                        <div class="cb-name" title="@c.Name">@c.Name</div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="cb-hits">
+                                                <span class="@HitClass(c)">@c.CurrentHits</span>
+                                                <span class="text-muted">/</span>
+                                                <input type="number" class="form-control form-control-sm qp-input cb-max"
+                                                       value="@c.MaxHits" title="Total hits — set at the start of the fight"
+                                                       @onchange="e => SetMaxHitsAsync(c, e)" />
+                                            </div>
+                                            <div class="cb-step">
+                                                <button class="cb-btn cb-btn-dmg" title="Subtract these hits"
+                                                        @onclick="() => ApplyAdjustAsync(c, -1)">−</button>
+                                                <input type="number" class="form-control form-control-sm qp-input cb-num"
+                                                       value="@Adj(c.Id)" @onchange="e => SetAdj(c.Id, e)" />
+                                                <button class="cb-btn cb-btn-heal" title="Heal these hits"
+                                                        @onclick="() => ApplyAdjustAsync(c, 1)">+</button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="cb-step">
+                                            <button class="cb-btn" @onclick="() => StepStunAsync(c, 1)">+</button>
+                                            <input type="number" class="form-control form-control-sm qp-input cb-num"
+                                                   value="@c.StunRounds" @onchange="e => SetStunAsync(c, e)" />
+                                            <button class="cb-btn" @onclick="() => StepStunAsync(c, -1)">−</button>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="cb-step">
+                                            <button class="cb-btn" @onclick="() => StepBleedAsync(c, 1)">+</button>
+                                            <input type="number" class="form-control form-control-sm qp-input cb-num"
+                                                   value="@c.BleedPerRound" @onchange="e => SetBleedAsync(c, e)" />
+                                            <button class="cb-btn" @onclick="() => StepBleedAsync(c, -1)">−</button>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="cb-step">
+                                            <button class="cb-btn" @onclick="() => StepDiesAsync(c, 1)">+</button>
+                                            <input type="number" class="form-control form-control-sm qp-input cb-num"
+                                                   value="@c.DiesInRounds" title="Rounds left to live; 0 = not dying"
+                                                   @onchange="e => SetDiesAsync(c, e)" />
+                                            <button class="cb-btn" @onclick="() => StepDiesAsync(c, -1)">−</button>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="checkbox" class="form-check-input cb-check"
+                                               checked="@c.Prone" @onchange="e => SetProneAsync(c, e)" />
+                                    </td>
+                                    <td>
+                                        <input class="form-control form-control-sm qp-input"
+                                               placeholder="condition, tactics…"
+                                               value="@c.Notes" @onchange="e => SetNotesAsync(c, e)" />
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="checkbox" class="form-check-input cb-check"
+                                               checked="@c.Active" @onchange="e => SetActiveAsync(c, e)" />
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-link text-danger p-0"
+                                                @onclick="() => RemoveCombatantAsync(c)" title="Remove line">✕</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .tool-heading { color: var(--qp-teal); font-weight: 700; letter-spacing: .02em; }
+    .round-badge  { background: var(--qp-bg-panel); border: 1px solid var(--qp-border-panel);
+                    border-radius: 6px; padding: 4px 12px; font-weight: 600; color: var(--qp-text-primary); }
+    .qp-table th  { color: var(--qp-text-label); font-weight: 600; font-size: .78rem;
+                    text-transform: uppercase; letter-spacing: .05em; }
+    .round-log    { background: var(--qp-bg-panel); border: 1px solid var(--qp-border-panel);
+                    border-radius: 8px; padding: 8px 12px; font-size: .85rem; color: var(--qp-text-primary); }
+
+    /* ── Board ── */
+    /* The fixed pixel size is load-bearing: a click's offset is divided by it to get the
+       0–1 coordinates stored on the token, so it must match BoardW/BoardH in code. */
+    .cb-board-wrap{ overflow-x: auto; }
+    .cb-board     { position: relative; width: 900px; height: 600px; cursor: crosshair;
+                    background: var(--qp-bg-panel);
+                    background-image: linear-gradient(var(--qp-border-panel) 1px, transparent 1px),
+                                      linear-gradient(90deg, var(--qp-border-panel) 1px, transparent 1px);
+                    background-size: 300px 200px; background-position: -1px -1px;
+                    border: 2px solid var(--qp-text-label); border-radius: 6px; overflow: hidden; }
+    /* While a token is being dragged nothing else may capture the drop, or the drop
+       coordinates would come out relative to whatever token sat under the cursor. */
+    .cb-dragging .cb-tok { pointer-events: none; }
+    .cb-tok       { position: absolute; transform: translate(-50%, -50%); cursor: grab;
+                    width: 34px; height: 34px; border-radius: 50%; display: flex;
+                    align-items: center; justify-content: center; font-size: .85rem; font-weight: 700;
+                    color: #0d0d1a; border: 1px solid rgba(0,0,0,.4); user-select: none; }
+    .cb-tok:hover { filter: brightness(1.15); }
+    .cb-tok-enemy { background: var(--qp-red); color: #fff; }
+    .cb-tok-player{ background: var(--qp-blue-link); }
+    .cb-tok-ally  { background: var(--qp-purple-light); }
+    .cb-tok-sel   { box-shadow: 0 0 0 3px #e0b755; cursor: grabbing; }
+    .cb-tok-out   { opacity: .4; }
+    .cb-cap       { position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+                    margin-top: 3px; max-width: 110px; overflow: hidden; text-overflow: ellipsis;
+                    white-space: nowrap; font-size: .72rem; font-weight: 600; pointer-events: none;
+                    color: var(--qp-text-primary); text-shadow: 0 1px 3px #000; }
+
+    /* ── Grid cells ── */
+    .cb-table td  { vertical-align: middle; }
+    .cb-mob       { width: 60px; text-align: center; font-weight: 700; }
+    .cb-name      { font-size: .8rem; color: var(--qp-text-label); margin-top: 4px; max-width: 70px;
+                    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cb-hits      { display: flex; align-items: center; gap: 4px; font-size: 1.05rem; font-weight: 700; }
+    .cb-max       { width: 62px; text-align: center; font-weight: 600; }
+    .cb-step      { display: flex; align-items: center; gap: 3px; }
+    .cb-num       { width: 54px; text-align: center; }
+    .cb-btn       { width: 26px; height: 26px; flex: 0 0 26px; border-radius: 50%; line-height: 1;
+                    background: transparent; color: var(--qp-text-primary);
+                    border: 1px solid var(--qp-text-label); font-weight: 700; padding: 0; }
+    .cb-btn:hover { background: var(--qp-bg-panel-alt); }
+    .cb-btn-dmg:hover  { border-color: var(--qp-red); color: var(--qp-red); }
+    .cb-btn-heal:hover { border-color: var(--qp-green); color: var(--qp-green); }
+    .cb-check     { width: 20px; height: 20px; }
+    .hits-ok      { color: var(--qp-green); }
+    .hits-hurt    { color: #e0b755; }
+    .hits-crit    { color: var(--qp-red); }
+    tr.cb-out     { opacity: .5; }
+    tr.cb-out .cb-name { text-decoration: line-through; }
+    tr.cb-dying   { background: rgba(224, 85, 85, .10) !important; }
+    tr.cb-stunned { background: rgba(224, 183, 85, .08) !important; }
+
+    /* ── Party picker ── */
+    .party-pick   { display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+                    background: var(--qp-bg-panel); border: 1px solid var(--qp-border-panel);
+                    border-radius: 6px; padding: 5px 10px; color: var(--qp-text-primary); }
+    .party-pick-on{ border-color: var(--qp-blue-link); }
+    .tok-chip     { display: inline-flex; align-items: center; gap: 6px;
+                    background: var(--qp-bg-panel); border: 1px solid var(--qp-border-panel);
+                    border-radius: 20px; padding: 3px 12px 3px 4px; color: var(--qp-text-primary); }
+    .tok-dot      { width: 22px; height: 22px; border-radius: 50%; background: var(--qp-blue-link);
+                    color: #0d0d1a; display: inline-flex; align-items: center; justify-content: center;
+                    font-size: .7rem; font-weight: 700; }
+    .tok-chip-ally .tok-dot { background: var(--qp-purple-light); }
+    .tok-x        { background: none; border: none; color: var(--qp-text-label); padding: 0 0 0 4px; }
+</style>
+
+@code {
+    // Board pixel size — a click or drop is turned into a 0–1 fraction by dividing by
+    // these, so they must match the .cb-board rule above.
+    private const double BoardW = 900, BoardH = 600;
+
+    private List<Encounter> _fights = [];
+    private List<Encounter> _templates = [];
+    private List<Character> _characters = [];
+
+    private Encounter? _fight;
+    private int _fightId;
+
+    private bool _showNewFight, _showTemplates, _dragging;
+    private string? _message;
+    private bool _isError;
+    private List<string> _roundLog = [];
+
+    private string _newFightName = "";
+    private string _templateName = "";
+    private string _newAllyName = "";
+    private string _newName = "";
+    private int _newMob = 1, _newHits, _newCount = 1;
+
+    // Token currently picked up for repositioning; the next click on the board drops it
+    // there. Also set for the duration of a drag.
+    private int? _moving;
+
+    // Per-row "amount to apply" box; deliberately not persisted.
+    private readonly Dictionary<int, int> _adjust = [];
+
+    private List<EncounterCombatant> Enemies =>
+        _fight is null
+            ? []
+            : _fight.Combatants.Where(c => c.Kind == CombatantKind.Enemy)
+                               .OrderBy(c => c.SortOrder).ThenBy(c => c.MobNumber).ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _characters = await Db.Characters.OrderBy(c => c.Name).ToListAsync();
+        await ReloadListsAsync();
+
+        // Resume the most recent fight so a refresh drops the GM straight back in.
+        var latest = _fights.FirstOrDefault();
+        if (latest is not null)
+        {
+            _fightId = latest.Id;
+            await LoadFightAsync();
+        }
+    }
+
+    private async Task ReloadListsAsync()
+    {
+        _fights = await Db.Encounters.Where(e => !e.IsTemplate)
+                                     .OrderByDescending(e => e.LastUsedAt)
+                                     .ToListAsync();
+        _templates = await Db.Encounters.Include(e => e.Combatants)
+                                        .Where(e => e.IsTemplate)
+                                        .OrderBy(e => e.Name)
+                                        .ToListAsync();
+    }
+
+    private async Task LoadFightAsync()
+    {
+        _moving = null;
+        _roundLog.Clear();
+        _adjust.Clear();
+        _fight = _fightId == 0
+            ? null
+            : await Db.Encounters.Include(e => e.Combatants).FirstOrDefaultAsync(e => e.Id == _fightId);
+        _templateName = _fight?.Name ?? "";
+        _newMob = NextMobNumber();
+    }
+
+    private async Task SaveAsync()
+    {
+        if (_fight is not null) _fight.LastUsedAt = DateTime.UtcNow;
+        await Db.SaveChangesAsync();
+    }
+
+    // ══════════════ Fights & saved encounters ══════════════
+
+    private async Task CreateFightAsync()
+    {
+        var fight = new Encounter { Name = _newFightName.Trim(), IsTemplate = false, Round = 1 };
+        Db.Encounters.Add(fight);
+        await Db.SaveChangesAsync();
+
+        _newFightName = "";
+        _showNewFight = false;
+        await ReloadListsAsync();
+        _fightId = fight.Id;
+        await LoadFightAsync();
+    }
+
+    private async Task RunTemplateAsync(Encounter template)
+    {
+        var fight = new Encounter { Name = template.Name, Notes = template.Notes, IsTemplate = false, Round = 1 };
+        foreach (var src in template.Combatants.OrderBy(c => c.SortOrder))
+        {
+            fight.Combatants.Add(Clone(src));
+        }
+        Db.Encounters.Add(fight);
+        await Db.SaveChangesAsync();
+
+        _showTemplates = false;
+        await ReloadListsAsync();
+        _fightId = fight.Id;
+        await LoadFightAsync();
+        Notify($"Loaded “{fight.Name}”. Tick the party members who are in this fight.");
+    }
+
+    private async Task SaveAsTemplateAsync()
+    {
+        if (_fight is null) return;
+
+        var template = new Encounter { Name = _templateName.Trim(), Notes = _fight.Notes, IsTemplate = true };
+        // Party members are picked per fight, so only mobs and allies belong in a saved roster.
+        foreach (var src in _fight.Combatants.Where(c => c.Kind != CombatantKind.Player)
+                                             .OrderBy(c => c.SortOrder))
+        {
+            template.Combatants.Add(Clone(src));
+        }
+        Db.Encounters.Add(template);
+        await Db.SaveChangesAsync();
+        await ReloadListsAsync();
+        Notify($"Saved “{template.Name}” with {template.Combatants.Count} combatants.");
+    }
+
+    // Copies a roster entry, dropping the live state (a saved encounter and a freshly
+    // loaded fight both start undamaged and unimpaired).
+    private static EncounterCombatant Clone(EncounterCombatant src) => new()
+    {
+        Kind = src.Kind,
+        MobNumber = src.MobNumber,
+        Name = src.Name,
+        BoardX = src.BoardX,
+        BoardY = src.BoardY,
+        MaxHits = src.MaxHits,
+        CurrentHits = src.MaxHits,
+        Notes = src.Notes,
+        SortOrder = src.SortOrder,
+    };
+
+    private async Task DeleteEncounterAsync(Encounter e)
+    {
+        var wasCurrent = _fight?.Id == e.Id;
+        var name = e.Name;
+        Db.Encounters.Remove(e);
+        await Db.SaveChangesAsync();
+        await ReloadListsAsync();
+        if (wasCurrent)
+        {
+            _fightId = _fights.FirstOrDefault()?.Id ?? 0;
+            await LoadFightAsync();
+        }
+        Notify($"Deleted “{name}”.");
+    }
+
+    // ══════════════ Rounds ══════════════
+
+    private async Task NextRoundAsync()
+    {
+        if (_fight is null) return;
+
+        _fight.Round++;
+        _roundLog = [];
+
+        foreach (var c in _fight.Combatants.Where(c => c.Active && c.Kind == CombatantKind.Enemy)
+                                           .OrderBy(c => c.MobNumber))
+        {
+            if (c.BleedPerRound > 0)
+            {
+                c.CurrentHits -= c.BleedPerRound;
+                _roundLog.Add($"Mob {c.MobNumber} {c.Name}: bled {c.BleedPerRound} → {c.CurrentHits} hits.");
+            }
+
+            if (c.StunRounds > 0)
+            {
+                c.StunRounds--;
+                _roundLog.Add(c.StunRounds == 0
+                    ? $"Mob {c.MobNumber} {c.Name}: no longer stunned."
+                    : $"Mob {c.MobNumber} {c.Name}: stunned for {c.StunRounds} more round(s).");
+            }
+
+            if (c.DiesInRounds > 0)
+            {
+                c.DiesInRounds--;
+                if (c.DiesInRounds == 0)
+                {
+                    c.CurrentHits = 0;
+                    c.Active = false;
+                    _roundLog.Add($"☠ Mob {c.MobNumber} {c.Name} dies this round.");
+                }
+                else
+                {
+                    _roundLog.Add($"Mob {c.MobNumber} {c.Name}: {c.DiesInRounds} round(s) left to live.");
+                }
+            }
+
+            if (c.Active && c.MaxHits > 0 && c.CurrentHits <= 0)
+            {
+                _roundLog.Add($"Mob {c.MobNumber} {c.Name} is at 0 hits — down.");
+            }
+        }
+
+        await SaveAsync();
+    }
+
+    private async Task ResetFightAsync()
+    {
+        if (_fight is null) return;
+
+        _fight.Round = 1;
+        foreach (var c in _fight.Combatants)
+        {
+            c.CurrentHits = c.MaxHits;
+            c.StunRounds = 0;
+            c.BleedPerRound = 0;
+            c.DiesInRounds = 0;
+            c.Prone = false;
+            c.Active = true;
+        }
+        _roundLog.Clear();
+        await SaveAsync();
+    }
+
+    // ══════════════ Combatants ══════════════
+
+    private async Task AddEnemyAsync()
+    {
+        if (_fight is null || string.IsNullOrWhiteSpace(_newName)) return;
+
+        var count = Math.Clamp(_newCount, 1, 20);
+        var order = _fight.Combatants.Count == 0 ? 0 : _fight.Combatants.Max(c => c.SortOrder) + 1;
+
+        for (var i = 0; i < count; i++)
+        {
+            _fight.Combatants.Add(new EncounterCombatant
+            {
+                Kind = CombatantKind.Enemy,
+                MobNumber = _newMob + i,
+                Name = _newName.Trim(),
+                MaxHits = _newHits,
+                CurrentHits = _newHits,
+                SortOrder = order + i,
+            });
+        }
+
+        await SaveAsync();
+        _newName = "";
+        _newCount = 1;
+        _newMob = NextMobNumber();
+    }
+
+    private int NextMobNumber()
+    {
+        var mobs = _fight?.Combatants.Where(c => c.Kind == CombatantKind.Enemy).ToList() ?? [];
+        return mobs.Count == 0 ? 1 : mobs.Max(c => c.MobNumber) + 1;
+    }
+
+    private EncounterCombatant? TokenForCharacter(int characterId) =>
+        _fight?.Combatants.FirstOrDefault(c => c.Kind == CombatantKind.Player && c.CharacterId == characterId);
+
+    private async Task TogglePartyMemberAsync(Character ch, bool inFight)
+    {
+        if (_fight is null) return;
+
+        var existing = TokenForCharacter(ch.Id);
+        if (inFight && existing is null)
+        {
+            _fight.Combatants.Add(new EncounterCombatant
+            {
+                Kind = CombatantKind.Player,
+                Name = ch.Name,
+                CharacterId = ch.Id,
+                BoardX = 0.5,
+                BoardY = 0.85,
+            });
+        }
+        else if (!inFight && existing is not null)
+        {
+            RemoveTracked(existing);
+        }
+        await SaveAsync();
+    }
+
+    private async Task AddAllyAsync()
+    {
+        if (_fight is null || string.IsNullOrWhiteSpace(_newAllyName)) return;
+
+        _fight.Combatants.Add(new EncounterCombatant
+        {
+            Kind = CombatantKind.Ally,
+            Name = _newAllyName.Trim(),
+            BoardX = 0.5,
+            BoardY = 0.85,
+        });
+        _newAllyName = "";
+        await SaveAsync();
+    }
+
+    private async Task RemoveCombatantAsync(EncounterCombatant c)
+    {
+        RemoveTracked(c);
+        await SaveAsync();
+    }
+
+    private void RemoveTracked(EncounterCombatant c)
+    {
+        _fight?.Combatants.Remove(c);
+        Db.EncounterCombatants.Remove(c);
+        if (_moving == c.Id) _moving = null;
+        _adjust.Remove(c.Id);
+    }
+
+    // ══════════════ Board placement ══════════════
+
+    // Clicking a token picks it up (or puts it back down); the next click on open board
+    // drops it there. Dragging does the same thing in one gesture.
+    private void ToggleMoving(EncounterCombatant t) => _moving = _moving == t.Id ? null : t.Id;
+
+    private void StartDrag(EncounterCombatant t)
+    {
+        _moving = t.Id;
+        _dragging = true;
+    }
+
+    private async Task PlaceOnBoardAsync(MouseEventArgs e)
+    {
+        if (_moving is not int id) return;
+        var target = Find(id);
+        if (target is null) { _moving = null; return; }
+
+        await MoveAsync(target, e.OffsetX / BoardW, e.OffsetY / BoardH);
+        _moving = null;
+    }
+
+    private async Task DropOnBoardAsync(DragEventArgs e)
+    {
+        _dragging = false;
+        await PlaceOnBoardAsync(e);
+    }
+
+    private async Task MoveAsync(EncounterCombatant t, double fx, double fy)
+    {
+        t.BoardX = Math.Clamp(fx, 0, 1);
+        t.BoardY = Math.Clamp(fy, 0, 1);
+        await SaveAsync();
+    }
+
+    private EncounterCombatant? Find(int id) => _fight?.Combatants.FirstOrDefault(c => c.Id == id);
+
+    private string NameOf(int id) => Find(id)?.Name ?? "";
+
+    private static string Pos(EncounterCombatant t) => string.Create(CultureInfo.InvariantCulture,
+        $"left:{t.BoardX * 100:0.##}%;top:{t.BoardY * 100:0.##}%");
+
+    private static string TokClass(EncounterCombatant t) => t.Kind switch
+    {
+        CombatantKind.Enemy => "cb-tok-enemy",
+        CombatantKind.Ally => "cb-tok-ally",
+        _ => "cb-tok-player",
+    };
+
+    private static string Initials(EncounterCombatant t)
+    {
+        if (t.Kind == CombatantKind.Enemy) return t.MobNumber.ToString(CultureInfo.InvariantCulture);
+
+        var parts = t.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 0) return "?";
+        return parts.Length == 1
+            ? parts[0][..Math.Min(2, parts[0].Length)]
+            : $"{parts[0][0]}{parts[1][0]}";
+    }
+
+    // ══════════════ Cell editors ══════════════
+
+    private int Adj(int id) => _adjust.TryGetValue(id, out var v) ? v : 0;
+
+    private void SetAdj(int id, ChangeEventArgs e) => _adjust[id] = ToInt(e);
+
+    // sign: -1 subtracts the entered hits as damage, +1 adds them back as healing.
+    private async Task ApplyAdjustAsync(EncounterCombatant c, int sign)
+    {
+        var amount = Math.Abs(Adj(c.Id));
+        if (amount == 0) return;
+
+        c.CurrentHits += sign * amount;
+        if (c.MaxHits > 0 && c.CurrentHits > c.MaxHits) c.CurrentHits = c.MaxHits;
+        _adjust[c.Id] = 0;
+        await SaveAsync();
+    }
+
+    private async Task SetMaxHitsAsync(EncounterCombatant c, ChangeEventArgs e)
+    {
+        // Setting the total on an untouched mob fills its current hits too, which is what
+        // the GM wants at the start of a round; a wounded mob keeps its damage.
+        var wasFull = c.CurrentHits >= c.MaxHits;
+        c.MaxHits = Math.Max(0, ToInt(e));
+        if (wasFull || c.CurrentHits > c.MaxHits) c.CurrentHits = c.MaxHits;
+        await SaveAsync();
+    }
+
+    private async Task SetMobAsync(EncounterCombatant c, ChangeEventArgs e)
+    {
+        c.MobNumber = ToInt(e, c.MobNumber);
+        await SaveAsync();
+    }
+
+    private async Task SetStunAsync(EncounterCombatant c, ChangeEventArgs e)
+    {
+        c.StunRounds = Math.Max(0, ToInt(e));
+        await SaveAsync();
+    }
+
+    private async Task StepStunAsync(EncounterCombatant c, int delta)
+    {
+        c.StunRounds = Math.Max(0, c.StunRounds + delta);
+        await SaveAsync();
+    }
+
+    private async Task SetBleedAsync(EncounterCombatant c, ChangeEventArgs e)
+    {
+        c.BleedPerRound = Math.Max(0, ToInt(e));
+        await SaveAsync();
+    }
+
+    private async Task StepBleedAsync(EncounterCombatant c, int delta)
+    {
+        c.BleedPerRound = Math.Max(0, c.BleedPerRound + delta);
+        await SaveAsync();
+    }
+
+    private async Task SetDiesAsync(EncounterCombatant c, ChangeEventArgs e)
+    {
+        c.DiesInRounds = Math.Max(0, ToInt(e));
+        await SaveAsync();
+    }
+
+    private async Task StepDiesAsync(EncounterCombatant c, int delta)
+    {
+        c.DiesInRounds = Math.Max(0, c.DiesInRounds + delta);
+        await SaveAsync();
+    }
+
+    private async Task SetProneAsync(EncounterCombatant c, ChangeEventArgs e)
+    {
+        c.Prone = (bool)(e.Value ?? false);
+        await SaveAsync();
+    }
+
+    private async Task SetActiveAsync(EncounterCombatant c, ChangeEventArgs e)
+    {
+        c.Active = (bool)(e.Value ?? false);
+        await SaveAsync();
+    }
+
+    private async Task SetNotesAsync(EncounterCombatant c, ChangeEventArgs e)
+    {
+        c.Notes = e.Value?.ToString();
+        await SaveAsync();
+    }
+
+    private static int ToInt(ChangeEventArgs e, int fallback = 0) =>
+        int.TryParse(e.Value?.ToString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var v)
+            ? v
+            : fallback;
+
+    // ══════════════ Presentation ══════════════
+
+    private static string RowClass(EncounterCombatant c)
+    {
+        if (!c.Active) return "cb-out";
+        if (c.DiesInRounds > 0) return "cb-dying";
+        if (c.StunRounds > 0) return "cb-stunned";
+        return "";
+    }
+
+    private static string HitClass(EncounterCombatant c)
+    {
+        if (c.MaxHits <= 0) return "";
+        var pct = (double)c.CurrentHits / c.MaxHits;
+        return pct > 0.5 ? "hits-ok" : pct > 0.2 ? "hits-hurt" : "hits-crit";
+    }
+
+    private void Notify(string message, bool isError = false)
+    {
+        _message = message;
+        _isError = isError;
+    }
+}

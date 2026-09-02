@@ -64,6 +64,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<SessionNote> SessionNotes => Set<SessionNote>();
     public DbSet<GameSession> GameSessions => Set<GameSession>();
     public DbSet<SessionAttendance> SessionAttendances => Set<SessionAttendance>();
+    public DbSet<Encounter> Encounters => Set<Encounter>();
+    public DbSet<EncounterCombatant> EncounterCombatants => Set<EncounterCombatant>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -681,6 +683,32 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         modelBuilder.Entity<SessionAttendance>()
             .HasIndex(a => new { a.GameSessionId, a.UserId })
             .IsUnique();
+
+        modelBuilder.Entity<Encounter>()
+            .Property(e => e.Name)
+            .HasMaxLength(160)
+            .IsRequired();
+
+        modelBuilder.Entity<Encounter>()
+            .HasIndex(e => new { e.IsTemplate, e.LastUsedAt });
+
+        modelBuilder.Entity<EncounterCombatant>()
+            .Property(c => c.Name)
+            .HasMaxLength(160)
+            .IsRequired();
+
+        modelBuilder.Entity<EncounterCombatant>()
+            .HasOne(c => c.Encounter)
+            .WithMany(e => e.Combatants)
+            .HasForeignKey(c => c.EncounterId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // A deleted character must not take the fight's token row with it.
+        modelBuilder.Entity<EncounterCombatant>()
+            .HasOne(c => c.Character)
+            .WithMany()
+            .HasForeignKey(c => c.CharacterId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 
     // Writes audit log entries for tracked Character changes.
