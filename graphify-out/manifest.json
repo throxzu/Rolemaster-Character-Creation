@@ -1440,9 +1440,9 @@
     "semantic_hash": "3a95c0f40e645b181215b0b29defceac"
   },
   "RolemasterCharacterCreation/wwwroot/app.js": {
-    "mtime": 1781899719.2983806,
-    "ast_hash": "1262d888ef4cfcca863f631c5f178186",
-    "semantic_hash": "1262d888ef4cfcca863f631c5f178186"
+    "mtime": 1788599895.9044516,
+    "ast_hash": "67fd130fb6b4ca77d7e13570eb30068d",
+    "semantic_hash": ""
   },
   "docs/game-data/attack-tables.json": {
     "mtime": 1781794276.4748785,
