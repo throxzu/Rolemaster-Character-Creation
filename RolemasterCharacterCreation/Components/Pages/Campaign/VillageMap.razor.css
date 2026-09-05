@@ -7,6 +7,8 @@
     overflow: hidden;
     cursor: grab;
     touch-action: none; /* let the JS handle pan/zoom gestures */
+    /* Stable viewport: the map is fitted into this box, then panned and zoomed inside it. */
+    height: min(80vh, 900px);
 }
 
 .town-map-frame.tm-panning { cursor: grabbing; }
@@ -14,7 +16,7 @@
 .town-map {
     display: block;
     width: 100%;
-    height: auto;
+    height: 100%;
     transform-origin: 0 0;
 }
 
