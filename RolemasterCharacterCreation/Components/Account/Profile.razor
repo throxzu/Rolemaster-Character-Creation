@@ -1,0 +1,248 @@
+@page "/account/profile"
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using RolemasterCharacterCreation.Data
+@using RolemasterCharacterCreation.Identity
+@using RolemasterCharacterCreation.Models
+@attribute [Authorize]
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject AppDbContext Db
+@inject ILogger<Profile> Logger
+
+<PageTitle>My details</PageTitle>
+
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-6">
+        <h2 class="mb-1">My details</h2>
+        <p class="text-muted">
+            Your name, email and phone number. You sign in with your email or your phone
+            number, so keep them current.
+        </p>
+
+        @if (_error is not null)
+        {
+            <div class="alert alert-danger">@_error</div>
+        }
+        @if (_success is not null)
+        {
+            <div class="alert alert-success">@_success</div>
+        }
+
+        @if (_model is null)
+        {
+            <div class="alert alert-warning">Your session has expired. Please log in again.</div>
+        }
+        else
+        {
+            <div class="card">
+                <div class="card-body">
+                    <EditForm Model="_model" method="post" OnValidSubmit="SubmitAsync" FormName="profile">
+                        <DataAnnotationsValidator />
+
+                        <div class="mb-3">
+                            <label class="form-label">Full name</label>
+                            <InputText @bind-Value="_model.FullName" class="form-control" autocomplete="name" />
+                            <ValidationMessage For="() => _model.FullName" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <InputText @bind-Value="_model.Email" class="form-control" autocomplete="email" />
+                            <ValidationMessage For="() => _model.Email" />
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-4">
+                                <label class="form-label">Country</label>
+                                <InputSelect @bind-Value="_model.Dial" class="form-select">
+                                    @foreach (var c in CountryDialCodes.All)
+                                    {
+                                        <option value="@c.Dial">@c.Name (@c.Dial)</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div class="col-8">
+                                <label class="form-label">
+                                    Phone number
+                                    @if (_phoneRequired)
+                                    {
+                                        <span class="text-muted small">(you sign in with this)</span>
+                                    }
+                                </label>
+                                <InputText @bind-Value="_model.LocalNumber" class="form-control"
+                                           placeholder="12345678" autocomplete="tel-national" />
+                                <ValidationMessage For="() => _model.LocalNumber" />
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                            <a class="btn btn-outline-secondary" href="/">Cancel</a>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+
+            <p class="text-muted small mt-3">
+                To change your password, ask the Gamemaster to reset it for you.
+            </p>
+        }
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthState { get; set; }
+
+    [SupplyParameterFromForm]
+    private ProfileModel? _model { get; set; }
+
+    private ApplicationUser? _user;
+    private string? _error;
+    private string? _success;
+
+    // True when the account signs in with its phone number (every invited player), in which
+    // case the number cannot be removed and the user name has to move with it.
+    private bool _phoneRequired;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthState is null) return;
+
+        _user = await UserManager.GetUserAsync((await AuthState).User);
+        if (_user is null) return;
+
+        _phoneRequired = _user.PhoneNumber is not null && _user.UserName == _user.PhoneNumber;
+
+        // On a GET the form starts from what is stored; on a post-back keep what was typed.
+        if (_model is null)
+        {
+            var (dial, local) = SplitPhone(_user.PhoneNumber);
+            _model = new ProfileModel
+            {
+                FullName    = _user.DisplayName ?? "",
+                Email       = _user.Email ?? "",
+                Dial        = dial,
+                LocalNumber = local,
+            };
+        }
+    }
+
+    private async Task SubmitAsync()
+    {
+        _error = _success = null;
+
+        if (_user is null || _model is null)
+        {
+            _error = "Your session has expired. Please log in again.";
+            return;
+        }
+
+        var name  = _model.FullName.Trim();
+        var email = _model.Email.Trim();
+
+        // E.164 number: chosen dial code + local digits, dropping a leading trunk 0 — the
+        // same shape the GM's invite form stores.
+        var digits = new string(_model.LocalNumber.Where(char.IsDigit).ToArray()).TrimStart('0');
+        string? phone = digits.Length == 0 ? null : _model.Dial + digits;
+
+        if (digits.Length is > 0 and < 4)
+        {
+            _error = "That does not look like a valid phone number.";
+            return;
+        }
+        if (phone is null && _phoneRequired)
+        {
+            _error = "Your phone number is how you sign in, so it cannot be removed.";
+            return;
+        }
+
+        // Both the email and the phone number identify a user at sign-in, so neither may
+        // collide with another account.
+        var normalizedEmail = UserManager.NormalizeEmail(email);
+        if (await Db.Users.AnyAsync(u => u.Id != _user.Id && u.NormalizedEmail == normalizedEmail))
+        {
+            _error = "That email address is already used by another account.";
+            return;
+        }
+        if (phone is not null
+            && await Db.Users.AnyAsync(u => u.Id != _user.Id && u.PhoneNumber == phone))
+        {
+            _error = "That phone number is already used by another account.";
+            return;
+        }
+
+        var oldPhone = _user.PhoneNumber;
+        var oldEmail = _user.Email;
+        // The GM signs in with an email-shaped user name; a player's is their phone number.
+        // Either way the user name mirrors one of the two, and has to move with it.
+        bool userNameIsEmail = oldEmail is not null && _user.UserName == oldEmail;
+
+        var setEmail = await UserManager.SetEmailAsync(_user, email);
+        if (!setEmail.Succeeded) { _error = Describe(setEmail); return; }
+
+        var setPhone = await UserManager.SetPhoneNumberAsync(_user, phone);
+        if (!setPhone.Succeeded) { _error = Describe(setPhone); return; }
+
+        var newUserName =
+            _phoneRequired && phone is not null && phone != oldPhone ? phone :
+            userNameIsEmail && !string.Equals(email, oldEmail, StringComparison.OrdinalIgnoreCase) ? email :
+            null;
+
+        if (newUserName is not null)
+        {
+            var setUserName = await UserManager.SetUserNameAsync(_user, newUserName);
+            if (!setUserName.Succeeded) { _error = Describe(setUserName); return; }
+        }
+
+        _user.DisplayName = name;
+        var save = await UserManager.UpdateAsync(_user);
+        if (!save.Succeeded) { _error = Describe(save); return; }
+
+        // Changing the email or user name rolls the security stamp; refresh the sign-in so
+        // the current cookie stays valid instead of silently logging the user out.
+        await SignInManager.RefreshSignInAsync(_user);
+
+        Logger.LogInformation("User {UserId} updated their own profile details.", _user.Id);
+
+        _phoneRequired = _user.PhoneNumber is not null && _user.UserName == _user.PhoneNumber;
+        _success = "Your details were saved.";
+    }
+
+    // Splits a stored E.164 number back into a known dial code and the local part, so the
+    // form reopens on the country it was entered with.
+    private static (string Dial, string Local) SplitPhone(string? e164)
+    {
+        if (string.IsNullOrWhiteSpace(e164)) return (CountryDialCodes.Default.Dial, "");
+
+        var match = CountryDialCodes.All
+            .Where(c => e164.StartsWith(c.Dial, StringComparison.Ordinal))
+            .OrderByDescending(c => c.Dial.Length)
+            .FirstOrDefault();
+
+        return match is null
+            ? (CountryDialCodes.Default.Dial, e164.TrimStart('+'))
+            : (match.Dial, e164[match.Dial.Length..]);
+    }
+
+    private static string Describe(IdentityResult result) =>
+        string.Join("; ", result.Errors.Select(e => e.Description));
+
+    private sealed class ProfileModel
+    {
+        [Required(ErrorMessage = "Enter your name.")]
+        public string FullName { get; set; } = "";
+
+        [Required(ErrorMessage = "Enter your email address.")]
+        [EmailAddress(ErrorMessage = "That is not a valid email address.")]
+        public string Email { get; set; } = "";
+
+        public string Dial { get; set; } = CountryDialCodes.Default.Dial;
+
+        public string LocalNumber { get; set; } = "";
+    }
+}

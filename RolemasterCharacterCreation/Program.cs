@@ -251,7 +251,11 @@ static async Task SeedAsync(IServiceProvider services)
     const string gmEmail = "gamemaster@rolemaster.local";
     const string gmPassword = "GM@rolemaster1";
 
-    if (await userManager.FindByEmailAsync(gmEmail) is null)
+    // Seed the starter GM only when the campaign has no Gamemaster at all. Keyed on the
+    // role rather than the seed email, because the GM can now change their own email —
+    // and matching on the old address would create a second GM, on the default password,
+    // at the next start.
+    if ((await userManager.GetUsersInRoleAsync(Roles.Gamemaster)).Count == 0)
     {
         var gm = new ApplicationUser { UserName = gmEmail, Email = gmEmail, DisplayName = "Gamemaster" };
         var result = await userManager.CreateAsync(gm, gmPassword);
