@@ -1,0 +1,300 @@
+@* GM-only skill editor: the full skill catalogue with editable ranks, so a skill the
+   player never took can be granted without hunting through a separate add form. Rows the
+   character does not have yet are virtual — a CharacterSkill is created the moment a value
+   is entered. Nothing is saved here; the host page owns the Save button. *@
+@using RolemasterCharacterCreation.Data
+@using RolemasterCharacterCreation.Rules
+@inject AppDbContext Db
+
+<div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+    <div class="form-check form-switch mb-0">
+        <input class="form-check-input" type="checkbox" id="@($"sk-untaken-{_uid}")"
+               checked="@_showUntaken" @onchange="e => _showUntaken = (bool)(e.Value ?? false)" />
+        <label class="form-check-label small" for="@($"sk-untaken-{_uid}")">
+            Show skills the character hasn't taken
+        </label>
+    </div>
+
+    @if (_prof is not null)
+    {
+        <div class="form-check form-switch mb-0">
+            <input class="form-check-input" type="checkbox" id="@($"sk-prof-{_uid}")"
+                   checked="@_onlyRelevant" @onchange="e => _onlyRelevant = (bool)(e.Value ?? false)" />
+            <label class="form-check-label small" for="@($"sk-prof-{_uid}")">
+                Only skills relevant to @Character.Profession
+            </label>
+        </div>
+    }
+
+    <input class="form-control form-control-sm" style="max-width:220px" placeholder="Filter skills…"
+           @bind="_filter" @bind:event="oninput" />
+
+    <span class="text-muted small ms-auto">
+        <span class="sk-pro-mark">✦</span> = professional skill option for @(_prof?.Name ?? "this profession")
+    </span>
+</div>
+
+@foreach (var cat in SkillRules.Categories)
+{
+    var lines = LinesFor(cat).ToList();
+    if (lines.Count == 0) { continue; }
+
+    <table class="table table-sm table-bordered mb-3 sk-cat-table">
+        <thead>
+            <tr class="table-secondary">
+                <th colspan="3">
+                    @cat.Name
+                    <span class="text-muted fw-normal small ms-2">
+                        @(cat.NoStats ? "no stats" : $"{cat.Stat1}+{cat.Stat2}")
+                    </span>
+                </th>
+                <th class="text-nowrap" style="width:170px">
+                    <span class="text-muted fw-normal small">DP @CostLabel(cat)</span>
+                </th>
+                <th style="width:70px">Cultural</th>
+                <th style="width:70px">Purchased</th>
+                <th style="width:52px">Ranks</th>
+                <th style="width:40px">Pro</th>
+                <th style="width:46px">Knack</th>
+                <th style="width:36px"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var line in lines)
+            {
+                var sk = line.Skill;
+                <tr class="@(sk is null ? "sk-untaken" : "")">
+                    <td class="text-center align-middle sk-mark">
+                        @if (IsRelevant(line.Def.Name)) { <span class="sk-pro-mark" title="Professional skill option for @_prof?.Name">✦</span> }
+                    </td>
+                    <td class="align-middle" colspan="2">
+                        <span title="@line.Def.Description">@line.Def.Name</span>
+                        @if (line.Def.Specialized && line.Spec is null)
+                        {
+                            <span class="text-muted small ms-1">(spec.)</span>
+                        }
+                    </td>
+                    <td class="align-middle">
+                        @if (line.Spec is not null)
+                        {
+                            <span class="fw-semibold">@line.Spec</span>
+                        }
+                        else if (line.Def.Specialized)
+                        {
+                            <div class="input-group input-group-sm">
+                                <input class="form-control form-control-sm" placeholder="add specialization…"
+                                       list="@($"dl-{_uid}-{Slug(line.Def.Name)}")"
+                                       value="@SpecDraft(line.Def.Name)"
+                                       @oninput="e => SetSpecDraft(line.Def.Name, e)" />
+                                <button type="button" class="btn btn-outline-success"
+                                        @onclick="() => AddSpecialization(cat, line.Def)">+</button>
+                            </div>
+                            @if (SkillRules.SpecializationOptions.TryGetValue(line.Def.Name, out var opts))
+                            {
+                                <datalist id="@($"dl-{_uid}-{Slug(line.Def.Name)}")">
+                                    @foreach (var o in opts) { <option value="@o" /> }
+                                </datalist>
+                            }
+                        }
+                    </td>
+                    <td>
+                        <input type="number" class="form-control form-control-sm" min="0"
+                               value="@(sk?.CulturalRanks ?? 0)"
+                               @onchange="e => SetCultural(cat, line, e)" />
+                    </td>
+                    <td>
+                        <input type="number" class="form-control form-control-sm" min="0"
+                               value="@(sk?.PurchasedRanks ?? 0)"
+                               @onchange="e => SetPurchased(cat, line, e)" />
+                    </td>
+                    <td class="align-middle text-center fw-semibold">
+                        @(sk is null ? "" : (sk.CulturalRanks + sk.PurchasedRanks).ToString())
+                    </td>
+                    <td class="text-center align-middle">
+                        <input type="checkbox" class="form-check-input"
+                               checked="@(sk?.IsProfessionalSkill ?? false)"
+                               @onchange="e => SetPro(cat, line, e)" />
+                    </td>
+                    <td class="text-center align-middle">
+                        <input type="checkbox" class="form-check-input"
+                               checked="@(sk?.IsKnack ?? false)"
+                               @onchange="e => SetKnack(cat, line, e)" />
+                    </td>
+                    <td class="text-center align-middle">
+                        @if (sk is not null)
+                        {
+                            <button type="button" class="btn btn-sm btn-outline-danger py-0 px-1"
+                                    title="Remove this skill from the character"
+                                    @onclick="() => Remove(sk)">×</button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (!string.IsNullOrEmpty(_error))
+{
+    <div class="text-danger small mb-2">@_error</div>
+}
+
+<style>
+    .sk-cat-table td, .sk-cat-table th { vertical-align: middle; }
+    .sk-cat-table tr.sk-untaken td { opacity: .72; }
+    .sk-mark { width: 26px; }
+    .sk-pro-mark { color: var(--qp-teal, #00e5cc); font-weight: 700; }
+</style>
+
+@code {
+    // The character being edited. Its Skills collection is mutated in place; the host page
+    // saves via its own DbContext (the same scoped instance in this circuit).
+    [Parameter, EditorRequired] public Character Character { get; set; } = default!;
+
+    // One line of the catalogue: a skill definition, optionally a specialization of it, and
+    // the character's row for that pair when they have one.
+    private sealed record Line(SkillDef Def, string? Spec, CharacterSkill? Skill);
+
+    private readonly string _uid = Guid.NewGuid().ToString("N")[..6];
+    private readonly Dictionary<string, string> _specDrafts = [];
+
+    private bool _showUntaken = true;
+    private bool _onlyRelevant;
+    private string _filter = "";
+    private string? _error;
+
+    private ProfessionDef? _prof =>
+        ProfessionRules.ByName.GetValueOrDefault(Character.Profession ?? "");
+
+    // "Any 10 skills" (No Profession) means nothing is singled out, so treat every skill as
+    // relevant rather than marking none of them.
+    private bool IsRelevant(string skillName) =>
+        _prof is not null
+        && (_prof.ProfessionalSkills.Contains("Any 10 skills")
+            || _prof.ProfessionalSkills.Contains(skillName));
+
+    private IEnumerable<Line> LinesFor(SkillCategory cat)
+    {
+        foreach (var def in cat.Skills)
+        {
+            if (!Matches(def.Name)) continue;
+
+            var baseSkill = Find(def.Name, null);
+            var specs = Character.Skills
+                .Where(s => s.SkillName == def.Name && s.Specialization != null)
+                .OrderBy(s => s.Specialization)
+                .ToList();
+
+            // The base row is always shown for an unspecialized skill; for a specialized one
+            // it carries the category-level ranks (weapons keep their cultural ranks there).
+            if (baseSkill is not null || _showUntaken)
+                yield return new Line(def, null, baseSkill);
+
+            foreach (var s in specs)
+                yield return new Line(def, s.Specialization, s);
+        }
+    }
+
+    private bool Matches(string skillName)
+    {
+        if (_onlyRelevant && !IsRelevant(skillName)) return false;
+        if (_filter.Length > 0 && !skillName.Contains(_filter, StringComparison.OrdinalIgnoreCase))
+            return false;
+        return true;
+    }
+
+    private CharacterSkill? Find(string skillName, string? spec) =>
+        Character.Skills.FirstOrDefault(s => s.SkillName == skillName && s.Specialization == spec);
+
+    // Creates the row on first edit, so browsing the catalogue never writes anything.
+    private CharacterSkill Ensure(SkillCategory cat, Line line)
+    {
+        var sk = Find(line.Def.Name, line.Spec);
+        if (sk is null)
+        {
+            sk = new CharacterSkill
+            {
+                CharacterId    = Character.Id,
+                Category       = cat.Name,
+                SkillName      = line.Def.Name,
+                Specialization = line.Spec,
+            };
+            Character.Skills.Add(sk);
+            Db.CharacterSkills.Add(sk);
+        }
+        return sk;
+    }
+
+    private void SetCultural(SkillCategory cat, Line line, ChangeEventArgs e)
+    {
+        var v = Math.Max(0, ToInt(e));
+        if (line.Skill is null && v == 0) return;
+        Ensure(cat, line).CulturalRanks = v;
+    }
+
+    private void SetPurchased(SkillCategory cat, Line line, ChangeEventArgs e)
+    {
+        var v = Math.Max(0, ToInt(e));
+        if (line.Skill is null && v == 0) return;
+        Ensure(cat, line).PurchasedRanks = v;
+    }
+
+    private void SetPro(SkillCategory cat, Line line, ChangeEventArgs e)
+    {
+        var v = (bool)(e.Value ?? false);
+        if (line.Skill is null && !v) return;
+        Ensure(cat, line).IsProfessionalSkill = v;
+    }
+
+    private void SetKnack(SkillCategory cat, Line line, ChangeEventArgs e)
+    {
+        var v = (bool)(e.Value ?? false);
+        if (line.Skill is null && !v) return;
+        Ensure(cat, line).IsKnack = v;
+    }
+
+    private void AddSpecialization(SkillCategory cat, SkillDef def)
+    {
+        _error = null;
+        var spec = SpecDraft(def.Name).Trim();
+        if (spec.Length == 0) { _error = $"Enter a specialization for {def.Name}."; return; }
+
+        if (Find(def.Name, spec) is not null)
+        {
+            _error = $"{def.Name} ({spec}) is already on this character.";
+            return;
+        }
+
+        Ensure(cat, new Line(def, spec, null));
+        _specDrafts[def.Name] = "";
+    }
+
+    private void Remove(CharacterSkill sk)
+    {
+        Character.Skills.Remove(sk);
+        Db.CharacterSkills.Remove(sk);
+    }
+
+    private string SpecDraft(string skillName) =>
+        _specDrafts.TryGetValue(skillName, out var v) ? v : "";
+
+    private void SetSpecDraft(string skillName, ChangeEventArgs e) =>
+        _specDrafts[skillName] = e.Value?.ToString() ?? "";
+
+    // DP cost for the category under the character's profession, as "first/second".
+    private string CostLabel(SkillCategory cat)
+    {
+        var key = cat.Name switch
+        {
+            "Combat Training" => "Combat Training 1",
+            "Spellcasting"    => "Spells: Base/Open",
+            _                 => cat.Name,
+        };
+        return _prof is not null && _prof.Costs.TryGetValue(key, out var c) ? $"{c.First}/{c.Second}" : "—";
+    }
+
+    private static string Slug(string s) => s.Replace(' ', '-').Replace('/', '-').Replace('&', '-');
+
+    private static int ToInt(ChangeEventArgs e) =>
+        int.TryParse(e.Value?.ToString(), out var v) ? v : 0;
+}

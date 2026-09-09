@@ -112,94 +112,12 @@
 
 <!-- ── Skills ────────────────────────────────────────────────────── -->
 <h6 class="text-secondary border-bottom pb-1 mb-3">Skills</h6>
+<p class="text-muted small">
+    Every skill in the game, grouped by category, with this profession's DP cost per
+    category. Type ranks straight into any row to grant a skill the player never took.
+</p>
 
-@foreach (var grp in _char.Skills.GroupBy(s => s.Category).OrderBy(g => g.Key))
-{
-    <p class="text-muted small fw-semibold mb-1 mt-2">@grp.Key</p>
-    <table class="table table-sm table-bordered mb-2">
-        <thead>
-            <tr>
-                <th>Skill</th>
-                <th>Specialization</th>
-                <th style="width:105px">Cultural</th>
-                <th style="width:105px">Purchased</th>
-                <th style="width:46px">Pro</th>
-                <th style="width:46px">Knack</th>
-                <th style="width:46px"></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var sk in grp.OrderBy(s => s.SkillName).ThenBy(s => s.Specialization))
-            {
-                <tr>
-                    <td class="align-middle">@sk.SkillName</td>
-                    <td class="align-middle text-muted">@(sk.Specialization ?? "")</td>
-                    <td><input type="number" class="form-control form-control-sm" @bind="sk.CulturalRanks"  min="0" /></td>
-                    <td><input type="number" class="form-control form-control-sm" @bind="sk.PurchasedRanks" min="0" /></td>
-                    <td class="text-center align-middle"><input type="checkbox" class="form-check-input" @bind="sk.IsProfessionalSkill" /></td>
-                    <td class="text-center align-middle"><input type="checkbox" class="form-check-input" @bind="sk.IsKnack" /></td>
-                    <td class="text-center align-middle">
-                        <button class="btn btn-sm btn-outline-danger py-0 px-1" @onclick="() => RemoveSkill(sk)">×</button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-
-<div class="card mb-4">
-    <div class="card-body">
-        <h6 class="card-title mb-3">Add Skill</h6>
-        <div class="row g-2 align-items-end flex-wrap">
-            <div class="col-auto">
-                <label class="form-label">Category</label>
-                <select class="form-select form-select-sm" style="min-width:155px"
-                        value="@_addSkillCat"
-                        @onchange="OnAddCatChanged">
-                    <option value="">— Category —</option>
-                    @foreach (var cat in SkillRules.Categories)
-                    { <option value="@cat.Name">@cat.Name</option> }
-                </select>
-            </div>
-            <div class="col-auto">
-                <label class="form-label">Skill</label>
-                <select class="form-select form-select-sm" style="min-width:155px" @bind="_addSkillName">
-                    <option value="">— Skill —</option>
-                    @foreach (var skd in _addCatSkills)
-                    { <option value="@skd.Name">@skd.Name</option> }
-                </select>
-            </div>
-            @if (AddSkillNeedsSpec)
-            {
-                <div class="col-auto">
-                    <label class="form-label">Specialization</label>
-                    <input class="form-control form-control-sm" style="min-width:120px"
-                           list="dl-spec-add" placeholder="e.g. Common"
-                           @bind="_addSkillSpec" />
-                    @if (SkillRules.SpecializationOptions.TryGetValue(_addSkillName, out var specOpts))
-                    {
-                        <datalist id="dl-spec-add">
-                            @foreach (var o in specOpts) { <option value="@o" /> }
-                        </datalist>
-                    }
-                </div>
-            }
-            <div class="col-auto">
-                <label class="form-label">Cultural</label>
-                <input type="number" class="form-control form-control-sm" style="width:75px" @bind="_addSkillCultural" min="0" />
-            </div>
-            <div class="col-auto">
-                <label class="form-label">Purchased</label>
-                <input type="number" class="form-control form-control-sm" style="width:75px" @bind="_addSkillPurchased" min="0" />
-            </div>
-            <div class="col-auto">
-                <button class="btn btn-sm btn-outline-success" @onclick="AddSkill">+ Add</button>
-            </div>
-        </div>
-        @if (!string.IsNullOrEmpty(_addSkillError))
-        { <div class="text-danger small mt-2">@_addSkillError</div> }
-    </div>
-</div>
+<CharacterSkillEditor Character="_char" />
 
 <!-- ── Talents & Flaws ────────────────────────────────────────────── -->
 <h6 class="text-secondary border-bottom pb-1 mb-3">Talents &amp; Flaws</h6>
@@ -403,14 +321,6 @@
     bool       _saved;
     string?    _error;
 
-    // Add skill form state
-    string  _addSkillCat      = "";
-    string  _addSkillName     = "";
-    string  _addSkillSpec     = "";
-    int     _addSkillCultural  = 0;
-    int     _addSkillPurchased = 0;
-    string? _addSkillError;
-
     // Add talent form state
     string  _addTalentName        = "";
     int     _addTalentTier        = 1;
@@ -420,13 +330,6 @@
     string  _addEquipName  = "";
     int     _addEquipQty   = 1;
     string? _addEquipError;
-
-    SkillDef[] _addCatSkills =>
-        SkillRules.CategoryByName.TryGetValue(_addSkillCat, out var cat) ? cat.Skills : [];
-
-    bool AddSkillNeedsSpec =>
-        !string.IsNullOrEmpty(_addSkillName) &&
-        (SkillRules.SkillByName.GetValueOrDefault(_addSkillName)?.Specialized == true);
 
     protected override async Task OnInitializedAsync()
     {
@@ -456,48 +359,6 @@
         {
             _error = ex.InnerException?.Message ?? ex.Message;
         }
-    }
-
-    void OnAddCatChanged(ChangeEventArgs e)
-    {
-        _addSkillCat   = e.Value?.ToString() ?? "";
-        _addSkillName  = "";
-        _addSkillSpec  = "";
-        _addSkillError = null;
-    }
-
-    void AddSkill()
-    {
-        _addSkillError = null;
-        if (string.IsNullOrWhiteSpace(_addSkillName)) { _addSkillError = "Select a skill."; return; }
-
-        string? spec = AddSkillNeedsSpec ? _addSkillSpec.Trim() : null;
-        if (AddSkillNeedsSpec && string.IsNullOrWhiteSpace(spec))
-        { _addSkillError = "Specialization is required for this skill."; return; }
-
-        if (_char!.Skills.Any(s => s.SkillName == _addSkillName && s.Specialization == spec))
-        { _addSkillError = "This skill / specialization already exists."; return; }
-
-        _char.Skills.Add(new CharacterSkill
-        {
-            CharacterId    = _char.Id,
-            SkillName      = _addSkillName,
-            Category       = _addSkillCat,
-            Specialization = spec,
-            CulturalRanks  = _addSkillCultural,
-            PurchasedRanks = _addSkillPurchased,
-        });
-
-        _addSkillName      = "";
-        _addSkillSpec      = "";
-        _addSkillCultural  = 0;
-        _addSkillPurchased = 0;
-    }
-
-    void RemoveSkill(CharacterSkill sk)
-    {
-        _char!.Skills.Remove(sk);
-        Db.CharacterSkills.Remove(sk);
     }
 
     void AddTalent()
