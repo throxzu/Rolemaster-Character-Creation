@@ -94,7 +94,9 @@
         <tr><td class="p1"><div class="lbl">Profession:</div><div class="val">@(_char.Profession ?? "")</div></td></tr>
       </table>
     </td>
-    <td class="p1 vt">
+    @* Feats of Strength and Encumbrance run the full height of the block; Appearance and
+       Background are short, and the Wealth box fills the space they leave underneath. *@
+    <td class="p1 vt" rowspan="2">
       @{
         // Table 5-2: FOS — max lift weight at each difficulty for this character
         // maxWeight = max(0, loadPct + 2×StBonus) % of body weight
@@ -125,7 +127,7 @@
         <tr><td colspan="3" class="p1"><span class="lbl">Size: </span>@(RaceRules.ByName.GetValueOrDefault(_char.Race ?? "")?.Size ?? "")</td></tr>
       </table>
     </td>
-    <td class="p1 vt">
+    <td class="p1 vt" rowspan="2">
       @{
         int _waPercent    = Math.Max(0, 15 + 2 * _stBonus);
         // Armor enc% comes from the armor selection
@@ -179,6 +181,31 @@
           <span class="fw @(_earlyTotalPen < 0 ? "neg" : "")">@(_earlyTotalPen != 0 ? _earlyTotalPen.ToString() : "—")</span>
           <span class="muted"> (armor @_earlyNetManPen + enc −@_earlyEncPen)</span>
         </td></tr>
+      </table>
+    </td>
+  </tr>
+  @* Purse — the default decimal coinage, Core Law Table 6-0a. Edited on the character
+     page; it sits in the space Appearance and Background leave under themselves. *@
+  <tr>
+    <td class="p1" colspan="2" style="vertical-align:bottom">
+      <table class="t100 tb">
+        <tr><td class="hdr" colspan="4">Wealth</td></tr>
+        <tr>
+          <td class="p1" style="width:25%"><span class="lbl">Gold (gp)</span></td>
+          <td class="p1 tr fw" style="width:25%">@_char.Gold</td>
+          <td class="p1" style="width:25%"><span class="lbl">Bronze (bp)</span></td>
+          <td class="p1 tr fw" style="width:25%">@_char.Bronze</td>
+        </tr>
+        <tr>
+          <td class="p1"><span class="lbl">Silver (sp)</span></td>
+          <td class="p1 tr fw">@_char.Silver</td>
+          <td class="p1"><span class="lbl">Copper (cp)</span></td>
+          <td class="p1 tr fw">@_char.Copper</td>
+        </tr>
+        <tr>
+          <td class="p1 muted" colspan="2" style="font-size:6pt">1 gp = 10 sp = 100 bp = 1000 cp</td>
+          <td class="p1 tr" colspan="2"><span class="lbl">Total </span><span class="fw">@CoinRules.TotalSilverText(_char) sp</span></td>
+        </tr>
       </table>
     </td>
   </tr>

@@ -1,0 +1,37 @@
+@* The character's purse, in the default decimal coinage (Core Law Table 6-0a). Players and
+   the GM both edit it; the host page owns the Save button. *@
+@using RolemasterCharacterCreation.Rules
+
+<div class="d-flex flex-wrap align-items-end gap-3 mb-2">
+    <div>
+        <label class="form-label small mb-1">Gold <span class="text-muted">(gp)</span></label>
+        <input type="number" class="form-control form-control-sm" style="width:110px" min="0"
+               value="@Character.Gold" @onchange="e => Character.Gold = Coins(e)" />
+    </div>
+    <div>
+        <label class="form-label small mb-1">Silver <span class="text-muted">(sp)</span></label>
+        <input type="number" class="form-control form-control-sm" style="width:110px" min="0"
+               value="@Character.Silver" @onchange="e => Character.Silver = Coins(e)" />
+    </div>
+    <div>
+        <label class="form-label small mb-1">Bronze <span class="text-muted">(bp)</span></label>
+        <input type="number" class="form-control form-control-sm" style="width:110px" min="0"
+               value="@Character.Bronze" @onchange="e => Character.Bronze = Coins(e)" />
+    </div>
+    <div>
+        <label class="form-label small mb-1">Copper <span class="text-muted">(cp)</span></label>
+        <input type="number" class="form-control form-control-sm" style="width:110px" min="0"
+               value="@Character.Copper" @onchange="e => Character.Copper = Coins(e)" />
+    </div>
+    <div class="text-muted small pb-2">
+        = @CoinRules.TotalSilverText(Character) sp
+    </div>
+</div>
+<p class="text-muted small mb-0">1 gp = 10 sp · 1 sp = 10 bp · 1 bp = 10 cp</p>
+
+@code {
+    [Parameter, EditorRequired] public Character Character { get; set; } = default!;
+
+    private static int Coins(ChangeEventArgs e) =>
+        int.TryParse(e.Value?.ToString(), out var v) ? Math.Max(0, v) : 0;
+}

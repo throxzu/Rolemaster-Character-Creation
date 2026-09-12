@@ -50,6 +50,9 @@
                         <a class="btn btn-sm btn-outline-success me-1" href="@($"/character/{ch.Id}/wizard")">Wizard</a>
                     }
                     <a class="btn btn-sm btn-outline-primary me-1" href="@($"/character/{ch.Id}/sheet")">Show</a>
+                    @* Players edit only their items here; everything else is read-only. *@
+                    <a class="btn btn-sm btn-outline-warning me-1" href="@($"/character/{ch.Id}")"
+                       title="Add, update or remove items">Edit</a>
                 </td>
             </tr>
         }

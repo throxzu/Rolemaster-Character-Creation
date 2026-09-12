@@ -35,7 +35,12 @@ else
                 </small>
             </div>
             <div>
-                <a class="btn btn-outline-primary me-2" href="/character/@_character.Id/wizard">Character Wizard</a>
+                @* Same gate as the character list: a player only re-enters the wizard while
+                   creation is unfinished or a level-up is available. *@
+                @if (_isGm || CanAccessWizard(_character))
+                {
+                    <a class="btn btn-outline-primary me-2" href="/character/@_character.Id/wizard">Character Wizard</a>
+                }
                 <a class="btn btn-outline-secondary" href="/character/@_character.Id/sheet" target="_blank">Print Sheet</a>
             </div>
         </div>
@@ -51,28 +56,65 @@ else
         <EditForm Model="_character" OnValidSubmit="SaveAsync">
             <DataAnnotationsValidator />
 
+            @* Concept and stats are the wizard's and the GM's to set; a player sees them here
+               only for reference, and edits their items below. *@
             <h6 class="text-secondary mb-2">Concept</h6>
             <div class="row g-3 mb-4">
                 <div class="col-md-3">
                     <label class="form-label">Name</label>
-                    <InputText @bind-Value="_character.Name" class="form-control" />
-                    <ValidationMessage For="() => _character.Name" />
+                    @if (_isGm)
+                    {
+                        <InputText @bind-Value="_character.Name" class="form-control" />
+                        <ValidationMessage For="() => _character.Name" />
+                    }
+                    else
+                    {
+                        <input class="form-control" value="@_character.Name" disabled />
+                    }
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">Race</label>
-                    <InputText @bind-Value="_character.Race" class="form-control" />
+                    @if (_isGm)
+                    {
+                        <InputText @bind-Value="_character.Race" class="form-control" />
+                    }
+                    else
+                    {
+                        <input class="form-control" value="@_character.Race" disabled />
+                    }
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">Culture</label>
-                    <InputText @bind-Value="_character.Culture" class="form-control" />
+                    @if (_isGm)
+                    {
+                        <InputText @bind-Value="_character.Culture" class="form-control" />
+                    }
+                    else
+                    {
+                        <input class="form-control" value="@_character.Culture" disabled />
+                    }
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">Profession</label>
-                    <InputText @bind-Value="_character.Profession" class="form-control" />
+                    @if (_isGm)
+                    {
+                        <InputText @bind-Value="_character.Profession" class="form-control" />
+                    }
+                    else
+                    {
+                        <input class="form-control" value="@_character.Profession" disabled />
+                    }
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">Realm</label>
-                    <InputText @bind-Value="_character.Realm" class="form-control" />
+                    @if (_isGm)
+                    {
+                        <InputText @bind-Value="_character.Realm" class="form-control" />
+                    }
+                    else
+                    {
+                        <input class="form-control" value="@_character.Realm" disabled />
+                    }
                 </div>
                 <div class="col-md-1">
                     <label class="form-label">Level</label>
@@ -87,35 +129,40 @@ else
                 </div>
             </div>
 
-            <h6 class="text-secondary mb-2">Stats</h6>
-            <table class="table table-sm table-bordered table-hover mb-4">
-                <thead>
-                    <tr>
-                        <th>Stat</th>
-                        <th style="width:130px">Temporary</th>
-                        <th style="width:130px">Potential</th>
-                        <th style="width:100px">Bonus</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var stat in _character.Stats.OrderBy(s => s.Stat.ToString()))
-                    {
-                        int bonus = SkillRules.StatBonus(stat.Temporary);
+            @* Stats belong to the wizard and the GM. A player reads them on the sheet, so
+               they are left off this page entirely rather than shown greyed out. *@
+            @if (_isGm)
+            {
+                <h6 class="text-secondary mb-2">Stats</h6>
+                <table class="table table-sm table-bordered table-hover mb-4">
+                    <thead>
                         <tr>
-                            <td class="align-middle"><strong>@stat.Stat</strong></td>
-                            <td>
-                                <InputNumber @bind-Value="stat.Temporary" class="form-control form-control-sm" min="1" max="100" />
-                            </td>
-                            <td>
-                                <InputNumber @bind-Value="stat.Potential" class="form-control form-control-sm" min="1" max="100" />
-                            </td>
-                            <td class="align-middle @(bonus >= 0 ? "text-success" : "text-danger")">
-                                @(bonus >= 0 ? "+" : "")@bonus
-                            </td>
+                            <th>Stat</th>
+                            <th style="width:130px">Temporary</th>
+                            <th style="width:130px">Potential</th>
+                            <th style="width:100px">Bonus</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var stat in _character.Stats.OrderBy(s => s.Stat.ToString()))
+                        {
+                            int bonus = SkillRules.StatBonus(stat.Temporary);
+                            <tr>
+                                <td class="align-middle"><strong>@stat.Stat</strong></td>
+                                <td>
+                                    <InputNumber @bind-Value="stat.Temporary" class="form-control form-control-sm" min="1" max="100" />
+                                </td>
+                                <td>
+                                    <InputNumber @bind-Value="stat.Potential" class="form-control form-control-sm" min="1" max="100" />
+                                </td>
+                                <td class="align-middle @(bonus >= 0 ? "text-success" : "text-danger")">
+                                    @(bonus >= 0 ? "+" : "")@bonus
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
 
             @* Skills are the GM's to grant or take away; players change theirs in the wizard. *@
             @if (_isGm)
@@ -127,6 +174,17 @@ else
                 </p>
                 <CharacterSkillEditor Character="_character" />
             }
+
+            @* The two things a player may change after creation: their purse and their pack. *@
+            <h6 class="text-secondary border-bottom pb-1 mb-3 mt-4">Wealth</h6>
+            <CharacterMoneyEditor Character="_character" />
+
+            <h6 class="text-secondary border-bottom pb-1 mb-3 mt-4">Items</h6>
+            <p class="text-muted small">
+                Pick from the equipment lists or type anything — loot, supplies, a named weapon.
+                Changes are stored when you press <strong>Save Changes</strong>.
+            </p>
+            <CharacterItemsEditor Character="_character" />
 
             <div class="d-flex justify-content-between mt-4">
                 @if (_isGm)
@@ -141,10 +199,12 @@ else
             </div>
         </EditForm>
 
+        @* Weapon bonuses are read-only maths; the sheet shows them, so the GM keeps this
+           cross-check here and a player is not shown a table they cannot touch. *@
         @{
             var combatCat  = SkillRules.Categories.First(c => c.Name == "Combat Training");
             var raceInfo   = _character.Race is not null && RaceRules.ByName.TryGetValue(_character.Race, out var rcDef) ? rcDef : null;
-            var weaponSkills = _character.Skills
+            List<CharacterSkill> weaponSkills = !_isGm ? [] : _character.Skills
                 .Where(s => WeaponRules.BySkill.ContainsKey(s.SkillName) && s.Specialization != null && s.PurchasedRanks > 0)
                 .OrderBy(s => s.Id)
                 .ToList();
@@ -224,6 +284,7 @@ else
             _character = await Db.Characters
                 .Include(c => c.Stats)
                 .Include(c => c.Skills)
+                .Include(c => c.EquipmentItems)
                 .FirstOrDefaultAsync(c => c.UserId == _currentUserId);
 
             if (_character is null)
@@ -238,6 +299,7 @@ else
             _character = await Db.Characters
                 .Include(c => c.Stats)
                 .Include(c => c.Skills)
+                .Include(c => c.EquipmentItems)
                 .FirstOrDefaultAsync(c => c.Id == Id);
 
             if (_character is not null && !_isGm && _character.UserId != _currentUserId)
@@ -247,6 +309,12 @@ else
         if (_character is not null && !_character.Stats.Any())
             EnsureStats();
     }
+
+    // Mirrors Player/Characters.razor: the wizard is for unfinished creation and level-ups only.
+    private static bool CanAccessWizard(Character ch) =>
+        (ch.Level == 1 && ch.WizardStep < 5) ||
+        ch.LevelUpBaselineJson != null        ||
+        ch.CurrentXp >= 10000 * ch.Level;
 
     private void EnsureStats()
     {

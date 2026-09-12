@@ -37,6 +37,12 @@ public class Character
     public string? GreavesGrade   { get; set; }
     public string? ShieldType     { get; set; }     // null / "Small" / "Medium" / "Large"
 
+    // Purse. Core Law Table 6-0a: 1 gp = 10 sp, 1 sp = 10 bp, 1 bp = 10 cp.
+    public int Gold   { get; set; }
+    public int Silver { get; set; }
+    public int Bronze { get; set; }
+    public int Copper { get; set; }
+
     // Comma-separated chosen professional skill names (10 pro + 2 knacks = 12 entries prefixed "PRO:" or "KNA:")
     public string? ProfessionalSkillData { get; set; }
 

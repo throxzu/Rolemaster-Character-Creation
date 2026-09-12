@@ -1,0 +1,135 @@
+@* Equipment list editor, shared by the GM edit page and the player's own character page.
+   Items are the one part of a character a player may change freely after creation: loot,
+   supplies bought in town, things handed to another character. Rows are mutated in place;
+   the host page owns the Save button. *@
+@using RolemasterCharacterCreation.Data
+@using RolemasterCharacterCreation.Rules
+@inject AppDbContext Db
+
+<datalist id="@($"dl-items-{_uid}")">
+    @foreach (var it in EquipmentRules.General) { <option value="@it.Name" /> }
+    @foreach (var it in EquipmentRules.Weapons) { <option value="@it.Name" /> }
+</datalist>
+
+@if (Character.EquipmentItems.Any())
+{
+    <table class="table table-sm table-bordered mb-3" style="max-width:520px">
+        <thead>
+            <tr><th>Item</th><th style="width:90px">Qty</th><th style="width:46px"></th></tr>
+        </thead>
+        <tbody>
+            @* Ordered by Id, not name, so a row doesn't jump while its name is being typed. *@
+            @foreach (var ei in Character.EquipmentItems.OrderBy(e => e.Id == 0 ? int.MaxValue : e.Id).ToList())
+            {
+                <tr>
+                    <td>
+                        <input class="form-control form-control-sm" list="@($"dl-items-{_uid}")"
+                               value="@ei.Name" @onchange="e => Rename(ei, e)" />
+                    </td>
+                    <td>
+                        <input type="number" class="form-control form-control-sm" min="1"
+                               value="@ei.Qty" @onchange="e => SetQty(ei, e)" />
+                    </td>
+                    <td class="text-center align-middle">
+                        <button type="button" class="btn btn-sm btn-outline-danger py-0 px-1"
+                                title="Remove this item" @onclick="() => Remove(ei)">×</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p class="text-muted small mb-3">No items yet.</p>
+}
+
+<div class="row g-2 align-items-end mb-2" style="max-width:520px">
+    <div class="col">
+        <label class="form-label small mb-1">Item</label>
+        <input class="form-control form-control-sm" list="@($"dl-items-{_uid}")"
+               placeholder="Pick one, or type anything" @bind="_addName"
+               @onkeydown="OnAddKeyDown" />
+    </div>
+    <div class="col-auto">
+        <label class="form-label small mb-1">Qty</label>
+        <input type="number" class="form-control form-control-sm" style="width:80px"
+               min="1" @bind="_addQty" />
+    </div>
+    <div class="col-auto">
+        <button type="button" class="btn btn-sm btn-outline-success" @onclick="Add">+ Add</button>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(_note))
+{
+    <div class="text-muted small mb-2">@_note</div>
+}
+
+@code {
+    // The character being edited. EquipmentItems is mutated in place; the host page saves
+    // through the same scoped DbContext.
+    [Parameter, EditorRequired] public Character Character { get; set; } = default!;
+
+    private readonly string _uid = Guid.NewGuid().ToString("N")[..6];
+
+    private string _addName = "";
+    private int    _addQty  = 1;
+    private string? _note;
+
+    private void Add()
+    {
+        _note = null;
+        var name = _addName.Trim();
+        if (name.Length == 0) { _note = "Type or pick an item name first."; return; }
+
+        int qty = Math.Max(1, _addQty);
+
+        // Adding something already carried tops up the stack rather than dead-ending on
+        // a duplicate-name error.
+        var existing = Character.EquipmentItems
+            .FirstOrDefault(e => string.Equals(e.Name, name, StringComparison.OrdinalIgnoreCase));
+        if (existing is not null)
+        {
+            existing.Qty += qty;
+            _note = $"{existing.Name} is already carried — quantity is now {existing.Qty}.";
+        }
+        else
+        {
+            var item = new CharacterEquipmentItem
+            {
+                CharacterId = Character.Id,
+                Name        = name,
+                Qty         = qty,
+            };
+            Character.EquipmentItems.Add(item);
+            Db.CharacterEquipmentItems.Add(item);
+        }
+
+        _addName = "";
+        _addQty  = 1;
+    }
+
+    private void OnAddKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") Add();
+    }
+
+    private void Rename(CharacterEquipmentItem ei, ChangeEventArgs e)
+    {
+        var name = e.Value?.ToString()?.Trim() ?? "";
+        if (name.Length == 0) { _note = "An item needs a name."; return; }
+        _note = null;
+        ei.Name = name;
+    }
+
+    private void SetQty(CharacterEquipmentItem ei, ChangeEventArgs e) =>
+        ei.Qty = int.TryParse(e.Value?.ToString(), out var q) ? Math.Max(1, q) : 1;
+
+    private void Remove(CharacterEquipmentItem ei)
+    {
+        _note = null;
+        Character.EquipmentItems.Remove(ei);
+        Db.CharacterEquipmentItems.Remove(ei);
+    }
+}
