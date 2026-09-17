@@ -465,9 +465,10 @@
     {
         <h6 class="text-secondary mb-3">Level @_char!.Level Stat Gain Rolls</h6>
         <p class="small text-muted mb-3">
-            Roll open-ended d100 for each stat. If the result exceeds your current Temporary value, the stat gains +1.
-            If Temp reaches Potential, Potential also increases by 1.
-            Use <em>Auto-Roll</em> to let the system roll, or enter your own die result in the input and click <em>Apply</em>.
+            Table 2-5b: the current Temporary value picks the die, and the result is <em>added</em>
+            to the stat — so a stat in the 19–81 band can rise by as much as 10. A stat can never
+            go above its Potential, and Potential itself does not change.
+            Use <em>Roll</em> to let the system roll, or enter the die face you rolled and click <em>Apply</em>.
         </p>
         <table class="table table-sm table-bordered align-middle">
             <thead>
@@ -475,8 +476,9 @@
                     <th style="width:8%">Stat</th>
                     <th class="text-center" style="width:10%">Temp</th>
                     <th class="text-center" style="width:10%">Potential</th>
-                    <th class="text-center" style="width:18%">Auto-Roll</th>
-                    <th class="text-center" style="width:30%">Manual Roll</th>
+                    <th class="text-center" style="width:8%">Die</th>
+                    <th class="text-center" style="width:14%">Auto-Roll</th>
+                    <th class="text-center" style="width:26%">Manual Roll</th>
                     <th class="text-center">Result</th>
                 </tr>
             </thead>
@@ -486,35 +488,49 @@
                     var stat = _char.Stats.FirstOrDefault(s => s.Stat == sn);
                     if (stat is null) continue;
                     bool rolled = _statGainRolls.TryGetValue(sn, out var gr);
+                    var baseline = StatBaselineFor(sn, stat);
+                    var die = StatGainRules.DieFor(baseline.Temp);
+                    bool maxed = baseline.Temp >= baseline.Potential;
                     <tr>
                         <td><strong>@sn</strong></td>
                         <td class="text-center">@stat.Temporary</td>
                         <td class="text-center">@stat.Potential</td>
+                        <td class="text-center text-muted">@die.Label</td>
                         <td class="text-center">
-                            <button class="btn btn-sm btn-outline-secondary" @onclick="() => RollStatGain(sn)">
+                            <button class="btn btn-sm btn-outline-secondary" disabled="@maxed"
+                                    @onclick="() => RollStatGain(sn)">
                                 @(rolled ? "Re-roll" : "Roll")
                             </button>
                         </td>
                         <td class="text-center">
                             <div class="d-flex align-items-center justify-content-center gap-1">
                                 <input type="number" class="form-control form-control-sm" style="width:72px"
-                                       min="1"
+                                       min="1" max="@die.Sides" disabled="@maxed"
                                        value="@(_manualRollInputs.GetValueOrDefault(sn, string.Empty))"
                                        @onchange="@(e => _manualRollInputs[sn] = e.Value?.ToString() ?? string.Empty)"
-                                       placeholder="d100" />
-                                <button class="btn btn-sm btn-outline-primary" @onclick="() => ApplyManualRoll(sn)">Apply</button>
+                                       placeholder="@die.Label" />
+                                <button class="btn btn-sm btn-outline-primary" disabled="@maxed"
+                                        @onclick="() => ApplyManualRoll(sn)">Apply</button>
                             </div>
                         </td>
                         <td class="text-center">
-                            @if (rolled)
+                            @if (maxed)
                             {
-                                @if (gr.Gained)
+                                <span class="text-muted">at Potential</span>
+                            }
+                            else if (rolled)
+                            {
+                                @if (gr.Gain > 0)
                                 {
-                                    <span class="text-success fw-bold">@gr.Roll ✓ +1</span>
+                                    <span class="text-success fw-bold">rolled @gr.Roll → +@gr.Gain</span>
+                                    @if (gr.Gain < gr.Roll)
+                                    {
+                                        <span class="text-muted small ms-1">(capped at Potential)</span>
+                                    }
                                 }
                                 else
                                 {
-                                    <span class="text-muted">@gr.Roll — no gain</span>
+                                    <span class="text-muted">rolled @gr.Roll — no gain</span>
                                 }
                             }
                         </td>
@@ -580,11 +596,18 @@
     {
         var prof = ProfessionRules.ByName.GetValueOrDefault(_char?.Profession ?? "");
         <h4>Step 4: Purchase Skills</h4>
-        <p class="mb-1">
-            DP Budget: <strong>@_dpBudget</strong> |
-            Spent: <strong>@_dpSpent</strong> |
-            Remaining: <strong class="@(_dpBudget - _dpSpent < 0 ? "text-danger" : "text-success")">@(_dpBudget - _dpSpent)</strong>
-        </p>
+        @* This step runs to thousands of pixels, so the budget pins to the top of the
+           viewport — otherwise it scrolls out of sight the moment ranks are being bought.
+           Talent spend is included so the figure agrees with the Talents step. *@
+        <div class="qp-dp-bar d-flex flex-wrap align-items-center gap-3">
+            <span>DP Budget: <strong>@_dpBudget</strong></span>
+            <span>Skills: <strong>@_dpSpent</strong></span>
+            <span>Talents: <strong>@_talentDpSpent</strong></span>
+            <span>
+                Remaining:
+                <strong class="@(_dpRemaining < 0 ? "text-danger" : "text-success")">@_dpRemaining</strong>
+            </span>
+        </div>
 
         @if (_isGm)
         {
@@ -700,6 +723,7 @@
                                         <td class="text-center @(saBonus >= 0 ? "text-success" : "text-danger")">@(saBonus >= 0 ? "+" : "")@saBonus</td>
                                         <td class="text-center" style="white-space:nowrap">
                                             <button class="btn qp-btn-minus"
+                                                    disabled="@(sa.Ranks <= MinSpellRanks(sa))"
                                                     @onclick="() => AdjSpellRanks(sa, -1)">−</button>
                                             <span class="mx-1" style="min-width:1.2em;display:inline-block;text-align:center">@sa.Ranks</span>
                                             <button class="btn qp-btn-plus"
@@ -899,6 +923,7 @@
                                         <td class="text-center @(waBonus >= 0 ? "text-success" : "text-danger")">@(waBonus >= 0 ? "+" : "")@waBonus</td>
                                         <td class="text-center" style="white-space:nowrap">
                                             <button class="btn qp-btn-minus"
+                                                    disabled="@(wa.Ranks <= MinWeaponRanks(wa))"
                                                     @onclick="() => AdjWeaponRanks(wa, -1)">−</button>
                                             <span class="mx-1" style="min-width:1.2em;display:inline-block;text-align:center">@wa.Ranks</span>
                                             <button class="btn qp-btn-plus"
@@ -1058,12 +1083,15 @@
 
         <h4>Step 5: Talents &amp; Flaws</h4>
 
-        <!-- DP budget summary -->
-        <div class="alert alert-secondary py-2 small mb-3">
-            <strong>DP Budget:</strong> @_dpBudget total |
-            Skills: @_dpSpent |
-            Talents: @_talentDpSpent |
-            <strong>Remaining: @_dpRemaining</strong>
+        <!-- DP budget summary — same bar as the Skills step, so the numbers read alike -->
+        <div class="qp-dp-bar d-flex flex-wrap align-items-center gap-3">
+            <span>DP Budget: <strong>@_dpBudget</strong></span>
+            <span>Skills: <strong>@_dpSpent</strong></span>
+            <span>Talents: <strong>@_talentDpSpent</strong></span>
+            <span>
+                Remaining:
+                <strong class="@(_dpRemaining < 0 ? "text-danger" : "text-success")">@_dpRemaining</strong>
+            </span>
         </div>
 
         <!-- Racial free traits -->

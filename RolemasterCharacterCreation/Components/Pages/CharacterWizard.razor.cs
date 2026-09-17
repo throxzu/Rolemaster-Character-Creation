@@ -111,8 +111,8 @@ public partial class CharacterWizard
     Dictionary<(string Skill, string Spec), int> _baselineWeaponAllocs = new();
     Dictionary<(string Skill, string Spec), int> _baselineSpellAllocs = new();
     HashSet<int> _baselineTalentIds = new();
-    // Stat gain rolls: stat → (roll result, did it succeed)
-    Dictionary<StatName, (int Roll, bool Gained)> _statGainRolls = new();
+    // Stat gain rolls: stat → (die result, ranks actually gained once the potential cap applies)
+    Dictionary<StatName, (int Roll, int Gain)> _statGainRolls = new();
     // Baseline stat values so re-rolls don't stack
     Dictionary<StatName, (int Temp, int Potential)> _statBaseline = new();
     // Manual roll inputs: stat → text input value
@@ -320,13 +320,17 @@ public partial class CharacterWizard
         }
     }
 
+    // Every specialization the character already has needs an alloc, including one whose ranks
+    // came from culture with nothing purchased yet: the skills table only draws its +/− controls
+    // for a specialization that has an alloc, so without this such a specialization could never
+    // be advanced. Zero-rank allocs are never written back (see SaveSkillsAsync), so this adds
+    // no rows to the database.
     void LoadGenericAllocsState()
     {
         _genericAllocs.Clear();
         foreach (var sk in _char!.Skills
             .Where(s => s.Specialization is not null
-                     && IsGenericSpecialized(s.SkillName)
-                     && s.PurchasedRanks > 0))
+                     && IsGenericSpecialized(s.SkillName)))
         {
             _genericAllocs.Add(new GenericAlloc(sk.SkillName, sk.Specialization!, sk.PurchasedRanks));
         }
@@ -743,8 +747,23 @@ public partial class CharacterWizard
         ? Math.Max(0, ga.Ranks - _baselineGenericAllocs.GetValueOrDefault((ga.SkillName, ga.Specialization), 0))
         : ga.Ranks;
 
+    // Ranks a level-up may not take back: everything bought at a previous level. Both the
+    // handler and the − button's disabled state read these, so the control can never be
+    // offered for a reduction the handler will refuse.
     int MinPurchasedRanks(string skillName) => _isLevelUp
         ? _baselinePurchased.GetValueOrDefault(skillName, 0)
+        : 0;
+
+    int MinWeaponRanks(WeaponAlloc wa) => _isLevelUp
+        ? _baselineWeaponAllocs.GetValueOrDefault((wa.SkillName, wa.Specialization), 0)
+        : 0;
+
+    int MinSpellRanks(SpellAlloc sa) => _isLevelUp
+        ? _baselineSpellAllocs.GetValueOrDefault((sa.SkillName, sa.Specialization), 0)
+        : 0;
+
+    int MinGenericRanks(GenericAlloc ga) => _isLevelUp
+        ? _baselineGenericAllocs.GetValueOrDefault((ga.SkillName, ga.Specialization), 0)
         : 0;
 
     static string ResolveCostKey(string category, string skillName = "") => category switch
@@ -875,11 +894,18 @@ public partial class CharacterWizard
 
     // ── Stat gain (level-up only) ─────────────────────────────────────────────
 
+    // The stat as it stood before this level-up, which is what Table 2-5b reads and what a
+    // re-roll returns to. Falls back to the live value for a stat with no snapshot.
+    (int Temp, int Potential) StatBaselineFor(StatName sn, CharacterStat stat) =>
+        _statBaseline.TryGetValue(sn, out var bl) ? bl : (stat.Temporary, stat.Potential);
+
     void RollStatGain(StatName sn)
     {
         var stat = _char!.Stats.FirstOrDefault(s => s.Stat == sn);
         if (stat is null) return;
-        ApplyStatGainRoll(sn, stat, OpenEndedD100(new Random()));
+        // The die comes from the baseline value, so re-rolling can't drift onto another band.
+        var bl = StatBaselineFor(sn, stat);
+        ApplyStatGainRoll(sn, stat, StatGainRules.Roll(Random.Shared, bl.Temp));
     }
 
     void ApplyManualRoll(StatName sn)
@@ -887,25 +913,26 @@ public partial class CharacterWizard
         var stat = _char!.Stats.FirstOrDefault(s => s.Stat == sn);
         if (stat is null) return;
         if (!_manualRollInputs.TryGetValue(sn, out var raw)) return;
-        if (!int.TryParse(raw, out int roll) || roll < 1) return;
-        ApplyStatGainRoll(sn, stat, roll);
+        if (!int.TryParse(raw, out int face)) return;
+
+        // The player types the face they rolled, so a d3-1 takes 1–3 and applies the −1.
+        var die = StatGainRules.DieFor(StatBaselineFor(sn, stat).Temp);
+        if (face < 1 || face > die.Sides) return;
+        ApplyStatGainRoll(sn, stat, face + die.Modifier);
     }
 
+    // Table 2-5b: the die result is ADDED to the temporary stat. Potential is a hard ceiling
+    // and never moves — a gain that would overshoot it is simply trimmed.
     void ApplyStatGainRoll(StatName sn, CharacterStat stat, int roll)
     {
         // Restore to baseline first so re-rolls don't stack gains
-        if (_statBaseline.TryGetValue(sn, out var bl))
-        {
-            stat.Temporary  = bl.Temp;
-            stat.Potential  = bl.Potential;
-        }
-        bool gained = roll > stat.Temporary;
-        if (gained)
-        {
-            stat.Temporary++;
-            if (stat.Temporary >= stat.Potential) stat.Potential++;
-        }
-        _statGainRolls[sn] = (roll, gained);
+        var bl = StatBaselineFor(sn, stat);
+        stat.Temporary = bl.Temp;
+        stat.Potential = bl.Potential;
+
+        int gain = Math.Clamp(roll, 0, Math.Max(0, stat.Potential - stat.Temporary));
+        stat.Temporary += gain;
+        _statGainRolls[sn] = (roll, gain);
     }
 
     void RollAllStatGains()
@@ -913,14 +940,6 @@ public partial class CharacterWizard
         foreach (StatName sn in Enum.GetValues<StatName>())
             if (!_statGainRolls.ContainsKey(sn))
                 RollStatGain(sn);
-    }
-
-    static int OpenEndedD100(Random rng)
-    {
-        int result = 0;
-        int chunk;
-        do { chunk = rng.Next(1, 101); result += chunk; } while (chunk == 100);
-        return result;
     }
 
     void StartSwap(StatName sn)
@@ -999,7 +1018,7 @@ public partial class CharacterWizard
     {
         int idx = _weaponAllocs.IndexOf(wa);
         if (idx < 0) return;
-        int minRanks = _isLevelUp ? _baselineWeaponAllocs.GetValueOrDefault((wa.SkillName, wa.Specialization), 0) : 0;
+        int minRanks = MinWeaponRanks(wa);
         int next = Math.Max(minRanks, wa.Ranks + delta);
         if (next == wa.Ranks) return;
 
@@ -1048,7 +1067,7 @@ public partial class CharacterWizard
     {
         int idx = _spellAllocs.IndexOf(sa);
         if (idx < 0) return;
-        int minRanks = _isLevelUp ? _baselineSpellAllocs.GetValueOrDefault((sa.SkillName, sa.Specialization), 0) : 0;
+        int minRanks = MinSpellRanks(sa);
         int next = Math.Max(minRanks, sa.Ranks + delta);
         if (next == sa.Ranks) return;
 
@@ -1094,7 +1113,7 @@ public partial class CharacterWizard
     {
         int idx = _genericAllocs.IndexOf(ga);
         if (idx < 0) return;
-        int minRanks = _isLevelUp ? _baselineGenericAllocs.GetValueOrDefault((ga.SkillName, ga.Specialization), 0) : 0;
+        int minRanks = MinGenericRanks(ga);
         int next = Math.Max(minRanks, ga.Ranks + delta);
         if (next == ga.Ranks) return;
 
@@ -1111,7 +1130,11 @@ public partial class CharacterWizard
             if (_dpBudget - _dpSpent < addCost) return;
         }
 
-        if (next == 0)
+        // Falling back to zero discards a specialization invented in this session, but one the
+        // character already owns keeps its alloc so its +/− controls stay on screen.
+        bool alreadyOnCharacter = _char!.Skills.Any(s =>
+            s.SkillName == ga.SkillName && s.Specialization == ga.Specialization);
+        if (next == 0 && !alreadyOnCharacter)
             _genericAllocs.RemoveAt(idx);
         else
             _genericAllocs[idx] = ga with { Ranks = next };

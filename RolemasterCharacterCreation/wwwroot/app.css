@@ -179,6 +179,20 @@ a, .btn-link {
     padding: 14px 16px;
     margin-bottom: 14px;
 }
+/* Wizard DP counter. The skills step is thousands of pixels tall, so the budget pins to
+   the top of the viewport instead of scrolling away above the tables. Negative margins
+   bleed it to the panel's edges; the background must stay opaque to cover what passes
+   beneath it. */
+.qp-dp-bar {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    margin: -14px -16px 12px;
+    padding: 10px 16px;
+    background: var(--qp-bg-panel);
+    border-bottom: 1px solid var(--qp-border-panel);
+}
+
 .qp-panel-header {
     display: flex;
     justify-content: space-between;
