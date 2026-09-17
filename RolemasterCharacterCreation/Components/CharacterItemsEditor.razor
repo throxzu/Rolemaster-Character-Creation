@@ -1,7 +1,8 @@
 @* Equipment list editor, shared by the GM edit page and the player's own character page.
    Items are the one part of a character a player may change freely after creation: loot,
-   supplies bought in town, things handed to another character. Rows are mutated in place;
-   the host page owns the Save button. *@
+   supplies bought in town, things handed to another character. An item may also carry
+   combat bonuses — the sheet reads those to work out OB and DB. Rows are mutated in
+   place; the host page owns the Save button. *@
 @using RolemasterCharacterCreation.Data
 @using RolemasterCharacterCreation.Rules
 @inject AppDbContext Db
@@ -13,15 +14,23 @@
 
 @if (Character.EquipmentItems.Any())
 {
-    <table class="table table-sm table-bordered mb-3" style="max-width:520px">
+    <table class="table table-sm table-bordered mb-3" style="max-width:940px">
         <thead>
-            <tr><th>Item</th><th style="width:90px">Qty</th><th style="width:46px"></th></tr>
+            <tr>
+                <th>Item</th>
+                <th style="width:70px">Qty</th>
+                <th style="width:80px" title="Worn or wielded — only equipped gear counts">Equipped</th>
+                <th style="width:70px" title="Offensive bonus">OB</th>
+                <th style="width:170px" title="Which weapon the OB applies to">OB applies to</th>
+                <th style="width:70px" title="Defensive bonus — applies whenever equipped">DB</th>
+                <th style="width:46px"></th>
+            </tr>
         </thead>
         <tbody>
             @* Ordered by Id, not name, so a row doesn't jump while its name is being typed. *@
             @foreach (var ei in Character.EquipmentItems.OrderBy(e => e.Id == 0 ? int.MaxValue : e.Id).ToList())
             {
-                <tr>
+                <tr class="@(ei.IsEquipped ? "" : "text-muted")">
                     <td>
                         <input class="form-control form-control-sm" list="@($"dl-items-{_uid}")"
                                value="@ei.Name" @onchange="e => Rename(ei, e)" />
@@ -31,6 +40,29 @@
                                value="@ei.Qty" @onchange="e => SetQty(ei, e)" />
                     </td>
                     <td class="text-center align-middle">
+                        <input type="checkbox" class="form-check-input"
+                               checked="@ei.IsEquipped" @onchange="e => SetEquipped(ei, e)" />
+                    </td>
+                    <td>
+                        <input type="number" class="form-control form-control-sm"
+                               value="@ei.ObBonus" @onchange="e => SetOb(ei, e)" />
+                    </td>
+                    <td>
+                        <select class="form-select form-select-sm"
+                                value="@(ei.AppliesTo ?? "")"
+                                @onchange="e => SetAppliesTo(ei, e)">
+                            <option value="">All weapons</option>
+                            @foreach (var w in WeaponSpecs)
+                            {
+                                <option value="@w">@w</option>
+                            }
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" class="form-control form-control-sm"
+                               value="@ei.DbBonus" @onchange="e => SetDb(ei, e)" />
+                    </td>
+                    <td class="text-center align-middle">
                         <button type="button" class="btn btn-sm btn-outline-danger py-0 px-1"
                                 title="Remove this item" @onclick="() => Remove(ei)">×</button>
                     </td>
@@ -38,6 +70,11 @@
             }
         </tbody>
     </table>
+    <p class="text-muted small">
+        Leave OB and DB at 0 for ordinary gear. An <strong>OB</strong> applies only to the weapon
+        you pick (a +10 broadsword does nothing for your bow); a <strong>DB</strong> applies
+        whenever the item is equipped. Unequipped items are carried but change no numbers.
+    </p>
 }
 else
 {
@@ -76,6 +113,13 @@ else
     private string _addName = "";
     private int    _addQty  = 1;
     private string? _note;
+
+    // Weapons this character actually has, so an OB can only be pointed at a real one.
+    private IEnumerable<string> WeaponSpecs => Character.Skills
+        .Where(s => s.Specialization is not null && WeaponRules.BySkill.ContainsKey(s.SkillName))
+        .Select(s => s.Specialization!)
+        .Distinct()
+        .OrderBy(s => s);
 
     private void Add()
     {
@@ -125,6 +169,21 @@ else
 
     private void SetQty(CharacterEquipmentItem ei, ChangeEventArgs e) =>
         ei.Qty = int.TryParse(e.Value?.ToString(), out var q) ? Math.Max(1, q) : 1;
+
+    private void SetOb(CharacterEquipmentItem ei, ChangeEventArgs e) =>
+        ei.ObBonus = int.TryParse(e.Value?.ToString(), out var v) ? v : 0;
+
+    private void SetDb(CharacterEquipmentItem ei, ChangeEventArgs e) =>
+        ei.DbBonus = int.TryParse(e.Value?.ToString(), out var v) ? v : 0;
+
+    private void SetEquipped(CharacterEquipmentItem ei, ChangeEventArgs e) =>
+        ei.IsEquipped = (bool)(e.Value ?? false);
+
+    private void SetAppliesTo(CharacterEquipmentItem ei, ChangeEventArgs e)
+    {
+        var v = e.Value?.ToString();
+        ei.AppliesTo = string.IsNullOrEmpty(v) ? null : v;
+    }
 
     private void Remove(CharacterEquipmentItem ei)
     {

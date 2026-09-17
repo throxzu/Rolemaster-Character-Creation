@@ -118,6 +118,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             .HasIndex(e => new { e.CharacterId, e.Name })
             .IsUnique();
 
+        modelBuilder.Entity<CharacterEquipmentItem>()
+            .Property(e => e.AppliesTo)
+            .HasMaxLength(100);
+
         modelBuilder.Entity<CharacterAuditLog>()
             .HasOne(a => a.Character)
             .WithMany(c => c.AuditLogs)

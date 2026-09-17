@@ -354,6 +354,7 @@
     int knackBonus = wsKnack ? 5 : 0;
     int skill      = catStat1 + catStat2 + wepStat + rankBonus + proBonus + knackBonus;
     int strBonus   = SkillRules.StatBonus(Temp("St")) + (sheetRace?.GetStatMod(StatName.St) ?? 0);
+    int itemOb     = ItemObFor(ws.Specialization);
 
     var wepTipParts = new System.Text.StringBuilder();
     wepTipParts.AppendLine($"{combatCat.Stat1}: {Fmt(catStat1)}  {combatCat.Stat2}: {Fmt(catStat2)}");
@@ -386,10 +387,10 @@
       }
       else { <td class="p1 tc muted">—</td> }
       <td class="p1 tr">@Fmt(strBonus)</td>
-      <td class="p1"></td>
+      <td class="p1 tr">@(itemOb == 0 ? "" : Fmt(itemOb))</td>
       <td class="p1 tr @(skill >= 0 ? "pos" : "neg")">@Fmt(skill)</td>
-      <td class="p1 tr fw" data-tip="@wepTip">@Fmt(skill)</td>
-      <td class="p1 tr"></td>
+      <td class="p1 tr fw" data-tip="@wepTip">@Fmt(skill + itemOb)</td>
+      <td class="p1 tr fw">@Fmt(skill + itemOb)</td>
     </tr>
   }
   @for (int i = weaponRows.Count; i < Math.Max(weaponRows.Count + 1, 4); i++) { <tr><td class="brow"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr> }
@@ -567,11 +568,11 @@
   <tr>
     <td rowspan="5" style="padding:0; vertical-align:top; border-right:1px solid #000">
       <table class="t100 tb">
-        <tr><td class="p1 bb" style="width:50%">Quickness DB: @Fmt(_quBonus*3)</td><td class="p1 bb">Other DB:</td></tr>
+        <tr><td class="p1 bb" style="width:50%">Quickness DB: @Fmt(_quBonus*3)</td><td class="p1 bb">Other DB: <span class="fw">@(ItemDbTotal == 0 ? "" : Fmt(ItemDbTotal))</span></td></tr>
         <tr><td class="p1 bb">Passive Dodge: @Fmt((int)Math.Round(_quBonus*1.5))</td><td class="p1 bb">Passive Block:</td></tr>
         <tr><td class="p1 bb">Partial Dodge (C): @Fmt(_quBonus*2)</td><td class="p1 bb">Partial Block (C):</td></tr>
         <tr><td class="p1 bb">Full Dodge (4 AP): @Fmt(_quBonus*3)</td><td class="p1 bb">Full Block (4 AP):</td></tr>
-        <tr><td class="p1">Total w/o shield:</td><td class="p1">Total w/shield:</td></tr>
+        <tr><td class="p1">Total w/o shield: <span class="fw">@Fmt(_quBonus*3 + ItemDbTotal)</span></td><td class="p1">Total w/shield: <span class="fw">@Fmt(_quBonus*3 + ItemDbTotal + _shieldDb)</span></td></tr>
       </table>
     </td>
     <td class="p1 bb">Channeling</td><td class="p1 bb tc">In</td>
@@ -607,43 +608,44 @@
 
 <!-- SPELL LISTS -->
 @{
+  // Ranks the caster actually has in the list, however they were gained.
   var _spellListRows = _char.Skills
-      .Where(s => s.Category == "Spellcasting" && s.Specialization != null && s.PurchasedRanks > 0)
+      .Where(s => s.Category == "Spellcasting" && s.Specialization != null && s.TotalRanks > 0)
       .OrderBy(s => s.SkillName).ThenBy(s => s.Specialization)
       .ToList();
-  int _spellRealmBonus = _effectiveRealm switch {
-      "Channeling"           => _inBonus,
-      "Essence"              => _emBonus,
-      "Mentalism"            => _prBonus,
-      "Channeling+Mentalism" => Math.Min(_inBonus, _prBonus),
-      "Essence+Mentalism"    => Math.Min(_emBonus, _prBonus),
-      "Essence+Channeling"   => Math.Min(_emBonus, _inBonus),
-      _                      => 0
-  };
+  // The same realm figure the skills table uses, rather than a second copy that can drift.
+  int _spellRealmBonus = _realmStatBonus;
 }
 @if (_effectiveRealm is not null && _spellListRows.Any())
 {
+@* Spell Law: SCR = d100OE + List Ranks + Realm Stat + List Type + Other Modifiers. Note the
+   ranks term is the rank COUNT, not the Table 3-0b skill rank bonus — a spell list's ranks
+   are also its maximum castable spell level. Other Modifiers (subtlety, hands, voice, armor)
+   are situational and belong on the table, not the sheet. *@
 <table class="t100 tb mb1">
-  <tr><td colspan="5" class="hdr">Spell Lists — @_effectiveRealm &nbsp;<span style="font-weight:normal;font-size:8pt">(Realm stat bonus: @Fmt(_spellRealmBonus))</span></td></tr>
+  <tr><td colspan="6" class="hdr">Spell Lists — @_effectiveRealm &nbsp;<span style="font-weight:normal;font-size:8pt">(Realm stat bonus: @Fmt(_spellRealmBonus))</span></td></tr>
   <tr class="sh">
-    <th class="tl" style="width:35%">List Name</th>
-    <th style="width:20%">Type</th>
-    <th style="width:15%">Ranks / Max Level</th>
-    <th style="width:15%">Realm Stat</th>
+    <th class="tl" style="width:32%">List Name</th>
+    <th style="width:14%">Type</th>
+    <th style="width:14%">Ranks / Max Level</th>
+    <th style="width:13%">Realm Stat</th>
+    <th style="width:12%">List Type</th>
     <th style="width:15%">Cast Roll Bonus</th>
   </tr>
   @foreach (var sl in _spellListRows)
   {
-    int castBonus = sl.PurchasedRanks + _spellRealmBonus;
+    int typeMod   = ListTypeMod(sl.SkillName);
+    int castBonus = sl.TotalRanks + _spellRealmBonus + typeMod;
     <tr>
       <td class="p1 fw">
         <a class="sl-link" target="_blank"
            href="@($"/spells?list={Uri.EscapeDataString(sl.Specialization ?? string.Empty)}")">@sl.Specialization</a>
       </td>
       <td class="p1 muted sf">@sl.SkillName.Replace(" Spell Lists", "")</td>
-      <td class="p1 tc fw">@sl.PurchasedRanks</td>
+      <td class="p1 tc fw">@sl.TotalRanks</td>
       <td class="p1 tr">@Fmt(_spellRealmBonus)</td>
-      <td class="p1 tr fw pos">@Fmt(castBonus)</td>
+      <td class="p1 tr">@Fmt(typeMod)</td>
+      <td class="p1 tr fw @(castBonus >= 0 ? "pos" : "neg")">@Fmt(castBonus)</td>
     </tr>
   }
 </table>
@@ -651,12 +653,35 @@
 
 <!-- MAGIC ITEMS -->
 <div class="hdr mb0">Magic Items</div>
+@* Equipped gear carrying a combat bonus, so the sheet says what is actually moving OB and
+   DB. Blank rows are kept underneath for items written in by hand at the table. *@
+@{
+  var _bonusItems = EquippedBonusItems.OrderBy(e => e.Name).ToList();
+}
 <table class="t100 tb mb1">
   <thead>
     <tr class="sh"><th class="tl" style="width:50%">Item name &amp; Properties</th><th>STR</th><th>OB</th><th>DB</th><th>Value</th><th>Weight</th></tr>
   </thead>
   <tbody>
-    @for (int i = 0; i < 6; i++) { <tr><td class="brow"></td><td></td><td></td><td></td><td></td><td></td></tr> }
+    @foreach (var bi in _bonusItems)
+    {
+      double _biWt = ItemWeight(bi.Name);
+      <tr>
+        <td class="p1 fw">
+          @bi.Name
+          @if (bi.ObBonus != 0)
+          {
+            <span class="muted" style="font-size:7pt"> (@(bi.AppliesTo ?? "all weapons"))</span>
+          }
+        </td>
+        <td></td>
+        <td class="p1 tc">@(bi.ObBonus == 0 ? "" : Fmt(bi.ObBonus))</td>
+        <td class="p1 tc">@(bi.DbBonus == 0 ? "" : Fmt(bi.DbBonus))</td>
+        <td></td>
+        <td class="p1 tr">@(_biWt > 0 ? _biWt.ToString("G", System.Globalization.CultureInfo.InvariantCulture) : "")</td>
+      </tr>
+    }
+    @for (int i = _bonusItems.Count; i < Math.Max(_bonusItems.Count + 1, 6); i++) { <tr><td class="brow"></td><td></td><td></td><td></td><td></td><td></td></tr> }
   </tbody>
 </table>
 
@@ -886,6 +911,28 @@
     int _quBonus, _coBonus, _inBonus, _emBonus, _prBonus, _sdBonus, _stBonus;
     int _bmr, _ppBonus, _hits, _endurance, _realmStatBonus;
     string? _effectiveRealm;
+
+    // Equipped gear that changes combat numbers. An item's OB applies to the weapon it names
+    // (or to every weapon when it names none); its DB applies whenever the item is equipped.
+    IEnumerable<CharacterEquipmentItem> EquippedBonusItems =>
+        _char?.EquipmentItems.Where(e => e.IsEquipped && (e.ObBonus != 0 || e.DbBonus != 0))
+        ?? Enumerable.Empty<CharacterEquipmentItem>();
+
+    int ItemObFor(string? weaponSpec) => EquippedBonusItems
+        .Where(e => e.ObBonus != 0 && (e.AppliesTo is null || e.AppliesTo == weaponSpec))
+        .Sum(e => e.ObBonus);
+
+    int ItemDbTotal => EquippedBonusItems.Sum(e => e.DbBonus);
+
+    // Table 4-2 ("Type"): the Spellcasting Roll is modified by which kind of list the spell
+    // comes from — the caster's own Base lists are easiest, anything exotic hardest.
+    static int ListTypeMod(string skillName) => skillName switch
+    {
+        "Base Spell Lists"   =>   5,
+        "Open Spell Lists"   =>   0,
+        "Closed Spell Lists" =>  -5,
+        _                    => -10,   // Arcane, Restricted, Magical Ritual — "some other list"
+    };
 
     // Table 5-2: Feats of Strength — (loadPct, difficulty label, modifier)
     // Load = object weight as % of body weight, minus 2×Str bonus.

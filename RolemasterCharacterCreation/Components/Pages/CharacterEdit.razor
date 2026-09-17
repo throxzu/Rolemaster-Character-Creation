@@ -175,7 +175,14 @@ else
                 <CharacterSkillEditor Character="_character" />
             }
 
-            @* The two things a player may change after creation: their purse and their pack. *@
+            @* What a player may change after creation: their armour, purse and pack. *@
+            <h6 class="text-secondary border-bottom pb-1 mb-3 mt-4">Armour &amp; Shield</h6>
+            <p class="text-muted small">
+                Changing these re-works the sheet's AT, manoeuvre penalty, encumbrance,
+                casting penalty and shield DB.
+            </p>
+            <CharacterArmorEditor Character="_character" />
+
             <h6 class="text-secondary border-bottom pb-1 mb-3 mt-4">Wealth</h6>
             <CharacterMoneyEditor Character="_character" />
 

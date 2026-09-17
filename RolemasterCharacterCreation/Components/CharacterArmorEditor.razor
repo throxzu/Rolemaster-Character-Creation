@@ -1,0 +1,89 @@
+@* Armour, piecemeal pieces and shield, shared by the GM edit page and the player's own
+   character page. The sheet derives AT, manoeuvre penalties, encumbrance, casting penalty
+   and shield DB from these, so changing a selection here re-lines the whole sheet.
+   Mutated in place; the host page owns the Save button. *@
+@using RolemasterCharacterCreation.Rules
+
+<div class="row g-3">
+    <div class="col-md-3">
+        <label class="form-label">Armor Type</label>
+        <select class="form-select" @bind="Character.ArmorType">
+            @foreach (var a in ArmorRules.All)
+            {
+                <option value="@a.AT">AT @a.AT — @a.Name</option>
+            }
+        </select>
+    </div>
+
+    <div class="col-md-2 d-flex align-items-end pb-2">
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="@($"chk-fullsuit-{_uid}")"
+                   @bind="Character.ArmorFullSuit" />
+            <label class="form-check-label" for="@($"chk-fullsuit-{_uid}")">Full Suit</label>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label">Helmet</label>
+        <select class="form-select"
+                value="@(Character.HelmetGrade ?? "")"
+                @onchange="e => Character.HelmetGrade = NullIfEmpty(e.Value?.ToString())">
+            <option value="">None</option>
+            @foreach (var p in ArmorRules.Helmets.Skip(1))
+            {
+                <option value="@p.Grade">@p.Grade</option>
+            }
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label">Vambraces</label>
+        <select class="form-select"
+                value="@(Character.VambracesGrade ?? "")"
+                @onchange="e => Character.VambracesGrade = NullIfEmpty(e.Value?.ToString())">
+            <option value="">None</option>
+            @foreach (var p in ArmorRules.Vambraces.Skip(1))
+            {
+                <option value="@p.Grade">@p.Grade</option>
+            }
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label">Greaves</label>
+        <select class="form-select"
+                value="@(Character.GreavesGrade ?? "")"
+                @onchange="e => Character.GreavesGrade = NullIfEmpty(e.Value?.ToString())">
+            <option value="">None</option>
+            @foreach (var p in ArmorRules.Greaves.Skip(1))
+            {
+                <option value="@p.Grade">@p.Grade</option>
+            }
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label">Shield</label>
+        <select class="form-select"
+                value="@(Character.ShieldType ?? "")"
+                @onchange="e => Character.ShieldType = NullIfEmpty(e.Value?.ToString())">
+            <option value="">None</option>
+            @foreach (var s in ArmorRules.Shields.Skip(1))
+            {
+                <option value="@s.Type">@s.Type</option>
+            }
+        </select>
+    </div>
+</div>
+<p class="text-muted small mb-0 mt-2">
+    A shield's DB comes from your <strong>Shield</strong> skill, not the shield itself — a bigger
+    shield changes its weight and AT, not the bonus.
+</p>
+
+@code {
+    [Parameter, EditorRequired] public Character Character { get; set; } = default!;
+
+    private readonly string _uid = Guid.NewGuid().ToString("N")[..6];
+
+    private static string? NullIfEmpty(string? s) => string.IsNullOrEmpty(s) ? null : s;
+}
