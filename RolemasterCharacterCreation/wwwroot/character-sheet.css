@@ -100,6 +100,20 @@ tr:has(.brow) td { border: 1px solid var(--qp-border-panel); height: 14px; }
 /* ── Page break ────────────────────────────────────────────── */
 .pgbrk { page-break-after: always; height: 20px; }
 
+/* ── Editable purse boxes ──────────────────────────────────── */
+/* Sized to sit inside a sheet cell without making the row taller than its neighbours. */
+.coin-input {
+    width: 58px;
+    padding: 0 2px;
+    font: inherit;
+    text-align: right;
+    color: var(--qp-text-primary);
+    background: var(--qp-bg-panel-alt);
+    border: 1px solid var(--qp-border-panel);
+    border-radius: 2px;
+}
+.coin-input:focus { outline: 1px solid var(--qp-teal, #00e5cc); }
+
 /* ── Print: reset to clean black-on-white ──────────────────── */
 @media print {
   .d-print-none { display: none !important; }
@@ -138,4 +152,16 @@ tr:has(.brow) td { border: 1px solid var(--qp-border-panel); height: 14px; }
   .sk-table { font-size: 7pt; }
   .pgbrk { page-break-after: always; height: 0; }
   [data-tip]::after { display: none !important; }
+  /* The purse boxes print as plain numbers rather than form controls. */
+  .coin-input {
+    border: none !important;
+    background: transparent !important;
+    color: black !important;
+    padding: 0 !important;
+    width: auto !important;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .coin-input::-webkit-outer-spin-button,
+  .coin-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 }

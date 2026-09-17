@@ -184,23 +184,52 @@
       </table>
     </td>
   </tr>
-  @* Purse — the default decimal coinage, Core Law Table 6-0a. Edited on the character
-     page; it sits in the space Appearance and Background leave under themselves. *@
+  @* Purse — the default decimal coinage, Core Law Table 6-0a. The owner (and the GM) can
+     adjust it here, where it is actually read during play; each box saves as it changes, so
+     there is no Save button to forget. It prints as plain numbers. *@
   <tr>
     <td class="p1" colspan="2" style="vertical-align:bottom">
       <table class="t100 tb">
         <tr><td class="hdr" colspan="4">Wealth</td></tr>
         <tr>
           <td class="p1" style="width:25%"><span class="lbl">Gold (gp)</span></td>
-          <td class="p1 tr fw" style="width:25%">@_char.Gold</td>
+          <td class="p1 tr fw" style="width:25%">
+            @if (_isOwner)
+            {
+              <input type="number" class="coin-input" min="0" value="@_char.Gold"
+                     @onchange="e => SaveCoinAsync(e, v => _char!.Gold = v)" />
+            }
+            else { @_char.Gold }
+          </td>
           <td class="p1" style="width:25%"><span class="lbl">Bronze (bp)</span></td>
-          <td class="p1 tr fw" style="width:25%">@_char.Bronze</td>
+          <td class="p1 tr fw" style="width:25%">
+            @if (_isOwner)
+            {
+              <input type="number" class="coin-input" min="0" value="@_char.Bronze"
+                     @onchange="e => SaveCoinAsync(e, v => _char!.Bronze = v)" />
+            }
+            else { @_char.Bronze }
+          </td>
         </tr>
         <tr>
           <td class="p1"><span class="lbl">Silver (sp)</span></td>
-          <td class="p1 tr fw">@_char.Silver</td>
+          <td class="p1 tr fw">
+            @if (_isOwner)
+            {
+              <input type="number" class="coin-input" min="0" value="@_char.Silver"
+                     @onchange="e => SaveCoinAsync(e, v => _char!.Silver = v)" />
+            }
+            else { @_char.Silver }
+          </td>
           <td class="p1"><span class="lbl">Copper (cp)</span></td>
-          <td class="p1 tr fw">@_char.Copper</td>
+          <td class="p1 tr fw">
+            @if (_isOwner)
+            {
+              <input type="number" class="coin-input" min="0" value="@_char.Copper"
+                     @onchange="e => SaveCoinAsync(e, v => _char!.Copper = v)" />
+            }
+            else { @_char.Copper }
+          </td>
         </tr>
         <tr>
           <td class="p1 muted" colspan="2" style="font-size:6pt">1 gp = 10 sp = 100 bp = 1000 cp</td>
@@ -902,6 +931,7 @@
     bool _accessDenied;
     bool _isGm;
     bool _isOwner;
+    string? _currentUserId;
     bool _canLevelUp => _char is not null && _isOwner && _char.CurrentXp >= 10000 * _char.Level;
     bool _playerCanAccessWizard => _char is not null &&
         ((_char.Level == 1 && _char.WizardStep < 5) ||   // initial creation in progress
@@ -974,6 +1004,7 @@
         if (!isGm && _char.UserId != userId) { _accessDenied = true; return; }
         _isGm   = isGm;
         _isOwner = isGm || _char.UserId == userId;
+        _currentUserId = userId;
 
         var raceBonus = _char.Race is not null && RaceRules.ByName.TryGetValue(_char.Race, out var rbd) ? rbd : null;
         _quBonus = SkillRules.StatBonus(Temp("Qu")) + (raceBonus?.GetStatMod(StatName.Qu) ?? 0);
@@ -1016,6 +1047,16 @@
         {
             _ppBonus = 0;
         }
+    }
+
+    // Money changes during play, so the purse is editable on the sheet itself. Only the
+    // character's owner or the GM may touch it — another player reading this sheet cannot.
+    async Task SaveCoinAsync(ChangeEventArgs e, Action<int> set)
+    {
+        if (_char is null || !_isOwner) return;
+        set(int.TryParse(e.Value?.ToString(), out var v) ? Math.Max(0, v) : 0);
+        Db.WriteAuditLogs(_currentUserId);
+        await Db.SaveChangesAsync();
     }
 
     async Task SaveXpAsync(ChangeEventArgs e)
