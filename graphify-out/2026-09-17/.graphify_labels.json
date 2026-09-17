@@ -384,5 +384,8 @@
   "382": "20260621174625_AddCampaignSettings.Designer.cs",
   "383": "IJSRuntime",
   "384": "int",
-  "385": "IReadOnlyList"
+  "385": "IReadOnlyList",
+  "386": "List",
+  "387": "string",
+  "388": "Task"
 }
