@@ -54,6 +54,11 @@ public class EncounterCombatant
     public double BoardX { get; set; } = 0.5;
     public double BoardY { get; set; } = 0.5;
 
+    // Initiative for the current round, recorded by the GM for everyone in the fight —
+    // mobs, party members and allies alike. Live state: cleared by Reset fight and never
+    // copied into a saved encounter.
+    public int Initiative { get; set; }
+
     // Hit totals. MaxHits is set by the GM at the start of the fight; CurrentHits is
     // what damage is subtracted from.
     public int MaxHits { get; set; }

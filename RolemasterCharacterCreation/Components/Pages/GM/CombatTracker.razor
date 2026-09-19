@@ -167,18 +167,43 @@
                 </div>
             </div>
 
-            @if (_fight.Combatants.Any(t => t.Kind == CombatantKind.Ally))
+            @if (Party.Count > 0)
             {
-                <div class="d-flex flex-wrap gap-2 mt-3">
-                    @foreach (var t in _fight.Combatants.Where(t => t.Kind == CombatantKind.Ally)
-                                                        .OrderBy(t => t.Name))
-                    {
-                        <span class="tok-chip tok-chip-ally">
-                            <span class="tok-dot">@Initials(t)</span>@t.Name
-                            <button class="tok-x" @onclick="() => RemoveCombatantAsync(t)">✕</button>
-                        </span>
-                    }
-                </div>
+                <table class="table table-sm align-middle qp-table cb-table mt-3 mb-0 cb-party">
+                    <thead>
+                        <tr>
+                            <th>In this fight</th>
+                            <th style="width:90px">Initiative</th>
+                            <th style="width:40px"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var t in Party)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="tok-chip @(t.Kind == CombatantKind.Ally ? "tok-chip-ally" : "")">
+                                        <span class="tok-dot">@Initials(t)</span>@t.Name
+                                    </span>
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control form-control-sm qp-input cb-init"
+                                           value="@t.Initiative" title="Initiative for this round"
+                                           @onchange="e => SetInitiativeAsync(t, e)" />
+                                </td>
+                                <td>
+                                    @* Party members leave the fight by unticking them above; allies have no
+                                       checkbox of their own, so they keep a remove button here. *@
+                                    @if (t.Kind == CombatantKind.Ally)
+                                    {
+                                        <button class="btn btn-sm btn-link text-danger p-0"
+                                                @onclick="() => RemoveCombatantAsync(t)" title="Remove ally">✕</button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             }
         </div>
 
@@ -256,6 +281,7 @@
                         <thead>
                             <tr>
                                 <th style="width:70px">Mob number</th>
+                                <th style="width:90px">Initiative</th>
                                 <th style="width:210px">Hits</th>
                                 <th style="width:120px">Stun round</th>
                                 <th style="width:120px">Bleed pr round</th>
@@ -274,6 +300,11 @@
                                         <input type="number" class="form-control form-control-sm qp-input cb-mob"
                                                value="@c.MobNumber" @onchange="e => SetMobAsync(c, e)" />
                                         <div class="cb-name" title="@c.Name">@c.Name</div>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control form-control-sm qp-input cb-init"
+                                               value="@c.Initiative" title="Initiative for this round"
+                                               @onchange="e => SetInitiativeAsync(c, e)" />
                                     </td>
                                     <td>
                                         <div class="d-flex align-items-center gap-2">
@@ -392,6 +423,8 @@
     .cb-max       { width: 62px; text-align: center; font-weight: 600; }
     .cb-step      { display: flex; align-items: center; gap: 3px; }
     .cb-num       { width: 54px; text-align: center; }
+    .cb-init      { width: 74px; text-align: center; font-weight: 700; }
+    .cb-party     { max-width: 460px; }
     .cb-btn       { width: 26px; height: 26px; flex: 0 0 26px; border-radius: 50%; line-height: 1;
                     background: transparent; color: var(--qp-text-primary);
                     border: 1px solid var(--qp-text-label); font-weight: 700; padding: 0; }
@@ -419,7 +452,6 @@
                     color: #0d0d1a; display: inline-flex; align-items: center; justify-content: center;
                     font-size: .7rem; font-weight: 700; }
     .tok-chip-ally .tok-dot { background: var(--qp-purple-light); }
-    .tok-x        { background: none; border: none; color: var(--qp-text-label); padding: 0 0 0 4px; }
 </style>
 
 @code {
@@ -457,6 +489,16 @@
             ? []
             : _fight.Combatants.Where(c => c.Kind == CombatantKind.Enemy)
                                .OrderBy(c => c.SortOrder).ThenBy(c => c.MobNumber).ToList();
+
+    // Everyone on the party's side of the fight — characters first, then allies — so the
+    // GM can record their initiative alongside the mobs'.
+    private List<EncounterCombatant> Party =>
+        _fight is null
+            ? []
+            : _fight.Combatants.Where(c => c.Kind != CombatantKind.Enemy)
+                               .OrderBy(c => c.Kind == CombatantKind.Player ? 0 : 1)
+                               .ThenBy(c => c.Name)
+                               .ToList();
 
     protected override async Task OnInitializedAsync()
     {
@@ -638,6 +680,7 @@
         foreach (var c in _fight.Combatants)
         {
             c.CurrentHits = c.MaxHits;
+            c.Initiative = 0;
             c.StunRounds = 0;
             c.BleedPerRound = 0;
             c.DiesInRounds = 0;
@@ -828,6 +871,14 @@
     private async Task SetMobAsync(EncounterCombatant c, ChangeEventArgs e)
     {
         c.MobNumber = ToInt(e, c.MobNumber);
+        await SaveAsync();
+    }
+
+    // Not clamped: an initiative can legitimately come out negative once a penalty is
+    // applied to the roll.
+    private async Task SetInitiativeAsync(EncounterCombatant c, ChangeEventArgs e)
+    {
+        c.Initiative = ToInt(e, c.Initiative);
         await SaveAsync();
     }
 
