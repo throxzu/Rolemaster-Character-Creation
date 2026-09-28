@@ -531,3 +531,9 @@ h1:focus  { outline: none; }
     text-align: center;
     flex-shrink: 0;
 }
+
+/* The assistant is a screen affordance: it is position:fixed, so it would otherwise
+   print on top of the page — on every page of a character sheet. */
+@media print {
+    .ra-fab, .ra-panel { display: none !important; }
+}
