@@ -325,18 +325,18 @@
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Components/Pages/CharacterSheet.razor": {
-    "mtime": 1790412768.670961,
-    "ast_hash": "516f5db4ba22fa99288adf97ccf0da57",
+    "mtime": 1789664874.3711782,
+    "ast_hash": "3a33947808152a96dd1c35dff72b4926",
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Components/Pages/CharacterWizard.razor": {
-    "mtime": 1790341794.663227,
-    "ast_hash": "0d0d299085e87ae846d20c604a79b234",
+    "mtime": 1789655510.3651075,
+    "ast_hash": "196a593ce7b2d7d6319bf17e7a42bef7",
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Components/Pages/CharacterWizard.razor.cs": {
-    "mtime": 1790341631.6522994,
-    "ast_hash": "88b33733a949e36bff2a657c0200d755",
+    "mtime": 1789656190.0024323,
+    "ast_hash": "7a26ae702d6cc1e099917154844a6209",
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Components/Pages/Chat.razor": {
@@ -900,8 +900,8 @@
     "semantic_hash": "1ad820ebf406172d9a9835eda496158d"
   },
   "RolemasterCharacterCreation/Data/Migrations/AppDbContextModelSnapshot.cs": {
-    "mtime": 1790341335.3401568,
-    "ast_hash": "8a326402e6b1e9d0228772858db074ee",
+    "mtime": 1789809350.7420766,
+    "ast_hash": "745725067089bd4d4a305620b5aa11ca",
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Identity/CountryDialCodes.cs": {
@@ -1020,8 +1020,8 @@
     "semantic_hash": "979acdb08fa8c60fba5e69751d3dba8c"
   },
   "RolemasterCharacterCreation/Models/Character.cs": {
-    "mtime": 1790340914.293273,
-    "ast_hash": "80cf16639d96353b592cf5c38c64953a",
+    "mtime": 1789223821.555122,
+    "ast_hash": "fb1503aed8cac35bc17deb5d0a131fd6",
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Models/CharacterAuditLog.cs": {
@@ -2060,8 +2060,8 @@
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Rules/Character/StatGainRules.cs": {
-    "mtime": 1790341043.5503716,
-    "ast_hash": "2088ae78b1dfdcbebd9a2fae2cde2cd1",
+    "mtime": 1789655477.6189117,
+    "ast_hash": "fe32766a0643512d2b005c53faa63066",
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Components/CharacterArmorEditor.razor": {
@@ -2087,16 +2087,6 @@
   "RolemasterCharacterCreation/Data/Migrations/20260919091550_AddCombatantInitiative.cs": {
     "mtime": 1789809350.7399528,
     "ast_hash": "42c8046698a81808cad2d9d7f04b56ad",
-    "semantic_hash": ""
-  },
-  "RolemasterCharacterCreation/Data/Migrations/20260925130215_AddStatGainRolls.Designer.cs": {
-    "mtime": 1790341335.3338132,
-    "ast_hash": "44b81302b82e7471d07d707148d4b9d0",
-    "semantic_hash": ""
-  },
-  "RolemasterCharacterCreation/Data/Migrations/20260925130215_AddStatGainRolls.cs": {
-    "mtime": 1790341335.3338132,
-    "ast_hash": "f3ceec080d2458e05d9d13ceecfcb3e0",
     "semantic_hash": ""
   }
 }
