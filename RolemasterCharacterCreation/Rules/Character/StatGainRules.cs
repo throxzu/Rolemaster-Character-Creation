@@ -23,6 +23,15 @@ public static class StatGainRules
     }
 
     /// <summary>
+    /// Free stat-gain rolls granted per level: "pick two stats to get a stat gain roll
+    /// (or one stat to get two rolls)" — Core Law §2.5.
+    /// </summary>
+    public const int FreeRollsPerLevel = 2;
+
+    /// <summary>"Additional Stat Gain rolls may be purchased for 4 DP each." — Core Law §2.5.</summary>
+    public const int ExtraRollDpCost = 4;
+
+    /// <summary>
     /// The die for a stat at this temporary value. Gains are largest in the wide middle
     /// band and taper off at both extremes.
     /// </summary>

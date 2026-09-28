@@ -464,12 +464,30 @@
     RenderFragment StepStatGains => __builder =>
     {
         <h6 class="text-secondary mb-3">Level @_char!.Level Stat Gain Rolls</h6>
-        <p class="small text-muted mb-3">
+        <p class="small text-muted mb-2">
             Table 2-5b: the current Temporary value picks the die, and the result is <em>added</em>
             to the stat — so a stat in the 19–81 band can rise by as much as 10. A stat can never
             go above its Potential, and Potential itself does not change.
-            Use <em>Roll</em> to let the system roll, or enter the die face you rolled and click <em>Apply</em>.
+            Use <em>Roll</em> to let the system roll, or type the number showing on your own die
+            and click <em>Apply</em>.
         </p>
+        int freeRolls  = StatGainRules.FreeRollsPerLevel;
+        int rollsUsed  = _statGainRollsUsed;
+        int extraRolls = Math.Max(0, rollsUsed - freeRolls);
+        <div class="alert @(rollsUsed > freeRolls ? "alert-warning" : "alert-secondary") py-2 small">
+            <strong>Stat gain rolls: @rollsUsed of @freeRolls used.</strong>
+            Each level grants @freeRolls rolls — spend them on two stats, or both on one.
+            Further rolls cost @StatGainRules.ExtraRollDpCost DP each
+            @if (extraRolls > 0)
+            {
+                <text>— <strong>@extraRolls extra</strong>, costing <strong>@_statGainDp DP</strong>
+                    out of your @_dpBudget DP for this level (@_dpRemaining left).</text>
+            }
+            else
+            {
+                <text>out of the same DP you spend on skills.</text>
+            }
+        </div>
         <table class="table table-sm table-bordered align-middle">
             <thead>
                 <tr>
@@ -487,50 +505,79 @@
                 {
                     var stat = _char.Stats.FirstOrDefault(s => s.Stat == sn);
                     if (stat is null) continue;
-                    bool rolled = _statGainRolls.TryGetValue(sn, out var gr);
+                    var entries  = _statGains.GetValueOrDefault(sn) ?? new();
                     var baseline = StatBaselineFor(sn, stat);
-                    var die = StatGainRules.DieFor(baseline.Temp);
-                    bool maxed = baseline.Temp >= baseline.Potential;
+                    var die      = StatGainRules.DieFor(baseline.Temp);
+                    bool maxed   = baseline.Temp >= baseline.Potential;
+                    int gained   = StatGainFor(sn, stat);
+                    int rolledTotal = entries.Sum(e => e.Roll);
+                    bool canRoll = !maxed && CanRollAgain;
+                    string rollTitle = maxed ? "Already at Potential"
+                        : canRoll ? "Roll this die and add the result"
+                        : "No stat gain rolls left, and not enough DP to buy another";
                     <tr>
                         <td><strong>@sn</strong></td>
-                        <td class="text-center">@stat.Temporary</td>
+                        <td class="text-center">
+                            @stat.Temporary
+                            @if (gained > 0)
+                            {
+                                <span class="text-success small ms-1">(+@gained)</span>
+                            }
+                        </td>
                         <td class="text-center">@stat.Potential</td>
                         <td class="text-center text-muted">@die.Label</td>
                         <td class="text-center">
-                            <button class="btn btn-sm btn-outline-secondary" disabled="@maxed"
-                                    @onclick="() => RollStatGain(sn)">
-                                @(rolled ? "Re-roll" : "Roll")
+                            <button class="btn btn-sm btn-outline-secondary" disabled="@(!canRoll)"
+                                    title="@rollTitle" @onclick="() => RollStatGain(sn)">
+                                @(entries.Count == 0 ? "Roll" : "Roll again")
                             </button>
                         </td>
                         <td class="text-center">
                             <div class="d-flex align-items-center justify-content-center gap-1">
                                 <input type="number" class="form-control form-control-sm" style="width:72px"
-                                       min="1" max="@die.Sides" disabled="@maxed"
+                                       min="1" max="@die.Sides" disabled="@(!canRoll)"
                                        value="@(_manualRollInputs.GetValueOrDefault(sn, string.Empty))"
                                        @onchange="@(e => _manualRollInputs[sn] = e.Value?.ToString() ?? string.Empty)"
-                                       placeholder="@die.Label" />
-                                <button class="btn btn-sm btn-outline-primary" disabled="@maxed"
+                                       placeholder="@ManualPlaceholder(die)" />
+                                <button class="btn btn-sm btn-outline-primary" disabled="@(!canRoll)"
                                         @onclick="() => ApplyManualRoll(sn)">Apply</button>
+                                @if (CanUndoRoll(sn))
+                                {
+                                    <button class="btn btn-sm btn-link text-danger p-0 ms-1"
+                                            title="Undo the last roll you typed in"
+                                            @onclick="() => UndoLastRoll(sn)">undo</button>
+                                }
                             </div>
                         </td>
                         <td class="text-center">
-                            @if (maxed)
+                            @if (entries.Count == 0)
                             {
-                                <span class="text-muted">at Potential</span>
-                            }
-                            else if (rolled)
-                            {
-                                @if (gr.Gain > 0)
+                                @if (maxed)
                                 {
-                                    <span class="text-success fw-bold">rolled @gr.Roll → +@gr.Gain</span>
-                                    @if (gr.Gain < gr.Roll)
+                                    <span class="text-muted">at Potential</span>
+                                }
+                            }
+                            else
+                            {
+                                @* Each roll reads back as the face the player saw, so a d3-1 shows
+                                   "3 on d3-1 -> +2" instead of silently reporting a 2. *@
+                                <div class="small text-muted">
+                                    @foreach (var e in entries)
+                                    {
+                                        <div>@e.Face on @die.Label@(die.Modifier != 0 ? $" \u2192 {e.Roll}" : "")</div>
+                                    }
+                                </div>
+                                @if (gained > 0)
+                                {
+                                    <span class="text-success fw-bold">+@gained</span>
+                                    @if (gained < rolledTotal)
                                     {
                                         <span class="text-muted small ms-1">(capped at Potential)</span>
                                     }
                                 }
                                 else
                                 {
-                                    <span class="text-muted">rolled @gr.Roll — no gain</span>
+                                    <span class="text-muted">no gain</span>
                                 }
                             }
                         </td>
@@ -538,7 +585,6 @@
                 }
             </tbody>
         </table>
-        <button class="btn btn-sm btn-outline-primary" @onclick="RollAllStatGains">Roll All Remaining</button>
     };
 
     RenderFragment StepProfSkills => __builder =>
@@ -603,6 +649,10 @@
             <span>DP Budget: <strong>@_dpBudget</strong></span>
             <span>Skills: <strong>@_dpSpent</strong></span>
             <span>Talents: <strong>@_talentDpSpent</strong></span>
+            @if (_statGainDp > 0)
+            {
+                <span>Extra stat rolls: <strong>@_statGainDp</strong></span>
+            }
             <span>
                 Remaining:
                 <strong class="@(_dpRemaining < 0 ? "text-danger" : "text-success")">@_dpRemaining</strong>
@@ -727,7 +777,7 @@
                                                     @onclick="() => AdjSpellRanks(sa, -1)">−</button>
                                             <span class="mx-1" style="min-width:1.2em;display:inline-block;text-align:center">@sa.Ranks</span>
                                             <button class="btn qp-btn-plus"
-                                                    disabled="@(NewSpellRanksThisLevel(sa) >= 2 || _dpBudget - _dpSpent < slCost.sls)"
+                                                    disabled="@(NewSpellRanksThisLevel(sa) >= 2 || _dpRemaining < slCost.sls)"
                                                     @onclick="() => AdjSpellRanks(sa, 1)">+</button>
                                         </td>
                                     </tr>
@@ -839,7 +889,7 @@
                                                         @onclick="() => AdjGenericRanks(ga, -1)">−</button>
                                                 <span class="mx-1" style="min-width:1.2em;display:inline-block;text-align:center">@gaPurchased</span>
                                                 <button class="btn qp-btn-plus"
-                                                        disabled="@(gaNewRanks >= 2 || (_dpBudget - _dpSpent < (gaNewRanks == 0 ? genCost.genf : genCost.gens)))"
+                                                        disabled="@(gaNewRanks >= 2 || (_dpRemaining < (gaNewRanks == 0 ? genCost.genf : genCost.gens)))"
                                                         @onclick="() => AdjGenericRanks(ga, 1)">+</button>
                                             }
                                         </td>
@@ -927,7 +977,7 @@
                                                     @onclick="() => AdjWeaponRanks(wa, -1)">−</button>
                                             <span class="mx-1" style="min-width:1.2em;display:inline-block;text-align:center">@wa.Ranks</span>
                                             <button class="btn qp-btn-plus"
-                                                    disabled="@(NewWeaponRanksThisLevel(wa) >= 2 || _dpBudget - _dpSpent < waCost.ws)"
+                                                    disabled="@(NewWeaponRanksThisLevel(wa) >= 2 || _dpRemaining < waCost.ws)"
                                                     @onclick="() => AdjWeaponRanks(wa, 1)">+</button>
                                         </td>
                                     </tr>
@@ -1003,7 +1053,7 @@
                                                 @onclick="() => ChangeRanks(sk.Name, -1)">−</button>
                                         <span class="mx-1" style="min-width:1.2em;display:inline-block;text-align:center">@purchased</span>
                                         <button class="btn qp-btn-plus"
-                                                disabled="@(NewRanksThisLevel(sk.Name) >= 2 || (_dpBudget - _dpSpent < cost.first && NewRanksThisLevel(sk.Name) == 0) || (_dpBudget - _dpSpent < cost.second && NewRanksThisLevel(sk.Name) >= 1))"
+                                                disabled="@(NewRanksThisLevel(sk.Name) >= 2 || (_dpRemaining < cost.first && NewRanksThisLevel(sk.Name) == 0) || (_dpRemaining < cost.second && NewRanksThisLevel(sk.Name) >= 1))"
                                                 @onclick="() => ChangeRanks(sk.Name, 1)">+</button>
                                     </td>
                                 </tr>
@@ -1032,7 +1082,7 @@
             var costKey = ResolveCostKey(cat.Name, skillName);
             if (!prof.Costs.TryGetValue(costKey, out var c)) return;
             int addCost = newRanksCur == 0 ? c.First : c.Second;
-            if (_dpBudget - _dpSpent < addCost) return;
+            if (_dpRemaining < addCost) return;
         }
         SetPurchased(skillName, next);
     }
@@ -1088,6 +1138,10 @@
             <span>DP Budget: <strong>@_dpBudget</strong></span>
             <span>Skills: <strong>@_dpSpent</strong></span>
             <span>Talents: <strong>@_talentDpSpent</strong></span>
+            @if (_statGainDp > 0)
+            {
+                <span>Extra stat rolls: <strong>@_statGainDp</strong></span>
+            }
             <span>
                 Remaining:
                 <strong class="@(_dpRemaining < 0 ? "text-danger" : "text-success")">@_dpRemaining</strong>

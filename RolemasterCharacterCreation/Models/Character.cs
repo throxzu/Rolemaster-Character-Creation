@@ -51,6 +51,10 @@ public class Character
     public string? LevelUpBaselineJson { get; set; }
     public string? StatBaselineJson    { get; set; }
 
+    // Stat-gain rolls applied during the level-up in progress, as {"Ag":[{"Face":7,"Roll":7,"Manual":false}]}.
+    // Persisted so the two-roll allowance survives a reload; cleared with the snapshots above.
+    public string? StatGainRollsJson   { get; set; }
+
     public List<CharacterStat> Stats { get; set; } = [];
     public List<CharacterSkill> Skills { get; set; } = [];
     public List<CharacterTalent> Talents { get; set; } = [];

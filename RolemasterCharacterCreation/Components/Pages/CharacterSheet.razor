@@ -1077,6 +1077,7 @@
             _char.Skills.Select(s => new { s.SkillName, s.Specialization, s.Category, s.PurchasedRanks }));
         _char.StatBaselineJson = System.Text.Json.JsonSerializer.Serialize(
             _char.Stats.ToDictionary(s => s.Stat.ToString(), s => new[] { s.Temporary, s.Potential }));
+        _char.StatGainRollsJson = null;   // this level starts with its two free stat gain rolls
         _char.Level++;          // pre-increment so wizard detects _isLevelUp = Level > 1
         _char.WizardStep = 1;
         await Db.SaveChangesAsync();

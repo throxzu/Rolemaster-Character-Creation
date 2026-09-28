@@ -111,8 +111,11 @@ public partial class CharacterWizard
     Dictionary<(string Skill, string Spec), int> _baselineWeaponAllocs = new();
     Dictionary<(string Skill, string Spec), int> _baselineSpellAllocs = new();
     HashSet<int> _baselineTalentIds = new();
-    // Stat gain rolls: stat → (die result, ranks actually gained once the potential cap applies)
-    Dictionary<StatName, (int Roll, int Gain)> _statGainRolls = new();
+    // Stat gain rolls applied during this level-up, in the order they were made. Two are
+    // free each level and further rolls cost 4 DP (Core Law §2.5); a stat may legitimately
+    // appear twice, since the allowance may be spent as "one stat to get two rolls".
+    record StatGainEntry(int Face, int Roll, bool Manual);
+    Dictionary<StatName, List<StatGainEntry>> _statGains = new();
     // Baseline stat values so re-rolls don't stack
     Dictionary<StatName, (int Temp, int Potential)> _statBaseline = new();
     // Manual roll inputs: stat → text input value
@@ -171,7 +174,11 @@ public partial class CharacterWizard
     int _talentDpSpent  => _isLevelUp
         ? (_char?.Talents.Where(t => !_baselineTalentIds.Contains(t.Id)).Sum(t => TalentRules.TierCost(t.TalentName, t.Tier)) ?? 0)
         : (_char?.Talents.Sum(t => TalentRules.TierCost(t.TalentName, t.Tier)) ?? 0);
-    int _dpRemaining    => _dpBudget - _dpSpent - _talentDpSpent;
+    // Stat gain rolls beyond the free allowance are bought out of this same pool.
+    int _statGainRollsUsed => _statGains.Values.Sum(l => l.Count);
+    int _statGainDp        => Math.Max(0, _statGainRollsUsed - StatGainRules.FreeRollsPerLevel)
+                              * StatGainRules.ExtraRollDpCost;
+    int _dpRemaining    => _dpBudget - _dpSpent - _talentDpSpent - _statGainDp;
 
     // ── Step 4: talent selection state ───────────────────────────────────────
     string _talentName        = "";
@@ -280,6 +287,8 @@ public partial class CharacterWizard
             {
                 _statBaseline = _char.Stats.ToDictionary(s => s.Stat, s => (s.Temporary, s.Potential));
             }
+
+            LoadStatGainRolls();
         }
     }
 
@@ -441,7 +450,8 @@ public partial class CharacterWizard
         // 60 plus any GM adjustment, so GM-granted DP isn't drawn from the racial pool.
         int baseDp           = 60 + _char!.GmDpAdjust;
         int bonusDpAvailable = Math.Min(25, _char.RaceBonusDp);
-        int bonusDpConsumed  = Math.Max(0, Math.Min(bonusDpAvailable, _dpSpent + _talentDpSpent - baseDp));
+        int bonusDpConsumed  = Math.Max(0, Math.Min(bonusDpAvailable,
+                                                    _dpSpent + _talentDpSpent + _statGainDp - baseDp));
         _char.RaceBonusDp   -= bonusDpConsumed;
 
         if (_isLevelUp)
@@ -449,6 +459,7 @@ public partial class CharacterWizard
             _char.WizardStep = 1;           // ready for next level-up
             _char.LevelUpBaselineJson = null; // clear frozen snapshots
             _char.StatBaselineJson    = null;
+            _char.StatGainRollsJson   = null; // next level-up starts with its two free rolls
         }
         await Db.SaveChangesAsync();
         Nav.NavigateTo($"/character/{Id}/sheet");
@@ -538,7 +549,9 @@ public partial class CharacterWizard
                 }
             }
         }
-        // For level-up, stat objects were already mutated in-place by RollStatGain.
+        // For level-up the stat objects were already mutated in place; what still has to be
+        // written down is which rolls were spent, so the allowance survives a reload.
+        if (_isLevelUp) SaveStatGainRolls();
         await Db.SaveChangesAsync();
     }
 
@@ -899,47 +912,134 @@ public partial class CharacterWizard
     (int Temp, int Potential) StatBaselineFor(StatName sn, CharacterStat stat) =>
         _statBaseline.TryGetValue(sn, out var bl) ? bl : (stat.Temporary, stat.Potential);
 
-    void RollStatGain(StatName sn)
+    // Another roll may be made when one of the two free rolls is left, or there is enough
+    // DP left to buy one.
+    bool CanRollAgain => _statGainRollsUsed < StatGainRules.FreeRollsPerLevel
+                         || _dpRemaining >= StatGainRules.ExtraRollDpCost;
+
+    async Task RollStatGain(StatName sn)
     {
+        _error = null;
         var stat = _char!.Stats.FirstOrDefault(s => s.Stat == sn);
         if (stat is null) return;
-        // The die comes from the baseline value, so re-rolling can't drift onto another band.
-        var bl = StatBaselineFor(sn, stat);
-        ApplyStatGainRoll(sn, stat, StatGainRules.Roll(Random.Shared, bl.Temp));
+
+        // The die comes from the baseline value, so a second roll on the same stat can't
+        // drift onto another band.
+        var die = StatGainRules.DieFor(StatBaselineFor(sn, stat).Temp);
+        int face = Random.Shared.Next(1, die.Sides + 1);
+        await AddRoll(sn, stat, new StatGainEntry(face, face + die.Modifier, Manual: false));
     }
 
-    void ApplyManualRoll(StatName sn)
+    async Task ApplyManualRoll(StatName sn)
     {
+        _error = null;
         var stat = _char!.Stats.FirstOrDefault(s => s.Stat == sn);
         if (stat is null) return;
-        if (!_manualRollInputs.TryGetValue(sn, out var raw)) return;
-        if (!int.TryParse(raw, out int face)) return;
+
+        var die = StatGainRules.DieFor(StatBaselineFor(sn, stat).Temp);
+        _manualRollInputs.TryGetValue(sn, out var raw);
+
+        // Rejecting this silently used to leave the player believing a roll had been applied
+        // when in fact nothing had happened, and their stat never gained.
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            _error = $"{sn}: type the number showing on your {die.Label} before clicking Apply.";
+            return;
+        }
+        if (!int.TryParse(raw, out int face) || face < 1 || face > die.Sides)
+        {
+            _error = $"{sn}: “{raw}” is not a face on a d{die.Sides}. Enter the number showing on "
+                   + $"the die, 1–{die.Sides}"
+                   + (die.Modifier != 0 ? $" — the {die.Modifier:+#;-#} is applied for you." : ".");
+            return;
+        }
 
         // The player types the face they rolled, so a d3-1 takes 1–3 and applies the −1.
-        var die = StatGainRules.DieFor(StatBaselineFor(sn, stat).Temp);
-        if (face < 1 || face > die.Sides) return;
-        ApplyStatGainRoll(sn, stat, face + die.Modifier);
+        await AddRoll(sn, stat, new StatGainEntry(face, face + die.Modifier, Manual: true));
     }
 
-    // Table 2-5b: the die result is ADDED to the temporary stat. Potential is a hard ceiling
-    // and never moves — a gain that would overshoot it is simply trimmed.
-    void ApplyStatGainRoll(StatName sn, CharacterStat stat, int roll)
+    // Records a roll against the level's allowance, recomputes the stat, and writes both
+    // down at once. Saving here rather than at Next is what makes the allowance real: a
+    // reload must not hand the player a fresh pair of free rolls.
+    async Task AddRoll(StatName sn, CharacterStat stat, StatGainEntry entry)
     {
-        // Restore to baseline first so re-rolls don't stack gains
+        if (_statGainRollsUsed >= StatGainRules.FreeRollsPerLevel
+            && _dpRemaining < StatGainRules.ExtraRollDpCost)
+        {
+            _error = $"{sn}: both free stat gain rolls are used and there are fewer than "
+                   + $"{StatGainRules.ExtraRollDpCost} DP left to buy another.";
+            return;
+        }
+
+        if (!_statGains.TryGetValue(sn, out var list)) _statGains[sn] = list = new();
+        list.Add(entry);
+        RecomputeStat(sn, stat);
+        await PersistStatGainsAsync();
+    }
+
+    async Task PersistStatGainsAsync()
+    {
+        if (!_isLevelUp) return;
+        SaveStatGainRolls();
+        await Db.SaveChangesAsync();
+    }
+
+    // Undo exists to correct a mistyped transcription. An automatic roll is binding —
+    // otherwise a player could re-roll until the die came up 10.
+    bool CanUndoRoll(StatName sn) =>
+        _statGains.TryGetValue(sn, out var l) && l.Count > 0 && l[^1].Manual;
+
+    async Task UndoLastRoll(StatName sn)
+    {
+        _error = null;
+        var stat = _char!.Stats.FirstOrDefault(s => s.Stat == sn);
+        if (stat is null || !CanUndoRoll(sn)) return;
+
+        var list = _statGains[sn];
+        list.RemoveAt(list.Count - 1);
+        if (list.Count == 0) _statGains.Remove(sn);
+        RecomputeStat(sn, stat);
+        await PersistStatGainsAsync();
+    }
+
+    // Table 2-5b: die results are ADDED to the temporary stat. Potential is a hard ceiling
+    // and never moves — a total that would overshoot it is simply trimmed. Always rebuilt
+    // from the baseline, so applying a roll never stacks on an earlier one twice.
+    void RecomputeStat(StatName sn, CharacterStat stat)
+    {
         var bl = StatBaselineFor(sn, stat);
-        stat.Temporary = bl.Temp;
         stat.Potential = bl.Potential;
-
-        int gain = Math.Clamp(roll, 0, Math.Max(0, stat.Potential - stat.Temporary));
-        stat.Temporary += gain;
-        _statGainRolls[sn] = (roll, gain);
+        int rolled = _statGains.TryGetValue(sn, out var l) ? l.Sum(e => e.Roll) : 0;
+        stat.Temporary = Math.Clamp(bl.Temp + Math.Max(0, rolled), bl.Temp, bl.Potential);
     }
 
-    void RollAllStatGains()
+    // The manual box always takes the face showing on the die, never the modified result,
+    // so the hint is the face range even for a d3-1.
+    static string ManualPlaceholder(StatGainRules.Die die) => $"1-{die.Sides}";
+
+    // What the stat actually gained, once the Potential cap has been applied.
+    int StatGainFor(StatName sn, CharacterStat stat) =>
+        stat.Temporary - StatBaselineFor(sn, stat).Temp;
+
+    // The rolls are persisted so the two-roll allowance survives a reload mid level-up.
+    void SaveStatGainRolls() =>
+        _char!.StatGainRollsJson = _statGains.Count == 0
+            ? null
+            : JsonSerializer.Serialize(_statGains.ToDictionary(kv => kv.Key.ToString(), kv => kv.Value));
+
+    void LoadStatGainRolls()
     {
-        foreach (StatName sn in Enum.GetValues<StatName>())
-            if (!_statGainRolls.ContainsKey(sn))
-                RollStatGain(sn);
+        _statGains = new();
+        if (string.IsNullOrEmpty(_char!.StatGainRollsJson)) return;
+
+        var opts = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        var raw = JsonSerializer.Deserialize<Dictionary<string, List<StatGainEntry>>>(
+            _char.StatGainRollsJson, opts);
+        if (raw is null) return;
+
+        foreach (var (key, entries) in raw)
+            if (Enum.TryParse<StatName>(key, out var sn) && entries is { Count: > 0 })
+                _statGains[sn] = entries;
     }
 
     void StartSwap(StatName sn)
@@ -1006,7 +1106,7 @@ public partial class CharacterWizard
 
         int addCost = wc.First;
         if (_weaponAddRanks >= 2) addCost += wc.Second;
-        if (_dpBudget - _dpSpent < addCost) return;
+        if (_dpRemaining < addCost) return;
 
         _weaponAllocs.Add(new WeaponAlloc(skillName, _weaponAddSpec, _weaponAddRanks));
         _weaponAddSpec = "";
@@ -1031,7 +1131,7 @@ public partial class CharacterWizard
             var costKey = WeaponRules.CostKeyForSlot(idx);
             if (!prof.Costs.TryGetValue(costKey, out var wc)) return;
             int addCost = newRanksCur == 0 ? wc.First : wc.Second;
-            if (_dpBudget - _dpSpent < addCost) return;
+            if (_dpRemaining < addCost) return;
         }
 
         if (next == 0)
@@ -1055,7 +1155,7 @@ public partial class CharacterWizard
 
         int addCost = sc.First;
         if (_spellAddRanks >= 2) addCost += sc.Second;
-        if (_dpBudget - _dpSpent < addCost) return;
+        if (_dpRemaining < addCost) return;
 
         _spellAllocs.Add(new SpellAlloc(skillName, listName, _spellAddRanks));
         _spellAddName = "";
@@ -1080,7 +1180,7 @@ public partial class CharacterWizard
             var costKey = ResolveSpellCostKey(sa.SkillName);
             if (!prof.Costs.TryGetValue(costKey, out var sc)) return;
             int addCost = newRanksCur == 0 ? sc.First : sc.Second;
-            if (_dpBudget - _dpSpent < addCost) return;
+            if (_dpRemaining < addCost) return;
         }
 
         if (next == 0)
@@ -1127,7 +1227,7 @@ public partial class CharacterWizard
             var costKey = ResolveCostKey(gaCat, ga.SkillName);
             if (!prof.Costs.TryGetValue(costKey, out var gc)) return;
             int addCost = newRanksCur == 0 ? gc.First : gc.Second;
-            if (_dpBudget - _dpSpent < addCost) return;
+            if (_dpRemaining < addCost) return;
         }
 
         // Falling back to zero discards a specialization invented in this session, but one the
