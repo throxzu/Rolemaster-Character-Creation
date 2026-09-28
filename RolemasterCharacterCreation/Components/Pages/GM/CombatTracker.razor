@@ -297,9 +297,11 @@
                             {
                                 <tr class="@RowClass(c)">
                                     <td>
+                                        @* The name sits above its box; with the row bottom-aligned every
+                                           input in the row then lines up on one baseline. *@
+                                        <div class="cb-name" title="@c.Name">@c.Name</div>
                                         <input type="number" class="form-control form-control-sm qp-input cb-mob"
                                                value="@c.MobNumber" @onchange="e => SetMobAsync(c, e)" />
-                                        <div class="cb-name" title="@c.Name">@c.Name</div>
                                     </td>
                                     <td>
                                         <input type="number" class="form-control form-control-sm qp-input cb-init"
@@ -415,9 +417,11 @@
                     color: var(--qp-text-primary); text-shadow: 0 1px 3px #000; }
 
     /* ── Grid cells ── */
-    .cb-table td  { vertical-align: middle; }
+    /* Bottom, not middle: the mob cell is taller than the rest because it carries the
+       name above its box, and bottom alignment puts every input on the same line. */
+    .cb-table td  { vertical-align: bottom; }
     .cb-mob       { width: 60px; text-align: center; font-weight: 700; }
-    .cb-name      { font-size: .8rem; color: var(--qp-text-label); margin-top: 4px; max-width: 70px;
+    .cb-name      { font-size: .8rem; color: var(--qp-text-label); margin-bottom: 2px; max-width: 100%;
                     overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .cb-hits      { display: flex; align-items: center; gap: 4px; font-size: 1.05rem; font-weight: 700; }
     .cb-max       { width: 62px; text-align: center; font-weight: 600; }
@@ -431,7 +435,10 @@
     .cb-btn:hover { background: var(--qp-bg-panel-alt); }
     .cb-btn-dmg:hover  { border-color: var(--qp-red); color: var(--qp-red); }
     .cb-btn-heal:hover { border-color: var(--qp-green); color: var(--qp-green); }
-    .cb-check     { width: 20px; height: 20px; }
+    /* Nudged up off the baseline so a checkbox reads as centred against the taller
+       inputs it shares the row with. */
+    .cb-check     { width: 20px; height: 20px; margin-bottom: 5px; }
+    .cb-table td .btn-link { margin-bottom: 4px; }
     .hits-ok      { color: var(--qp-green); }
     .hits-hurt    { color: #e0b755; }
     .hits-crit    { color: var(--qp-red); }
