@@ -651,20 +651,22 @@
    ranks term is the rank COUNT, not the Table 3-0b skill rank bonus — a spell list's ranks
    are also its maximum castable spell level. Other Modifiers (subtlety, hands, voice, armor)
    are situational and belong on the table, not the sheet. *@
-<table class="t100 tb mb1">
-  <tr><td colspan="6" class="hdr">Spell Lists — @_effectiveRealm &nbsp;<span style="font-weight:normal;font-size:8pt">(Realm stat bonus: @Fmt(_spellRealmBonus))</span></td></tr>
+<table class="t100 tb mb0">
+  <tr><td colspan="7" class="hdr">Spell Lists — @_effectiveRealm &nbsp;<span style="font-weight:normal;font-size:8pt">(Realm stat bonus: @Fmt(_spellRealmBonus))</span></td></tr>
   <tr class="sh">
-    <th class="tl" style="width:32%">List Name</th>
-    <th style="width:14%">Type</th>
-    <th style="width:14%">Ranks / Max Level</th>
-    <th style="width:13%">Realm Stat</th>
-    <th style="width:12%">List Type</th>
-    <th style="width:15%">Cast Roll Bonus</th>
+    <th class="tl" style="width:26%">List Name</th>
+    <th style="width:11%">Type</th>
+    <th style="width:13%">Ranks / Max Level</th>
+    <th style="width:12%">Realm Stat</th>
+    <th style="width:11%">List Type</th>
+    <th style="width:14%">Cast Roll Bonus</th>
+    <th style="width:13%">Spell Mastery</th>
   </tr>
   @foreach (var sl in _spellListRows)
   {
     int typeMod   = ListTypeMod(sl.SkillName);
     int castBonus = sl.TotalRanks + _spellRealmBonus + typeMod;
+    int mastery   = SpellMasteryBonus(sl);
     <tr>
       <td class="p1 fw">
         <a class="sl-link" target="_blank"
@@ -675,9 +677,18 @@
       <td class="p1 tr">@Fmt(_spellRealmBonus)</td>
       <td class="p1 tr">@Fmt(typeMod)</td>
       <td class="p1 tr fw @(castBonus >= 0 ? "pos" : "neg")">@Fmt(castBonus)</td>
+      @* Not bold: the cast roll is the number wanted every round, Spell Mastery only
+         occasionally, and mistaking the larger one for the cast bonus is the whole point
+         of showing them together. *@
+      <td class="p1 tr @(mastery >= 0 ? "pos" : "neg")">@Fmt(mastery)</td>
     </tr>
   }
 </table>
+<div class="lbl mb1">
+  Cast Roll Bonus goes on the SCR. Spell Mastery is the list's ordinary skill bonus, rolled
+  only when modifying a spell on the fly (Spell Law 4.6) — it is the figure the Skills table
+  prints for the same list, and is deliberately the larger of the two.
+</div>
 }
 
 <!-- MAGIC ITEMS -->
@@ -954,6 +965,29 @@
 
     int ItemDbTotal => EquippedBonusItems.Sum(e => e.DbBonus);
 
+    // Spell Law 4.6: "Spell Mastery maneuvers are rolled using the caster's skill bonus in
+    // the spell list" — the list's ordinary skill bonus, which is a different number from
+    // the SCR modifier beside it. Core Law gives Spellcasting the category stats R*+R* and
+    // each list skill the stat Me, so this legitimately counts the realm stat twice and adds
+    // Me, where the cast roll takes a single realm bonus and the raw rank count.
+    // Routed through SkillLineFor so it can never drift from what the Skills table prints.
+    int SpellMasteryBonus(CharacterSkill sl)
+    {
+        if (_char is null) return 0;
+        if (!SkillRules.CategoryByName.TryGetValue(sl.Category, out var cat)) return 0;
+        if (!SkillRules.SkillByName.TryGetValue(sl.SkillName, out var skd)) return 0;
+
+        int csb1 = cat.NoStats ? 0 : (cat.Stat1 == "R*" ? _realmStatBonus : StatBon(cat.Stat1));
+        int csb2 = cat.NoStats ? 0 : (cat.Stat2 == "R*" ? _realmStatBonus
+                                      : (cat.Stat2 == cat.Stat1 ? csb1 : StatBon(cat.Stat2)));
+
+        // Cultural ranks and the professional/knack flags live on the unspecialized parent.
+        var parent = _char.Skills.FirstOrDefault(
+            s => s.SkillName == sl.SkillName && s.Specialization == null);
+
+        return SkillLineFor(cat, skd, sl, csb1 + csb2, parent).TotalBonus;
+    }
+
     // Table 4-2 ("Type"): the Spellcasting Roll is modified by which kind of list the spell
     // comes from — the caster's own Base lists are easiest, anything exotic hardest.
     static int ListTypeMod(string skillName) => skillName switch
@@ -1112,6 +1146,10 @@
         if (tot > 0 || isKnack)
         {
             var sb = new System.Text.StringBuilder();
+            // A spell list's skill bonus is the Spell Mastery number, not the cast roll —
+            // say so here, since this column sits far from the Spell Lists table.
+            if (cat.Name == "Spellcasting")
+                sb.AppendLine("Spell Mastery bonus.\nTo cast, use the Spell Lists table.\n");
             if (!cat.NoStats)
             {
                 sb.AppendLine($"{cat.Stat1}+{cat.Stat2}: {Fmt(catSum)}");
