@@ -380,8 +380,10 @@
     int catStat1   = SkillRules.StatBonus(Temp(combatCat.Stat1)) + (sheetRace?.GetStatMod(StatFromAbbr(combatCat.Stat1)) ?? 0);
     int catStat2   = SkillRules.StatBonus(Temp(combatCat.Stat2)) + (sheetRace?.GetStatMod(StatFromAbbr(combatCat.Stat2)) ?? 0);
     var skd        = combatCat.Skills.FirstOrDefault(s => s.Name == ws.SkillName);
-    bool hasWepStat = skd?.SkillStat is not (null or "" or "R*" or "St or Ag");
-    int wepStat    = hasWepStat ? SkillRules.StatBonus(Temp(skd!.SkillStat)) + (sheetRace?.GetStatMod(StatFromAbbr(skd.SkillStat)) ?? 0) : 0;
+    // Unarmed resolves against the attack specialized in, rather than contributing nothing.
+    var wepStatName = SkillRules.ResolveSkillStat(skd?.SkillStat, ws.Specialization);
+    bool hasWepStat = wepStatName is not null;
+    int wepStat    = hasWepStat ? SkillRules.StatBonus(Temp(wepStatName!)) + (sheetRace?.GetStatMod(StatFromAbbr(wepStatName)) ?? 0) : 0;
 
     int rankBonus  = SkillRules.RankBonus(totalRanks);
     int proBonus   = wsPro   ? Math.Min(totalRanks, 30) : 0;
@@ -392,7 +394,7 @@
 
     var wepTipParts = new System.Text.StringBuilder();
     wepTipParts.AppendLine($"{combatCat.Stat1}: {Fmt(catStat1)}  {combatCat.Stat2}: {Fmt(catStat2)}");
-    if (hasWepStat) wepTipParts.AppendLine($"+{skd!.SkillStat} (weapon): {Fmt(wepStat)}");
+    if (hasWepStat) wepTipParts.AppendLine($"+{wepStatName} (weapon): {Fmt(wepStat)}");
     wepTipParts.AppendLine($"Ranks ({totalRanks}): {Fmt(rankBonus)}");
     if (proBonus   != 0) wepTipParts.AppendLine($"Prof: {Fmt(proBonus)}");
     if (knackBonus != 0) wepTipParts.AppendLine("Knack: +5");
@@ -866,8 +868,15 @@
       bool isPro = line.IsPro, isKnack = line.IsKnack;
       string? skTip = line.Tip;
 
-      string statsCell = cat.NoStats ? "-"
-          : (skd.SkillStat is "" or "R*" ? "←" : $"←+{skd.SkillStat}→");
+      // The unspecialized row cannot resolve "St or Ag", so it shows the pair as written.
+      string StatsCellFor(string? spec)
+      {
+          if (cat.NoStats) return "-";
+          var st = SkillRules.ResolveSkillStat(skd.SkillStat, spec);
+          if (st is not null) return $"←+{st}→";
+          return skd.SkillStat == SkillRules.StOrAg ? $"←{skd.SkillStat}→" : "←";
+      }
+      string statsCell = StatsCellFor(null);
 
       <tr class="sk-row @(isPro ? "sk-pro" : "") @(isKnack ? "sk-knack" : "")">
         <td class="tc">@(isPro ? "■" : "□")</td>
@@ -906,7 +915,7 @@
           <td class="p1 sk-spec-of">↳ @skd.Name</td>
           <td class="p1 fw">@sp.Specialization</td>
           <td class="p1 tr">@(spLine.Cult > 0 ? spLine.Cult.ToString() : "")</td>
-          <td class="p1 tc sk-stats">@statsCell</td>
+          <td class="p1 tc sk-stats">@StatsCellFor(sp.Specialization)</td>
           <td class="p1 tr">@(spLine.Ranks > 0 && !cat.NoStats ? Fmt(spLine.StatTotal) : "")</td>
           <td class="p1 tr">@(spLine.Ranks > 0 ? spLine.Ranks.ToString() : "")</td>
           <td class="p1 tr">@(spLine.Ranks > 0 ? Fmt(spLine.RankBonus) : "")</td>
@@ -1191,8 +1200,11 @@
         bool isPro   = (csk?.IsProfessionalSkill ?? false) || (parent?.IsProfessionalSkill ?? false);
         bool isKnack = (csk?.IsKnack ?? false) || (parent?.IsKnack ?? false);
 
-        int sskBonus = (cat.NoStats || skd.SkillStat is "" or "R*")
-            ? 0 : StatBon(skd.SkillStat);
+        // Unarmed's stat follows the attack, so it is resolved against this line's
+        // specialization. Leaving the sentinel unresolved used to fall through Temp()'s
+        // default and quietly add the character's Constitution to every Unarmed row.
+        var sskStat  = SkillRules.ResolveSkillStat(skd.SkillStat, csk?.Specialization);
+        int sskBonus = (cat.NoStats || sskStat is null) ? 0 : StatBon(sskStat);
         int statTotal = cat.NoStats ? 0 : catSum + sskBonus;
         int rkBon  = tot > 0 ? SkillRules.RankBonus(tot) : 0;
         int proBon = isPro   ? Math.Min(tot, 30) : 0;
@@ -1210,8 +1222,8 @@
             if (!cat.NoStats)
             {
                 sb.AppendLine($"{cat.Stat1}+{cat.Stat2}: {Fmt(catSum)}");
-                if (skd.SkillStat is not ("" or "R*" or "St or Ag"))
-                    sb.AppendLine($"+{skd.SkillStat}: {Fmt(sskBonus)}");
+                if (sskStat is not null)
+                    sb.AppendLine($"+{sskStat}: {Fmt(sskBonus)}");
             }
             if (tot > 0) sb.AppendLine($"Ranks ({tot}): {Fmt(rkBon)}");
             if (proBon != 0) sb.AppendLine($"Prof: {Fmt(proBon)}");

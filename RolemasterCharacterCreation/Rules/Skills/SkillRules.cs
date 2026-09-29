@@ -38,6 +38,46 @@ public static class SkillRules
         _ => 15
     };
 
+    /// <summary>The stat sentinel for Unarmed, whose stat depends on the attack used.</summary>
+    public const string StOrAg = "St or Ag";
+
+    // Core Law, Unarmed: "[Ag or St] ... The stat used depends on the specific melee attack.
+    // Strikes [St], Sweeps & Throws [Ag], Wrestling [Ag], Beak [St], Bite [St], Claw [St],
+    // Horn [St], Ram [St], Stinger [Ag], Trample [St]". Striking and Grappling are this
+    // app's names for the book's Strikes and Wrestling.
+    private static readonly IReadOnlyDictionary<string, string> UnarmedStatBySpec =
+        new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Strikes"]         = "St",
+            ["Striking"]        = "St",
+            ["Sweeps & Throws"] = "Ag",
+            ["Wrestling"]       = "Ag",
+            ["Grappling"]       = "Ag",
+            ["Beak"]            = "St",
+            ["Bite"]            = "St",
+            ["Claw"]            = "St",
+            ["Horn"]            = "St",
+            ["Ram"]             = "St",
+            ["Stinger"]         = "Ag",
+            ["Trample"]         = "St",
+        };
+
+    /// <summary>
+    /// The stat a skill actually uses, once the "St or Ag" sentinel is resolved against the
+    /// specialization the skill was taken for. Returns null where there is no usable stat:
+    /// a blank stat, the realm sentinel R*, or an Unarmed row with no specialization yet.
+    /// </summary>
+    public static string? ResolveSkillStat(string? skillStat, string? specialization)
+    {
+        if (string.IsNullOrEmpty(skillStat) || skillStat == "R*") return null;
+        if (skillStat != StOrAg) return skillStat;
+        if (string.IsNullOrWhiteSpace(specialization)) return null;
+
+        // An attack the GM has added beyond the book's list is treated as a strike, that
+        // being both the commonest case and the generic one.
+        return UnarmedStatBySpec.TryGetValue(specialization.Trim(), out var stat) ? stat : "St";
+    }
+
     // Table 3-0b
     public static int RankBonus(int ranks)
     {
@@ -127,7 +167,7 @@ public static class SkillRules
                 Description: "Aim and fire a specific type of ranged weapon effectively. Uses Ag stat."),
             new SkillDef("Shield",         "St",
                 Description: "Use a shield to deflect attacks and add a defensive bonus in combat. Uses St stat."),
-            new SkillDef("Unarmed",        "St or Ag", Specialized: true,
+            new SkillDef("Unarmed",        StOrAg, Specialized: true,
                 Description: "Fight without weapons using punches, kicks, grapples, and throws. Uses St or Ag stat.")),
 
         new("Composition",         "Em", "In", false,

@@ -722,14 +722,18 @@
                             bool isPro    = _chosenPro.Contains(sk.Name);
                             bool isKnack  = _chosenKnack.Contains(sk.Name);
 
+                            // This is the catalogue row for the skill as a whole, so there is no
+                            // specialization to resolve Unarmed's "St or Ag" against; it adds
+                            // nothing here, exactly as the sheet's unspecialized row does.
+                            var skStat = SkillRules.ResolveSkillStat(sk.SkillStat, null);
                             int baseStatBonus = cat.NoStats ? 0
                                 : SkillRules.StatBonus(GetTemp(ResolveStatForBonus(cat.Stat1)))
                                   + SkillRules.StatBonus(GetTemp(ResolveStatForBonus(cat.Stat2)))
-                                  + (sk.SkillStat is "" or "R*" or "St or Ag" ? 0 : SkillRules.StatBonus(GetTemp(ResolveStatForBonus(sk.SkillStat))));
+                                  + (skStat is null ? 0 : SkillRules.StatBonus(GetTemp(ResolveStatForBonus(skStat))));
                             int racialStatBonus = cat.NoStats ? 0
                                 : GetRacialMod(ResolveStatForBonus(cat.Stat1))
                                   + GetRacialMod(ResolveStatForBonus(cat.Stat2))
-                                  + (sk.SkillStat is "" or "R*" or "St or Ag" ? 0 : GetRacialMod(ResolveStatForBonus(sk.SkillStat)));
+                                  + (skStat is null ? 0 : GetRacialMod(ResolveStatForBonus(skStat)));
 
                             if (cat.Name == "Spellcasting" && sk.Name.EndsWith("Spell Lists"))
                             {

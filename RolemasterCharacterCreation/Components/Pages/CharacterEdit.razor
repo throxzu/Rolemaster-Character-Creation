@@ -242,8 +242,11 @@ else
                         int catStat1   = SkillRules.StatBonus(GetStatTemp(StatFromAbbr2(combatCat.Stat1))) + (raceInfo?.GetStatMod(StatFromAbbr2(combatCat.Stat1)) ?? 0);
                         int catStat2   = SkillRules.StatBonus(GetStatTemp(StatFromAbbr2(combatCat.Stat2))) + (raceInfo?.GetStatMod(StatFromAbbr2(combatCat.Stat2)) ?? 0);
                         var skd        = combatCat.Skills.FirstOrDefault(s => s.Name == ws.SkillName);
-                        bool hasWepStat = skd?.SkillStat is not (null or "" or "R*" or "St or Ag");
-                        int wepStat    = hasWepStat ? SkillRules.StatBonus(GetStatTemp(StatFromAbbr2(skd!.SkillStat))) + (raceInfo?.GetStatMod(StatFromAbbr2(skd.SkillStat)) ?? 0) : 0;
+                        // Unarmed resolves against the attack specialized in (Core Law: Strikes [St],
+                        // Sweeps & Throws [Ag], Wrestling [Ag], ...) rather than contributing nothing.
+                        var wepStatName = SkillRules.ResolveSkillStat(skd?.SkillStat, ws.Specialization);
+                        bool hasWepStat = wepStatName is not null;
+                        int wepStat    = hasWepStat ? SkillRules.StatBonus(GetStatTemp(StatFromAbbr2(wepStatName!))) + (raceInfo?.GetStatMod(StatFromAbbr2(wepStatName)) ?? 0) : 0;
 
                         int rankBonus  = SkillRules.RankBonus(totalRanks);
                         int proBonus   = wsPro   ? Math.Min(totalRanks, 30) : 0;
