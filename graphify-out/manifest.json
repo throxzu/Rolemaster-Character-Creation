@@ -1275,8 +1275,8 @@
     "semantic_hash": "ec528ab85f13075bdb477f95d2074b43"
   },
   "RolemasterCharacterCreation/Rules/Skills/SkillRules.cs": {
-    "mtime": 1790685740.0224452,
-    "ast_hash": "8583e23218dcc7879d8832ad15d99a61",
+    "mtime": 1790685983.704453,
+    "ast_hash": "77762ae9aa571710f378f4886d402a8d",
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Rules/Skills/SpellAttackTable.cs": {
