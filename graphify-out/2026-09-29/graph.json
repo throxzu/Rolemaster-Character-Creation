@@ -1819,8 +1819,8 @@
       "source_location": "L406",
       "_origin": "ast",
       "id": "claude_skills_impeccable_scripts_live_browser_positionannotoverlay",
-      "community": 9,
-      "community_name": "Live Browser Renderer",
+      "community": 21,
+      "community_name": "Impeccable Live Client",
       "norm_label": "positionannotoverlay()"
     },
     {
@@ -2622,8 +2622,8 @@
       "source_location": "L2581",
       "_origin": "ast",
       "id": "claude_skills_impeccable_scripts_live_browser_loadmodernscreenshot",
-      "community": 9,
-      "community_name": "Live Browser Renderer",
+      "community": 188,
+      "community_name": "Migrations \u00b7 20260618161205_AddCriticalT",
       "norm_label": "loadmodernscreenshot()"
     },
     {
@@ -2633,8 +2633,8 @@
       "source_location": "L2607",
       "_origin": "ast",
       "id": "claude_skills_impeccable_scripts_live_browser_buffertobase64",
-      "community": 9,
-      "community_name": "Live Browser Renderer",
+      "community": 188,
+      "community_name": "Migrations \u00b7 20260618161205_AddCriticalT",
       "norm_label": "buffertobase64()"
     },
     {
@@ -2644,8 +2644,8 @@
       "source_location": "L2616",
       "_origin": "ast",
       "id": "claude_skills_impeccable_scripts_live_browser_inlinefonturls",
-      "community": 9,
-      "community_name": "Live Browser Renderer",
+      "community": 188,
+      "community_name": "Migrations \u00b7 20260618161205_AddCriticalT",
       "norm_label": "inlinefonturls()"
     },
     {
@@ -2655,8 +2655,8 @@
       "source_location": "L2639",
       "_origin": "ast",
       "id": "claude_skills_impeccable_scripts_live_browser_collectfontcsstext",
-      "community": 9,
-      "community_name": "Live Browser Renderer",
+      "community": 188,
+      "community_name": "Migrations \u00b7 20260618161205_AddCriticalT",
       "norm_label": "collectfontcsstext()"
     },
     {
@@ -2666,8 +2666,8 @@
       "source_location": "L2667",
       "_origin": "ast",
       "id": "claude_skills_impeccable_scripts_live_browser_istransparentcolor",
-      "community": 9,
-      "community_name": "Live Browser Renderer",
+      "community": 188,
+      "community_name": "Migrations \u00b7 20260618161205_AddCriticalT",
       "norm_label": "istransparentcolor()"
     },
     {
@@ -2677,8 +2677,8 @@
       "source_location": "L2683",
       "_origin": "ast",
       "id": "claude_skills_impeccable_scripts_live_browser_resolvecanvasbackground",
-      "community": 9,
-      "community_name": "Live Browser Renderer",
+      "community": 188,
+      "community_name": "Migrations \u00b7 20260618161205_AddCriticalT",
       "norm_label": "resolvecanvasbackground()"
     },
     {
@@ -2688,8 +2688,8 @@
       "source_location": "L2707",
       "_origin": "ast",
       "id": "claude_skills_impeccable_scripts_live_browser_captureelementtoblob",
-      "community": 9,
-      "community_name": "Live Browser Renderer",
+      "community": 188,
+      "community_name": "Migrations \u00b7 20260618161205_AddCriticalT",
       "norm_label": "captureelementtoblob()"
     },
     {
@@ -2699,8 +2699,8 @@
       "source_location": "L2736",
       "_origin": "ast",
       "id": "claude_skills_impeccable_scripts_live_browser_captureandemit",
-      "community": 13,
-      "community_name": "Impeccable Live UI Rows",
+      "community": 188,
+      "community_name": "Migrations \u00b7 20260618161205_AddCriticalT",
       "norm_label": "captureandemit()"
     },
     {
@@ -2710,8 +2710,8 @@
       "source_location": "L2839",
       "_origin": "ast",
       "id": "claude_skills_impeccable_scripts_live_browser_compileshader",
-      "community": 13,
-      "community_name": "Impeccable Live UI Rows",
+      "community": 188,
+      "community_name": "Migrations \u00b7 20260618161205_AddCriticalT",
       "norm_label": "compileshader()"
     },
     {
@@ -2743,8 +2743,8 @@
       "source_location": "L2869",
       "_origin": "ast",
       "id": "claude_skills_impeccable_scripts_live_browser_showshaderoverlay",
-      "community": 13,
-      "community_name": "Impeccable Live UI Rows",
+      "community": 188,
+      "community_name": "Migrations \u00b7 20260618161205_AddCriticalT",
       "norm_label": "showshaderoverlay()"
     },
     {
@@ -2996,8 +2996,8 @@
       "source_location": "L3738",
       "_origin": "ast",
       "id": "claude_skills_impeccable_scripts_live_browser_savedesignprefs",
-      "community": 41,
-      "community_name": "barPaletteForTheme",
+      "community": 9,
+      "community_name": "Live Browser Renderer",
       "norm_label": "savedesignprefs()"
     },
     {
@@ -3029,8 +3029,8 @@
       "source_location": "L4073",
       "_origin": "ast",
       "id": "claude_skills_impeccable_scripts_live_browser_renderdesignchrome",
-      "community": 41,
-      "community_name": "barPaletteForTheme",
+      "community": 9,
+      "community_name": "Live Browser Renderer",
       "norm_label": "renderdesignchrome()"
     },
     {
@@ -3040,8 +3040,8 @@
       "source_location": "L4092",
       "_origin": "ast",
       "id": "claude_skills_impeccable_scripts_live_browser_builddesignheader",
-      "community": 41,
-      "community_name": "barPaletteForTheme",
+      "community": 9,
+      "community_name": "Live Browser Renderer",
       "norm_label": "builddesignheader()"
     },
     {
@@ -3051,8 +3051,8 @@
       "source_location": "L4131",
       "_origin": "ast",
       "id": "claude_skills_impeccable_scripts_live_browser_toggledesignpanel",
-      "community": 41,
-      "community_name": "barPaletteForTheme",
+      "community": 9,
+      "community_name": "Live Browser Renderer",
       "norm_label": "toggledesignpanel()"
     },
     {
@@ -3062,8 +3062,8 @@
       "source_location": "L4140",
       "_origin": "ast",
       "id": "claude_skills_impeccable_scripts_live_browser_fetchdesignsystem",
-      "community": 41,
-      "community_name": "barPaletteForTheme",
+      "community": 9,
+      "community_name": "Live Browser Renderer",
       "norm_label": "fetchdesignsystem()"
     },
     {
@@ -13466,7 +13466,7 @@
       "label": "RacialTrait",
       "file_type": "code",
       "source_file": "RolemasterCharacterCreation/Components/Pages/CharacterSheet.razor",
-      "source_location": "L253",
+      "source_location": "L258",
       "_origin": "ast",
       "id": "rolemastercharactercreation_components_pages_charactersheet_razor_racialtrait",
       "community": 31,
@@ -13477,7 +13477,7 @@
       "label": "StatName",
       "file_type": "code",
       "source_file": "RolemasterCharacterCreation/Components/Pages/CharacterSheet.razor",
-      "source_location": "L283",
+      "source_location": "L288",
       "_origin": "ast",
       "id": "rolemastercharactercreation_components_pages_charactersheet_razor_statname",
       "community": 31,
@@ -13488,7 +13488,7 @@
       "label": "CharacterEquipmentItem",
       "file_type": "code",
       "source_file": "RolemasterCharacterCreation/Components/Pages/CharacterSheet.razor",
-      "source_location": "L983",
+      "source_location": "L1006",
       "_origin": "ast",
       "id": "rolemastercharactercreation_components_pages_charactersheet_razor_characterequipmentitem",
       "community": 31,
@@ -13499,7 +13499,7 @@
       "label": "ListTypeMod",
       "file_type": "code",
       "source_file": "RolemasterCharacterCreation/Components/Pages/CharacterSheet.razor",
-      "source_location": "L1027",
+      "source_location": "L1050",
       "_origin": "ast",
       "id": "rolemastercharactercreation_components_pages_charactersheet_listtypemod",
       "community": 31,
@@ -13510,7 +13510,7 @@
       "label": "OnAfterRenderAsync",
       "file_type": "code",
       "source_file": "RolemasterCharacterCreation/Components/Pages/CharacterSheet.razor",
-      "source_location": "L1053",
+      "source_location": "L1076",
       "_origin": "ast",
       "id": "rolemastercharactercreation_components_pages_charactersheet_onafterrenderasync",
       "community": 31,
@@ -13521,7 +13521,7 @@
       "label": "OnInitializedAsync",
       "file_type": "code",
       "source_file": "RolemasterCharacterCreation/Components/Pages/CharacterSheet.razor",
-      "source_location": "L1058",
+      "source_location": "L1081",
       "_origin": "ast",
       "id": "rolemastercharactercreation_components_pages_charactersheet_oninitializedasync",
       "community": 31,
@@ -13532,7 +13532,7 @@
       "label": "SaveCoinAsync",
       "file_type": "code",
       "source_file": "RolemasterCharacterCreation/Components/Pages/CharacterSheet.razor",
-      "source_location": "L1122",
+      "source_location": "L1145",
       "_origin": "ast",
       "id": "rolemastercharactercreation_components_pages_charactersheet_savecoinasync",
       "community": 31,
@@ -13543,7 +13543,7 @@
       "label": "SaveXpAsync",
       "file_type": "code",
       "source_file": "RolemasterCharacterCreation/Components/Pages/CharacterSheet.razor",
-      "source_location": "L1130",
+      "source_location": "L1153",
       "_origin": "ast",
       "id": "rolemastercharactercreation_components_pages_charactersheet_savexpasync",
       "community": 31,
@@ -13554,7 +13554,7 @@
       "label": "LevelUpAsync",
       "file_type": "code",
       "source_file": "RolemasterCharacterCreation/Components/Pages/CharacterSheet.razor",
-      "source_location": "L1140",
+      "source_location": "L1163",
       "_origin": "ast",
       "id": "rolemastercharactercreation_components_pages_charactersheet_levelupasync",
       "community": 31,
@@ -13565,7 +13565,7 @@
       "label": "SkillLine",
       "file_type": "code",
       "source_file": "RolemasterCharacterCreation/Components/Pages/CharacterSheet.razor",
-      "source_location": "L1156",
+      "source_location": "L1179",
       "_origin": "ast",
       "id": "rolemastercharactercreation_components_pages_charactersheet_skillline",
       "community": 31,
@@ -13576,7 +13576,7 @@
       "label": "SkillLineFor",
       "file_type": "code",
       "source_file": "RolemasterCharacterCreation/Components/Pages/CharacterSheet.razor",
-      "source_location": "L1162",
+      "source_location": "L1185",
       "_origin": "ast",
       "id": "rolemastercharactercreation_components_pages_charactersheet_skilllinefor",
       "community": 31,
@@ -13587,7 +13587,7 @@
       "label": "Fmt",
       "file_type": "code",
       "source_file": "RolemasterCharacterCreation/Components/Pages/CharacterSheet.razor",
-      "source_location": "L1225",
+      "source_location": "L1248",
       "_origin": "ast",
       "id": "rolemastercharactercreation_components_pages_charactersheet_fmt",
       "community": 31,
@@ -13598,7 +13598,7 @@
       "label": "FmtHeight",
       "file_type": "code",
       "source_file": "RolemasterCharacterCreation/Components/Pages/CharacterSheet.razor",
-      "source_location": "L1227",
+      "source_location": "L1250",
       "_origin": "ast",
       "id": "rolemastercharactercreation_components_pages_charactersheet_fmtheight",
       "community": 31,
@@ -13609,7 +13609,7 @@
       "label": "FmtWeight",
       "file_type": "code",
       "source_file": "RolemasterCharacterCreation/Components/Pages/CharacterSheet.razor",
-      "source_location": "L1236",
+      "source_location": "L1259",
       "_origin": "ast",
       "id": "rolemastercharactercreation_components_pages_charactersheet_fmtweight",
       "community": 31,
@@ -13620,7 +13620,7 @@
       "label": "StatFromAbbr",
       "file_type": "code",
       "source_file": "RolemasterCharacterCreation/Components/Pages/CharacterSheet.razor",
-      "source_location": "L1242",
+      "source_location": "L1265",
       "_origin": "ast",
       "id": "rolemastercharactercreation_components_pages_charactersheet_statfromabbr",
       "community": 31,
@@ -13631,7 +13631,7 @@
       "label": "StatLabel",
       "file_type": "code",
       "source_file": "RolemasterCharacterCreation/Components/Pages/CharacterSheet.razor",
-      "source_location": "L1250",
+      "source_location": "L1273",
       "_origin": "ast",
       "id": "rolemastercharactercreation_components_pages_charactersheet_statlabel",
       "community": 31,
@@ -13642,7 +13642,7 @@
       "label": "ItemWeight",
       "file_type": "code",
       "source_file": "RolemasterCharacterCreation/Components/Pages/CharacterSheet.razor",
-      "source_location": "L1265",
+      "source_location": "L1288",
       "_origin": "ast",
       "id": "rolemastercharactercreation_components_pages_charactersheet_itemweight",
       "community": 31,
@@ -20226,8 +20226,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_appdbcontext_rolemastercharactercreation_data_appdbcontext",
-      "community": 187,
-      "community_name": "Migrations \u00b7 20260618150618_AddAttackTab",
+      "community": 185,
+      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
       "norm_label": "appdbcontext"
     },
     {
@@ -20237,8 +20237,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "identitydbcontext",
-      "community": 187,
-      "community_name": "Migrations \u00b7 20260618150618_AddAttackTab",
+      "community": 185,
+      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
       "norm_label": "identitydbcontext"
     },
     {
@@ -20248,8 +20248,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "dbset",
-      "community": 187,
-      "community_name": "Migrations \u00b7 20260618150618_AddAttackTab",
+      "community": 185,
+      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
       "norm_label": "dbset"
     },
     {
@@ -20265,8 +20265,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_appdbcontext_rolemastercharactercreation_data_appdbcontext_onmodelcreating",
-      "community": 187,
-      "community_name": "Migrations \u00b7 20260618150618_AddAttackTab",
+      "community": 185,
+      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
       "norm_label": ".onmodelcreating()"
     },
     {
@@ -20276,8 +20276,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_appdbcontext_cs_modelbuilder",
-      "community": 187,
-      "community_name": "Migrations \u00b7 20260618150618_AddAttackTab",
+      "community": 185,
+      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
       "norm_label": "modelbuilder"
     },
     {
@@ -20293,8 +20293,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_appdbcontext_rolemastercharactercreation_data_appdbcontext_writeauditlogs",
-      "community": 187,
-      "community_name": "Migrations \u00b7 20260618150618_AddAttackTab",
+      "community": 185,
+      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
       "norm_label": ".writeauditlogs()"
     },
     {
@@ -21234,8 +21234,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260530183904_addcharactertalents_designer",
-      "community": 296,
-      "community_name": "Improve Typography Systematically",
+      "community": 363,
+      "community_name": "Animate Reference",
       "norm_label": "20260530183904_addcharactertalents.designer.cs"
     },
     {
@@ -21251,8 +21251,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260530183904_addcharactertalents_designer_rolemastercharactercreation_data_migrations_addcharactertalents",
-      "community": 296,
-      "community_name": "Improve Typography Systematically",
+      "community": 363,
+      "community_name": "Animate Reference",
       "norm_label": "addcharactertalents"
     },
     {
@@ -21268,8 +21268,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260530183904_addcharactertalents_designer_rolemastercharactercreation_data_migrations_addcharactertalents_buildtargetmodel",
-      "community": 296,
-      "community_name": "Improve Typography Systematically",
+      "community": 363,
+      "community_name": "Animate Reference",
       "norm_label": ".buildtargetmodel()"
     },
     {
@@ -21279,8 +21279,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260530183904_addcharactertalents_designer_cs_modelbuilder",
-      "community": 296,
-      "community_name": "Improve Typography Systematically",
+      "community": 363,
+      "community_name": "Animate Reference",
       "norm_label": "modelbuilder"
     },
     {
@@ -22782,8 +22782,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260619160018_addtownlocationnotesandcategorynames",
-      "community": 241,
-      "community_name": "Migrations \u00b7 20260616184748_AddLevelUpBa",
+      "community": 240,
+      "community_name": "Migrations \u00b7 20260530201050_AddEquipment",
       "norm_label": "20260619160018_addtownlocationnotesandcategorynames.cs"
     },
     {
@@ -22799,8 +22799,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260619160018_addtownlocationnotesandcategorynames_rolemastercharactercreation_data_migrations_addtownlocationnotesandcategorynames",
-      "community": 241,
-      "community_name": "Migrations \u00b7 20260616184748_AddLevelUpBa",
+      "community": 240,
+      "community_name": "Migrations \u00b7 20260530201050_AddEquipment",
       "norm_label": "addtownlocationnotesandcategorynames"
     },
     {
@@ -22816,8 +22816,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260619160018_addtownlocationnotesandcategorynames_rolemastercharactercreation_data_migrations_addtownlocationnotesandcategorynames_up",
-      "community": 241,
-      "community_name": "Migrations \u00b7 20260616184748_AddLevelUpBa",
+      "community": 240,
+      "community_name": "Migrations \u00b7 20260530201050_AddEquipment",
       "norm_label": ".up()"
     },
     {
@@ -22827,8 +22827,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260619160018_addtownlocationnotesandcategorynames_cs_migrationbuilder",
-      "community": 241,
-      "community_name": "Migrations \u00b7 20260616184748_AddLevelUpBa",
+      "community": 240,
+      "community_name": "Migrations \u00b7 20260530201050_AddEquipment",
       "norm_label": "migrationbuilder"
     },
     {
@@ -22844,8 +22844,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260619160018_addtownlocationnotesandcategorynames_rolemastercharactercreation_data_migrations_addtownlocationnotesandcategorynames_down",
-      "community": 241,
-      "community_name": "Migrations \u00b7 20260616184748_AddLevelUpBa",
+      "community": 240,
+      "community_name": "Migrations \u00b7 20260530201050_AddEquipment",
       "norm_label": ".down()"
     },
     {
@@ -24016,8 +24016,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260619210400_adddungeonnotes_designer",
-      "community": 324,
-      "community_name": "20260620085233_AddCampaignCaves.Designer.cs",
+      "community": 372,
+      "community_name": ".Cells",
       "norm_label": "20260619210400_adddungeonnotes.designer.cs"
     },
     {
@@ -24033,8 +24033,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260619210400_adddungeonnotes_designer_rolemastercharactercreation_data_migrations_adddungeonnotes",
-      "community": 324,
-      "community_name": "20260620085233_AddCampaignCaves.Designer.cs",
+      "community": 372,
+      "community_name": ".Cells",
       "norm_label": "adddungeonnotes"
     },
     {
@@ -24050,8 +24050,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260619210400_adddungeonnotes_designer_rolemastercharactercreation_data_migrations_adddungeonnotes_buildtargetmodel",
-      "community": 324,
-      "community_name": "20260620085233_AddCampaignCaves.Designer.cs",
+      "community": 372,
+      "community_name": ".Cells",
       "norm_label": ".buildtargetmodel()"
     },
     {
@@ -24061,8 +24061,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260619210400_adddungeonnotes_designer_cs_modelbuilder",
-      "community": 324,
-      "community_name": "20260620085233_AddCampaignCaves.Designer.cs",
+      "community": 372,
+      "community_name": ".Cells",
       "norm_label": "modelbuilder"
     },
     {
@@ -24274,8 +24274,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260620065621_prunedungeonlegendnames_designer",
-      "community": 372,
-      "community_name": ".Cells",
+      "community": 373,
+      "community_name": "20260620184305_AddChat.Designer.cs",
       "norm_label": "20260620065621_prunedungeonlegendnames.designer.cs"
     },
     {
@@ -24291,8 +24291,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260620065621_prunedungeonlegendnames_designer_rolemastercharactercreation_data_migrations_prunedungeonlegendnames",
-      "community": 372,
-      "community_name": ".Cells",
+      "community": 373,
+      "community_name": "20260620184305_AddChat.Designer.cs",
       "norm_label": "prunedungeonlegendnames"
     },
     {
@@ -24308,8 +24308,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260620065621_prunedungeonlegendnames_designer_rolemastercharactercreation_data_migrations_prunedungeonlegendnames_buildtargetmodel",
-      "community": 372,
-      "community_name": ".Cells",
+      "community": 373,
+      "community_name": "20260620184305_AddChat.Designer.cs",
       "norm_label": ".buildtargetmodel()"
     },
     {
@@ -24319,8 +24319,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260620065621_prunedungeonlegendnames_designer_cs_modelbuilder",
-      "community": 372,
-      "community_name": ".Cells",
+      "community": 373,
+      "community_name": "20260620184305_AddChat.Designer.cs",
       "norm_label": "modelbuilder"
     },
     {
@@ -24532,8 +24532,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260620071206_adddungeonnotevisibility_designer",
-      "community": 373,
-      "community_name": "20260620184305_AddChat.Designer.cs",
+      "community": 374,
+      "community_name": "20260902104007_AddEncounters.Designer.cs",
       "norm_label": "20260620071206_adddungeonnotevisibility.designer.cs"
     },
     {
@@ -24549,8 +24549,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260620071206_adddungeonnotevisibility_designer_rolemastercharactercreation_data_migrations_adddungeonnotevisibility",
-      "community": 373,
-      "community_name": "20260620184305_AddChat.Designer.cs",
+      "community": 374,
+      "community_name": "20260902104007_AddEncounters.Designer.cs",
       "norm_label": "adddungeonnotevisibility"
     },
     {
@@ -24566,8 +24566,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260620071206_adddungeonnotevisibility_designer_rolemastercharactercreation_data_migrations_adddungeonnotevisibility_buildtargetmodel",
-      "community": 373,
-      "community_name": "20260620184305_AddChat.Designer.cs",
+      "community": 374,
+      "community_name": "20260902104007_AddEncounters.Designer.cs",
       "norm_label": ".buildtargetmodel()"
     },
     {
@@ -24577,8 +24577,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260620071206_adddungeonnotevisibility_designer_cs_modelbuilder",
-      "community": 373,
-      "community_name": "20260620184305_AddChat.Designer.cs",
+      "community": 374,
+      "community_name": "20260902104007_AddEncounters.Designer.cs",
       "norm_label": "modelbuilder"
     },
     {
@@ -25104,8 +25104,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260620184305_addchat",
-      "community": 254,
-      "community_name": "Migrations \u00b7 20260620094619_AddCampaignB",
+      "community": 241,
+      "community_name": "Migrations \u00b7 20260616184748_AddLevelUpBa",
       "norm_label": "20260620184305_addchat.cs"
     },
     {
@@ -25121,8 +25121,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260620184305_addchat_rolemastercharactercreation_data_migrations_addchat",
-      "community": 254,
-      "community_name": "Migrations \u00b7 20260620094619_AddCampaignB",
+      "community": 241,
+      "community_name": "Migrations \u00b7 20260616184748_AddLevelUpBa",
       "norm_label": "addchat"
     },
     {
@@ -25138,8 +25138,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260620184305_addchat_rolemastercharactercreation_data_migrations_addchat_up",
-      "community": 254,
-      "community_name": "Migrations \u00b7 20260620094619_AddCampaignB",
+      "community": 241,
+      "community_name": "Migrations \u00b7 20260616184748_AddLevelUpBa",
       "norm_label": ".up()"
     },
     {
@@ -25149,8 +25149,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260620184305_addchat_cs_migrationbuilder",
-      "community": 254,
-      "community_name": "Migrations \u00b7 20260620094619_AddCampaignB",
+      "community": 241,
+      "community_name": "Migrations \u00b7 20260616184748_AddLevelUpBa",
       "norm_label": "migrationbuilder"
     },
     {
@@ -25166,8 +25166,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260620184305_addchat_rolemastercharactercreation_data_migrations_addchat_down",
-      "community": 254,
-      "community_name": "Migrations \u00b7 20260620094619_AddCampaignB",
+      "community": 241,
+      "community_name": "Migrations \u00b7 20260616184748_AddLevelUpBa",
       "norm_label": ".down()"
     },
     {
@@ -25233,8 +25233,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260621141633_addspelllistgmonly",
-      "community": 210,
-      "community_name": "Migrations \u00b7 20260621141633_AddSpellList",
+      "community": 254,
+      "community_name": "Migrations \u00b7 20260620094619_AddCampaignB",
       "norm_label": "20260621141633_addspelllistgmonly.cs"
     },
     {
@@ -25250,8 +25250,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260621141633_addspelllistgmonly_rolemastercharactercreation_data_migrations_addspelllistgmonly",
-      "community": 210,
-      "community_name": "Migrations \u00b7 20260621141633_AddSpellList",
+      "community": 254,
+      "community_name": "Migrations \u00b7 20260620094619_AddCampaignB",
       "norm_label": "addspelllistgmonly"
     },
     {
@@ -25267,8 +25267,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260621141633_addspelllistgmonly_rolemastercharactercreation_data_migrations_addspelllistgmonly_up",
-      "community": 210,
-      "community_name": "Migrations \u00b7 20260621141633_AddSpellList",
+      "community": 254,
+      "community_name": "Migrations \u00b7 20260620094619_AddCampaignB",
       "norm_label": ".up()"
     },
     {
@@ -25278,8 +25278,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260621141633_addspelllistgmonly_cs_migrationbuilder",
-      "community": 210,
-      "community_name": "Migrations \u00b7 20260621141633_AddSpellList",
+      "community": 254,
+      "community_name": "Migrations \u00b7 20260620094619_AddCampaignB",
       "norm_label": "migrationbuilder"
     },
     {
@@ -25295,8 +25295,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260621141633_addspelllistgmonly_rolemastercharactercreation_data_migrations_addspelllistgmonly_down",
-      "community": 210,
-      "community_name": "Migrations \u00b7 20260621141633_AddSpellList",
+      "community": 254,
+      "community_name": "Migrations \u00b7 20260620094619_AddCampaignB",
       "norm_label": ".down()"
     },
     {
@@ -25435,8 +25435,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260622174011_addsessionnotes_designer",
-      "community": 363,
-      "community_name": "Animate Reference",
+      "community": 378,
+      "community_name": "VoyageEmbeddingClient.cs",
       "norm_label": "20260622174011_addsessionnotes.designer.cs"
     },
     {
@@ -25452,8 +25452,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260622174011_addsessionnotes_designer_rolemastercharactercreation_data_migrations_addsessionnotes",
-      "community": 363,
-      "community_name": "Animate Reference",
+      "community": 378,
+      "community_name": "VoyageEmbeddingClient.cs",
       "norm_label": "addsessionnotes"
     },
     {
@@ -25469,8 +25469,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260622174011_addsessionnotes_designer_rolemastercharactercreation_data_migrations_addsessionnotes_buildtargetmodel",
-      "community": 363,
-      "community_name": "Animate Reference",
+      "community": 378,
+      "community_name": "VoyageEmbeddingClient.cs",
       "norm_label": ".buildtargetmodel()"
     },
     {
@@ -25480,8 +25480,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260622174011_addsessionnotes_designer_cs_modelbuilder",
-      "community": 363,
-      "community_name": "Animate Reference",
+      "community": 378,
+      "community_name": "VoyageEmbeddingClient.cs",
       "norm_label": "modelbuilder"
     },
     {
@@ -25564,8 +25564,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260622175911_addgmdpadjust_designer",
-      "community": 378,
-      "community_name": "VoyageEmbeddingClient.cs",
+      "community": 379,
+      "community_name": "20260622184256_AddGameSessions.Designer.cs",
       "norm_label": "20260622175911_addgmdpadjust.designer.cs"
     },
     {
@@ -25581,8 +25581,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260622175911_addgmdpadjust_designer_rolemastercharactercreation_data_migrations_addgmdpadjust",
-      "community": 378,
-      "community_name": "VoyageEmbeddingClient.cs",
+      "community": 379,
+      "community_name": "20260622184256_AddGameSessions.Designer.cs",
       "norm_label": "addgmdpadjust"
     },
     {
@@ -25598,8 +25598,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260622175911_addgmdpadjust_designer_rolemastercharactercreation_data_migrations_addgmdpadjust_buildtargetmodel",
-      "community": 378,
-      "community_name": "VoyageEmbeddingClient.cs",
+      "community": 379,
+      "community_name": "20260622184256_AddGameSessions.Designer.cs",
       "norm_label": ".buildtargetmodel()"
     },
     {
@@ -25609,8 +25609,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260622175911_addgmdpadjust_designer_cs_modelbuilder",
-      "community": 378,
-      "community_name": "VoyageEmbeddingClient.cs",
+      "community": 379,
+      "community_name": "20260622184256_AddGameSessions.Designer.cs",
       "norm_label": "modelbuilder"
     },
     {
@@ -25693,8 +25693,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260622184256_addgamesessions_designer",
-      "community": 379,
-      "community_name": "20260622184256_AddGameSessions.Designer.cs",
+      "community": 380,
+      "community_name": "20260912143847_AddCharacterMoney.Designer.cs",
       "norm_label": "20260622184256_addgamesessions.designer.cs"
     },
     {
@@ -25710,8 +25710,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260622184256_addgamesessions_designer_rolemastercharactercreation_data_migrations_addgamesessions",
-      "community": 379,
-      "community_name": "20260622184256_AddGameSessions.Designer.cs",
+      "community": 380,
+      "community_name": "20260912143847_AddCharacterMoney.Designer.cs",
       "norm_label": "addgamesessions"
     },
     {
@@ -25727,8 +25727,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260622184256_addgamesessions_designer_rolemastercharactercreation_data_migrations_addgamesessions_buildtargetmodel",
-      "community": 379,
-      "community_name": "20260622184256_AddGameSessions.Designer.cs",
+      "community": 380,
+      "community_name": "20260912143847_AddCharacterMoney.Designer.cs",
       "norm_label": ".buildtargetmodel()"
     },
     {
@@ -25738,8 +25738,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260622184256_addgamesessions_designer_cs_modelbuilder",
-      "community": 379,
-      "community_name": "20260622184256_AddGameSessions.Designer.cs",
+      "community": 380,
+      "community_name": "20260912143847_AddCharacterMoney.Designer.cs",
       "norm_label": "modelbuilder"
     },
     {
@@ -25951,8 +25951,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260912143847_addcharactermoney_designer",
-      "community": 380,
-      "community_name": "20260912143847_AddCharacterMoney.Designer.cs",
+      "community": 385,
+      "community_name": "20260619201224_AddWorldLocationVillageLink.Designer.cs",
       "norm_label": "20260912143847_addcharactermoney.designer.cs"
     },
     {
@@ -25968,8 +25968,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260912143847_addcharactermoney_designer_rolemastercharactercreation_data_migrations_addcharactermoney",
-      "community": 380,
-      "community_name": "20260912143847_AddCharacterMoney.Designer.cs",
+      "community": 385,
+      "community_name": "20260619201224_AddWorldLocationVillageLink.Designer.cs",
       "norm_label": "addcharactermoney"
     },
     {
@@ -25985,8 +25985,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260912143847_addcharactermoney_designer_rolemastercharactercreation_data_migrations_addcharactermoney_buildtargetmodel",
-      "community": 380,
-      "community_name": "20260912143847_AddCharacterMoney.Designer.cs",
+      "community": 385,
+      "community_name": "20260619201224_AddWorldLocationVillageLink.Designer.cs",
       "norm_label": ".buildtargetmodel()"
     },
     {
@@ -25996,8 +25996,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260912143847_addcharactermoney_designer_cs_modelbuilder",
-      "community": 380,
-      "community_name": "20260912143847_AddCharacterMoney.Designer.cs",
+      "community": 385,
+      "community_name": "20260619201224_AddWorldLocationVillageLink.Designer.cs",
       "norm_label": "modelbuilder"
     },
     {
@@ -26007,8 +26007,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260912143847_addcharactermoney",
-      "community": 206,
-      "community_name": "Migrations \u00b7 20260620085233_AddCampaignC",
+      "community": 296,
+      "community_name": "Improve Typography Systematically",
       "norm_label": "20260912143847_addcharactermoney.cs"
     },
     {
@@ -26024,8 +26024,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260912143847_addcharactermoney_rolemastercharactercreation_data_migrations_addcharactermoney",
-      "community": 206,
-      "community_name": "Migrations \u00b7 20260620085233_AddCampaignC",
+      "community": 296,
+      "community_name": "Improve Typography Systematically",
       "norm_label": "addcharactermoney"
     },
     {
@@ -26041,8 +26041,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260912143847_addcharactermoney_rolemastercharactercreation_data_migrations_addcharactermoney_up",
-      "community": 206,
-      "community_name": "Migrations \u00b7 20260620085233_AddCampaignC",
+      "community": 296,
+      "community_name": "Improve Typography Systematically",
       "norm_label": ".up()"
     },
     {
@@ -26052,8 +26052,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260912143847_addcharactermoney_cs_migrationbuilder",
-      "community": 206,
-      "community_name": "Migrations \u00b7 20260620085233_AddCampaignC",
+      "community": 296,
+      "community_name": "Improve Typography Systematically",
       "norm_label": "migrationbuilder"
     },
     {
@@ -26069,8 +26069,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_data_migrations_20260912143847_addcharactermoney_rolemastercharactercreation_data_migrations_addcharactermoney_down",
-      "community": 206,
-      "community_name": "Migrations \u00b7 20260620085233_AddCampaignC",
+      "community": 296,
+      "community_name": "Improve Typography Systematically",
       "norm_label": ".down()"
     },
     {
@@ -26663,8 +26663,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "rolemastercharactercreation_identity_countrydialcodes",
-      "community": 82,
-      "community_name": "Identity \u00b7 InviteClaims",
+      "community": 306,
+      "community_name": "AddStatSpecial",
       "norm_label": "countrydialcodes.cs"
     },
     {
@@ -26696,8 +26696,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_identity_countrydialcodes_rolemastercharactercreation_identity_countrydialcode",
-      "community": 82,
-      "community_name": "Identity \u00b7 InviteClaims",
+      "community": 306,
+      "community_name": "AddStatSpecial",
       "norm_label": "countrydialcode"
     },
     {
@@ -26713,8 +26713,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_identity_countrydialcodes_rolemastercharactercreation_identity_countrydialcodes",
-      "community": 82,
-      "community_name": "Identity \u00b7 InviteClaims",
+      "community": 306,
+      "community_name": "AddStatSpecial",
       "norm_label": "countrydialcodes"
     },
     {
@@ -26724,8 +26724,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "rolemastercharactercreation_identity_countrydialcodes_cs_ireadonlylist",
-      "community": 82,
-      "community_name": "Identity \u00b7 InviteClaims",
+      "community": 306,
+      "community_name": "AddStatSpecial",
       "norm_label": "ireadonlylist"
     },
     {
@@ -26741,8 +26741,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_identity_countrydialcodes_rolemastercharactercreation_identity_countrydialcodes_bydial",
-      "community": 82,
-      "community_name": "Identity \u00b7 InviteClaims",
+      "community": 306,
+      "community_name": "AddStatSpecial",
       "norm_label": ".bydial()"
     },
     {
@@ -27114,8 +27114,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "rolemastercharactercreation_identity_temppassword",
-      "community": 306,
-      "community_name": "AddStatSpecial",
+      "community": 82,
+      "community_name": "Identity \u00b7 InviteClaims",
       "norm_label": "temppassword.cs"
     },
     {
@@ -27131,8 +27131,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_identity_temppassword_rolemastercharactercreation_identity_temppassword",
-      "community": 306,
-      "community_name": "AddStatSpecial",
+      "community": 82,
+      "community_name": "Identity \u00b7 InviteClaims",
       "norm_label": "temppassword"
     },
     {
@@ -27142,8 +27142,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "rolemastercharactercreation_identity_temppassword_cs_string",
-      "community": 306,
-      "community_name": "AddStatSpecial",
+      "community": 82,
+      "community_name": "Identity \u00b7 InviteClaims",
       "norm_label": "string"
     },
     {
@@ -27159,8 +27159,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_identity_temppassword_rolemastercharactercreation_identity_temppassword_generate",
-      "community": 306,
-      "community_name": "AddStatSpecial",
+      "community": 82,
+      "community_name": "Identity \u00b7 InviteClaims",
       "norm_label": ".generate()"
     },
     {
@@ -27176,8 +27176,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_identity_temppassword_rolemastercharactercreation_identity_temppassword_pick",
-      "community": 306,
-      "community_name": "AddStatSpecial",
+      "community": 82,
+      "community_name": "Identity \u00b7 InviteClaims",
       "norm_label": ".pick()"
     },
     {
@@ -27348,8 +27348,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_buildingcategory",
-      "community": 156,
-      "community_name": "Animate Reference",
+      "community": 185,
+      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
       "norm_label": "buildingcategory.cs"
     },
     {
@@ -27365,8 +27365,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_buildingcategory_rolemastercharactercreation_models_buildingcategory",
-      "community": 156,
-      "community_name": "Animate Reference",
+      "community": 185,
+      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
       "norm_label": "buildingcategory"
     },
     {
@@ -27376,8 +27376,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_buildingcategory_cs_list",
-      "community": 156,
-      "community_name": "Animate Reference",
+      "community": 185,
+      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
       "norm_label": "list"
     },
     {
@@ -27387,8 +27387,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_buildingcategoryname",
-      "community": 156,
-      "community_name": "Animate Reference",
+      "community": 185,
+      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
       "norm_label": "buildingcategoryname.cs"
     },
     {
@@ -27404,8 +27404,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_buildingcategoryname_rolemastercharactercreation_models_buildingcategoryname",
-      "community": 156,
-      "community_name": "Animate Reference",
+      "community": 185,
+      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
       "norm_label": "buildingcategoryname"
     },
     {
@@ -27415,8 +27415,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_buildinglocation",
-      "community": 156,
-      "community_name": "Animate Reference",
+      "community": 185,
+      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
       "norm_label": "buildinglocation.cs"
     },
     {
@@ -27432,8 +27432,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_buildinglocation_rolemastercharactercreation_models_buildinglocation",
-      "community": 156,
-      "community_name": "Animate Reference",
+      "community": 185,
+      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
       "norm_label": "buildinglocation"
     },
     {
@@ -27549,8 +27549,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_campaignsettings",
-      "community": 187,
-      "community_name": "Migrations \u00b7 20260618150618_AddAttackTab",
+      "community": 179,
+      "community_name": "Migrations \u00b7 20260530161351_AddGender",
       "norm_label": "campaignsettings.cs"
     },
     {
@@ -27566,8 +27566,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_campaignsettings_rolemastercharactercreation_models_campaignsettings",
-      "community": 187,
-      "community_name": "Migrations \u00b7 20260618150618_AddAttackTab",
+      "community": 179,
+      "community_name": "Migrations \u00b7 20260530161351_AddGender",
       "norm_label": "campaignsettings"
     },
     {
@@ -28046,8 +28046,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_chatread",
-      "community": 187,
-      "community_name": "Migrations \u00b7 20260618150618_AddAttackTab",
+      "community": 185,
+      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
       "norm_label": "chatread.cs"
     },
     {
@@ -28063,8 +28063,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_chatread_rolemastercharactercreation_models_chatread",
-      "community": 187,
-      "community_name": "Migrations \u00b7 20260618150618_AddAttackTab",
+      "community": 185,
+      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
       "norm_label": "chatread"
     },
     {
@@ -28074,8 +28074,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_chatread_cs_datetimeoffset",
-      "community": 187,
-      "community_name": "Migrations \u00b7 20260618150618_AddAttackTab",
+      "community": 185,
+      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
       "norm_label": "datetimeoffset"
     },
     {
@@ -28085,8 +28085,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_creaturedescription",
-      "community": 179,
-      "community_name": "Migrations \u00b7 20260530161351_AddGender",
+      "community": 185,
+      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
       "norm_label": "creaturedescription.cs"
     },
     {
@@ -28102,8 +28102,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_creaturedescription_rolemastercharactercreation_models_creaturedescription",
-      "community": 179,
-      "community_name": "Migrations \u00b7 20260530161351_AddGender",
+      "community": 185,
+      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
       "norm_label": "creaturedescription"
     },
     {
@@ -28789,8 +28789,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_sessionnote",
-      "community": 187,
-      "community_name": "Migrations \u00b7 20260618150618_AddAttackTab",
+      "community": 185,
+      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
       "norm_label": "sessionnote.cs"
     },
     {
@@ -28806,8 +28806,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_sessionnote_rolemastercharactercreation_models_sessionnote",
-      "community": 187,
-      "community_name": "Migrations \u00b7 20260618150618_AddAttackTab",
+      "community": 185,
+      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
       "norm_label": "sessionnote"
     },
     {
@@ -28817,8 +28817,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_sessionnote_cs_datetime",
-      "community": 187,
-      "community_name": "Migrations \u00b7 20260618150618_AddAttackTab",
+      "community": 185,
+      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
       "norm_label": "datetime"
     },
     {
@@ -29068,8 +29068,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_usefullink",
-      "community": 187,
-      "community_name": "Migrations \u00b7 20260618150618_AddAttackTab",
+      "community": 185,
+      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
       "norm_label": "usefullink.cs"
     },
     {
@@ -29085,8 +29085,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_usefullink_rolemastercharactercreation_models_usefullink",
-      "community": 187,
-      "community_name": "Migrations \u00b7 20260618150618_AddAttackTab",
+      "community": 185,
+      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
       "norm_label": "usefullink"
     },
     {
@@ -29096,8 +29096,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_usefullink_cs_datetime",
-      "community": 187,
-      "community_name": "Migrations \u00b7 20260618150618_AddAttackTab",
+      "community": 185,
+      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
       "norm_label": "datetime"
     },
     {
@@ -29107,8 +29107,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_village",
-      "community": 100,
-      "community_name": "Village",
+      "community": 156,
+      "community_name": "Animate Reference",
       "norm_label": "village.cs"
     },
     {
@@ -29124,8 +29124,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_village_rolemastercharactercreation_models_village",
-      "community": 100,
-      "community_name": "Village",
+      "community": 156,
+      "community_name": "Animate Reference",
       "norm_label": "village"
     },
     {
@@ -29135,8 +29135,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_village_cs_datetime",
-      "community": 100,
-      "community_name": "Village",
+      "community": 156,
+      "community_name": "Animate Reference",
       "norm_label": "datetime"
     },
     {
@@ -29146,8 +29146,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_village_cs_list",
-      "community": 100,
-      "community_name": "Village",
+      "community": 156,
+      "community_name": "Animate Reference",
       "norm_label": "list"
     },
     {
@@ -29224,8 +29224,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_villagelocation",
-      "community": 100,
-      "community_name": "Village",
+      "community": 156,
+      "community_name": "Animate Reference",
       "norm_label": "villagelocation.cs"
     },
     {
@@ -29241,8 +29241,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_villagelocation_rolemastercharactercreation_models_villagelocation",
-      "community": 100,
-      "community_name": "Village",
+      "community": 156,
+      "community_name": "Animate Reference",
       "norm_label": "villagelocation"
     },
     {
@@ -29252,8 +29252,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_worldcategory",
-      "community": 101,
-      "community_name": "WorldCategory",
+      "community": 156,
+      "community_name": "Animate Reference",
       "norm_label": "worldcategory.cs"
     },
     {
@@ -29269,8 +29269,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_worldcategory_rolemastercharactercreation_models_worldcategory",
-      "community": 101,
-      "community_name": "WorldCategory",
+      "community": 156,
+      "community_name": "Animate Reference",
       "norm_label": "worldcategory"
     },
     {
@@ -29280,8 +29280,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_worldcategory_cs_list",
-      "community": 101,
-      "community_name": "WorldCategory",
+      "community": 156,
+      "community_name": "Animate Reference",
       "norm_label": "list"
     },
     {
@@ -29291,8 +29291,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_worldlocation",
-      "community": 101,
-      "community_name": "WorldCategory",
+      "community": 156,
+      "community_name": "Animate Reference",
       "norm_label": "worldlocation.cs"
     },
     {
@@ -29308,8 +29308,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_models_worldlocation_rolemastercharactercreation_models_worldlocation",
-      "community": 101,
-      "community_name": "WorldCategory",
+      "community": 156,
+      "community_name": "Animate Reference",
       "norm_label": "worldlocation"
     },
     {
@@ -30442,7 +30442,7 @@
       "label": "ArmorDef",
       "file_type": "code",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L7",
+      "source_location": "L11",
       "metadata": {
         "is_nested_type": true,
         "namespace": "RolemasterCharacterCreation.Rules",
@@ -30482,7 +30482,7 @@
       "label": "PieceDef",
       "file_type": "code",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L40",
+      "source_location": "L53",
       "metadata": {
         "is_nested_type": true,
         "namespace": "RolemasterCharacterCreation.Rules",
@@ -30500,7 +30500,7 @@
       "label": "ShieldEntry",
       "file_type": "code",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L70",
+      "source_location": "L85",
       "metadata": {
         "is_nested_type": true,
         "namespace": "RolemasterCharacterCreation.Rules",
@@ -30529,7 +30529,7 @@
       "label": "ShieldDefense",
       "file_type": "code",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L93",
+      "source_location": "L108",
       "metadata": {
         "is_nested_type": true,
         "namespace": "RolemasterCharacterCreation.Rules",
@@ -30547,7 +30547,7 @@
       "label": ".ShieldDb()",
       "file_type": "code",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L101",
+      "source_location": "L116",
       "metadata": {
         "namespace": "RolemasterCharacterCreation.Rules",
         "scope_chain": [
@@ -30564,7 +30564,7 @@
       "label": ".Helmet()",
       "file_type": "code",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L121",
+      "source_location": "L136",
       "metadata": {
         "namespace": "RolemasterCharacterCreation.Rules",
         "scope_chain": [
@@ -30581,7 +30581,7 @@
       "label": ".Vambrace()",
       "file_type": "code",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L122",
+      "source_location": "L137",
       "metadata": {
         "namespace": "RolemasterCharacterCreation.Rules",
         "scope_chain": [
@@ -30598,7 +30598,7 @@
       "label": ".Greave()",
       "file_type": "code",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L123",
+      "source_location": "L138",
       "metadata": {
         "namespace": "RolemasterCharacterCreation.Rules",
         "scope_chain": [
@@ -30615,7 +30615,7 @@
       "label": ".Shield()",
       "file_type": "code",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L124",
+      "source_location": "L139",
       "metadata": {
         "namespace": "RolemasterCharacterCreation.Rules",
         "scope_chain": [
@@ -30632,7 +30632,7 @@
       "label": ".Canonical()",
       "file_type": "code",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L130",
+      "source_location": "L145",
       "metadata": {
         "namespace": "RolemasterCharacterCreation.Rules",
         "scope_chain": [
@@ -34165,8 +34165,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "rolemastercharactercreation_services_ruleschatmessage",
-      "community": 178,
-      "community_name": "Migrations \u00b7 20260530155746_AddHeightWei",
+      "community": 206,
+      "community_name": "Migrations \u00b7 20260620085233_AddCampaignC",
       "norm_label": "ruleschatmessage.cs"
     },
     {
@@ -34182,8 +34182,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_services_ruleschatmessage_rolemastercharactercreation_services_ruleschatmessage",
-      "community": 178,
-      "community_name": "Migrations \u00b7 20260530155746_AddHeightWei",
+      "community": 206,
+      "community_name": "Migrations \u00b7 20260620085233_AddCampaignC",
       "norm_label": "ruleschatmessage"
     },
     {
@@ -34221,8 +34221,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "rolemastercharactercreation_services_rulesindexservice",
-      "community": 240,
-      "community_name": "Migrations \u00b7 20260530201050_AddEquipment",
+      "community": 324,
+      "community_name": "20260620085233_AddCampaignCaves.Designer.cs",
       "norm_label": "rulesindexservice.cs"
     },
     {
@@ -34394,8 +34394,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_services_rulesindexservice_rolemastercharactercreation_services_rulesindexservice_askasync",
-      "community": 178,
-      "community_name": "Migrations \u00b7 20260530155746_AddHeightWei",
+      "community": 206,
+      "community_name": "Migrations \u00b7 20260620085233_AddCampaignC",
       "norm_label": ".askasync()"
     },
     {
@@ -34405,8 +34405,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "rolemastercharactercreation_services_rulesindexservice_cs_ireadonlylist",
-      "community": 178,
-      "community_name": "Migrations \u00b7 20260530155746_AddHeightWei",
+      "community": 206,
+      "community_name": "Migrations \u00b7 20260620085233_AddCampaignC",
       "norm_label": "ireadonlylist"
     },
     {
@@ -34416,8 +34416,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "iasyncenumerable",
-      "community": 178,
-      "community_name": "Migrations \u00b7 20260530155746_AddHeightWei",
+      "community": 206,
+      "community_name": "Migrations \u00b7 20260620085233_AddCampaignC",
       "norm_label": "iasyncenumerable"
     },
     {
@@ -34433,8 +34433,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_services_rulesindexservice_rolemastercharactercreation_services_rulesindexservice_loadpersona",
-      "community": 178,
-      "community_name": "Migrations \u00b7 20260530155746_AddHeightWei",
+      "community": 206,
+      "community_name": "Migrations \u00b7 20260620085233_AddCampaignC",
       "norm_label": ".loadpersona()"
     },
     {
@@ -34462,8 +34462,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_services_rulesindexservice_rolemastercharactercreation_services_cachefile",
-      "community": 240,
-      "community_name": "Migrations \u00b7 20260530201050_AddEquipment",
+      "community": 324,
+      "community_name": "20260620085233_AddCampaignCaves.Designer.cs",
       "norm_label": "cachefile"
     },
     {
@@ -34473,8 +34473,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "cachedchunk",
-      "community": 240,
-      "community_name": "Migrations \u00b7 20260530201050_AddEquipment",
+      "community": 324,
+      "community_name": "20260620085233_AddCampaignCaves.Designer.cs",
       "norm_label": "cachedchunk"
     },
     {
@@ -34491,8 +34491,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_services_rulesindexservice_rolemastercharactercreation_services_cachedchunk",
-      "community": 240,
-      "community_name": "Migrations \u00b7 20260530201050_AddEquipment",
+      "community": 324,
+      "community_name": "20260620085233_AddCampaignCaves.Designer.cs",
       "norm_label": "cachedchunk"
     },
     {
@@ -34570,8 +34570,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_services_rulesindexservice_rolemastercharactercreation_services_rulesindexservice_cosinesimilarity",
-      "community": 178,
-      "community_name": "Migrations \u00b7 20260530155746_AddHeightWei",
+      "community": 206,
+      "community_name": "Migrations \u00b7 20260620085233_AddCampaignC",
       "norm_label": ".cosinesimilarity()"
     },
     {
@@ -35405,8 +35405,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "rolemastercharactercreation_services_voyageembeddingclient",
-      "community": 374,
-      "community_name": "20260902104007_AddEncounters.Designer.cs",
+      "community": 386,
+      "community_name": "20260619204026_AddCampaignDungeons.Designer.cs",
       "norm_label": "voyageembeddingclient.cs"
     },
     {
@@ -35546,8 +35546,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_services_voyageembeddingclient_rolemastercharactercreation_services_voyagerequest",
-      "community": 374,
-      "community_name": "20260902104007_AddEncounters.Designer.cs",
+      "community": 386,
+      "community_name": "20260619204026_AddCampaignDungeons.Designer.cs",
       "norm_label": "voyagerequest"
     },
     {
@@ -35564,8 +35564,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_services_voyageembeddingclient_rolemastercharactercreation_services_voyageresponse",
-      "community": 374,
-      "community_name": "20260902104007_AddEncounters.Designer.cs",
+      "community": 386,
+      "community_name": "20260619204026_AddCampaignDungeons.Designer.cs",
       "norm_label": "voyageresponse"
     },
     {
@@ -35582,8 +35582,8 @@
       },
       "_origin": "ast",
       "id": "rolemastercharactercreation_services_voyageembeddingclient_rolemastercharactercreation_services_voyagedatum",
-      "community": 374,
-      "community_name": "20260902104007_AddEncounters.Designer.cs",
+      "community": 386,
+      "community_name": "20260619204026_AddCampaignDungeons.Designer.cs",
       "norm_label": "voyagedatum"
     },
     {
@@ -42184,8 +42184,8 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "claude_skills_impeccable_reference_live_handle_generate",
-      "community": 185,
-      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
+      "community": 178,
+      "community_name": "Migrations \u00b7 20260530155746_AddHeightWei",
       "norm_label": "handle `generate`"
     },
     {
@@ -42195,8 +42195,8 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "claude_skills_impeccable_reference_live_1_read_the_screenshot_if_present",
-      "community": 185,
-      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
+      "community": 178,
+      "community_name": "Migrations \u00b7 20260530155746_AddHeightWei",
       "norm_label": "1. read the screenshot (if present)"
     },
     {
@@ -42206,8 +42206,8 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "claude_skills_impeccable_reference_live_2_wrap_the_element",
-      "community": 185,
-      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
+      "community": 178,
+      "community_name": "Migrations \u00b7 20260530155746_AddHeightWei",
       "norm_label": "2. wrap the element"
     },
     {
@@ -42217,8 +42217,8 @@
       "source_location": "L127",
       "_origin": "ast",
       "id": "claude_skills_impeccable_reference_live_3_load_the_action_s_reference",
-      "community": 185,
-      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
+      "community": 178,
+      "community_name": "Migrations \u00b7 20260530155746_AddHeightWei",
       "norm_label": "3. load the action's reference"
     },
     {
@@ -42228,8 +42228,8 @@
       "source_location": "L133",
       "_origin": "ast",
       "id": "claude_skills_impeccable_reference_live_4_plan_three_variants_identity_first_then_mode_then_axes",
-      "community": 185,
-      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
+      "community": 178,
+      "community_name": "Migrations \u00b7 20260530155746_AddHeightWei",
       "norm_label": "4. plan three variants: identity first, then mode, then axes"
     },
     {
@@ -42239,8 +42239,8 @@
       "source_location": "L139",
       "_origin": "ast",
       "id": "claude_skills_impeccable_reference_live_phase_a_extract_the_identity_non_skippable",
-      "community": 185,
-      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
+      "community": 178,
+      "community_name": "Migrations \u00b7 20260530155746_AddHeightWei",
       "norm_label": "phase a: extract the identity (non-skippable)"
     },
     {
@@ -42250,8 +42250,8 @@
       "source_location": "L162",
       "_origin": "ast",
       "id": "claude_skills_impeccable_reference_live_phase_b_pick_mode_default_vs_departure",
-      "community": 185,
-      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
+      "community": 178,
+      "community_name": "Migrations \u00b7 20260530155746_AddHeightWei",
       "norm_label": "phase b: pick mode (default vs departure)"
     },
     {
@@ -42261,8 +42261,8 @@
       "source_location": "L173",
       "_origin": "ast",
       "id": "claude_skills_impeccable_reference_live_phase_c_plan_three_variants",
-      "community": 185,
-      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
+      "community": 178,
+      "community_name": "Migrations \u00b7 20260530155746_AddHeightWei",
       "norm_label": "phase c: plan three variants"
     },
     {
@@ -42272,8 +42272,8 @@
       "source_location": "L198",
       "_origin": "ast",
       "id": "claude_skills_impeccable_reference_live_phase_d_squint_test",
-      "community": 185,
-      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
+      "community": 178,
+      "community_name": "Migrations \u00b7 20260530155746_AddHeightWei",
       "norm_label": "phase d: squint test"
     },
     {
@@ -42283,8 +42283,8 @@
       "source_location": "L223",
       "_origin": "ast",
       "id": "claude_skills_impeccable_reference_live_5_apply_the_freeform_prompt_if_present",
-      "community": 185,
-      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
+      "community": 178,
+      "community_name": "Migrations \u00b7 20260530155746_AddHeightWei",
       "norm_label": "5. apply the freeform prompt (if present)"
     },
     {
@@ -42294,8 +42294,8 @@
       "source_location": "L233",
       "_origin": "ast",
       "id": "claude_skills_impeccable_reference_live_6_write_all_variants_in_a_single_edit",
-      "community": 185,
-      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
+      "community": 178,
+      "community_name": "Migrations \u00b7 20260530155746_AddHeightWei",
       "norm_label": "6. write all variants in a single edit"
     },
     {
@@ -42305,8 +42305,8 @@
       "source_location": "L282",
       "_origin": "ast",
       "id": "claude_skills_impeccable_reference_live_7_parameters_composition_sized_0_4_per_variant",
-      "community": 185,
-      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
+      "community": 178,
+      "community_name": "Migrations \u00b7 20260530155746_AddHeightWei",
       "norm_label": "7. parameters (composition-sized, 0\u20134 per variant)"
     },
     {
@@ -42316,8 +42316,8 @@
       "source_location": "L337",
       "_origin": "ast",
       "id": "claude_skills_impeccable_reference_live_8_signal_done",
-      "community": 185,
-      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
+      "community": 178,
+      "community_name": "Migrations \u00b7 20260530155746_AddHeightWei",
       "norm_label": "8. signal done"
     },
     {
@@ -42327,8 +42327,8 @@
       "source_location": "L347",
       "_origin": "ast",
       "id": "claude_skills_impeccable_reference_live_aborting_an_in_flight_session",
-      "community": 185,
-      "community_name": "Migrations \u00b7 20260617000001_CapRaceBonus",
+      "community": 178,
+      "community_name": "Migrations \u00b7 20260530155746_AddHeightWei",
       "norm_label": "aborting an in-flight session"
     },
     {
@@ -44483,8 +44483,8 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "claude_skills_impeccable_reference_typeset_improve_typography_systematically",
-      "community": 188,
-      "community_name": "Migrations \u00b7 20260618161205_AddCriticalT",
+      "community": 210,
+      "community_name": "Migrations \u00b7 20260621141633_AddSpellList",
       "norm_label": "improve typography systematically"
     },
     {
@@ -44494,8 +44494,8 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "claude_skills_impeccable_reference_typeset_font_selection",
-      "community": 188,
-      "community_name": "Migrations \u00b7 20260618161205_AddCriticalT",
+      "community": 210,
+      "community_name": "Migrations \u00b7 20260621141633_AddSpellList",
       "norm_label": "font selection"
     },
     {
@@ -44505,8 +44505,8 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "claude_skills_impeccable_reference_typeset_establish_hierarchy",
-      "community": 188,
-      "community_name": "Migrations \u00b7 20260618161205_AddCriticalT",
+      "community": 210,
+      "community_name": "Migrations \u00b7 20260621141633_AddSpellList",
       "norm_label": "establish hierarchy"
     },
     {
@@ -44516,8 +44516,8 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "claude_skills_impeccable_reference_typeset_fix_readability",
-      "community": 188,
-      "community_name": "Migrations \u00b7 20260618161205_AddCriticalT",
+      "community": 210,
+      "community_name": "Migrations \u00b7 20260621141633_AddSpellList",
       "norm_label": "fix readability"
     },
     {
@@ -44527,8 +44527,8 @@
       "source_location": "L80",
       "_origin": "ast",
       "id": "claude_skills_impeccable_reference_typeset_refine_details",
-      "community": 188,
-      "community_name": "Migrations \u00b7 20260618161205_AddCriticalT",
+      "community": 210,
+      "community_name": "Migrations \u00b7 20260621141633_AddSpellList",
       "norm_label": "refine details"
     },
     {
@@ -44538,8 +44538,8 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "claude_skills_impeccable_reference_typeset_weight_consistency",
-      "community": 188,
-      "community_name": "Migrations \u00b7 20260618161205_AddCriticalT",
+      "community": 210,
+      "community_name": "Migrations \u00b7 20260621141633_AddSpellList",
       "norm_label": "weight consistency"
     },
     {
@@ -49328,7 +49328,7 @@
       "community": 270,
       "norm_label": "graphify skill",
       "community_name": ".claude \u00b7 Project Memory",
-      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_graphify_skill"
+      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_graphify_skill"
     },
     {
       "label": "AI Agent Guidance",
@@ -77328,7 +77328,7 @@
       "relation": "calls",
       "confidence": "EXTRACTED",
       "source_file": "RolemasterCharacterCreation/Components/Pages/CharacterSheet.razor",
-      "source_location": "L985",
+      "source_location": "L1008",
       "weight": 1.0,
       "_origin": "ast",
       "source": "rolemastercharactercreation_components_pages_charactersheet",
@@ -77372,7 +77372,7 @@
       "relation": "calls",
       "confidence": "EXTRACTED",
       "source_file": "RolemasterCharacterCreation/Components/Pages/CharacterSheet.razor",
-      "source_location": "L253",
+      "source_location": "L258",
       "weight": 1.0,
       "_origin": "ast",
       "source": "rolemastercharactercreation_components_pages_charactersheet",
@@ -77438,7 +77438,7 @@
       "relation": "calls",
       "confidence": "EXTRACTED",
       "source_file": "RolemasterCharacterCreation/Components/Pages/CharacterSheet.razor",
-      "source_location": "L283",
+      "source_location": "L288",
       "weight": 1.0,
       "_origin": "ast",
       "source": "rolemastercharactercreation_components_pages_charactersheet",
@@ -98547,7 +98547,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L7",
+      "source_location": "L11",
       "weight": 1.0,
       "_origin": "ast",
       "source": "rolemastercharactercreation_rules_combat_armorrules",
@@ -98569,7 +98569,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L40",
+      "source_location": "L53",
       "weight": 1.0,
       "_origin": "ast",
       "source": "rolemastercharactercreation_rules_combat_armorrules",
@@ -98580,7 +98580,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L93",
+      "source_location": "L108",
       "weight": 1.0,
       "_origin": "ast",
       "source": "rolemastercharactercreation_rules_combat_armorrules",
@@ -98591,7 +98591,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L70",
+      "source_location": "L85",
       "weight": 1.0,
       "_origin": "ast",
       "source": "rolemastercharactercreation_rules_combat_armorrules",
@@ -98602,7 +98602,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L58",
+      "source_location": "L73",
       "weight": 1.0,
       "context": "field",
       "metadata": {
@@ -98617,7 +98617,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L86",
+      "source_location": "L101",
       "weight": 1.0,
       "context": "field",
       "metadata": {
@@ -98632,7 +98632,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L34",
+      "source_location": "L44",
       "weight": 1.0,
       "context": "field",
       "metadata": {
@@ -98647,7 +98647,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L20",
+      "source_location": "L30",
       "weight": 1.0,
       "context": "field",
       "metadata": {
@@ -98662,7 +98662,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L130",
+      "source_location": "L145",
       "weight": 1.0,
       "_origin": "ast",
       "source": "rolemastercharactercreation_rules_combat_armorrules_rolemastercharactercreation_rules_armorrules",
@@ -98673,7 +98673,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L123",
+      "source_location": "L138",
       "weight": 1.0,
       "_origin": "ast",
       "source": "rolemastercharactercreation_rules_combat_armorrules_rolemastercharactercreation_rules_armorrules",
@@ -98684,7 +98684,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L121",
+      "source_location": "L136",
       "weight": 1.0,
       "_origin": "ast",
       "source": "rolemastercharactercreation_rules_combat_armorrules_rolemastercharactercreation_rules_armorrules",
@@ -98695,7 +98695,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L124",
+      "source_location": "L139",
       "weight": 1.0,
       "_origin": "ast",
       "source": "rolemastercharactercreation_rules_combat_armorrules_rolemastercharactercreation_rules_armorrules",
@@ -98706,7 +98706,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L101",
+      "source_location": "L116",
       "weight": 1.0,
       "_origin": "ast",
       "source": "rolemastercharactercreation_rules_combat_armorrules_rolemastercharactercreation_rules_armorrules",
@@ -98717,7 +98717,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L122",
+      "source_location": "L137",
       "weight": 1.0,
       "_origin": "ast",
       "source": "rolemastercharactercreation_rules_combat_armorrules_rolemastercharactercreation_rules_armorrules",
@@ -98728,7 +98728,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L76",
+      "source_location": "L91",
       "weight": 1.0,
       "context": "field",
       "metadata": {
@@ -98744,7 +98744,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L103",
+      "source_location": "L118",
       "weight": 1.0,
       "_origin": "ast",
       "source": "rolemastercharactercreation_rules_combat_armorrules_rolemastercharactercreation_rules_armorrules_shielddb",
@@ -98755,7 +98755,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L101",
+      "source_location": "L116",
       "weight": 1.0,
       "context": "return_type",
       "metadata": {
@@ -98770,7 +98770,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L121",
+      "source_location": "L136",
       "weight": 1.0,
       "context": "return_type",
       "metadata": {
@@ -98785,7 +98785,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L122",
+      "source_location": "L137",
       "weight": 1.0,
       "context": "return_type",
       "metadata": {
@@ -98800,7 +98800,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L123",
+      "source_location": "L138",
       "weight": 1.0,
       "context": "return_type",
       "metadata": {
@@ -98816,7 +98816,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L124",
+      "source_location": "L139",
       "weight": 1.0,
       "_origin": "ast",
       "source": "rolemastercharactercreation_rules_combat_armorrules_rolemastercharactercreation_rules_armorrules_shield",
@@ -98827,7 +98827,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "RolemasterCharacterCreation/Rules/Combat/ArmorRules.cs",
-      "source_location": "L124",
+      "source_location": "L139",
       "weight": 1.0,
       "context": "return_type",
       "metadata": {
@@ -120163,7 +120163,7 @@
       "source_file": ".claude/CLAUDE.md",
       "source_location": null,
       "weight": 1.0,
-      "source": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_graphify_skill",
+      "source": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_graphify_skill",
       "target": "_claude_memory_project_memory"
     },
     {
@@ -125991,5 +125991,5 @@
       "source_file": ".verify/shot-resistance.png"
     }
   ],
-  "built_at_commit": "87224b2400d7bdd2c33396b97bdeba11a6f7391f"
+  "built_at_commit": "5863e11c01c95f40f5213c384b6a93c7c947b4a5"
 }
