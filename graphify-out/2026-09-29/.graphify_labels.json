@@ -383,19 +383,5 @@
   "381": "CharacterArmorEditor.razor",
   "382": "20260621174625_AddCampaignSettings.Designer.cs",
   "383": "20260919091550_AddCombatantInitiative.Designer.cs",
-  "384": "20260929115418_RenameShieldTypesToRmu.Designer.cs",
-  "385": "20260619201224_AddWorldLocationVillageLink.Designer.cs",
-  "386": "20260619204026_AddCampaignDungeons.Designer.cs",
-  "387": "20260620070535_AddDungeonLocationVisibility.Designer.cs",
-  "388": "20260620094619_AddCampaignBuildings.Designer.cs",
-  "389": "20260621174625_AddCampaignSettings.Designer.cs",
-  "390": "20260902104007_AddEncounters.Designer.cs",
-  "391": "20260925130215_AddStatGainRolls.Designer.cs",
-  "392": "MigrationBuilder",
-  "393": "ModelBuilder",
-  "394": "DateTime",
-  "395": "List",
-  "396": "int",
-  "397": "IReadOnlyDictionary",
-  "398": "IReadOnlyList"
+  "384": "20260929115418_RenameShieldTypesToRmu.Designer.cs"
 }
