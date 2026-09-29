@@ -165,9 +165,14 @@
         </td></tr>
         @{
           var _earlyArmorDef2 = ArmorRules.ByAT.GetValueOrDefault(_char.ArmorType, ArmorRules.All[0]);
+          // Every piece carries a maneuver penalty (7.2); a full suit's figure already
+          // includes its helm, vambraces and greaves.
           int _earlyRawManPen = _char.ArmorFullSuit
               ? _earlyArmorDef2.FullManPen
-              : _earlyArmorDef2.TorsoManPen + ArmorRules.Greave(_char.GreavesGrade).ManPen;
+              : _earlyArmorDef2.TorsoManPen
+                + ArmorRules.Helmet(_char.HelmetGrade).ManPen
+                + ArmorRules.Vambrace(_char.VambracesGrade).ManPen
+                + ArmorRules.Greave(_char.GreavesGrade).ManPen;
           var _earlyMiaSk    = _char.Skills.FirstOrDefault(s => s.SkillName == "Maneuvering in Armor");
           int _earlyMiaRanks = _earlyMiaSk?.TotalRanks ?? 0;
           int _earlyMiaBonus = SkillRules.RankBonus(_earlyMiaRanks)
@@ -441,9 +446,13 @@
   int _helmWeight   = _char.ArmorFullSuit ? 0 : _helmDef.Weight;
   int _vambWeight   = _char.ArmorFullSuit ? 0 : _vambDef.Weight;
   int _greaveWeight = _char.ArmorFullSuit ? 0 : _greaveDef.Weight;
+  int _helmManPen   = _char.ArmorFullSuit ? 0 : _helmDef.ManPen;
+  int _vambManPen   = _char.ArmorFullSuit ? 0 : _vambDef.ManPen;
   int _greaveManPen = _char.ArmorFullSuit ? 0 : _greaveDef.ManPen;
-  int _percPen      = _helmDef.ManPen;    // perception penalty — always from helmet grade
-  int _missilePen   = _vambDef.ManPen;   // ranged penalty — always from vambrace grade
+  // A full suit brings its own helm and vambraces, so their penalties come from the suit
+  // rather than from whatever piece grade happens to be selected alongside it.
+  int _percPen      = _char.ArmorFullSuit ? _armorDef.FullPercPen   : _helmDef.PercPen;
+  int _missilePen   = _char.ArmorFullSuit ? _armorDef.FullRangedPen : _vambDef.RangedPen;
 
   // Shield defence (Core Law 9.6). The Shield skill's bonus is taken from SkillLineFor so it
   // is the same number the skills table prints rather than a second hand-rolled copy — which
@@ -483,16 +492,27 @@
       + ((_miaSk?.IsProfessionalSkill ?? false) ? Math.Min(_miaRanks, 30) : 0)
       + ((_miaSk?.IsKnack ?? false) ? 5 : 0);
 
-  // Total movement manpen (raw, before MiA)
-  int _rawManPen  = _torsoManPen + _greaveManPen;
+  // Total maneuver penalty before MiA. Every piece contributes (7.2); for a full suit the
+  // piece penalties are zeroed above because the suit's own figure already includes them.
+  int _rawManPen  = _torsoManPen + _helmManPen + _vambManPen + _greaveManPen;
   // Net manpen after MiA (cannot be positive)
   int _netManPen  = Math.Min(0, _rawManPen + _miaBonus);
 
   int _totalWeight = _torsoWeight + _helmWeight + _vambWeight + _greaveWeight + _shield.Shield.Weight;
 
+  // Table 6-4's Strength column: the minimum for wearing the piece without penalty. A full
+  // suit carries one figure for the whole body, so the piece rows repeat it.
+  int _torsoMinSt  = _armorDef.AT <= 1 ? 0 : (_char.ArmorFullSuit ? _armorDef.FullMinStrength : _armorDef.TorsoMinStrength);
+  int _helmMinSt   = _char.ArmorFullSuit ? _torsoMinSt : _helmDef.MinStrength;
+  int _vambMinSt   = _char.ArmorFullSuit ? _torsoMinSt : _vambDef.MinStrength;
+  int _greaveMinSt = _char.ArmorFullSuit ? _torsoMinSt : _greaveDef.MinStrength;
+
   string ManPenFmt(int v) => v == 0 ? "—" : v.ToString();
   string WtFmt(int v)     => v == 0 ? "—" : $"{v} lb";
   string AtFmt(int v)     => v <= 1 ? "—" : v.ToString();
+  string StrFmt(int v)    => v == 0 ? "" : v.ToString();
+  // Flagged when the wearer is not strong enough for the piece.
+  string StrClass(int v)  => v > 0 && Temp("St") < v ? "neg" : "";
 }
 <table class="t100 mb1" style="border-collapse:collapse">
   <tr>
@@ -508,23 +528,27 @@
             <td class="p1 tc">@AtFmt(_armorDef.AT)</td>
             <td class="p1 tr">@ManPenFmt(_torsoManPen)</td>
             <td class="p1 tr">@WtFmt(_torsoWeight)</td>
-            <td class="p1"></td><td class="p1"></td><td class="p1"></td>
+            <td class="p1 tr @StrClass(_torsoMinSt)">@StrFmt(_torsoMinSt)</td>
+            <td class="p1"></td><td class="p1"></td>
           </tr>
           <tr>
             <td class="p1">Head</td>
             <td class="p1">@(_char.ArmorFullSuit && _armorDef.AT > 1 ? "Included" : (_helmDef.AT > 1 ? _helmDef.Grade + " Helm" : "—"))</td>
             <td class="p1 tc">@(_char.ArmorFullSuit ? AtFmt(_armorDef.AT) : AtFmt(_helmDef.AT))</td>
-            <td class="p1 tr muted sf">@(ManPenFmt(_percPen))@(_percPen != 0 ? " perc." : "")</td>
+            @* Maneuver in the column proper; the helm's own perception penalty annotated. *@
+            <td class="p1 tr">@ManPenFmt(_helmManPen)<span class="muted sf">@(_percPen != 0 ? $" / {_percPen} perc." : "")</span></td>
             <td class="p1 tr">@WtFmt(_helmWeight)</td>
-            <td class="p1"></td><td class="p1 gcell"></td><td class="p1"></td>
+            <td class="p1 tr @StrClass(_helmMinSt)">@StrFmt(_helmMinSt)</td>
+            <td class="p1 gcell"></td><td class="p1"></td>
           </tr>
           <tr>
             <td class="p1">Arms</td>
             <td class="p1">@(_char.ArmorFullSuit && _armorDef.AT > 1 ? "Included" : (_vambDef.AT > 1 ? _vambDef.Grade + " Vambraces" : "—"))</td>
             <td class="p1 tc">@(_char.ArmorFullSuit ? AtFmt(_armorDef.AT) : AtFmt(_vambDef.AT))</td>
-            <td class="p1 tr muted sf">@(ManPenFmt(_missilePen))@(_missilePen != 0 ? " ranged" : "")</td>
+            <td class="p1 tr">@ManPenFmt(_vambManPen)<span class="muted sf">@(_missilePen != 0 ? $" / {_missilePen} ranged" : "")</span></td>
             <td class="p1 tr">@WtFmt(_vambWeight)</td>
-            <td class="p1"></td><td class="p1"></td><td class="p1"></td>
+            <td class="p1 tr @StrClass(_vambMinSt)">@StrFmt(_vambMinSt)</td>
+            <td class="p1"></td><td class="p1"></td>
           </tr>
           <tr>
             <td class="p1">Legs</td>
@@ -532,7 +556,8 @@
             <td class="p1 tc">@(_char.ArmorFullSuit ? AtFmt(_armorDef.AT) : AtFmt(_greaveDef.AT))</td>
             <td class="p1 tr">@ManPenFmt(_greaveManPen)</td>
             <td class="p1 tr">@WtFmt(_greaveWeight)</td>
-            <td class="p1"></td><td class="p1 gcell"></td><td class="p1"></td>
+            <td class="p1 tr @StrClass(_greaveMinSt)">@StrFmt(_greaveMinSt)</td>
+            <td class="p1 gcell"></td><td class="p1"></td>
           </tr>
           <tr>
             <td class="p1">Shield</td>
@@ -541,9 +566,7 @@
             <td class="p1 tc">—</td>
             <td class="p1"></td>
             <td class="p1 tr">@WtFmt(_shield.Shield.Weight)</td>
-            <td class="p1 tr @(_shield.IsWorn && Temp("St") < _shield.Shield.MinStrength ? "neg" : "")">
-              @(_shield.IsWorn ? _shield.Shield.MinStrength.ToString() : "")
-            </td>
+            <td class="p1 tr @StrClass(_shield.Shield.MinStrength)">@StrFmt(_shield.Shield.MinStrength)</td>
             <td class="p1 tr fw @(_shield.PassiveTotal > 0 ? "pos" : "")" data-tip="@_shieldTip">@_shPassive</td>
             <td class="p1"></td>
           </tr>

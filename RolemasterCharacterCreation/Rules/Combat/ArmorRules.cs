@@ -4,63 +4,78 @@ namespace RolemasterCharacterCreation.Rules;
 public static class ArmorRules
 {
     // ── Torso armor ───────────────────────────────────────────────────────────
+    // Table 6-4's columns run: AT | Name | Cost | Prod days | Enc (%) | Weight (lbs) |
+    // Strength | Maneuver | Ranged | Perception. Cost and production time are not modelled.
+    // Ranged and Perception belong to the suit's vambraces and helm respectively (7.2), so
+    // they are carried on the full suit only; a piecemeal wearer gets them from the pieces.
     public record ArmorDef(
         int    AT,
         string Name,
         // Full suit (torso + head + arms + legs)
-        int    FullWeight,   // lb
-        int    FullManPen,   // negative
-        double FullEncPct,   // fraction of body weight
+        int    FullWeight,       // lb
+        int    FullManPen,       // negative
+        int    FullRangedPen,    // negative — the suit's vambraces
+        int    FullPercPen,      // negative — the suit's helm
+        double FullEncPct,       // fraction of body weight
+        int    FullMinStrength,
         // Torso piece only
         int    TorsoWeight,
         int    TorsoManPen,
-        double TorsoEncPct
+        double TorsoEncPct,
+        int    TorsoMinStrength
     );
 
+    //                          ── full suit ──────────────────────────  ── torso ─────────────
+    //                          wt   man  rng  per   enc    st           wt   man   enc    st
     public static readonly IReadOnlyList<ArmorDef> All = new ArmorDef[]
     {
-        new( 1, "No Armor",       0,   0,  0.00,   0,   0,  0.00),
-        new( 2, "Heavy Cloth",   10, -11,  0.06,   2,  -4,  0.02),
-        new( 3, "Soft Leather",  10, -13,  0.07,   2,  -6,  0.03),
-        new( 4, "Hide Scale",    15, -20,  0.11,   7,  -7,  0.04),
-        new( 5, "Laminar",       25, -22,  0.12,  10,  -9,  0.05),
-        new( 6, "Rigid Leather", 19, -26,  0.14,   4, -13,  0.07),
-        new( 7, "Metal Scale",   29, -35,  0.19,  14, -17,  0.09),
-        new( 8, "Mail",          58, -39,  0.21,  35, -20,  0.11),
-        new( 9, "Brigandine",    37, -43,  0.23,  14, -24,  0.13),
-        new(10, "Plate",         44, -46,  0.25,  21, -28,  0.15),
+        new( 1, "No Armor",       0,    0,   0,   0, 0.00,   0,           0,   0,  0.00,   0),
+        new( 2, "Heavy Cloth",   11,  -10,  -5,  -5, 0.06,  30,           4,  -5,  0.02,  30),
+        new( 3, "Soft Leather",  13,  -15,  -5,  -5, 0.07,  30,           6, -10,  0.03,  30),
+        new( 4, "Hide Scale",    20,  -35, -20, -10, 0.11,  35,           7, -10,  0.04,  35),
+        new( 5, "Laminar",       22,  -45, -20, -10, 0.12,  40,           9, -20,  0.05,  40),
+        new( 6, "Rigid Leather", 26,  -50, -20, -10, 0.14,  45,          13, -25,  0.07,  45),
+        new( 7, "Metal Scale",   35,  -70, -30, -15, 0.19,  50,          17, -25,  0.09,  50),
+        new( 8, "Mail",          39,  -80, -30, -15, 0.21,  55,          20, -35,  0.11,  55),
+        new( 9, "Brigandine",    43,  -90, -30, -15, 0.23,  70,          24, -45,  0.13,  70),
+        new(10, "Plate",         46, -100, -30, -15, 0.25,  75,          28, -55,  0.15,  75),
     };
 
     public static readonly IReadOnlyDictionary<int, ArmorDef> ByAT =
         All.ToDictionary(a => a.AT);
 
     // ── Piecemeal pieces ──────────────────────────────────────────────────────
-    // ManPen for helmet = perception penalty; for vambraces = ranged penalty;
-    // for greaves = movement penalty added on top of torso-only piece.
-    public record PieceDef(string Grade, int AT, int Weight, int ManPen, double EncPct);
+    // Section 7.2: every piece carries a maneuver penalty; vambraces additionally penalise
+    // ranged attacks, and helms additionally penalise perception. Greaves have neither, so
+    // those fields stay 0 — which is also why each piece gets its own named column here.
+    // Cross-check: for every AT, torso + helm + vambraces + greaves maneuver penalties sum
+    // to exactly the full suit's (e.g. Plate: -55 -10 -15 -20 = -100).
+    public record PieceDef(string Grade, int AT, int Weight, int ManPen,
+                           int RangedPen, int PercPen, double EncPct, int MinStrength);
 
+    //                     at  wt  man  rng  per   enc    st
     public static readonly PieceDef[] Helmets =
     [
-        new("None",   1,  0,  0, 0.00),
-        new("Light",  3,  4, -2, 0.01),
-        new("Medium", 5,  5, -4, 0.02),
-        new("Heavy",  9,  7, -6, 0.03),
+        new("None",   1,  0,   0,   0,   0, 0.00,  0),
+        new("Light",  3,  2,   0,   0,  -5, 0.01, 35),
+        new("Medium", 5,  4,  -5,   0, -10, 0.02, 55),
+        new("Heavy",  9,  6, -10,   0, -15, 0.03, 75),
     ];
 
     public static readonly PieceDef[] Vambraces =
     [
-        new("None",   1,  0,  0, 0.00),
-        new("Light",  3,  2, -2, 0.01),
-        new("Medium", 5,  5, -4, 0.02),
-        new("Heavy",  9,  8, -6, 0.03),
+        new("None",   1,  0,   0,   0,   0, 0.00,  0),
+        new("Light",  3,  2,   0,  -5,   0, 0.01, 35),
+        new("Medium", 5,  4, -10, -20,   0, 0.02, 55),
+        new("Heavy",  9,  6, -15, -30,   0, 0.03, 75),
     ];
 
     public static readonly PieceDef[] Greaves =
     [
-        new("None",   1,  0,  0, 0.00),
-        new("Light",  3,  2, -4, 0.02),
-        new("Medium", 5,  5, -6, 0.03),
-        new("Heavy",  9,  8, -7, 0.04),
+        new("None",   1,  0,   0,   0,   0, 0.00,  0),
+        new("Light",  3,  4,  -5,   0,   0, 0.02, 35),
+        new("Medium", 5,  6, -10,   0,   0, 0.03, 55),
+        new("Heavy",  9,  7, -20,   0,   0, 0.04, 75),
     ];
 
     // ── Shields ───────────────────────────────────────────────────────────────

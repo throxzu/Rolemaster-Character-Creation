@@ -1315,12 +1315,13 @@
 
         int totalManPen = _char.ArmorFullSuit
             ? armor.FullManPen
-            : armor.TorsoManPen + greave.ManPen;
+            : armor.TorsoManPen + helm.ManPen + vamb.ManPen + greave.ManPen;
         int armorWeight = _char.ArmorFullSuit
             ? armor.FullWeight + shield.Weight
             : armor.TorsoWeight + helm.Weight + vamb.Weight + greave.Weight + shield.Weight;
-        int percPen    = helm.ManPen;
-        int missilePen = vamb.ManPen;
+        // A full suit brings its own helm and vambraces, so those penalties come from it.
+        int percPen    = _char.ArmorFullSuit ? armor.FullPercPen   : helm.PercPen;
+        int missilePen = _char.ArmorFullSuit ? armor.FullRangedPen : vamb.RangedPen;
         int itemCount  = _equipQty.Values.Sum();
 
         <h4>Step 5: Equipment</h4>
@@ -1380,7 +1381,7 @@
                                 @foreach (var p in ArmorRules.Helmets)
                                 {
                                     <option value="@p.Grade" selected="@((_char!.HelmetGrade ?? "None") == p.Grade)">
-                                        @p.Grade@(p.AT > 1 ? $" (AT {p.AT})" : "") @(p.ManPen != 0 ? $"  {p.ManPen} perc." : "")
+                                        @p.Grade@(p.AT > 1 ? $" (AT {p.AT})" : "")@(p.ManPen != 0 ? $"  {p.ManPen} man." : "")@(p.PercPen != 0 ? $"  {p.PercPen} perc." : "")
                                     </option>
                                 }
                             </select>
@@ -1391,7 +1392,7 @@
                                 @foreach (var p in ArmorRules.Vambraces)
                                 {
                                     <option value="@p.Grade" selected="@((_char!.VambracesGrade ?? "None") == p.Grade)">
-                                        @p.Grade@(p.AT > 1 ? $" (AT {p.AT})" : "") @(p.ManPen != 0 ? $"  {p.ManPen} ranged" : "")
+                                        @p.Grade@(p.AT > 1 ? $" (AT {p.AT})" : "")@(p.ManPen != 0 ? $"  {p.ManPen} man." : "")@(p.RangedPen != 0 ? $"  {p.RangedPen} ranged" : "")
                                     </option>
                                 }
                             </select>
@@ -1402,7 +1403,7 @@
                                 @foreach (var p in ArmorRules.Greaves)
                                 {
                                     <option value="@p.Grade" selected="@((_char!.GreavesGrade ?? "None") == p.Grade)">
-                                        @p.Grade@(p.AT > 1 ? $" (AT {p.AT})" : "") @(p.ManPen != 0 ? $"  {p.ManPen}" : "")
+                                        @p.Grade@(p.AT > 1 ? $" (AT {p.AT})" : "")@(p.ManPen != 0 ? $"  {p.ManPen} man." : "")
                                     </option>
                                 }
                             </select>
