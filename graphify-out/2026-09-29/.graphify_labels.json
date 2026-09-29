@@ -243,7 +243,6 @@
   "241": "Migrations · 20260616184748_AddLevelUpBa",
   "242": "Migrations · 20260617173036_AddCreatureD",
   "243": "Migrations · 20260618181526_AddFumbleTab",
-  "244": "Migrations · 20260618182736_AddSpellFail",
   "245": "Migrations · 20260619152926_AddCampaignT",
   "246": "Migrations · 20260619175739_AddTownLocat",
   "247": "Migrations · 20260619193821_AddUsefulLin",
@@ -305,7 +304,6 @@
   "303": "Enc.",
   "304": "Enc.",
   "305": "Enc.",
-  "306": "AddStatSpecial",
   "307": "AddEquipmentItems",
   "308": "AddCampaignVillages",
   "309": "AddEncounters",
@@ -320,7 +318,6 @@
   "318": "20260530183904_AddCharacterTalents.Designer.cs",
   "319": "20260618191640_AddSpellLists.Designer.cs",
   "320": "20260619160018_AddTownLocationNotesAndCategoryNames.Designer.cs",
-  "321": "20260619183559_AddWorldMaps.Designer.cs",
   "322": "AddAttackTables",
   "323": "20260619204026_AddCampaignDungeons.Designer.cs",
   "324": "20260620085233_AddCampaignCaves.Designer.cs",
@@ -385,5 +382,7 @@
   "383": "20260919091550_AddCombatantInitiative.Designer.cs",
   "384": "20260929115418_RenameShieldTypesToRmu.Designer.cs",
   "385": "20260619201224_AddWorldLocationVillageLink.Designer.cs",
-  "386": "20260619204026_AddCampaignDungeons.Designer.cs"
+  "386": "20260619204026_AddCampaignDungeons.Designer.cs",
+  "387": "SmsText",
+  "389": "TempPassword"
 }

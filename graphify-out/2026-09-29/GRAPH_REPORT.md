@@ -1,16 +1,16 @@
 # Graph Report - Character_Creation  (2026-09-29)
 
 ## Corpus Check
-- 402 files · ~1,742,479 words
+- 402 files · ~1,742,846 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 4587 nodes · 6001 edges · 387 communities (297 shown, 90 thin omitted)
+- 4589 nodes · 6003 edges · 386 communities (294 shown, 92 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 178 edges (avg confidence: 0.76)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `5863e11c`
+- Built from commit: `14903fc4`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -258,7 +258,6 @@
 - Migrations · 20260616184748_AddLevelUpBa
 - Migrations · 20260617173036_AddCreatureD
 - Migrations · 20260618181526_AddFumbleTab
-- Migrations · 20260618182736_AddSpellFail
 - Migrations · 20260619152926_AddCampaignT
 - Migrations · 20260619175739_AddTownLocat
 - Migrations · 20260619193821_AddUsefulLin
@@ -317,7 +316,6 @@
 - Enc.
 - Enc.
 - Enc.
-- AddStatSpecial
 - AddEquipmentItems
 - AddCampaignVillages
 - AddEncounters
@@ -332,7 +330,6 @@
 - 20260530183904_AddCharacterTalents.Designer.cs
 - 20260618191640_AddSpellLists.Designer.cs
 - 20260619160018_AddTownLocationNotesAndCategoryNames.Designer.cs
-- 20260619183559_AddWorldMaps.Designer.cs
 - AddAttackTables
 - 20260619204026_AddCampaignDungeons.Designer.cs
 - 20260620085233_AddCampaignCaves.Designer.cs
@@ -397,6 +394,8 @@
 - 20260929115418_RenameShieldTypesToRmu.Designer.cs
 - 20260619201224_AddWorldLocationVillageLink.Designer.cs
 - 20260619204026_AddCampaignDungeons.Designer.cs
+- SmsText
+- TempPassword
 
 ## God Nodes (most connected - your core abstractions)
 1. `RolemasterCharacterCreation.Data.Migrations` - 98 edges
@@ -413,14 +412,14 @@
 ## Surprising Connections (you probably didn't know these)
 - `EF Core migration application (root applog)` --semantically_similar_to--> `EF Core Migrations subsystem (runtime log)`  [INFERRED] [semantically similar]
   applog.txt → RolemasterCharacterCreation/applog.txt
+- `Interaction States Coverage` --semantically_similar_to--> `Eight Interactive States`  [INFERRED] [semantically similar]
+  .claude/skills/impeccable/reference/polish.md → .claude/skills/impeccable/reference/interaction-design.md
 - `Font Selection & Replacement` --semantically_similar_to--> `Font Selection & Pairing`  [INFERRED] [semantically similar]
   .claude/skills/impeccable/reference/typeset.md → .claude/skills/impeccable/reference/typography.md
 - `Dual Independent Assessment` --semantically_similar_to--> `Technical Quality Audit`  [INFERRED] [semantically similar]
   .claude/skills/impeccable/reference/critique.md → .claude/skills/impeccable/reference/audit.md
 - `Bold Means Distinctive` --semantically_similar_to--> `Earned Delight Moments`  [INFERRED] [semantically similar]
   .claude/skills/impeccable/reference/bolder.md → .claude/skills/impeccable/reference/delight.md
-- `Interaction States Coverage` --semantically_similar_to--> `Eight Interactive States`  [INFERRED] [semantically similar]
-  .claude/skills/impeccable/reference/polish.md → .claude/skills/impeccable/reference/interaction-design.md
 
 ## Import Cycles
 - None detected.
@@ -450,7 +449,7 @@
 - **Reference Table Browse Flow** — _verify_shot_default_table_search, _verify_shot_default_table_sidebar, _verify_shot_default_stat_bonuses_table [INFERRED 0.75]
 - **Resistance Roll Reference Lookup Flow** — _verify_shot_resistance_table_sidebar, _verify_shot_resistance_rr_formula, _verify_shot_resistance_type_stat_table [INFERRED 0.75]
 
-## Communities (387 total, 90 thin omitted)
+## Communities (386 total, 92 thin omitted)
 
 ### Community 0 - "World Map & POI Service"
 Cohesion: 0.05
@@ -542,7 +541,7 @@ Nodes (30): cleanup(), closeTunePopover(), connectSSE(), desc(), handleAccept(),
 
 ### Community 22 - "Component Pools & State"
 Cohesion: 0.08
-Nodes (10): bool, PoolEntry, HashSet, IJSRuntime, int, IReadOnlyList, List, Random (+2 more)
+Nodes (9): bool, PoolEntry, HashSet, IJSRuntime, int, IReadOnlyList, List, string (+1 more)
 
 ### Community 23 - "Chat Service & Page"
 Cohesion: 0.07
@@ -565,8 +564,8 @@ Cohesion: 0.07
 Nodes (26): ILogger<Players>, Players, BuildInviteMessage, CreatePlayerAsync, DeletePlayerAsync, InviteInfo, LoadPlayersAsync, OnInitializedAsync (+18 more)
 
 ### Community 28 - "SMS Sender"
-Cohesion: 0.10
-Nodes (17): CancellationToken, Task, ISmsSender, SmsResult, GeneratedRegex, HashSet, Regex, SmsText (+9 more)
+Cohesion: 0.12
+Nodes (13): CancellationToken, Task, ISmsSender, SmsResult, string, TextbeltOptions, CancellationToken, HttpClient (+5 more)
 
 ### Community 29 - "GM Characters Page"
 Cohesion: 0.08
@@ -609,8 +608,8 @@ Cohesion: 0.16
 Nodes (8): char, string, CreatureEntry, HashSet, IReadOnlyList, Regex, string, CreatureService
 
 ### Community 39 - "Migrations · 20260530165356_AddStatSpeci"
-Cohesion: 0.25
-Nodes (8): Animate complex properties, Interact with the device, Make data feel alive, Make transitions feel cinematic, Push performance boundaries, Render beyond CSS, The Toolkit, Tie animation to scroll position
+Cohesion: 0.20
+Nodes (10): bufferToBase64(), captureAndEmit(), captureElementToBlob(), collectFontCssText(), compileShader(), inlineFontUrls(), isTransparentColor(), loadModernScreenshot() (+2 more)
 
 ### Community 40 - "extract_spell_lists.py"
 Cohesion: 0.14
@@ -665,7 +664,7 @@ Cohesion: 0.21
 Nodes (17): appendOriginToDirective(), buildTagBlock(), commentClose(), commentOpen(), CONFIG_PATH, __dirname, findCspMetaTags(), getAttr() (+9 more)
 
 ### Community 53 - "CharacterStat"
-Cohesion: 0.13
+Cohesion: 0.15
 Nodes (9): Die, Potential, CharacterStat, StatName, int, Random, StatGainRules, StatGainEntry (+1 more)
 
 ### Community 54 - "Properties · launchSettings.json"
@@ -721,8 +720,8 @@ Cohesion: 0.13
 Nodes (14): CanAccessWizard, CreateAsync, OnInitializedAsync, AppDbContext, AuthenticationStateProvider, Character, NavigationManager, PageTitle (+6 more)
 
 ### Community 68 - "BuildingCategory"
-Cohesion: 0.08
-Nodes (23): append-arrays, append-string, Cleanup, Consent prompt template, CSP detection (first-time only), Drift-heal warning, Exit, First-time setup (config missing or invalid) (+15 more)
+Cohesion: 0.05
+Nodes (37): 1. Read the screenshot (if present), 2. Wrap the element, 3. Load the action's reference, 4. Plan three variants: identity first, then mode, then axes, 5. Apply the freeform prompt (if present), 6. Write all variants in a single edit, 7. Parameters (composition-sized, 0–4 per variant), 8. Signal done (+29 more)
 
 ### Community 69 - "CaveRender"
 Cohesion: 0.08
@@ -742,7 +741,7 @@ Nodes (13): RolemasterCharacterCreation.Components, AttackRowDto, AttackTableDto
 
 ### Community 73 - "SkillRules"
 Cohesion: 0.19
-Nodes (5): IReadOnlyDictionary, IReadOnlyList, SkillCategory, SkillDef, SkillRules
+Nodes (6): IReadOnlyDictionary, IReadOnlyList, string, SkillCategory, SkillDef, SkillRules
 
 ### Community 74 - "Gm · Creatures"
 Cohesion: 0.14
@@ -769,16 +768,16 @@ Cohesion: 0.15
 Nodes (12): OnInitializedAsync, OnParametersSetAsync, AppDbContext, AuthenticationStateProvider, PageTitle, RolemasterCharacterCreation.Data, RolemasterCharacterCreation.Identity, RolemasterCharacterCreation.Rules (+4 more)
 
 ### Community 80 - "Eight Interactive States"
-Cohesion: 0.04
-Nodes (44): Undo Over Confirmation, Empty States as Onboarding, Progressive Disclosure, Button Label Design, Error Message Formula, Terminology Consistency, Assess Onboarding Needs, Context Over Ceremony (+36 more)
+Cohesion: 0.05
+Nodes (41): Empty States as Onboarding, Progressive Disclosure, Error Message Formula, Assess Onboarding Needs, Context Over Ceremony, Contextual Help, Design Onboarding Experiences, Documentation & Help (+33 more)
 
 ### Community 81 - "cleanup-deprecated"
 Cohesion: 0.30
 Nodes (11): buildTargetNames(), cleanSkillsLock(), cleanup(), DEPRECATED_NAMES, findProjectRoot(), findSkillsDirs(), HARNESS_DIRS, isImpeccableSkill() (+3 more)
 
 ### Community 82 - "Identity · InviteClaims"
-Cohesion: 0.18
-Nodes (7): RolemasterCharacterCreation.Identity, string, InviteClaims, string, Roles, string, TempPassword
+Cohesion: 0.20
+Nodes (8): RolemasterCharacterCreation.Identity, IReadOnlyList, CountryDialCode, CountryDialCodes, string, InviteClaims, string, Roles
 
 ### Community 83 - "Campaign · BuildingCategories"
 Cohesion: 0.17
@@ -849,12 +848,12 @@ Cohesion: 0.18
 Nodes (7): List, MapCategory, MapCategoryName, DateTime, List, Town, TownLocation
 
 ### Community 100 - "Village"
-Cohesion: 0.40
-Nodes (3): List, VillageCategory, VillageCategoryName
+Cohesion: 0.18
+Nodes (7): DateTime, List, Village, List, VillageCategory, VillageCategoryName, VillageLocation
 
 ### Community 101 - "WorldCategory"
-Cohesion: 0.33
-Nodes (4): DateTime, List, WorldMap, WorldReveal
+Cohesion: 0.18
+Nodes (7): List, WorldCategory, WorldLocation, DateTime, List, WorldMap, WorldReveal
 
 ### Community 102 - "Character · RaceRules"
 Cohesion: 0.27
@@ -929,12 +928,12 @@ Cohesion: 0.15
 Nodes (14): Audit Reference, Technical Quality Audit, Bolder Reference, Bold Means Distinctive, Hierarchy Amplification, Brand Register Reference, Font Selection Procedure & Reflex-Reject List, Brand Imagery Requirement (+6 more)
 
 ### Community 120 - "Duration Rule"
-Cohesion: 0.12
-Nodes (19): Duration Rule (100/300/500), Easing Curves, Core Web Vitals, Responsive Images, Duration: The 100/300/500 Rule, Easing: Pick the Right Curve, Motion Design, Perceived Performance (+11 more)
+Cohesion: 0.11
+Nodes (20): Duration Rule (100/300/500), Easing Curves, Core Web Vitals, Responsive Images, Design Brief, Duration: The 100/300/500 Rule, Easing: Pick the Right Curve, Motion Design (+12 more)
 
 ### Community 121 - "Accessibility-Dependent User"
-Cohesion: 0.13
-Nodes (15): Progressive Enhancement, Accessibility-Dependent User (Sam), Confused First-Timer (Jordan), Distracted Mobile User (Casey), Impatient Power User (Alex), Deliberate Stress Tester (Riley), Input Method Detection, 1. Impatient Power User: "Alex" (+7 more)
+Cohesion: 0.12
+Nodes (17): Extraordinary Interfaces, Progressive Enhancement, Accessibility-Dependent User (Sam), Confused First-Timer (Jordan), Distracted Mobile User (Casey), Impatient Power User (Alex), Deliberate Stress Tester (Riley), Input Method Detection (+9 more)
 
 ### Community 122 - "CreatureTables"
 Cohesion: 0.22
@@ -957,16 +956,16 @@ Cohesion: 0.22
 Nodes (8): OnInitializedAsync, AppDbContext, FumbleTable, PageTitle, RolemasterCharacterCreation.Data, RollLabel, Select, route:/fumble-tables
 
 ### Community 127 - "AttackTable"
-Cohesion: 0.08
-Nodes (24): Assess Current Layout, Break Card Grid Monotony, Choose the Right Layout Tool, Create Visual Rhythm, Establish a Spacing System, Improve Layout Systematically, Live-mode signature params, Manage Depth & Elevation (+16 more)
+Cohesion: 0.14
+Nodes (13): Assess Current Layout, Break Card Grid Monotony, Choose the Right Layout Tool, Create Visual Rhythm, Establish a Spacing System, Improve Layout Systematically, Live-mode signature params, Manage Depth & Elevation (+5 more)
 
 ### Community 128 - "extract_descriptions.py"
 Cohesion: 0.36
 Nodes (7): build_stream(), clean(), is_noise(), looks_like_name(), main(), Extract correctly-attributed creature descriptions from the Creature Law PDF.  S, reconstruct()
 
 ### Community 129 - "Extraordinary Interfaces"
-Cohesion: 0.14
-Nodes (13): Extraordinary Interfaces, Assess What "Extraordinary" Means Here, For data-heavy interfaces, For functional UI, For performance-critical UI, For visual/marketing surfaces, Implement with Discipline, Iterate with Browser Automation (+5 more)
+Cohesion: 0.10
+Nodes (19): Animate complex properties, Assess What "Extraordinary" Means Here, For data-heavy interfaces, For functional UI, For performance-critical UI, For visual/marketing surfaces, Implement with Discipline, Interact with the device (+11 more)
 
 ### Community 130 - "live-completion"
 Cohesion: 0.50
@@ -1021,12 +1020,12 @@ Cohesion: 0.12
 Nodes (17): Adapt Reference, Responsive Breakpoints & Techniques, Adaptation as Rethinking Not Scaling, Touch Adaptation (44px Targets), Animate Reference, Ease-Out Easing Curves, Purposeful Motion, prefers-reduced-motion (+9 more)
 
 ### Community 143 - "Spacing System"
-Cohesion: 0.15
-Nodes (14): Spacing System, Flexbox vs Grid Tool Choice, Visual Hierarchy & Squint Test, Visual Rhythm, Identity Lock, Live Variant Mode, Variant Parameters (Knobs), Content-Driven Breakpoints (+6 more)
+Cohesion: 0.20
+Nodes (11): Spacing System, Flexbox vs Grid Tool Choice, Visual Hierarchy & Squint Test, Visual Rhythm, Identity Lock, Live Variant Mode, Variant Parameters (Knobs), 4pt Spacing System (+3 more)
 
 ### Community 144 - "Design System Alignment"
-Cohesion: 0.20
-Nodes (12): Eight Interactive States, Focus Rings (focus-visible), Design System Alignment, Interaction States Coverage, Final Polish Pass, Product Register, Product Slop Test, Reduce Visual Intensity (+4 more)
+Cohesion: 0.13
+Nodes (14): DESIGN.md (Visual Context), Accessibility & Inclusion, Brand & Personality, Interview mode, not confirmation mode, Minimum viable interview, Register (ask first; it shapes everything below), Step 1: Load current state, Step 2: Explore the codebase (+6 more)
 
 ### Community 145 - ".verify · RR Failure Severity Tiers"
 Cohesion: 0.38
@@ -1073,8 +1072,8 @@ Cohesion: 0.48
 Nodes (4): cellAt(), onDown(), onMove(), paint()
 
 ### Community 156 - "Animate Reference"
-Cohesion: 0.11
-Nodes (12): DateTime, List, BuildingMap, BuildingNote, BuildingReveal, DateTime, List, Village (+4 more)
+Cohesion: 0.13
+Nodes (9): List, BuildingCategory, BuildingCategoryName, BuildingLocation, DateTime, List, BuildingMap, BuildingNote (+1 more)
 
 ### Community 157 - "Cognitive Load Reference"
 Cohesion: 0.22
@@ -1153,12 +1152,12 @@ Cohesion: 0.11
 Nodes (18): Appropriate to Context, Assess Delight Opportunities, Celebration Moments, Compound Over Time, Delight Amplifies, Never Blocks, Delight Principles, Delight Techniques, Easter Eggs & Hidden Delights (+10 more)
 
 ### Community 178 - "Migrations · 20260530155746_AddHeightWei"
-Cohesion: 0.14
-Nodes (14): 1. Read the screenshot (if present), 2. Wrap the element, 3. Load the action's reference, 4. Plan three variants: identity first, then mode, then axes, 5. Apply the freeform prompt (if present), 6. Write all variants in a single edit, 7. Parameters (composition-sized, 0–4 per variant), 8. Signal done (+6 more)
+Cohesion: 0.13
+Nodes (14): Content-Driven Breakpoints, Mobile-First Authoring, Cards Are Not Required, Container Queries, Depth & Elevation, Grid Systems, Hierarchy Through Multiple Dimensions, Name Tokens Semantically (+6 more)
 
 ### Community 179 - "Migrations · 20260530161351_AddGender"
-Cohesion: 0.11
-Nodes (13): RolemasterCharacterCreation.Models, List, AttackTable, AttackTableRow, AttackTableWeapon, CampaignSettings, CharacterFavoriteAttack, List (+5 more)
+Cohesion: 0.10
+Nodes (15): RolemasterCharacterCreation.Models, List, AttackTable, AttackTableRow, AttackTableWeapon, CampaignSettings, CharacterFavoriteAttack, List (+7 more)
 
 ### Community 180 - "Migrations · 20260530164854_AddAppearanc"
 Cohesion: 0.40
@@ -1169,16 +1168,12 @@ Cohesion: 0.09
 Nodes (11): Migration, MigrationBuilder, AddStatSpecial, MigrationBuilder, AddCriticalTables, MigrationBuilder, AddWorldMaps, MigrationBuilder (+3 more)
 
 ### Community 185 - "Migrations · 20260617000001_CapRaceBonus"
-Cohesion: 0.09
-Nodes (15): DbSet, IdentityDbContext, ModelBuilder, AppDbContext, List, BuildingCategory, BuildingCategoryName, BuildingLocation (+7 more)
+Cohesion: 0.25
+Nodes (9): Design System Alignment, Interaction States Coverage, Final Polish Pass, Product Register, Product Slop Test, Reduce Visual Intensity, Discovery Interview, PRODUCT.md (Strategic Context) (+1 more)
 
 ### Community 187 - "Migrations · 20260618150618_AddAttackTab"
-Cohesion: 0.13
-Nodes (9): List, DungeonCategory, DungeonCategoryName, DungeonLocation, DateTime, List, DungeonMap, DungeonNote (+1 more)
-
-### Community 188 - "Migrations · 20260618161205_AddCriticalT"
-Cohesion: 0.20
-Nodes (10): bufferToBase64(), captureAndEmit(), captureElementToBlob(), collectFontCssText(), compileShader(), inlineFontUrls(), isTransparentColor(), loadModernScreenshot() (+2 more)
+Cohesion: 0.07
+Nodes (21): DbSet, IdentityDbContext, ModelBuilder, AppDbContext, DateTimeOffset, ChatRead, CreatureDescription, List (+13 more)
 
 ### Community 192 - "Migrations · 20260619160018_AddTownLocat"
 Cohesion: 0.11
@@ -1226,15 +1221,15 @@ Nodes (4): RolemasterCharacterCreation.Rules, Die, string, SpellAttackTable
 
 ### Community 222 - "WeaponRules"
 Cohesion: 0.40
-Nodes (3): List, SpellFailureTable, SpellFailureTableRow
+Nodes (3): List, CriticalTable, CriticalTableRow
 
 ### Community 223 - "fix_misattrib.py"
 Cohesion: 0.70
 Nodes (4): clean(), extract(), main(), Fix the remaining mis-attributed / garbage descriptions found by the content aud
 
 ### Community 224 - "Adapt Reference"
-Cohesion: 0.11
-Nodes (18): Anti-Patterns, CSS Anchor Positioning, Destructive Actions: Undo > Confirm, Dropdown & Overlay Positioning, Fixed Positioning Fallback, Focus Rings: Do Them Right, Form Design: The Non-Obvious, Gesture Discoverability (+10 more)
+Cohesion: 0.09
+Nodes (23): Eight Interactive States, Focus Rings (focus-visible), Undo Over Confirmation, Button Label Design, Terminology Consistency, Anti-Patterns, CSS Anchor Positioning, Destructive Actions: Undo > Confirm (+15 more)
 
 ### Community 225 - "RulesIndexService"
 Cohesion: 0.12
@@ -1283,10 +1278,6 @@ Nodes (16): Combat, Core Mechanics, Derived Values (BMR, DB, Hits, PP, RRs), Die
 ### Community 243 - "Migrations · 20260618181526_AddFumbleTab"
 Cohesion: 0.13
 Nodes (9): List, CaveCategory, CaveCategoryName, CaveLocation, DateTime, List, CaveMap, CaveNote (+1 more)
-
-### Community 244 - "Migrations · 20260618182736_AddSpellFail"
-Cohesion: 0.13
-Nodes (14): DESIGN.md (Visual Context), Accessibility & Inclusion, Brand & Personality, Interview mode, not confirmation mode, Minimum viable interview, Register (ask first; it shapes everything below), Step 1: Load current state, Step 2: Explore the codebase (+6 more)
 
 ### Community 245 - "Migrations · 20260619152926_AddCampaignT"
 Cohesion: 0.13
@@ -1452,10 +1443,6 @@ Nodes (5): Combat Statistics, Enc., Great Falcon, Great Wasp, Movement Stats
 Cohesion: 0.40
 Nodes (5): Combat Statistics, Combat Statistics, Enc., Movement Stats, Movement Stats
 
-### Community 306 - "AddStatSpecial"
-Cohesion: 0.60
-Nodes (3): IReadOnlyList, CountryDialCode, CountryDialCodes
-
 ### Community 310 - "graphify reference: add a URL and watch a folder"
 Cohesion: 0.50
 Nodes (3): For /graphify add, For --watch, graphify reference: add a URL and watch a folder
@@ -1487,10 +1474,6 @@ Nodes (4): Combat Statistics, Enc., Movement Stats, Red Jaw
 ### Community 317 - "Rolemaster_Spell_Law_(RMU).md"
 Cohesion: 0.50
 Nodes (3): A MAGIC SYSTEMA MAGIC SYSTEM, of Closed Lists, of Open Lists
-
-### Community 321 - "20260619183559_AddWorldMaps.Designer.cs"
-Cohesion: 0.40
-Nodes (3): List, CriticalTable, CriticalTableRow
 
 ### Community 324 - "20260620085233_AddCampaignCaves.Designer.cs"
 Cohesion: 0.50
@@ -1620,10 +1603,14 @@ Nodes (4): ArmorDef, PieceDef, ShieldDefense, ShieldEntry
 Cohesion: 0.50
 Nodes (3): VoyageDatum, VoyageRequest, VoyageResponse
 
+### Community 387 - "SmsText"
+Cohesion: 0.44
+Nodes (4): GeneratedRegex, HashSet, Regex, SmsText
+
 ## Knowledge Gaps
 - **2222 isolated node(s):** `DEPRECATED_NAMES`, `HARNESS_DIRS`, `SKILL_FINGERPRINTS`, `CANONICAL_SECTIONS`, `NUXT_ROUTE_RULES_SIGNALS` (+2217 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **90 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **92 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
