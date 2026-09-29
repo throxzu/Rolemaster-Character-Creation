@@ -70,14 +70,17 @@
             <option value="">None</option>
             @foreach (var s in ArmorRules.Shields.Skip(1))
             {
-                <option value="@s.Type">@s.Type</option>
+                <option value="@s.Type">@s.Type (+@s.Db DB, @s.Weight lb, min St @s.MinStrength)</option>
             }
         </select>
     </div>
 </div>
 <p class="text-muted small mb-0 mt-2">
-    A shield's DB comes from your <strong>Shield</strong> skill, not the shield itself — a bigger
-    shield changes its weight and AT, not the bonus.
+    A shield gives a base DB by type (Target +15 up to Wall +30) plus <strong>+1 per rank</strong>
+    of the <strong>Shield</strong> skill for passive blocking, the two together capped at +50.
+    Spending actions to block partially or fully adds half or all of your Shield skill
+    <em>bonus</em> instead, and is not capped. A bigger shield also blocks more attacks per
+    round, but each one after the first needs a Shield maneuver roll.
 </p>
 
 @code {

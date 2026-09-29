@@ -432,7 +432,6 @@
   var _helmDef   = ArmorRules.Helmet(_char.HelmetGrade);
   var _vambDef   = ArmorRules.Vambrace(_char.VambracesGrade);
   var _greaveDef = ArmorRules.Greave(_char.GreavesGrade);
-  var _shieldDef = ArmorRules.Shield(_char.ShieldType);
 
   // Torso row values
   int _torsoManPen = _char.ArmorFullSuit ? _armorDef.FullManPen  : _armorDef.TorsoManPen;
@@ -446,18 +445,35 @@
   int _percPen      = _helmDef.ManPen;    // perception penalty — always from helmet grade
   int _missilePen   = _vambDef.ManPen;   // ranged penalty — always from vambrace grade
 
-  // Shield DB from Shield skill bonus
-  var _shieldSk    = _char.Skills.FirstOrDefault(s => s.SkillName == "Shield");
-  int _shieldSkRanks = _shieldSk?.TotalRanks ?? 0;
-  // Combat Training stats: Ag+St, skill stat: St
-  int _shAgBonus = SkillRules.StatBonus(Temp("Ag")) + (sheetRace?.GetStatMod(StatName.Ag) ?? 0);
-  int _shStBonus = SkillRules.StatBonus(Temp("St")) + (sheetRace?.GetStatMod(StatName.St) ?? 0);
-  int _shieldDb  = _char.ShieldType is not null and not "None"
-      ? _shAgBonus + _shStBonus + _shStBonus
-        + SkillRules.RankBonus(_shieldSkRanks)
-        + ((_shieldSk?.IsProfessionalSkill ?? false) ? Math.Min(_shieldSkRanks, 30) : 0)
-        + ((_shieldSk?.IsKnack ?? false) ? 5 : 0)
-      : 0;
+  // Shield defence (Core Law 9.6). The Shield skill's bonus is taken from SkillLineFor so it
+  // is the same number the skills table prints rather than a second hand-rolled copy — which
+  // also means 0 ranks scores 0 instead of RankBonus(0)'s -25, as the old inline sum applied
+  // unclamped and gave an untrained shield-bearer a negative DB.
+  var _shieldSk   = _char.Skills.FirstOrDefault(s => s.SkillName == "Shield" && s.Specialization == null);
+  var _shieldLine = ShieldSkillLine(_shieldSk);
+  var _shield     = ArmorRules.ShieldDb(_char.ShieldType, _shieldSk?.TotalRanks ?? 0,
+                                        _shieldLine?.TotalBonus ?? 0);
+
+  // Display forms. Locals rather than @code helpers because _shield is itself a local.
+  string _shPassive  = _shield.IsWorn ? Fmt(_shield.PassiveTotal) : "—";
+  string _shPartial  = _shield.IsWorn ? Fmt(_shield.PartialTotal) : "—";
+  string _shFull     = _shield.IsWorn ? Fmt(_shield.FullTotal)    : "—";
+  // A Target shield covers one attack, so it never rolls to block a second.
+  bool   _shMulti    = _shield.Shield.MaxAttacks > 1;
+  string _shManeuver = _shMulti ? Fmt(_shield.SkillBonus) : "—";
+  // Green marks a bonus that is added to DB. The block-maneuver roll is left plain, so the
+  // colour backs up the labels: it is a number to roll with, not one to add to your defence.
+  string _shDbClass  = _shield.IsWorn ? "fw pos" : "fw";
+  // SkillLineFor only builds a breakdown for a skill with ranks, so an untrained bearer
+  // still gets an explanation of where the (stats-only) number came from.
+  string _shManeuverTip = !_shMulti ? ""
+      : _shieldLine?.Tip ?? $"Shield skill bonus\n──────────\n= {Fmt(_shield.SkillBonus)}";
+  string _shieldTip  = !_shield.IsWorn ? "" :
+      $"Base ({_shield.Shield.Type}): {Fmt(_shield.BaseDb)}\n"
+    + $"Passive block ({_shield.Ranks} rank{(_shield.Ranks == 1 ? "" : "s")}): {Fmt(_shield.Ranks)}\n"
+    + "──────────\n"
+    + $"= {Fmt(_shield.PassiveTotal)}"
+    + (_shield.PassiveCapped ? "  (capped at +50)" : "");
 
   // Maneuvering in Armor bonus (reduces movement manpen, but only to 0)
   var _miaSk     = _char.Skills.FirstOrDefault(s => s.SkillName == "Maneuvering in Armor");
@@ -472,7 +488,7 @@
   // Net manpen after MiA (cannot be positive)
   int _netManPen  = Math.Min(0, _rawManPen + _miaBonus);
 
-  int _totalWeight = _torsoWeight + _helmWeight + _vambWeight + _greaveWeight + _shieldDef.Weight;
+  int _totalWeight = _torsoWeight + _helmWeight + _vambWeight + _greaveWeight + _shield.Shield.Weight;
 
   string ManPenFmt(int v) => v == 0 ? "—" : v.ToString();
   string WtFmt(int v)     => v == 0 ? "—" : $"{v} lb";
@@ -520,12 +536,15 @@
           </tr>
           <tr>
             <td class="p1">Shield</td>
-            <td class="p1">@(_shieldDef.AT > 1 ? _shieldDef.Type : "—")</td>
-            <td class="p1 tc">@AtFmt(_shieldDef.AT)</td>
+            <td class="p1">@(_shield.IsWorn ? _shield.Shield.Type + " Shield" : "—")</td>
+            @* A shield is interposed rather than worn, so it has no AT of its own. *@
+            <td class="p1 tc">—</td>
             <td class="p1"></td>
-            <td class="p1 tr">@WtFmt(_shieldDef.Weight)</td>
-            <td class="p1"></td>
-            <td class="p1 tr fw @(_shieldDb > 0 ? "pos" : "")">@(_shieldDb != 0 ? Fmt(_shieldDb) : "")</td>
+            <td class="p1 tr">@WtFmt(_shield.Shield.Weight)</td>
+            <td class="p1 tr @(_shield.IsWorn && Temp("St") < _shield.Shield.MinStrength ? "neg" : "")">
+              @(_shield.IsWorn ? _shield.Shield.MinStrength.ToString() : "")
+            </td>
+            <td class="p1 tr fw @(_shield.PassiveTotal > 0 ? "pos" : "")" data-tip="@_shieldTip">@_shPassive</td>
             <td class="p1"></td>
           </tr>
           <tr class="tr-total">
@@ -537,7 +556,8 @@
             </td>
             <td class="p1 tr fw">@WtFmt(_totalWeight)</td>
             <td class="p1"></td>
-            <td class="p1 tr fw @(_shieldDb > 0 ? "pos" : "")">@(_shieldDb != 0 ? Fmt(_shieldDb) : "")</td>
+            @* The DB column carries only the shield, so the total repeats it. *@
+            <td class="p1 tr fw @(_shield.PassiveTotal > 0 ? "pos" : "")" data-tip="@_shieldTip">@_shPassive</td>
             <td class="p1"></td>
           </tr>
         </tbody>
@@ -548,7 +568,8 @@
       <div class="arm-side gcell"></div>
       <div class="arm-side">Missile Pen: <span class="fw @(_missilePen < 0 ? "neg" : "")">@(_missilePen != 0 ? _missilePen.ToString() : "—")</span></div>
       <div class="arm-side gcell"></div>
-      <div class="arm-side">Num. Attacks:</div>
+      @* Table 9-6: how many attacks the shield may be raised against in a round. *@
+      <div class="arm-side">Attacks Blocked: <span class="fw">@(_shield.IsWorn ? _shield.Shield.MaxAttacks.ToString() : "—")</span></div>
     </td>
   </tr>
 </table>
@@ -598,10 +619,14 @@
     <td rowspan="5" style="padding:0; vertical-align:top; border-right:1px solid #000">
       <table class="t100 tb">
         <tr><td class="p1 bb" style="width:50%">Quickness DB: @Fmt(_quBonus*3)</td><td class="p1 bb">Other DB: <span class="fw">@(ItemDbTotal == 0 ? "" : Fmt(ItemDbTotal))</span></td></tr>
-        <tr><td class="p1 bb">Passive Dodge: @Fmt((int)Math.Round(_quBonus*1.5))</td><td class="p1 bb">Passive Block:</td></tr>
-        <tr><td class="p1 bb">Partial Dodge (C): @Fmt(_quBonus*2)</td><td class="p1 bb">Partial Block (C):</td></tr>
-        <tr><td class="p1 bb">Full Dodge (4 AP): @Fmt(_quBonus*3)</td><td class="p1 bb">Full Block (4 AP):</td></tr>
-        <tr><td class="p1">Total w/o shield: <span class="fw">@Fmt(_quBonus*3 + ItemDbTotal)</span></td><td class="p1">Total w/shield: <span class="fw">@Fmt(_quBonus*3 + ItemDbTotal + _shieldDb)</span></td></tr>
+        <tr><td class="p1 bb">Passive Dodge: @Fmt((int)Math.Round(_quBonus*1.5))</td><td class="p1 bb">Passive Block DB: <span class="@_shDbClass">@_shPassive</span>@(_shield.PassiveCapped ? " (max)" : "")</td></tr>
+        <tr><td class="p1 bb">Partial Dodge (C): @Fmt(_quBonus*2)</td><td class="p1 bb">Partial Block DB (C): <span class="@_shDbClass">@_shPartial</span></td></tr>
+        <tr><td class="p1 bb">Full Dodge (4 AP): @Fmt(_quBonus*3)</td><td class="p1 bb">Full Block DB (4 AP): <span class="@_shDbClass">@_shFull</span></td></tr>
+        @* Not a DB. Each attack after the first needs a Shield maneuver roll (9.6), and this
+           is the bonus it is rolled with — deliberately plain, so it cannot be mistaken for
+           another number to add to DB. The tooltip is the skills table's own breakdown. *@
+        <tr><td class="p1 bb"></td><td class="p1 bb" data-tip="@_shManeuverTip">Block maneuver roll: <span class="fw">@_shManeuver</span>@if (_shMulti) {<span class="muted sf"> (attacks 2–@_shield.Shield.MaxAttacks)</span>}</td></tr>
+        <tr><td class="p1">Total w/o shield: <span class="fw">@Fmt(_quBonus*3 + ItemDbTotal)</span></td><td class="p1">Total w/shield (passive): <span class="fw">@Fmt(_quBonus*3 + ItemDbTotal + _shield.PassiveTotal)</span></td></tr>
       </table>
     </td>
     <td class="p1 bb">Channeling</td><td class="p1 bb tc">In</td>
@@ -987,6 +1012,15 @@
 
         return SkillLineFor(cat, skd, sl, csb1 + csb2, parent).TotalBonus;
     }
+
+    // The Shield skill's own line. Kept whole rather than reduced to an int because its .Tip
+    // is the breakdown the block-maneuver tooltip shows, and because routing through
+    // SkillLineFor keeps the shield's numbers identical to the skills table's Shield row.
+    private SkillLine? ShieldSkillLine(CharacterSkill? sk) =>
+        SkillRules.CategoryByName.TryGetValue("Combat Training", out var cat)
+        && SkillRules.SkillByName.TryGetValue("Shield", out var skd)
+            ? SkillLineFor(cat, skd, sk, StatBon(cat.Stat1) + StatBon(cat.Stat2))
+            : null;
 
     // Table 4-2 ("Type"): the Spellcasting Roll is modified by which kind of list the spell
     // comes from — the caster's own Base lists are easiest, anything exotic hardest.

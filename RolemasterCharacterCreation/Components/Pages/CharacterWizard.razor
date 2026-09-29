@@ -1416,12 +1416,13 @@
             <div class="card-header py-1 fw-bold">Shield</div>
             <div class="card-body py-2">
                 <div class="col-md-4">
-                    <label class="form-label">Shield Type <span class="text-muted small">(DB from Shield skill)</span></label>
-                    <select class="form-select" @onchange="e => _char!.ShieldType = e.Value?.ToString()">
+                    <label class="form-label">Shield Type <span class="text-muted small">(base DB by type + Shield skill)</span></label>
+                    @* "None" is stored as null, matching the armour editor. *@
+                    <select class="form-select" @onchange="@(e => _char!.ShieldType = e.Value?.ToString() is { Length: > 0 } v && v != "None" ? v : null)">
                         @foreach (var s in ArmorRules.Shields)
                         {
                             <option value="@s.Type" selected="@((_char!.ShieldType ?? "None") == s.Type)">
-                                @s.Type@(s.AT > 1 ? $" (AT {s.AT}, {s.Weight} lb)" : "")
+                                @s.Type@(s.IsWorn ? $" (+{s.Db} DB, {s.Weight} lb, {s.MaxAttacks} atk)" : "")
                             </option>
                         }
                     </select>
