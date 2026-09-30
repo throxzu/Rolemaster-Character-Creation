@@ -378,11 +378,15 @@
   "376": "CharacterMoneyEditor.razor",
   "377": "20260620094619_AddCampaignBuildings.Designer.cs",
   "378": "VoyageEmbeddingClient.cs",
+  "379": "20260622184256_AddGameSessions.Designer.cs",
   "380": "20260912143847_AddCharacterMoney.Designer.cs",
   "381": "CharacterArmorEditor.razor",
   "382": "20260621174625_AddCampaignSettings.Designer.cs",
   "383": "20260919091550_AddCombatantInitiative.Designer.cs",
   "384": "20260929115418_RenameShieldTypesToRmu.Designer.cs",
   "385": "20260619201224_AddWorldLocationVillageLink.Designer.cs",
-  "387": "SmsText"
+  "386": "20260619204026_AddCampaignDungeons.Designer.cs",
+  "387": "SmsText",
+  "388": "SpellList",
+  "391": ".Cells"
 }
