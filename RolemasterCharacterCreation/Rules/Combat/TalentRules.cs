@@ -1,3 +1,5 @@
+using RolemasterCharacterCreation.Models;
+
 namespace RolemasterCharacterCreation.Rules;
 
 // Talents & Flaws catalog — Chapter 4, RMU Core Law.
@@ -153,4 +155,24 @@ public static class TalentRules
         if (!ByName.TryGetValue(name, out var def)) return 0;
         return def.TotalCost(tier);
     }
+
+    /// <summary>
+    /// The entry a character already holds for this talent, or null. Talents are tiered
+    /// rather than repeatable — holding the same one twice is not a thing, you raise its
+    /// tier — but one taken for a specialization is genuinely separate, so Magical
+    /// Resistance (Fire) and (Cold) are two entries and the match is on name AND restriction.
+    /// </summary>
+    public static CharacterTalent? Existing(
+        IEnumerable<CharacterTalent> held, string name, string? restriction) =>
+        held.FirstOrDefault(t =>
+            string.Equals(t.TalentName, name, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(t.Restriction?.Trim() ?? "", restriction?.Trim() ?? "",
+                             StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>
+    /// What it costs to move a held talent from one tier to another: the difference, as
+    /// Chapter 4 puts it — "can be improved later by paying the tier difference in DP".
+    /// </summary>
+    public static int UpgradeCost(string name, int fromTier, int toTier) =>
+        TierCost(name, toTier) - TierCost(name, fromTier);
 }

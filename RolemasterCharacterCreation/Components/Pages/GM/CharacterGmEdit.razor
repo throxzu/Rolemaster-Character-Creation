@@ -268,18 +268,35 @@
 
     void AddTalent()
     {
-        if (string.IsNullOrWhiteSpace(_addTalentName)) return;
+        if (string.IsNullOrWhiteSpace(_addTalentName) || _char is null) return;
         var tDef = TalentRules.ByName.GetValueOrDefault(_addTalentName);
         if (tDef is null) return;
 
-        _char!.Talents.Add(new CharacterTalent
+        int tier = tDef.MaxTier == 1 ? 1 : _addTalentTier;
+        string? restriction = tDef.NeedsSpec && !string.IsNullOrWhiteSpace(_addTalentRestriction)
+            ? _addTalentRestriction.Trim() : null;
+
+        // Talents are tiered, not repeatable. Adding one the character already holds sets
+        // its tier rather than making a second copy — the GM may move it either way, this
+        // page being the override.
+        var held = TalentRules.Existing(_char.Talents, _addTalentName, restriction);
+        if (held is not null)
         {
-            CharacterId = _char.Id,
-            TalentName  = _addTalentName,
-            Tier        = tDef.MaxTier == 1 ? 1 : _addTalentTier,
-            Restriction = tDef.NeedsSpec && !string.IsNullOrWhiteSpace(_addTalentRestriction)
-                ? _addTalentRestriction.Trim() : null,
-        });
+            _error = held.Tier == tier
+                ? $"{_addTalentName} is already held at Tier {tier}."
+                : null;
+            held.Tier = tier;
+        }
+        else
+        {
+            _char.Talents.Add(new CharacterTalent
+            {
+                CharacterId = _char.Id,
+                TalentName  = _addTalentName,
+                Tier        = tier,
+                Restriction = restriction,
+            });
+        }
 
         _addTalentName        = "";
         _addTalentTier        = 1;

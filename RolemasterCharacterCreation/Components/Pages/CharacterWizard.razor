@@ -1133,7 +1133,12 @@
             ? TalentRules.All
             : TalentRules.All.Where(t => t.Category == _talentCategory).ToList();
         var selectedDef  = TalentRules.ByName.GetValueOrDefault(_talentName);
-        int previewCost  = selectedDef is not null ? selectedDef.TotalCost(_talentTier) : 0;
+        // Already held? Then this is a tier upgrade and only the difference is owed.
+        var heldSel      = selectedDef is null ? null
+                           : TalentRules.Existing(_char!.Talents, _talentName, _talentRestriction);
+        int previewCost  = selectedDef is null ? 0
+                           : heldSel is null ? selectedDef.TotalCost(_talentTier)
+                           : TalentRules.UpgradeCost(_talentName, heldSel.Tier, _talentTier);
 
         <h4>Step 5: Talents &amp; Flaws</h4>
 
@@ -1182,7 +1187,9 @@
                     bool isPrior = _isLevelUp && _baselineTalentIds.Contains(t.Id);
                     <li class="d-flex align-items-center gap-2 mb-1 p-2 border rounded @(def?.IsFlaw == true ? "border-danger bg-dark" : "border-secondary bg-dark")">
                         <span class="@(def?.IsFlaw == true ? "text-danger" : isPrior ? "text-muted" : "text-light")">
-                            <strong>@t.TalentName@(t.Tier > 1 ? $" {new[]{"","I","II","III","IV","V"}[Math.Min(t.Tier,5)]}" : "")@(t.Restriction is not null ? $" ({t.Restriction})" : "")</strong>
+                            @* Tiers run past V for the unlimited talents, and the short list
+                               used to render every one of them as "V". *@
+                            <strong>@t.TalentName@(t.Tier > 1 ? $" {new[]{"","I","II","III","IV","V","VI","VII","VIII","IX","X"}[Math.Min(t.Tier,10)]}" : "")@(t.Restriction is not null ? $" ({t.Restriction})" : "")</strong>
                             @if (def is not null) { <span class="text-muted"> — @def.Effect</span> }
                         </span>
                         @if (isPrior)
@@ -1261,12 +1268,30 @@
                             <button class="btn btn-sm @(selectedDef.IsFlaw ? "btn-outline-danger" : "btn-success")"
                                     disabled="@(!CanAddTalent(selectedDef, previewCost))"
                                     @onclick="AddTalent">
-                                @(selectedDef.IsFlaw ? "Take Flaw" : "Add Talent")
+                                @(heldSel is not null ? "Raise Tier"
+                                  : selectedDef.IsFlaw ? "Take Flaw" : "Add Talent")
                             </button>
                         </div>
                         @if (selectedDef is not null)
                         {
                             <div class="col-12 small text-muted">@selectedDef.Effect</div>
+                        }
+                        @* Talents are tiered, not repeatable, so say what will happen rather
+                           than quietly adding a second copy. *@
+                        @if (heldSel is not null)
+                        {
+                            <div class="col-12 small @(_talentTier > heldSel.Tier ? "text-info" : "text-warning")">
+                                @if (_talentTier > heldSel.Tier)
+                                {
+                                    <text>Already held at Tier @heldSel.Tier — this raises it to Tier @_talentTier
+                                    for the difference (@previewCost DP).</text>
+                                }
+                                else
+                                {
+                                    <text>Already held at Tier @heldSel.Tier. Pick a higher tier to improve it;
+                                    a talent cannot be taken twice.</text>
+                                }
+                            </div>
                         }
                     }
                 </div>
@@ -1276,8 +1301,13 @@
 
     bool CanAddTalent(TalentRules.TalentDef def, int cost)
     {
-        if (string.IsNullOrWhiteSpace(_talentName)) return false;
+        if (string.IsNullOrWhiteSpace(_talentName) || _char is null) return false;
         if (def.NeedsSpec && string.IsNullOrWhiteSpace(_talentRestriction)) return false;
+
+        // Already held: the only move is upwards, and a flat talent has nowhere to go.
+        var held = TalentRules.Existing(_char.Talents, _talentName, _talentRestriction);
+        if (held is not null && (def.MaxTier == 1 || _talentTier <= held.Tier)) return false;
+
         // Flaws always allowed; talents need DP
         if (!def.IsFlaw && _dpRemaining < cost) return false;
         return true;
@@ -1288,16 +1318,32 @@
         if (string.IsNullOrWhiteSpace(_talentName) || _char is null) return;
         var def = TalentRules.ByName.GetValueOrDefault(_talentName);
         if (def is null) return;
-        var entry = new CharacterTalent
+
+        int tier = def.MaxTier == 1 ? 1 : _talentTier;
+        string? restriction = def.NeedsSpec && !string.IsNullOrWhiteSpace(_talentRestriction)
+                              ? _talentRestriction.Trim() : null;
+
+        // A talent is tiered, never repeated: taking one already held raises its tier for
+        // the difference in DP (Chapter 4) instead of adding a second copy.
+        var held = TalentRules.Existing(_char.Talents, _talentName, restriction);
+        if (held is not null)
         {
-            CharacterId = _char.Id,
-            TalentName  = _talentName,
-            Tier        = def.MaxTier == 1 ? 1 : _talentTier,
-            Restriction = def.NeedsSpec && !string.IsNullOrWhiteSpace(_talentRestriction)
-                          ? _talentRestriction.Trim() : null,
-        };
-        _char.Talents.Add(entry);
-        Db.CharacterTalents.Add(entry);
+            if (def.MaxTier == 1 || tier <= held.Tier) return;
+            held.Tier = tier;
+        }
+        else
+        {
+            var entry = new CharacterTalent
+            {
+                CharacterId = _char.Id,
+                TalentName  = _talentName,
+                Tier        = tier,
+                Restriction = restriction,
+            };
+            _char.Talents.Add(entry);
+            Db.CharacterTalents.Add(entry);
+        }
+
         _talentName = "";
         _talentTier = 1;
         _talentRestriction = "";
