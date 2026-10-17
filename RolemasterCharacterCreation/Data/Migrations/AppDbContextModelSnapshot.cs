@@ -575,6 +575,9 @@ namespace RolemasterCharacterCreation.Data.Migrations
                         .HasMaxLength(120)
                         .HasColumnType("nvarchar(120)");
 
+                    b.Property<bool>("OldStyleStatGain")
+                        .HasColumnType("bit");
+
                     b.HasKey("Id");
 
                     b.ToTable("CampaignSettings");

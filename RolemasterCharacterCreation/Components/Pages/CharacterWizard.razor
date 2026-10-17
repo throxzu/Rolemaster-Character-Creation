@@ -472,37 +472,75 @@
     {
         @* The level itself is not written until Finish, so the level being gained is Level + 1. *@
         <h6 class="text-secondary mb-3">Level @(_char!.Level + 1) Stat Gain Rolls</h6>
-        <p class="small text-muted mb-2">
-            Table 2-5b: the current Temporary value picks the die, and the result is <em>added</em>
-            to the stat — so a stat in the 19–81 band can rise by as much as 10. A stat can never
-            go above its Potential, and Potential itself does not change.
-            Use <em>Roll</em> to let the system roll, or type the number showing on your own die
-            and click <em>Apply</em>.
-        </p>
-        int freeRolls  = StatGainRules.FreeRollsPerLevel;
-        int rollsUsed  = _statGainRollsUsed;
-        int extraRolls = Math.Max(0, rollsUsed - freeRolls);
-        <div class="alert @(rollsUsed > freeRolls ? "alert-warning" : "alert-secondary") py-2 small">
-            <strong>Stat gain rolls: @rollsUsed of @freeRolls used.</strong>
-            Each level grants @freeRolls rolls — spend them on two stats, or both on one.
-            Further rolls cost @StatGainRules.ExtraRollDpCost DP each
-            @if (extraRolls > 0)
-            {
-                <text>— <strong>@extraRolls extra</strong>, costing <strong>@_statGainDp DP</strong>
-                    out of your @_dpBudget DP for this level (@_dpRemaining left).</text>
-            }
-            else
-            {
-                <text>out of the same DP you spend on skills.</text>
-            }
-        </div>
+        @if (_oldStatGain)
+        {
+            <p class="small text-muted mb-2">
+                <strong>House rule — Table 15.1.2.</strong> Every stat is rolled on <em>d100</em>, and
+                the gain is read against the <em>Diff</em> column: the room left between Temporary and
+                Potential. A stat 1 below its Potential gains at most +1; one 15 or more below can gain
+                up to +15, so the further a stat has to go the faster it climbs. A roll of 01–04 is the
+                table's <em>*</em> row and gains nothing. Potential itself never changes.
+                Use <em>Roll</em> to let the system roll, or type the number showing on your own d100
+                and click <em>Apply</em>.
+            </p>
+            int rolled = _statGains.Count;
+            int left   = _statsLeftToRoll;
+            @* Spelled out in C#: inline @Enum.GetValues<StatName>() has Razor reading the
+               type argument as a tag. *@
+            int statCount = Enum.GetValues<StatName>().Length;
+            <div class="alert alert-secondary py-2 small d-flex align-items-center justify-content-between gap-3">
+                <div>
+                    <strong>Stat gain rolls: @rolled of @statCount stats rolled.</strong>
+                    Every stat gets one roll each level, and stat gains cost no DP.
+                    @if (left == 0)
+                    {
+                        <text>Nothing left to roll.</text>
+                    }
+                </div>
+                @if (left > 0)
+                {
+                    <button class="btn btn-sm btn-outline-primary flex-shrink-0" @onclick="RollAllRemaining">
+                        Roll all remaining (@left)
+                    </button>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="small text-muted mb-2">
+                Table 2-5b: the current Temporary value picks the die, and the result is <em>added</em>
+                to the stat — so a stat in the 19–81 band can rise by as much as 10. A stat can never
+                go above its Potential, and Potential itself does not change.
+                Use <em>Roll</em> to let the system roll, or type the number showing on your own die
+                and click <em>Apply</em>.
+            </p>
+            int freeRolls  = StatGainRules.FreeRollsPerLevel;
+            int rollsUsed  = _statGainRollsUsed;
+            int extraRolls = Math.Max(0, rollsUsed - freeRolls);
+            <div class="alert @(rollsUsed > freeRolls ? "alert-warning" : "alert-secondary") py-2 small">
+                <strong>Stat gain rolls: @rollsUsed of @freeRolls used.</strong>
+                Each level grants @freeRolls rolls — spend them on two stats, or both on one.
+                Further rolls cost @StatGainRules.ExtraRollDpCost DP each
+                @if (extraRolls > 0)
+                {
+                    <text>— <strong>@extraRolls extra</strong>, costing <strong>@_statGainDp DP</strong>
+                        out of your @_dpBudget DP for this level (@_dpRemaining left).</text>
+                }
+                else
+                {
+                    <text>out of the same DP you spend on skills.</text>
+                }
+            </div>
+        }
         <table class="table table-sm table-bordered align-middle">
             <thead>
                 <tr>
                     <th style="width:8%">Stat</th>
                     <th class="text-center" style="width:10%">Temp</th>
                     <th class="text-center" style="width:10%">Potential</th>
-                    <th class="text-center" style="width:8%">Die</th>
+                    @* The roll is read against a die under RMU and against the Potential gap
+                       under the house rule, so the column names what it is each time. *@
+                    <th class="text-center" style="width:8%">@(_oldStatGain ? "Diff" : "Die")</th>
                     <th class="text-center" style="width:14%">Auto-Roll</th>
                     <th class="text-center" style="width:26%">Manual Roll</th>
                     <th class="text-center">Result</th>
@@ -515,13 +553,15 @@
                     if (stat is null) continue;
                     var entries  = _statGains.GetValueOrDefault(sn) ?? new();
                     var baseline = StatBaselineFor(sn, stat);
-                    var die      = StatGainRules.DieFor(baseline.Temp);
+                    int sides    = RollSidesFor(sn, stat);
                     bool maxed   = baseline.Temp >= baseline.Potential;
                     int gained   = StatGainFor(sn, stat);
                     int rolledTotal = entries.Sum(e => e.Roll);
-                    bool canRoll = !maxed && CanRollAgain;
+                    bool canRoll = CanRollStat(sn, stat);
                     string rollTitle = maxed ? "Already at Potential"
-                        : canRoll ? "Roll this die and add the result"
+                        : canRoll ? (_oldStatGain ? "Roll d100 and read Table 15.1.2"
+                                                  : "Roll this die and add the result")
+                        : _oldStatGain ? "This stat has already had its roll this level"
                         : "No stat gain rolls left, and not enough DP to buy another";
                     <tr>
                         <td><strong>@sn</strong></td>
@@ -533,7 +573,7 @@
                             }
                         </td>
                         <td class="text-center">@stat.Potential</td>
-                        <td class="text-center text-muted">@die.Label</td>
+                        <td class="text-center text-muted">@RollSourceLabel(sn, stat)</td>
                         <td class="text-center">
                             <button class="btn btn-sm btn-outline-secondary" disabled="@(!canRoll)"
                                     title="@rollTitle" @onclick="() => RollStatGain(sn)">
@@ -543,10 +583,10 @@
                         <td class="text-center">
                             <div class="d-flex align-items-center justify-content-center gap-1">
                                 <input type="number" class="form-control form-control-sm" style="width:72px"
-                                       min="1" max="@die.Sides" disabled="@(!canRoll)"
+                                       min="1" max="@sides" disabled="@(!canRoll)"
                                        value="@(_manualRollInputs.GetValueOrDefault(sn, string.Empty))"
                                        @onchange="@(e => _manualRollInputs[sn] = e.Value?.ToString() ?? string.Empty)"
-                                       placeholder="@ManualPlaceholder(die)" />
+                                       placeholder="@($"1-{sides}")" />
                                 <button class="btn btn-sm btn-outline-primary" disabled="@(!canRoll)"
                                         @onclick="() => ApplyManualRoll(sn)">Apply</button>
                                 @if (CanUndoRoll(sn))
@@ -568,11 +608,12 @@
                             else
                             {
                                 @* Each roll reads back as the face the player saw, so a d3-1 shows
-                                   "3 on d3-1 -> +2" instead of silently reporting a 2. *@
+                                   "3 on d3-1 -> +2", and a house-rule roll "77 on d100 -> +12",
+                                   instead of silently reporting the result alone. *@
                                 <div class="small text-muted">
                                     @foreach (var e in entries)
                                     {
-                                        <div>@e.Face on @die.Label@(die.Modifier != 0 ? $" → {e.Roll}" : "")</div>
+                                        <div>@RollEcho(sn, stat, e)</div>
                                     }
                                 </div>
                                 @if (gained > 0)

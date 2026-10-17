@@ -111,11 +111,17 @@ public partial class CharacterWizard
     Dictionary<(string Skill, string Spec), int> _baselineWeaponAllocs = new();
     Dictionary<(string Skill, string Spec), int> _baselineSpellAllocs = new();
     HashSet<int> _baselineTalentIds = new();
-    // Stat gain rolls applied during this level-up, in the order they were made. Two are
-    // free each level and further rolls cost 4 DP (Core Law §2.5); a stat may legitimately
-    // appear twice, since the allowance may be spent as "one stat to get two rolls".
+    // Stat gain rolls applied during this level-up, in the order they were made. Face is the
+    // number showing on the die, Roll what it was worth — the two differ for a d3-1, and differ
+    // entirely under the old-style house rule, where a d100 face is read off Table 15.1.2.
+    // Under RMU two rolls are free each level and further rolls cost 4 DP (Core Law §2.5), so a
+    // stat may appear twice; the house rule gives each stat exactly one roll instead.
     record StatGainEntry(int Face, int Roll, bool Manual);
     Dictionary<StatName, List<StatGainEntry>> _statGains = new();
+
+    // Campaign house rule: Table 15.1.2 (d100 against the room left below Potential, one free
+    // roll per stat) in place of RMU's Table 2-5b. Set from CampaignSettings when the page loads.
+    bool _oldStatGain;
     // Baseline stat values so re-rolls don't stack
     Dictionary<StatName, (int Temp, int Potential)> _statBaseline = new();
     // Manual roll inputs: stat → text input value
@@ -174,10 +180,13 @@ public partial class CharacterWizard
     int _talentDpSpent  => _isLevelUp
         ? (_char?.Talents.Where(t => !_baselineTalentIds.Contains(t.Id)).Sum(t => TalentRules.TierCost(t.TalentName, t.Tier)) ?? 0)
         : (_char?.Talents.Sum(t => TalentRules.TierCost(t.TalentName, t.Tier)) ?? 0);
-    // Stat gain rolls beyond the free allowance are bought out of this same pool.
+    // Stat gain rolls beyond the free allowance are bought out of this same pool — except under
+    // the old-style house rule, where every stat has a roll of its own and none of them cost DP.
     int _statGainRollsUsed => _statGains.Values.Sum(l => l.Count);
-    int _statGainDp        => Math.Max(0, _statGainRollsUsed - StatGainRules.FreeRollsPerLevel)
-                              * StatGainRules.ExtraRollDpCost;
+    int _statGainDp        => _oldStatGain
+                              ? 0
+                              : Math.Max(0, _statGainRollsUsed - StatGainRules.FreeRollsPerLevel)
+                                * StatGainRules.ExtraRollDpCost;
     int _dpRemaining    => _dpBudget - _dpSpent - _talentDpSpent - _statGainDp;
 
     // ── Step 4: talent selection state ───────────────────────────────────────
@@ -206,6 +215,12 @@ public partial class CharacterWizard
 
         _authorized = _isGm || _char.UserId == _currentUserId;
         if (!_authorized) return;
+
+        // Which stat-gain system this campaign plays by. Read untracked: the settings row is
+        // consulted, never edited, from here.
+        _oldStatGain = await Db.CampaignSettings.AsNoTracking()
+            .Select(s => s.OldStyleStatGain)
+            .FirstOrDefaultAsync();
 
         _step = _char.WizardStep;
 
@@ -955,10 +970,68 @@ public partial class CharacterWizard
     (int Temp, int Potential) StatBaselineFor(StatName sn, CharacterStat stat) =>
         _statBaseline.TryGetValue(sn, out var bl) ? bl : (stat.Temporary, stat.Potential);
 
+    // ── Which system is in force ──────────────────────────────────────────────
+    // Set from CampaignSettings.OldStyleStatGain when the wizard loads. Everything below reads
+    // this rather than branching at the call sites, so the step's markup stays one table.
+
+    // Table 2-5b's die for this stat. Taken from the baseline value, so a second roll on the
+    // same stat can't drift onto another band.
+    StatGainRules.Die DieForStat(StatName sn, CharacterStat stat) =>
+        StatGainRules.DieFor(StatBaselineFor(sn, stat).Temp);
+
+    // What the player rolls: always d100 under Table 15.1.2, the band's die under Table 2-5b.
+    int RollSidesFor(StatName sn, CharacterStat stat) =>
+        _oldStatGain ? OldStatGainRules.DieSides : DieForStat(sn, stat).Sides;
+
+    // What the roll is read against, for the column the table shows: the difference between
+    // Potential and Temporary under the house rule, the die itself under RMU.
+    string RollSourceLabel(StatName sn, CharacterStat stat)
+    {
+        var bl = StatBaselineFor(sn, stat);
+        return _oldStatGain
+            ? OldStatGainRules.ColumnLabel(OldStatGainRules.Difference(bl.Temp, bl.Potential))
+            : DieForStat(sn, stat).Label;
+    }
+
+    // The gain a rolled face is worth. Table 15.1.2 looks it up against the room left in the
+    // stat; Table 2-5b simply applies the die's modifier.
+    int GainFromFace(StatName sn, CharacterStat stat, int face)
+    {
+        var bl = StatBaselineFor(sn, stat);
+        return _oldStatGain
+            ? OldStatGainRules.GainFor(face, OldStatGainRules.Difference(bl.Temp, bl.Potential))
+            : face + DieForStat(sn, stat).Modifier;
+    }
+
+    // How a recorded roll reads back, so a player can check it against the dice on the table.
+    string RollEcho(StatName sn, CharacterStat stat, StatGainEntry e)
+    {
+        // Name the asterisk row outright: a player who rolls 03 and gains nothing should be able
+        // to see it was the table's doing and not a lost click.
+        if (_oldStatGain)
+            return OldStatGainRules.IsAsteriskRoll(e.Face)
+                ? $"{e.Face} on d{OldStatGainRules.DieSides} → * (no gain)"
+                : $"{e.Face} on d{OldStatGainRules.DieSides} → +{e.Roll}";
+        var die = DieForStat(sn, stat);
+        return die.Modifier != 0 ? $"{e.Face} on {die.Label} → {e.Roll}" : $"{e.Face} on {die.Label}";
+    }
+
     // Another roll may be made when one of the two free rolls is left, or there is enough
-    // DP left to buy one.
+    // DP left to buy one. Not consulted under the house rule, which has no shared allowance.
     bool CanRollAgain => _statGainRollsUsed < StatGainRules.FreeRollsPerLevel
                          || _dpRemaining >= StatGainRules.ExtraRollDpCost;
+
+    // The house rule gives every stat one roll of its own; RMU gives the character two rolls to
+    // spread as it likes, with more available for DP. Either way a stat at its Potential is done.
+    bool CanRollStat(StatName sn, CharacterStat stat)
+    {
+        var bl = StatBaselineFor(sn, stat);
+        if (bl.Temp >= bl.Potential) return false;
+        return _oldStatGain ? !_statGains.ContainsKey(sn) : CanRollAgain;
+    }
+
+    int _statsLeftToRoll => _char is null ? 0 : Enum.GetValues<StatName>()
+        .Count(sn => _char.Stats.FirstOrDefault(s => s.Stat == sn) is { } st && CanRollStat(sn, st));
 
     async Task RollStatGain(StatName sn)
     {
@@ -966,11 +1039,28 @@ public partial class CharacterWizard
         var stat = _char!.Stats.FirstOrDefault(s => s.Stat == sn);
         if (stat is null) return;
 
-        // The die comes from the baseline value, so a second roll on the same stat can't
-        // drift onto another band.
-        var die = StatGainRules.DieFor(StatBaselineFor(sn, stat).Temp);
-        int face = Random.Shared.Next(1, die.Sides + 1);
-        await AddRoll(sn, stat, new StatGainEntry(face, face + die.Modifier, Manual: false));
+        int face = Random.Shared.Next(1, RollSidesFor(sn, stat) + 1);
+        await AddRoll(sn, stat, new StatGainEntry(face, GainFromFace(sn, stat, face), Manual: false));
+    }
+
+    // Ten stats is nine clicks too many. Everything already rolled, or already at Potential, is
+    // left alone, and the whole sweep is written once — a save per stat would have ten handlers
+    // queueing on the one DbContext this page shares.
+    async Task RollAllRemaining()
+    {
+        _error = null;
+        if (!_oldStatGain) return;
+
+        foreach (StatName sn in Enum.GetValues<StatName>())
+        {
+            var stat = _char!.Stats.FirstOrDefault(s => s.Stat == sn);
+            if (stat is null || !CanRollStat(sn, stat)) continue;
+
+            int face = Random.Shared.Next(1, OldStatGainRules.DieSides + 1);
+            _statGains[sn] = [new StatGainEntry(face, GainFromFace(sn, stat, face), Manual: false)];
+            RecomputeStat(sn, stat);
+        }
+        await PersistStatGainsAsync();
     }
 
     async Task ApplyManualRoll(StatName sn)
@@ -979,26 +1069,29 @@ public partial class CharacterWizard
         var stat = _char!.Stats.FirstOrDefault(s => s.Stat == sn);
         if (stat is null) return;
 
-        var die = StatGainRules.DieFor(StatBaselineFor(sn, stat).Temp);
+        int sides   = RollSidesFor(sn, stat);
+        string said = _oldStatGain ? $"d{OldStatGainRules.DieSides}" : DieForStat(sn, stat).Label;
         _manualRollInputs.TryGetValue(sn, out var raw);
 
         // Rejecting this silently used to leave the player believing a roll had been applied
         // when in fact nothing had happened, and their stat never gained.
         if (string.IsNullOrWhiteSpace(raw))
         {
-            _error = $"{sn}: type the number showing on your {die.Label} before clicking Apply.";
+            _error = $"{sn}: type the number showing on your {said} before clicking Apply.";
             return;
         }
-        if (!int.TryParse(raw, out int face) || face < 1 || face > die.Sides)
+        if (!int.TryParse(raw, out int face) || face < 1 || face > sides)
         {
-            _error = $"{sn}: “{raw}” is not a face on a d{die.Sides}. Enter the number showing on "
-                   + $"the die, 1–{die.Sides}"
-                   + (die.Modifier != 0 ? $" — the {die.Modifier:+#;-#} is applied for you." : ".");
+            int mod = _oldStatGain ? 0 : DieForStat(sn, stat).Modifier;
+            _error = $"{sn}: “{raw}” is not a face on a d{sides}. Enter the number showing on "
+                   + $"the die, 1–{sides}"
+                   + (mod != 0 ? $" — the {mod:+#;-#} is applied for you." : ".");
             return;
         }
 
-        // The player types the face they rolled, so a d3-1 takes 1–3 and applies the −1.
-        await AddRoll(sn, stat, new StatGainEntry(face, face + die.Modifier, Manual: true));
+        // The player types the face they rolled: a d3-1 takes 1–3 and applies the −1, and a
+        // d100 takes 1–100 and is read off Table 15.1.2.
+        await AddRoll(sn, stat, new StatGainEntry(face, GainFromFace(sn, stat, face), Manual: true));
     }
 
     // Records a roll against the level's allowance, recomputes the stat, and writes both
@@ -1006,8 +1099,18 @@ public partial class CharacterWizard
     // reload must not hand the player a fresh pair of free rolls.
     async Task AddRoll(StatName sn, CharacterStat stat, StatGainEntry entry)
     {
-        if (_statGainRollsUsed >= StatGainRules.FreeRollsPerLevel
-            && _dpRemaining < StatGainRules.ExtraRollDpCost)
+        if (_oldStatGain)
+        {
+            // One roll per stat per level, so there is no allowance to spend — only the stat's
+            // own single roll, already taken or not.
+            if (_statGains.ContainsKey(sn))
+            {
+                _error = $"{sn}: already rolled this level. Each stat gets one roll.";
+                return;
+            }
+        }
+        else if (_statGainRollsUsed >= StatGainRules.FreeRollsPerLevel
+                 && _dpRemaining < StatGainRules.ExtraRollDpCost)
         {
             _error = $"{sn}: both free stat gain rolls are used and there are fewer than "
                    + $"{StatGainRules.ExtraRollDpCost} DP left to buy another.";
@@ -1055,10 +1158,6 @@ public partial class CharacterWizard
         int rolled = _statGains.TryGetValue(sn, out var l) ? l.Sum(e => e.Roll) : 0;
         stat.Temporary = Math.Clamp(bl.Temp + Math.Max(0, rolled), bl.Temp, bl.Potential);
     }
-
-    // The manual box always takes the face showing on the die, never the modified result,
-    // so the hint is the face range even for a d3-1.
-    static string ManualPlaceholder(StatGainRules.Die die) => $"1-{die.Sides}";
 
     // What the stat actually gained, once the Potential cap has been applied.
     int StatGainFor(StatName sn, CharacterStat stat) =>

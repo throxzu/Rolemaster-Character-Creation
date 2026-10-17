@@ -16,4 +16,10 @@ public class CampaignSettings
     // Optional override of the invite SMS body. Supports the placeholders {campaign}, {url},
     // and {password}. When null/blank, a built-in default template is used.
     public string? InviteSmsTemplate { get; set; }
+
+    // ── House rules ──────────────────────────────────────────────────────────
+    // Swaps RMU's Table 2-5b stat gains (die chosen by the stat's current value, result added)
+    // for the older system's Table 15.1.2 (d100 read against the room left below Potential),
+    // with one free roll per stat per level instead of two bought rolls. See OldStatGainRules.
+    public bool OldStyleStatGain { get; set; }
 }

@@ -3,6 +3,7 @@
 @attribute [Authorize(Roles = Roles.Gamemaster)]
 @using RolemasterCharacterCreation.Data
 @using RolemasterCharacterCreation.Identity
+@using RolemasterCharacterCreation.Rules
 @inject AppDbContext Db
 
 <PageTitle>Campaign Settings</PageTitle>
@@ -46,6 +47,24 @@ else
                         Leave blank for the default. Placeholders: <code>{campaign}</code>, <code>{url}</code>, <code>{password}</code>.
                     </div>
                 </div>
+                <hr class="my-4" />
+                <h5 class="mb-3">House rules</h5>
+
+                <div class="mb-3 form-check">
+                    <InputCheckbox @bind-Value="_settings.OldStyleStatGain" class="form-check-input" id="oldStatGain" />
+                    <label class="form-check-label" for="oldStatGain">Old style stat gain</label>
+                    <div class="form-text">
+                        Replaces RMU's Table 2-5b with the older system's <strong>Table 15.1.2</strong> at
+                        every level-up. Each stat is rolled on <strong>d100</strong> and the gain is read
+                        against the room left below its Potential — a stat 1 under gains at most +1, one
+                        15 or more under can gain up to +15. Every character gets
+                        <strong>one free roll per stat</strong> each level, and stat gains cost no DP.
+                        <br />
+                        With this off, players pick two stats to roll on Table 2-5b and may buy further
+                        rolls at @StatGainRules.ExtraRollDpCost DP each.
+                    </div>
+                </div>
+
                 <button type="submit" class="btn btn-primary">Save</button>
             </EditForm>
         </div>
