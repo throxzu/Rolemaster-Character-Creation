@@ -72,7 +72,14 @@
             bool isFirstStep = _isLevelUp ? _step == 1 : _step == 0;
             bool isLastStep  = _isLevelUp ? _step == 4 : _step == Steps.Length - 1;
         }
-        <button class="btn btn-secondary" @onclick="PrevStep">@(_isLevelUp && _step == 1 ? "← Cancel" : "← Back")</button>
+        @* On step 1 of a level-up there is nowhere further back to go, so the button leaves the
+           wizard. It only says Cancel while it can genuinely undo the level-up; once something
+           has been spent the level-up stays open so it can be resumed. *@
+        <button class="btn btn-secondary" @onclick="PrevStep">
+            @(_isLevelUp && _step == 1
+                ? (_levelUpUntouched ? "← Cancel level-up" : "← Back to sheet")
+                : "← Back")
+        </button>
         @if (!isLastStep)
         {
             <button class="btn btn-primary" @onclick="NextStep">Next →</button>
@@ -463,7 +470,8 @@
 
     RenderFragment StepStatGains => __builder =>
     {
-        <h6 class="text-secondary mb-3">Level @_char!.Level Stat Gain Rolls</h6>
+        @* The level itself is not written until Finish, so the level being gained is Level + 1. *@
+        <h6 class="text-secondary mb-3">Level @(_char!.Level + 1) Stat Gain Rolls</h6>
         <p class="small text-muted mb-2">
             Table 2-5b: the current Temporary value picks the die, and the result is <em>added</em>
             to the stat — so a stat in the 19–81 band can rise by as much as 10. A stat can never
@@ -564,7 +572,7 @@
                                 <div class="small text-muted">
                                     @foreach (var e in entries)
                                     {
-                                        <div>@e.Face on @die.Label@(die.Modifier != 0 ? $" \u2192 {e.Roll}" : "")</div>
+                                        <div>@e.Face on @die.Label@(die.Modifier != 0 ? $" → {e.Roll}" : "")</div>
                                     }
                                 </div>
                                 @if (gained > 0)

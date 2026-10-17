@@ -35,9 +35,10 @@ else
                 </small>
             </div>
             <div>
-                @* Same gate as the character list: a player only re-enters the wizard while
-                   creation is unfinished or a level-up is available. *@
-                @if (_isGm || CanAccessWizard(_character))
+                @* Same gate as the character list: the wizard is re-entered only while creation
+                   is unfinished or a level-up is under way, and that holds for the GM too — the
+                   wizard turns everyone else away, so a link here would just bounce. *@
+                @if (CanAccessWizard(_character))
                 {
                     <a class="btn btn-outline-primary me-2" href="/character/@_character.Id/wizard">Character Wizard</a>
                 }
@@ -320,11 +321,9 @@ else
             EnsureStats();
     }
 
-    // Mirrors Player/Characters.razor: the wizard is for unfinished creation and level-ups only.
-    private static bool CanAccessWizard(Character ch) =>
-        (ch.Level == 1 && ch.WizardStep < 5) ||
-        ch.LevelUpBaselineJson != null        ||
-        ch.CurrentXp >= 10000 * ch.Level;
+    // The wizard is for unfinished creation and level-ups already under way; banked experience
+    // on its own is answered by the sheet's Level Up button, not by a link straight in.
+    private static bool CanAccessWizard(Character ch) => LevelUpRules.CanEnterWizard(ch);
 
     private void EnsureStats()
     {

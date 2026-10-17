@@ -73,10 +73,10 @@
     private bool _creating;
     private string? _userId;
 
-    static bool CanAccessWizard(Character ch) =>
-        (ch.Level == 1 && ch.WizardStep < 5) ||   // initial creation in progress
-        ch.LevelUpBaselineJson != null             ||   // level-up started but not finished
-        ch.CurrentXp >= 10000 * ch.Level;              // enough XP to start a new level-up
+    // Initial creation in progress, or a level-up started but not finished. Having enough
+    // experience is deliberately not on this list: that lights up Level Up on the sheet, which
+    // is the only route that freezes the baseline the wizard charges purchases against.
+    static bool CanAccessWizard(Character ch) => LevelUpRules.CanEnterWizard(ch);
 
     protected override async Task OnInitializedAsync()
     {

@@ -47,8 +47,10 @@ public class Character
     // Comma-separated chosen professional skill names (10 pro + 2 knacks = 12 entries prefixed "PRO:" or "KNA:")
     public string? ProfessionalSkillData { get; set; }
 
-    // Frozen snapshots set when Level Up is clicked; cleared when wizard finishes.
-    // Prevents gaming DP budget or stat gains by restarting the wizard mid-level-up.
+    // Frozen snapshots set when Level Up is clicked; cleared when the wizard finishes or the
+    // level-up is cancelled before anything is spent. Everything the wizard charges for is
+    // measured against these, so they, and not Level, are the record of a level-up in progress
+    // — see LevelUpRules.IsLevelUpInProgress, which is how the wizard decides its mode.
     public string? LevelUpBaselineJson { get; set; }
     public string? StatBaselineJson    { get; set; }
 

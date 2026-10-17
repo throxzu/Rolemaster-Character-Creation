@@ -209,10 +209,25 @@ public partial class CharacterWizard
 
         _step = _char.WizardStep;
 
-        // Level-1 characters haven't consumed any racial bonus DP yet (that happens at Finish),
-        // so the remaining pool must equal the race's full bonus. Repair it in case the character
-        // was created with a race pre-selected (which skips OnRaceChanged).
-        if (_char.Level == 1 && _char.Race is not null
+        // A level-up is in flight exactly while its frozen baseline exists — not for as long as
+        // the level is above 1. Finish clears the baseline without lowering the level, so keying
+        // off the level let a player who had finished a level-up re-enter and draw a fresh budget.
+        _isLevelUp = LevelUpRules.IsLevelUpInProgress(_char);
+
+        // The wizard finishes creation and runs level-ups, and both have already been started by
+        // the time we get here. Anything else belongs on the sheet, which is where Level Up lives.
+        if (!LevelUpRules.CanEnterWizard(_char))
+        {
+            Nav.NavigateTo($"/character/{Id}/sheet", replace: true);
+            return;
+        }
+
+        // Characters still in creation haven't consumed any racial bonus DP yet (that happens at
+        // Finish), so the remaining pool must equal the race's full bonus. Repair it in case the
+        // character was created with a race pre-selected (which skips OnRaceChanged). This is not
+        // a per-level refill: the pool is a one-time grant that drains at up to 25 DP a level, so
+        // it must not be rewritten once creation is over.
+        if (LevelUpRules.IsCreationInProgress(_char) && _char.Race is not null
             && RaceRules.ByName.TryGetValue(_char.Race, out var raceDef)
             && _char.RaceBonusDp != raceDef.BonusDP)
         {
@@ -229,7 +244,6 @@ public partial class CharacterWizard
         LoadEquipmentState();
         EnsureStats();
 
-        _isLevelUp = _char.Level > 1;
         if (_isLevelUp)
         {
             // Ensure we're on a valid level-up step; any other step falls back to Stat Gains
@@ -239,39 +253,27 @@ public partial class CharacterWizard
                 _char.WizardStep = 1;
             }
 
-            // Skill baselines — use the frozen snapshot set when Level Up was clicked.
-            // This prevents a player from restarting the wizard to get a fresh DP budget.
+            // Skill baselines come from the frozen snapshot written when Level Up was clicked,
+            // and only from there. Rebuilding them from the character's current state — as this
+            // used to do when the snapshot was missing — reads back a spend of zero, which is
+            // exactly how a finished level-up could be replayed for a second free budget. The
+            // snapshot's presence is what admitted us to this branch, so it is here.
             var jsonOpts = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            if (!string.IsNullOrEmpty(_char.LevelUpBaselineJson))
-            {
-                var snaps = JsonSerializer.Deserialize<List<SkillSnap>>(_char.LevelUpBaselineJson, jsonOpts) ?? [];
-                _baselinePurchased = snaps
-                    .Where(s => s.Specialization == null
-                             && !WeaponRules.BySkill.ContainsKey(s.SkillName)
-                             && s.Category != "Spellcasting")
-                    .ToDictionary(s => s.SkillName, s => s.PurchasedRanks);
-                _baselineWeaponAllocs = snaps
-                    .Where(s => s.Specialization != null && WeaponRules.BySkill.ContainsKey(s.SkillName))
-                    .ToDictionary(s => (s.SkillName, s.Specialization!), s => s.PurchasedRanks);
-                _baselineSpellAllocs = snaps
-                    .Where(s => s.Specialization != null && s.Category == "Spellcasting")
-                    .ToDictionary(s => (s.SkillName, s.Specialization!), s => s.PurchasedRanks);
-                _baselineGenericAllocs = snaps
-                    .Where(s => s.Specialization != null && IsGenericSpecialized(s.SkillName))
-                    .ToDictionary(s => (s.SkillName, s.Specialization!), s => s.PurchasedRanks);
-            }
-            else
-            {
-                // Fallback for characters that levelled up before snapshot support was added
-                _baselinePurchased = _char.Skills
-                    .Where(s => !(WeaponRules.BySkill.ContainsKey(s.SkillName) && s.Specialization != null)
-                             && !(s.Category == "Spellcasting" && s.Specialization != null))
-                    .GroupBy(s => s.SkillName)
-                    .ToDictionary(g => g.Key, g => g.Sum(s => s.PurchasedRanks));
-                _baselineWeaponAllocs  = _weaponAllocs.ToDictionary(w => (w.SkillName, w.Specialization), w => w.Ranks);
-                _baselineSpellAllocs   = _spellAllocs.ToDictionary(s => (s.SkillName, s.Specialization), s => s.Ranks);
-                _baselineGenericAllocs = _genericAllocs.ToDictionary(g => (g.SkillName, g.Specialization), g => g.Ranks);
-            }
+            var snaps = JsonSerializer.Deserialize<List<SkillSnap>>(_char.LevelUpBaselineJson!, jsonOpts) ?? [];
+            _baselinePurchased = snaps
+                .Where(s => s.Specialization == null
+                         && !WeaponRules.BySkill.ContainsKey(s.SkillName)
+                         && s.Category != "Spellcasting")
+                .ToDictionary(s => s.SkillName, s => s.PurchasedRanks);
+            _baselineWeaponAllocs = snaps
+                .Where(s => s.Specialization != null && WeaponRules.BySkill.ContainsKey(s.SkillName))
+                .ToDictionary(s => (s.SkillName, s.Specialization!), s => s.PurchasedRanks);
+            _baselineSpellAllocs = snaps
+                .Where(s => s.Specialization != null && s.Category == "Spellcasting")
+                .ToDictionary(s => (s.SkillName, s.Specialization!), s => s.PurchasedRanks);
+            _baselineGenericAllocs = snaps
+                .Where(s => s.Specialization != null && IsGenericSpecialized(s.SkillName))
+                .ToDictionary(s => (s.SkillName, s.Specialization!), s => s.PurchasedRanks);
 
             _baselineTalentIds = _char.Talents.Select(t => t.Id).ToHashSet();
 
@@ -429,7 +431,19 @@ public partial class CharacterWizard
         if (_isLevelUp)
         {
             int prev = PrevLevelUpStep(_step);
-            if (prev < 0) { Nav.NavigateTo($"/character/{Id}/sheet"); return; }
+            if (prev < 0)
+            {
+                // Step 1's button says Cancel, so when nothing has been bought or rolled it has
+                // to actually cancel: drop the frozen snapshots, and the level stays put because
+                // Finish is what raises it. Once something has been spent the snapshots must
+                // stay — clearing them would let the player keep the purchases and then start a
+                // second level-up with a fresh budget — so the button leaves the level-up open
+                // and simply returns to the sheet, where it can be resumed.
+                if (_levelUpUntouched) ClearLevelUpMarkers();
+                await Db.SaveChangesAsync();
+                Nav.NavigateTo($"/character/{Id}/sheet");
+                return;
+            }
             _step = prev;
         }
         else
@@ -440,10 +454,37 @@ public partial class CharacterWizard
         await Db.SaveChangesAsync();
     }
 
+    // Nothing bought, no talent taken and no stat rolled, so a cancel leaves nothing behind.
+    bool _levelUpUntouched =>
+        _statGainRollsUsed == 0
+        && _dpSpent == 0
+        && _char!.Talents.All(t => _baselineTalentIds.Contains(t.Id));
+
+    void ClearLevelUpMarkers()
+    {
+        _char!.LevelUpBaselineJson = null;
+        _char.StatBaselineJson     = null;
+        _char.StatGainRollsJson    = null;  // the next level-up starts with its two free rolls
+        _char.WizardStep           = 1;
+    }
+
+    // Finish writes the level and drops the snapshots, so running it twice would bank two levels
+    // and consume the racial pool twice over. The button is easy to double-click.
+    bool _finishing;
+
     async Task FinishAsync()
     {
         _error = null;
+        if (_finishing) return;
         if (!ValidateStep(_step)) return;
+        // The purchase handlers all refuse to overspend, so this only fires if the budget shrank
+        // underneath them — a GM lowering the DP adjustment mid-wizard, say.
+        if (_dpRemaining < 0)
+        {
+            _error = $"You are {-_dpRemaining} DP over budget. Remove some purchases before finishing.";
+            return;
+        }
+        _finishing = true;
         await SaveStepAsync();
 
         // Consume bonus DPs from the racial pool (capped at 25 per level). The free base is
@@ -456,10 +497,12 @@ public partial class CharacterWizard
 
         if (_isLevelUp)
         {
-            _char.WizardStep = 1;           // ready for next level-up
-            _char.LevelUpBaselineJson = null; // clear frozen snapshots
-            _char.StatBaselineJson    = null;
-            _char.StatGainRollsJson   = null; // next level-up starts with its two free rolls
+            // The level is earned by completing the wizard, not by opening it. Holding the
+            // increment back to here is what lets a cancelled or abandoned level-up leave the
+            // character where it was, and it keeps the level from doubling as a "level-up under
+            // way" flag — the frozen snapshot is that flag, and it is cleared immediately below.
+            _char.Level++;
+            ClearLevelUpMarkers();
         }
         await Db.SaveChangesAsync();
         Nav.NavigateTo($"/character/{Id}/sheet");

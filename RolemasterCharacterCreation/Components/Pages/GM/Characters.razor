@@ -119,8 +119,14 @@
                     }
                     else
                     {
-                        <a class="btn btn-sm @(CanAccessWizard(ch) ? "btn-outline-success" : "btn-outline-secondary") me-1"
-                           href="@($"/character/{ch.Id}/wizard")">Wizard@(ch.LevelUpBaselineJson != null ? " ▶" : "")</a>
+                        @* Only offered when the wizard has something to do: it now turns away a
+                           character with no creation or level-up under way, so a greyed-out link
+                           would simply bounce back here. Use Edit for a finished character. *@
+                        @if (CanAccessWizard(ch))
+                        {
+                            <a class="btn btn-sm btn-outline-success me-1"
+                               href="@($"/character/{ch.Id}/wizard")">Wizard@(ch.LevelUpBaselineJson != null ? " ▶" : "")</a>
+                        }
                         <a class="btn btn-sm btn-outline-primary me-1" href="@($"/character/{ch.Id}/sheet")">Show</a>
                         <a class="btn btn-sm btn-outline-warning me-1" href="@($"/character/{ch.Id}/gm-edit")">Edit</a>
                         <button class="btn btn-sm btn-outline-secondary me-1" @onclick="() => { _assignId = ch.Id; _assignUserId = ch.UserId; }">Assign</button>
@@ -153,10 +159,7 @@
     private string? _assignUserId;
     private CreateModel _createModel = new();
 
-    static bool CanAccessWizard(Character ch) =>
-        (ch.Level == 1 && ch.WizardStep < 5) ||
-        ch.LevelUpBaselineJson != null         ||
-        ch.CurrentXp >= 10000 * ch.Level;
+    static bool CanAccessWizard(Character ch) => LevelUpRules.CanEnterWizard(ch);
 
     protected override async Task OnInitializedAsync()
     {
