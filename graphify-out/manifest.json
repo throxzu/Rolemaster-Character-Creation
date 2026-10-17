@@ -320,23 +320,23 @@
     "semantic_hash": "fcecbc33621a72621b9bc6471498db7c"
   },
   "RolemasterCharacterCreation/Components/Pages/CharacterEdit.razor": {
-    "mtime": 1790685790.8436954,
-    "ast_hash": "c05df49672d038200878cc02a57857fc",
+    "mtime": 1791531659.677118,
+    "ast_hash": "e22972b9bac941a2ed15572cd0446ff1",
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Components/Pages/CharacterSheet.razor": {
-    "mtime": 1790685779.417686,
-    "ast_hash": "d46b3ee83a4404dbf4b5a0a0b0659dfe",
+    "mtime": 1791531261.3230166,
+    "ast_hash": "9e994d63eec1711294369a4e50bd84ae",
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Components/Pages/CharacterWizard.razor": {
-    "mtime": 1790771788.0310383,
-    "ast_hash": "2fb58dba73e47be2c77152c1816e8588",
+    "mtime": 1792224725.647726,
+    "ast_hash": "5e8875573fb169388c58d9bf23022bec",
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Components/Pages/CharacterWizard.razor.cs": {
-    "mtime": 1790341631.6522994,
-    "ast_hash": "88b33733a949e36bff2a657c0200d755",
+    "mtime": 1792224725.6684594,
+    "ast_hash": "6b2354f0f215758b5ec1d829e29d64a1",
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Components/Pages/Chat.razor": {
@@ -365,9 +365,9 @@
     "semantic_hash": "663c75c141633dd62589b4a5dc5ad52a"
   },
   "RolemasterCharacterCreation/Components/Pages/GM/CampaignSettingsPage.razor": {
-    "mtime": 1782066474.8882556,
-    "ast_hash": "fff2061ef0b9960c55b9e091b106bb18",
-    "semantic_hash": "fff2061ef0b9960c55b9e091b106bb18"
+    "mtime": 1792220983.1117363,
+    "ast_hash": "7514598503ebeaed37ddec9781fef383",
+    "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Components/Pages/GM/CharacterGmEdit.razor": {
     "mtime": 1790771608.9764135,
@@ -375,9 +375,9 @@
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Components/Pages/GM/Characters.razor": {
-    "mtime": 1782150842.054111,
-    "ast_hash": "05bb5c75f9ebd8714536fb4f1598567e",
-    "semantic_hash": "05bb5c75f9ebd8714536fb4f1598567e"
+    "mtime": 1791531651.4715734,
+    "ast_hash": "4a2656571d0732ef590391924cb4ada2",
+    "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Components/Pages/GM/Creatures.razor": {
     "mtime": 1781977894.580825,
@@ -410,8 +410,8 @@
     "semantic_hash": "ffc3167482469fe34c2a54246e33b963"
   },
   "RolemasterCharacterCreation/Components/Pages/Player/Characters.razor": {
-    "mtime": 1789217840.5423925,
-    "ast_hash": "b6283bb4ce1849d6c83f0caeccccd2bf",
+    "mtime": 1791531153.5623136,
+    "ast_hash": "7671ae60f683f3358c5d0c403639487c",
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Components/Pages/ReferenceTables.razor": {
@@ -900,8 +900,8 @@
     "semantic_hash": "1ad820ebf406172d9a9835eda496158d"
   },
   "RolemasterCharacterCreation/Data/Migrations/AppDbContextModelSnapshot.cs": {
-    "mtime": 1790771639.6037657,
-    "ast_hash": "8a326402e6b1e9d0228772858db074ee",
+    "mtime": 1792220968.246931,
+    "ast_hash": "84ac8b59e662c631d9ff7bb45f21838a",
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Identity/CountryDialCodes.cs": {
@@ -985,9 +985,9 @@
     "semantic_hash": "d50f8d92a566b6c47d18b0485522b15a"
   },
   "RolemasterCharacterCreation/Models/CampaignSettings.cs": {
-    "mtime": 1782066474.8882556,
-    "ast_hash": "8dec1c78a42dcd89ade59cdf21d6af3e",
-    "semantic_hash": "8dec1c78a42dcd89ade59cdf21d6af3e"
+    "mtime": 1792220945.6500669,
+    "ast_hash": "4b6f1a797ad51f19e000f9c021c39e83",
+    "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Models/CaveCategory.cs": {
     "mtime": 1781944895.4058588,
@@ -1020,8 +1020,8 @@
     "semantic_hash": "979acdb08fa8c60fba5e69751d3dba8c"
   },
   "RolemasterCharacterCreation/Models/Character.cs": {
-    "mtime": 1790682849.401946,
-    "ast_hash": "99ca333f2c61afdca8eb3fd9a3426aec",
+    "mtime": 1791531161.1539538,
+    "ast_hash": "ee7c634e0690ef0bb3b5aa7422ad64df",
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Models/CharacterAuditLog.cs": {
@@ -2117,6 +2117,36 @@
   "RolemasterCharacterCreation/Data/Migrations/20260930123359_DeduplicateCharacterTalents.cs": {
     "mtime": 1790771652.4444675,
     "ast_hash": "db7ab1910af40ce4b12dae7cd4d2c619",
+    "semantic_hash": ""
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20261009073327_BackOutPreIncrementedLevelUps.Designer.cs": {
+    "mtime": 1791531207.8009434,
+    "ast_hash": "dce4c380ead508a3bfd73847d4c8054b",
+    "semantic_hash": ""
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20261009073327_BackOutPreIncrementedLevelUps.cs": {
+    "mtime": 1791531222.6042998,
+    "ast_hash": "85e07585942509020e636f5fcab1cf37",
+    "semantic_hash": ""
+  },
+  "RolemasterCharacterCreation/Rules/Character/LevelUpRules.cs": {
+    "mtime": 1791531787.6986728,
+    "ast_hash": "bce05e69385a7aa96e82ee3951114e3a",
+    "semantic_hash": ""
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20261017070928_AddOldStyleStatGainHouseRule.Designer.cs": {
+    "mtime": 1792220968.246931,
+    "ast_hash": "58a3d43677798ae124ab8d62bbcf3eb9",
+    "semantic_hash": ""
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20261017070928_AddOldStyleStatGainHouseRule.cs": {
+    "mtime": 1792220968.246931,
+    "ast_hash": "814a324a1698da4e4cceedbeeea69927",
+    "semantic_hash": ""
+  },
+  "RolemasterCharacterCreation/Rules/Character/OldStatGainRules.cs": {
+    "mtime": 1792220938.252587,
+    "ast_hash": "088ccbcf7bbb38bfc19affeb76bce39b",
     "semantic_hash": ""
   }
 }
