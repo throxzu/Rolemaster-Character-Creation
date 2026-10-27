@@ -1760,6 +1760,9 @@ namespace RolemasterCharacterCreation.Data.Migrations
                     b.Property<string>("GmNotes")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("NotesAreHtml")
+                        .HasColumnType("bit");
+
                     b.Property<string>("PublicNotes")
                         .HasColumnType("nvarchar(max)");
 
@@ -1779,6 +1782,54 @@ namespace RolemasterCharacterCreation.Data.Migrations
                     b.HasIndex("SessionDate");
 
                     b.ToTable("SessionNotes");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.SessionNoteImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<byte[]>("Data")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("FileName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("GmOnly")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Height")
+                        .HasColumnType("int");
+
+                    b.Property<string>("OriginalContentType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("OriginalData")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<int?>("SessionNoteId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Width")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SessionNoteId");
+
+                    b.ToTable("SessionNoteImages");
                 });
 
             modelBuilder.Entity("RolemasterCharacterCreation.Models.Spell", b =>
@@ -2715,6 +2766,16 @@ namespace RolemasterCharacterCreation.Data.Migrations
                     b.Navigation("GameSession");
                 });
 
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.SessionNoteImage", b =>
+                {
+                    b.HasOne("RolemasterCharacterCreation.Models.SessionNote", "SessionNote")
+                        .WithMany("Images")
+                        .HasForeignKey("SessionNoteId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("SessionNote");
+                });
+
             modelBuilder.Entity("RolemasterCharacterCreation.Models.Spell", b =>
                 {
                     b.HasOne("RolemasterCharacterCreation.Models.SpellList", "SpellList")
@@ -2953,6 +3014,11 @@ namespace RolemasterCharacterCreation.Data.Migrations
                     b.Navigation("Locations");
 
                     b.Navigation("Names");
+                });
+
+            modelBuilder.Entity("RolemasterCharacterCreation.Models.SessionNote", b =>
+                {
+                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("RolemasterCharacterCreation.Models.SpellFailureTable", b =>

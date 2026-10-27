@@ -3,6 +3,7 @@
 @attribute [Authorize]
 @using RolemasterCharacterCreation.Data
 @using RolemasterCharacterCreation.Models
+@using RolemasterCharacterCreation.Services
 @inject AppDbContext Db
 
 <PageTitle>Session Notes</PageTitle>
@@ -25,7 +26,18 @@ else
                 <div class="small text-muted">@n.SessionDate.ToString("dddd, d MMMM yyyy")</div>
                 @if (!string.IsNullOrWhiteSpace(n.PublicNotes))
                 {
-                    <p class="mt-3 mb-0" style="white-space:pre-wrap">@n.PublicNotes</p>
+                    @* Sanitised here as well as on save: this is the page a player sees, and
+                       it must not depend on every past and future write path having been
+                       careful. A note from before the editor existed is plain text and keeps
+                       rendering encoded, exactly as it always has. *@
+                    @if (n.NotesAreHtml)
+                    {
+                        <div class="note-content mt-3">@((MarkupString)HtmlSanitizing.Notes(n.PublicNotes))</div>
+                    }
+                    else
+                    {
+                        <p class="mt-3 mb-0" style="white-space:pre-wrap">@n.PublicNotes</p>
+                    }
                 }
             </div>
         </div>

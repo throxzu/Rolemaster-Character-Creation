@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @attribute [Authorize]
 @using RolemasterCharacterCreation.Data
+@using RolemasterCharacterCreation.Services
 @inject AppDbContext Db
 @inject CaveMapService Maps
 @inject AuthenticationStateProvider AuthState
@@ -52,7 +53,10 @@ else
                     </defs>
 
                     @* The uploaded cave SVG, shown exactly as drawn (never intercepts clicks). *@
-                    <g class="cave-embed" pointer-events="none">@((MarkupString)_render.Svg)</g>
+                    @* Sanitised on the way out, not just on upload: an SVG stored before this
+                       existed, or written by any path that skips the upload handler, still
+                       reaches the browser through here. *@
+                    <g class="cave-embed" pointer-events="none">@((MarkupString)HtmlSanitizing.MapSvg(_render.Svg))</g>
 
                     @* Faint placement grid — GM only. *@
                     @if (_isGm)

@@ -17,6 +17,14 @@ public class SessionNote
     // Secret notes for the GM's eyes only.
     public string? GmNotes { get; set; }
 
+    // True once the notes above hold rich text from the editor. Notes written before the
+    // editor existed are plain text and must keep rendering as such — sniffing for a '<'
+    // instead would mangle a note that legitimately says "a < b".
+    public bool NotesAreHtml { get; set; }
+
+    // Pictures pasted into either field. Deleting the note deletes them with it.
+    public List<SessionNoteImage> Images { get; set; } = [];
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

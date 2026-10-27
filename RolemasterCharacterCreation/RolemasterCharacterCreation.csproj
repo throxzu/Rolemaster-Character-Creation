@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
+    <PackageReference Include="HtmlSanitizer" Version="9.2.1039" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.8">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -29,11 +30,7 @@
        and .json are included — the large PDFs and the regenerated embedding cache are excluded.
        Not copied to the dev build output (dev reads ../docs via DocsLocator). -->
   <ItemGroup>
-    <None Include="..\docs\**\*.md;..\docs\**\*.json"
-          Exclude="..\docs\**\.embed-cache.json"
-          Link="docs\%(RecursiveDir)%(Filename)%(Extension)"
-          CopyToOutputDirectory="Never"
-          CopyToPublishDirectory="PreserveNewest" />
+    <None Include="..\docs\**\*.md;..\docs\**\*.json" Exclude="..\docs\**\.embed-cache.json" Link="docs\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="Never" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

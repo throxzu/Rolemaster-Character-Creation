@@ -537,3 +537,82 @@ h1:focus  { outline: none; }
 @media print {
     .ra-fab, .ra-panel { display: none !important; }
 }
+
+/* ── Session notes: rich text ───────────────────────────────────────────────
+   Quill ships a light theme; these pull it into the site's dark palette and keep a
+   pasted screenshot inside its card instead of bursting the layout. */
+.ql-toolbar.ql-snow,
+.ql-container.ql-snow {
+    border-color: var(--bs-border-color);
+}
+
+.ql-toolbar.ql-snow {
+    border-top-left-radius: var(--bs-border-radius);
+    border-top-right-radius: var(--bs-border-radius);
+    background: var(--bs-tertiary-bg);
+}
+
+.ql-container.ql-snow {
+    border-bottom-left-radius: var(--bs-border-radius);
+    border-bottom-right-radius: var(--bs-border-radius);
+    background: var(--bs-body-bg);
+}
+
+.ql-editor {
+    min-height: 9rem;
+    color: var(--bs-body-color);
+}
+
+.ql-editor.ql-blank::before {
+    color: var(--bs-secondary-color);
+    font-style: normal;
+}
+
+/* The toolbar's icons are drawn as strokes and fills on inline SVG, so they are invisible
+   against a dark bar until recoloured. */
+.ql-snow .ql-stroke        { stroke: var(--bs-body-color); }
+.ql-snow .ql-fill          { fill: var(--bs-body-color); }
+.ql-snow .ql-picker        { color: var(--bs-body-color); }
+.ql-snow .ql-picker-options { background: var(--bs-tertiary-bg); }
+.ql-snow .ql-active .ql-stroke { stroke: var(--qp-green, #4ade80); }
+.ql-snow .ql-active .ql-fill   { fill: var(--qp-green, #4ade80); }
+
+/* Rendered notes, on both the GM page and the players' read-only one. */
+.note-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--bs-border-radius);
+    cursor: zoom-in;
+}
+
+.note-content > :last-child { margin-bottom: 0; }
+.note-content blockquote {
+    border-left: 3px solid var(--bs-border-color);
+    padding-left: .75rem;
+    margin-left: 0;
+    color: var(--bs-secondary-color);
+}
+.note-content pre {
+    background: var(--bs-tertiary-bg);
+    padding: .5rem .75rem;
+    border-radius: var(--bs-border-radius);
+    white-space: pre-wrap;
+}
+/* Quill writes both kinds of list as <ol> and distinguishes them with data-list, so the
+   marker has to come from that rather than from the element. */
+.note-content li[data-list="bullet"]  { list-style-type: disc; }
+.note-content li[data-list="ordered"] { list-style-type: decimal; }
+
+.note-content .ql-align-center  { text-align: center; }
+.note-content .ql-align-right   { text-align: right; }
+.note-content .ql-align-justify { text-align: justify; }
+.note-content .ql-indent-1 { padding-left: 3em; }
+.note-content .ql-indent-2 { padding-left: 6em; }
+.note-content .ql-indent-3 { padding-left: 9em; }
+.note-content .ql-indent-4 { padding-left: 12em; }
+
+@media print {
+    .ql-toolbar { display: none !important; }
+    /* A tall screenshot must not push the rest of the recap onto its own page. */
+    .note-content img { max-height: 12cm; }
+}

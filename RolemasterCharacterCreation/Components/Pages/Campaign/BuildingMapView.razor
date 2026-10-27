@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @attribute [Authorize]
 @using RolemasterCharacterCreation.Data
+@using RolemasterCharacterCreation.Services
 @inject AppDbContext Db
 @inject BuildingMapService Maps
 @inject AuthenticationStateProvider AuthState
@@ -63,7 +64,10 @@ else
 
                     @* The uploaded building SVG, shown exactly as drawn (never intercepts clicks).
                        The floor's viewBox crops the full strip down to this one floor. *@
-                    <g class="bld-embed" pointer-events="none">@((MarkupString)_render.Svg)</g>
+                    @* Sanitised on the way out, not just on upload: an SVG stored before this
+                       existed, or written by any path that skips the upload handler, still
+                       reaches the browser through here. *@
+                    <g class="bld-embed" pointer-events="none">@((MarkupString)HtmlSanitizing.MapSvg(_render.Svg))</g>
 
                     @* Faint placement grid — GM only. *@
                     @if (_isGm)

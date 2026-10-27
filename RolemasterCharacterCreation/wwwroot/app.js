@@ -262,3 +262,171 @@ window.fogPaint = (function () {
         setEnabled: function (v) { enabled = !!v; }
     };
 })();
+
+// ── Session note editor ─────────────────────────────────────────────────────
+// Quill wrapper for the two rich-text fields on the GM's session notes page. The .NET side
+// pulls the HTML with getHtml() when Save is pressed rather than being told about every
+// keystroke, which would chatter across the circuit for no benefit.
+window.noteEditor = (function () {
+    const editors = new Map();          // key -> Quill instance
+
+    const TOOLBAR = [
+        [{ header: [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        [{ align: [] }],
+        ['blockquote', 'code-block', 'link'],
+        ['image'],
+        ['clean'],
+    ];
+
+    // A pasted phone screenshot is routinely several megabytes and 4000px wide, which is both
+    // far more than the page can show and a lot to keep in SQL. Re-encode a display copy in
+    // the browser: it keeps ImageSharp out of the server entirely, and the untouched original
+    // is uploaded alongside so nothing is actually lost.
+    const MAX_EDGE = 1600;
+
+    function downscale(file) {
+        return new Promise((resolve) => {
+            const url = URL.createObjectURL(file);
+            const img = new Image();
+            img.onload = () => {
+                URL.revokeObjectURL(url);
+                const scale = Math.min(1, MAX_EDGE / Math.max(img.width, img.height));
+                if (scale === 1 && file.size < 400 * 1024) {
+                    // Already small: let it be its own display copy rather than re-encoding
+                    // a screenshot of text into something blurrier than it started.
+                    resolve({ blob: file, width: img.width, height: img.height, verbatim: true });
+                    return;
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = Math.round(img.width * scale);
+                canvas.height = Math.round(img.height * scale);
+                const ctx = canvas.getContext('2d');
+                ctx.imageSmoothingQuality = 'high';
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                canvas.toBlob(
+                    (blob) => resolve({ blob, width: canvas.width, height: canvas.height, verbatim: false }),
+                    'image/webp', 0.85);
+            };
+            img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+            img.src = url;
+        });
+    }
+
+    function antiforgeryToken() {
+        const el = document.querySelector('input[name="__RequestVerificationToken"]');
+        return el ? el.value : '';
+    }
+
+    async function upload(file, gmOnly) {
+        const small = await downscale(file);
+        if (!small || !small.blob) throw new Error('That file could not be read as an image.');
+
+        const form = new FormData();
+        const name = file.name || 'pasted.png';
+        form.append('display', small.blob, small.verbatim ? name : name.replace(/\.[^.]+$/, '') + '.webp');
+        if (!small.verbatim) form.append('original', file, name);
+        form.append('width', small.width);
+        form.append('height', small.height);
+        form.append('gmOnly', gmOnly ? 'true' : 'false');
+        form.append('__RequestVerificationToken', antiforgeryToken());
+
+        const res = await fetch('/session-notes/image', { method: 'POST', body: form });
+        if (!res.ok) throw new Error(await res.text() || 'The upload was refused.');
+        return await res.json();
+    }
+
+    function insertImage(quill, url) {
+        const range = quill.getSelection(true);
+        quill.insertEmbed(range.index, 'image', url, 'user');
+        quill.setSelection(range.index + 1, 0, 'user');
+    }
+
+    async function handleFiles(quill, files, gmOnly, onError) {
+        for (const file of files) {
+            if (!file.type.startsWith('image/')) continue;
+            try {
+                const result = await upload(file, gmOnly);
+                insertImage(quill, result.url);
+            } catch (e) {
+                onError(e.message || String(e));
+            }
+        }
+    }
+
+    return {
+        init: function (key, element, initialHtml, gmOnly, dotNetRef) {
+            if (editors.has(key)) this.destroy(key);
+
+            // .NET passes the element's id. Quill takes a node or a CSS selector, so a bare id
+            // has to be looked up rather than handed straight over.
+            const el = typeof element === 'string'
+                ? (document.getElementById(element) || document.querySelector(element))
+                : element;
+            if (!el) { console.error('noteEditor: no element for ' + element); return; }
+
+            const quill = new Quill(el, {
+                theme: 'snow',
+                modules: { toolbar: TOOLBAR },
+                placeholder: 'Write the session up…',
+            });
+            if (initialHtml) quill.clipboard.dangerouslyPasteHTML(initialHtml, 'silent');
+
+            const report = (msg) => {
+                if (dotNetRef) dotNetRef.invokeMethodAsync('OnEditorError', msg);
+                else console.error(msg);
+            };
+
+            // Toolbar button, paste and drop all funnel into the same upload path.
+            quill.getModule('toolbar').addHandler('image', () => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/png,image/jpeg,image/webp,image/gif';
+                input.onchange = () => handleFiles(quill, input.files, gmOnly, report);
+                input.click();
+            });
+
+            // Capture phase, because Quill binds its own paste handler during construction and
+            // would otherwise get there first and inline the picture as a base64 data: URI —
+            // which the sanitiser then drops, and which bloats the note enormously besides.
+            quill.root.addEventListener('paste', (e) => {
+                const files = [...(e.clipboardData?.files || [])].filter(f => f.type.startsWith('image/'));
+                if (files.length === 0) return;      // let Quill handle pasted text normally
+                e.preventDefault();
+                e.stopPropagation();
+                handleFiles(quill, files, gmOnly, report);
+            }, true);
+
+            quill.root.addEventListener('drop', (e) => {
+                const files = [...(e.dataTransfer?.files || [])].filter(f => f.type.startsWith('image/'));
+                if (files.length === 0) return;
+                e.preventDefault();
+                e.stopPropagation();
+                handleFiles(quill, files, gmOnly, report);
+            }, true);
+
+            editors.set(key, quill);
+        },
+
+        getHtml: function (key) {
+            const quill = editors.get(key);
+            if (!quill) return '';
+            // Quill writes "<p><br></p>" for an empty document; report that as empty so the
+            // note stores NULL rather than a paragraph containing nothing.
+            const html = quill.root.innerHTML;
+            return (html === '<p><br></p>' || html.trim() === '') ? '' : html;
+        },
+
+        destroy: function (key) {
+            const quill = editors.get(key);
+            if (!quill) return;
+            // Quill inserts its toolbar as a sibling before the container. Blazor does not own
+            // that node, so without this a reopened editor stacks a second toolbar above itself.
+            const toolbar = quill.container.previousElementSibling;
+            if (toolbar && toolbar.classList.contains('ql-toolbar')) toolbar.remove();
+            quill.root.innerHTML = '';
+            editors.delete(key);
+        },
+    };
+})();

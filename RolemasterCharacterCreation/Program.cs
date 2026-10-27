@@ -6,6 +6,7 @@ using RolemasterCharacterCreation.Client;
 using RolemasterCharacterCreation.Client.Pages;
 using RolemasterCharacterCreation.Components;
 using RolemasterCharacterCreation.Data;
+using RolemasterCharacterCreation.Endpoints;
 using RolemasterCharacterCreation.Identity;
 using RolemasterCharacterCreation.Models;
 using RolemasterCharacterCreation.Services;
@@ -90,6 +91,13 @@ builder.Services.AddSingleton<BuildingMapService>();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
+
+// A session recap is pulled out of the rich-text editor in one piece when the GM presses Save.
+// SignalR's 32 KB default would tear the circuit down mid-save on a long write-up, losing it,
+// so the ceiling is raised to something a page of prose cannot reach. Pictures do not count
+// towards this: they upload over plain HTTP and the note only carries their URLs.
+builder.Services.Configure<Microsoft.AspNetCore.SignalR.HubOptions>(o =>
+    o.MaximumReceiveMessageSize = 1024 * 1024);
 
 var app = builder.Build();
 
@@ -192,6 +200,7 @@ app.Use(async (context, next) =>
 app.UseAntiforgery();
 
 app.MapStaticAssets();
+app.MapSessionNoteImages();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
     .AddInteractiveWebAssemblyRenderMode()

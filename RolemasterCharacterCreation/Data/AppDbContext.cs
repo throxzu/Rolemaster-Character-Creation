@@ -62,6 +62,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<ChatRead> ChatReads => Set<ChatRead>();
     public DbSet<CampaignSettings> CampaignSettings => Set<CampaignSettings>();
     public DbSet<SessionNote> SessionNotes => Set<SessionNote>();
+    public DbSet<SessionNoteImage> SessionNoteImages => Set<SessionNoteImage>();
     public DbSet<GameSession> GameSessions => Set<GameSession>();
     public DbSet<SessionAttendance> SessionAttendances => Set<SessionAttendance>();
     public DbSet<Encounter> Encounters => Set<Encounter>();
@@ -70,6 +71,19 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        // A picture only means anything inside its note, so deleting the note takes it with
+        // it rather than stranding rows no page can reach. The FK stays optional because an
+        // image uploaded while a new session is still being composed has no note yet.
+        modelBuilder.Entity<SessionNoteImage>()
+            .HasOne(i => i.SessionNote)
+            .WithMany(n => n.Images)
+            .HasForeignKey(i => i.SessionNoteId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<SessionNoteImage>()
+            .Property(i => i.ContentType)
+            .HasMaxLength(100);
 
         modelBuilder.Entity<Character>()
             .Property(c => c.Name)
