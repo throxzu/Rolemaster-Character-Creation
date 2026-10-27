@@ -1,7 +1,9 @@
 @page "/campaign/world-maps/{Id:int}"
 @rendermode InteractiveServer
 @attribute [Authorize]
+@using System.Text.Json.Nodes
 @using RolemasterCharacterCreation.Data
+@using RolemasterCharacterCreation.Services
 @inject AppDbContext Db
 @inject WorldMapService Maps
 @inject AuthenticationStateProvider AuthState
@@ -63,6 +65,7 @@ else
                         {
                             var mark = Mark(h.Q, h.R);
                             <polygon points="@h.Points" class="wm-hex"
+                                     data-q="@h.Q" data-r="@h.R"
                                      style="fill:@h.Fill;stroke:@h.Fill"
                                      @onclick="e => OnHexClick(h.Q, h.R, e)"
                                      @oncontextmenu="e => OnHexContext(h.Q, h.R, e)"
@@ -101,21 +104,27 @@ else
                     {
                         @foreach (var l in _render.Rivers)
                         {
-                            <polyline points="@l.Points" class="wm-river" />
+                            <polyline points="@l.Points"
+                                      class=@("wm-river " + (_selectedPath == ("rivers", l.Key) ? "wm-path-sel" : ""))
+                                      @onclick=@(() => SelectPath("rivers", l.Key)) />
                         }
                     }
                     @if (_showRoads)
                     {
                         @foreach (var l in _render.Roads)
                         {
-                            <polyline points="@l.Points" class="wm-road" />
+                            <polyline points="@l.Points"
+                                      class=@("wm-road " + (_selectedPath == ("roads", l.Key) ? "wm-path-sel" : ""))
+                                      @onclick=@(() => SelectPath("roads", l.Key)) />
                         }
                     }
                     @if (_showSeaRoutes)
                     {
                         @foreach (var l in _render.SeaRoutes)
                         {
-                            <polyline points="@l.Points" class="wm-searoute" />
+                            <polyline points="@l.Points"
+                                      class=@("wm-searoute " + (_selectedPath == ("searoutes", l.Key) ? "wm-path-sel" : ""))
+                                      @onclick=@(() => SelectPath("searoutes", l.Key)) />
                         }
                     }
                     @* POIs in unrevealed hexes are not rendered for players (no leak). *@
@@ -140,14 +149,42 @@ else
 
                     @* Fog-paint layer (GM only): click or drag hexes to reveal / hide them.
                        Painting is handled in JS (fogPaint) for a smooth drag. *@
-                    @if (_isGm && _fogMode)
+                    @if (_isGm && (_fogMode || _editMode))
                     {
                         @foreach (var c in _render.Cells)
                         {
+                            @* One overlay, two jobs: fog painting shades it, map editing uses
+                               it only as a hit target and leaves it invisible. The terrain
+                               brush drags over it in JS; tracing a path clicks it here. *@
                             <polygon points="@Maps.HexPolygonPoints(c.Q, c.R)" data-q="@c.Q" data-r="@c.R"
-                                     class="wm-fc @(_revealed.Contains(c) ? "wm-fc-on" : "wm-fc-off")"
+                                     class="@(_fogMode
+                                                ? (_revealed.Contains(c) ? "wm-fc wm-fc-on" : "wm-fc wm-fc-off")
+                                                : $"wm-fc wm-fc-edit {(_tracing.Contains((c.Q, c.R)) ? "wm-fc-trace" : "")}")"
+                                     @onclick="() => OnEditHexClick(c.Q, c.R)"
                                      @oncontextmenu:preventDefault="true" @oncontextmenu:stopPropagation="true" />
                         }
+
+                        @* The hex overlay above covers the whole map, so a click meant for a
+                           road would never reach it. These are invisible copies of each path,
+                           drawn last with a fat transparent stroke: only the line itself takes
+                           the click, and everything else falls through to the overlay. *@
+                        <g class="wm-path-hits">
+                            @foreach (var l in _render.Roads)
+                            {
+                                <polyline points="@l.Points" class="wm-path-hit"
+                                          @onclick=@(() => SelectPath(WorldMapEditor.Roads, l.Key)) />
+                            }
+                            @foreach (var l in _render.Rivers)
+                            {
+                                <polyline points="@l.Points" class="wm-path-hit"
+                                          @onclick=@(() => SelectPath(WorldMapEditor.Rivers, l.Key)) />
+                            }
+                            @foreach (var l in _render.SeaRoutes)
+                            {
+                                <polyline points="@l.Points" class="wm-path-hit"
+                                          @onclick=@(() => SelectPath(WorldMapEditor.SeaRoutes, l.Key)) />
+                            }
+                        </g>
                     }
                 </svg>
             </div>
@@ -159,12 +196,86 @@ else
                 <div class="card mb-3">
                     <div class="card-body">
                         <div class="btn-group btn-group-sm w-100 mb-2" role="group">
-                            <button class="btn @(_fogMode ? "btn-outline-secondary" : "btn-dark")"
-                                    @onclick="() => SetFogModeAsync(false)">Edit POIs</button>
+                            <button class="btn @(!_fogMode && !_editMode ? "btn-dark" : "btn-outline-secondary")"
+                                    @onclick="() => SetModeAsync(fog: false, edit: false)">Edit POIs</button>
                             <button class="btn @(_fogMode ? "btn-dark" : "btn-outline-secondary")"
-                                    @onclick="() => SetFogModeAsync(true)">Fog of war</button>
+                                    @onclick="() => SetModeAsync(fog: true, edit: false)">Fog of war</button>
+                            <button class="btn @(_editMode ? "btn-warning" : "btn-outline-secondary")"
+                                    @onclick="() => SetModeAsync(fog: false, edit: true)">Edit map</button>
                         </div>
-                        @if (_fogMode)
+
+                        @if (_editMode)
+                        {
+                            <p class="small text-muted mb-2">
+                                Pick a terrain and drag across the map to paint it, or pick a path
+                                tool and click hex to hex — a click further off fills in the hexes
+                                between. Click a road, river or sea route to select it.
+                            </p>
+
+                            <div class="d-flex flex-wrap gap-1 mb-2">
+                                @foreach (var t in WorldMapEditor.Palette)
+                                {
+                                    <button class="btn btn-sm @(_terrain == t.Value && _tool is null ? "btn-warning" : "btn-outline-secondary")"
+                                            style="min-width:4.6rem" @onclick="() => PickTerrainAsync(t.Value)">
+                                        <span class="wm-swatch" style="background:@t.Fill"></span> @t.Label
+                                    </button>
+                                }
+                            </div>
+
+                            <div class="btn-group btn-group-sm w-100 mb-2" role="group">
+                                <button class="btn @(_wideBrush ? "btn-outline-secondary" : "btn-dark")"
+                                        @onclick="() => SetBrushWidthAsync(false)">1 hex</button>
+                                <button class="btn @(_wideBrush ? "btn-dark" : "btn-outline-secondary")"
+                                        @onclick="() => SetBrushWidthAsync(true)">7 hexes</button>
+                            </div>
+
+                            <div class="btn-group btn-group-sm w-100 mb-2" role="group">
+                                @foreach (var (layer, label) in new[] {
+                                    (WorldMapEditor.Roads, "Road"),
+                                    (WorldMapEditor.Rivers, "River"),
+                                    (WorldMapEditor.SeaRoutes, "Sea route") })
+                                {
+                                    <button class="btn @(_tool == layer ? "btn-warning" : "btn-outline-secondary")"
+                                            @onclick="() => PickToolAsync(layer)">@label</button>
+                                }
+                            </div>
+
+                            @if (_tool is not null)
+                            {
+                                <div class="alert alert-secondary py-2 small mb-2">
+                                    Tracing a @(_tool == WorldMapEditor.SeaRoutes ? "sea route" : _tool!.TrimEnd('s')):
+                                    <strong>@_tracing.Count hex@(_tracing.Count == 1 ? "" : "es")</strong>.
+                                    <div class="d-flex gap-2 mt-2">
+                                        <button class="btn btn-sm btn-success" disabled="@(_tracing.Count < 2)"
+                                                @onclick="FinishPathAsync">Finish</button>
+                                        <button class="btn btn-sm btn-outline-secondary" @onclick="CancelTrace">Cancel</button>
+                                    </div>
+                                </div>
+                            }
+
+                            @if (_selectedPath is not null)
+                            {
+                                <div class="alert alert-warning py-2 small mb-2">
+                                    Selected @_selectedPath.Value.Layer.TrimEnd('s').
+                                    <button class="btn btn-sm btn-outline-danger ms-2" @onclick="DeleteSelectedPathAsync">Delete it</button>
+                                </div>
+                            }
+
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-secondary" disabled="@(_undo.Count == 0)"
+                                        @onclick="UndoAsync">↶ Undo@(_undo.Count > 0 ? $" ({_undo.Count})" : "")</button>
+                                <button class="btn btn-sm btn-outline-danger" @onclick="RevertToOriginalAsync"
+                                        title="Restore the map exactly as it was imported. POIs and fog are kept.">
+                                    Revert to original
+                                </button>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(_editMessage))
+                            {
+                                <div class="small text-muted mt-2">@_editMessage</div>
+                            }
+                        }
+                        @if (_fogMode && !_editMode)
                         {
                             <p class="small text-muted mb-2">
                                 Click a hex to <strong>reveal</strong> it to players; click a revealed hex to hide it again.
@@ -175,7 +286,7 @@ else
                             </div>
                             <div class="small text-muted mt-2">@_revealed.Count hex@(_revealed.Count == 1 ? "" : "es") revealed</div>
                         }
-                        else
+                        else if (!_editMode)
                         {
                             <ul class="small text-muted mb-2 ps-3">
                                 <li><strong>Left-click</strong> a hex → pick a type to drop a POI.</li>
@@ -469,6 +580,7 @@ else
 
         if (_map is not null)
         {
+            await PrepareForEditingAsync();
             _render = Maps.Build(_map.RawJson);
             RebuildMarks();
 
@@ -513,6 +625,7 @@ else
             await JS.InvokeVoidAsync("townMap.attach", _frame);
             _dotNetRef ??= DotNetObjectReference.Create(this);
             await JS.InvokeVoidAsync("fogPaint.init", _frame, _dotNetRef);
+            await JS.InvokeVoidAsync("worldEdit.init", _frame, _dotNetRef);
         }
 
         if (_editor is not null)
@@ -524,10 +637,184 @@ else
     private async Task ZoomAsync(double factor) => await JS.InvokeVoidAsync("townMap.zoom", _frame, factor);
     private async Task ResetZoomAsync() => await JS.InvokeVoidAsync("townMap.reset", _frame);
 
-    private async Task SetFogModeAsync(bool on)
+    private async Task SetModeAsync(bool fog, bool edit)
     {
-        _fogMode = on;
-        await JS.InvokeVoidAsync("fogPaint.setEnabled", on);
+        _fogMode = fog;
+        _editMode = edit;
+        CancelTrace();
+        _selectedPath = null;
+        _editMessage = null;
+
+        await JS.InvokeVoidAsync("fogPaint.setEnabled", fog);
+        await PushBrushAsync();
+    }
+
+    // ── Map editing (GM only) ────────────────────────────────────────────────
+
+    private bool _editMode;
+    private JsonNode? _doc;                                   // parsed once, mutated in place
+    private readonly Stack<WorldMapEditor.Op> _undo = new();
+    private string _terrain = "forest-dark";
+    private bool _wideBrush;
+    private string? _tool;                                    // the path layer being traced
+    private readonly List<(int Q, int R)> _tracing = [];
+    private (string Layer, string Key)? _selectedPath;
+    private string? _editMessage;
+
+    private bool CanEdit => _isGm && _map is not null && _doc is not null;
+
+    // One-time setup, safe on every load: the snapshot is only taken when there isn't one.
+    // No stable-id work here — a world mark is keyed on HexQ/HexR, which cannot drift.
+    private async Task PrepareForEditingAsync()
+    {
+        if (_map!.OriginalJson is null)
+        {
+            _map.OriginalJson = _map.RawJson;
+            await Db.SaveChangesAsync();
+        }
+        _doc = WorldMapEditor.Parse(_map.RawJson);
+    }
+
+    // The brush is armed only while Edit map is showing and a terrain, not a path tool, is chosen.
+    private async Task PushBrushAsync()
+    {
+        var fill = WorldMapEditor.Palette.FirstOrDefault(t => t.Value == _terrain).Fill;
+        await JS.InvokeVoidAsync("worldEdit.setBrush",
+            _editMode && _tool is null, _terrain, fill, _wideBrush);
+    }
+
+    private async Task PickTerrainAsync(string terrain)
+    {
+        _terrain = terrain;
+        _tool = null;                 // picking a colour puts the path tool down
+        _tracing.Clear();
+        await PushBrushAsync();
+    }
+
+    private async Task SetBrushWidthAsync(bool wide)
+    {
+        _wideBrush = wide;
+        await PushBrushAsync();
+    }
+
+    private async Task PickToolAsync(string layer)
+    {
+        _tool = _tool == layer ? null : layer;   // clicking the active tool puts it down
+        _tracing.Clear();
+        _selectedPath = null;
+        await PushBrushAsync();
+    }
+
+    private void CancelTrace()
+    {
+        _tool = null;
+        _tracing.Clear();
+    }
+
+    /// <summary>A whole brush stroke, flat [q,r,q,r,…]. Called from JS on pointer-up.</summary>
+    [JSInvokable]
+    public async Task ApplyTerrainBatch(int[] cells, string terrain)
+    {
+        if (!CanEdit || !_editMode || cells is null || cells.Length < 2) return;
+
+        var list = new List<(int, int)>(cells.Length / 2);
+        for (int i = 0; i + 1 < cells.Length; i += 2) list.Add((cells[i], cells[i + 1]));
+
+        var inverse = WorldMapEditor.SetTerrain(_doc!, list, terrain);
+        if (inverse is null) return;
+
+        _undo.Push(inverse);
+        await PersistAndRebuildAsync();
+    }
+
+    // A click while a path tool is down extends the trace; the hex line fills any gap, so a
+    // long road is a few clicks rather than one per hex.
+    private void OnEditHexClick(int q, int r)
+    {
+        if (!CanEdit || !_editMode || _tool is null) return;
+
+        if (_tracing.Count == 0) { _tracing.Add((q, r)); return; }
+        if (_tracing[^1] == (q, r)) return;
+
+        foreach (var step in WorldMapService.HexLine(_tracing[^1], (q, r)).Skip(1))
+            _tracing.Add(step);
+    }
+
+    private async Task FinishPathAsync()
+    {
+        if (!CanEdit || _tool is null || _tracing.Count < 2) return;
+
+        var inverse = WorldMapEditor.CreatePath(_doc!, _tool, _tracing, out var key);
+        if (inverse is null) { _editMessage = "That path could not be added."; return; }
+
+        _undo.Push(inverse);
+        _editMessage = $"Added {key}.";
+        _tracing.Clear();
+        _tool = null;
+        await PushBrushAsync();
+        await PersistAndRebuildAsync();
+    }
+
+    private void SelectPath(string layer, string key)
+    {
+        if (!_editMode) return;
+        _selectedPath = _selectedPath == (layer, key) ? null : (layer, key);
+    }
+
+    private async Task DeleteSelectedPathAsync()
+    {
+        if (!CanEdit || _selectedPath is not { } sel) return;
+
+        var inverse = WorldMapEditor.DeletePath(_doc!, sel.Layer, sel.Key);
+        if (inverse is null) return;
+
+        _undo.Push(inverse);
+        _selectedPath = null;
+        await PersistAndRebuildAsync();
+    }
+
+    private async Task UndoAsync()
+    {
+        if (!CanEdit || _undo.Count == 0) return;
+
+        var op = _undo.Pop();
+        if (WorldMapEditor.Apply(_doc!, op) is null)
+        {
+            _editMessage = "That change could not be undone.";
+            return;
+        }
+        _selectedPath = null;
+        _editMessage = null;
+        await PersistAndRebuildAsync();
+    }
+
+    private async Task RevertToOriginalAsync()
+    {
+        if (!CanEdit || _map!.OriginalJson is null) return;
+
+        _map.RawJson = _map.OriginalJson;
+        await Db.SaveChangesAsync();
+
+        _doc = WorldMapEditor.Parse(_map.RawJson);
+        _undo.Clear();
+        _selectedPath = null;
+        CancelTrace();
+        _render = Maps.Build(_map.RawJson);
+        RebuildMarks();
+        await PushBrushAsync();
+        _editMessage = "Reverted to the map as it was imported. POIs and fog were left alone.";
+    }
+
+    // Repainting one hex can move the coastline and add or remove glyphs, so unlike the town
+    // editor there is no patching the DOM — the render is rebuilt. Measured at about 13 ms
+    // for this map's 2538 hexes, which is why that is affordable once per stroke.
+    private async Task PersistAndRebuildAsync()
+    {
+        _map!.RawJson = WorldMapEditor.Serialize(_doc!);
+        await Db.SaveChangesAsync();
+        _render = Maps.Build(_map.RawJson);
+        RebuildMarks();
+        StateHasChanged();
     }
 
     // Applies a whole drag-paint stroke (flat [q,r,q,r,…]) in one save. Called from JS.

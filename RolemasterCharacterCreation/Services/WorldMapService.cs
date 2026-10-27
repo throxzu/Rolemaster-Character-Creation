@@ -20,7 +20,10 @@ public class WorldMapService
     private static readonly int[] EdgeForDir = [0, 5, 4, 3, 2, 1];
 
     public sealed record Hex(int Q, int R, string Points, string Fill);
-    public sealed record Line(string Points);
+    // Key identifies the path within its collection ("roads", "rivers", "searoutes") and is
+    // what the map editor edits against. The coastline is derived rather than stored, so it
+    // has no key and passes "".
+    public sealed record Line(string Key, string Points);
     public sealed record Pt(double X, double Y);
     public sealed record Mtn(string Tri, string Shadow);
     public sealed record ImportedPoi(int Q, int R, string Name, string Category, string? Info);
@@ -151,7 +154,7 @@ public class WorldMapService
             var smooth = Chaikin(loop, 2);
             var sb = new StringBuilder();
             foreach (var (x, y) in smooth) AppendPoint(sb, x, y);
-            if (sb.Length > 0) render.Coast.Add(new Line(sb.ToString()));
+            if (sb.Length > 0) render.Coast.Add(new Line("", sb.ToString()));
         }
 
         foreach (var line in KeyPathLines(root, "roads")) render.Roads.Add(line);
@@ -178,7 +181,7 @@ public class WorldMapService
                 var smooth = ChaikinOpen(pts, 2);
                 var sb = new StringBuilder();
                 foreach (var (x, y) in smooth) AppendPoint(sb, x, y);
-                render.Rivers.Add(new Line(sb.ToString()));
+                render.Rivers.Add(new Line(prop.Name, sb.ToString()));
             }
         }
 
@@ -360,9 +363,78 @@ public class WorldMapService
             var smooth = ChaikinOpen(pts, 2);
             var sb = new StringBuilder();
             foreach (var (x, y) in smooth) AppendPoint(sb, x, y);
-            yield return new Line(sb.ToString());
+            yield return new Line(path.Name, sb.ToString());
         }
     }
+
+    /// <summary>
+    /// The six hexes touching this one. The export's layout is "even-r" — even rows are the
+    /// ones nudged right — so which way the diagonals lean depends on the row's parity.
+    /// </summary>
+    public static IEnumerable<(int Q, int R)> Neighbours(int q, int r)
+    {
+        bool even = (r & 1) == 0;
+        int lean = even ? 0 : -1;        // diagonals shift left on odd rows
+        yield return (q + 1, r);
+        yield return (q - 1, r);
+        yield return (q + 1 + lean, r - 1);
+        yield return (q + lean, r - 1);
+        yield return (q + 1 + lean, r + 1);
+        yield return (q + lean, r + 1);
+    }
+
+    /// <summary>This hex and its six neighbours — the wide brush.</summary>
+    public static IEnumerable<(int Q, int R)> Blob(int q, int r)
+    {
+        yield return (q, r);
+        foreach (var n in Neighbours(q, r)) yield return n;
+    }
+
+    /// <summary>
+    /// Every hex on the straight line from a to b, inclusive. Lets the GM click the far end of
+    /// a road instead of every hex along it. Works in cube coordinates, where interpolation is
+    /// a straight line; offset coordinates are not evenly spaced and would wander.
+    /// </summary>
+    public static List<(int Q, int R)> HexLine((int Q, int R) a, (int Q, int R) b)
+    {
+        var (ax, ay, az) = ToCube(a.Q, a.R);
+        var (bx, by, bz) = ToCube(b.Q, b.R);
+
+        int n = Math.Max(Math.Max(Math.Abs(ax - bx), Math.Abs(ay - by)), Math.Abs(az - bz));
+        var result = new List<(int, int)>();
+        if (n == 0) { result.Add(a); return result; }
+
+        for (int i = 0; i <= n; i++)
+        {
+            double t = (double)i / n;
+            var cell = FromCube(Round(ax + (bx - ax) * t, ay + (by - ay) * t, az + (bz - az) * t));
+            if (result.Count == 0 || result[^1] != cell) result.Add(cell);
+        }
+        return result;
+
+        static (int X, int Y, int Z) ToCube(int q, int r)
+        {
+            int x = q - ((r + (r & 1)) / 2);
+            return (x, r, -x - r);
+        }
+
+        static (int Q, int R) FromCube((int X, int Y, int Z) c) => (c.X + ((c.Y + (c.Y & 1)) / 2), c.Y);
+
+        // Nearest hex to a fractional cube coordinate: round all three and repair the axis
+        // that drifted furthest, since x + y + z must stay 0.
+        static (int X, int Y, int Z) Round(double x, double y, double z)
+        {
+            int rx = (int)Math.Round(x), ry = (int)Math.Round(y), rz = (int)Math.Round(z);
+            double dx = Math.Abs(rx - x), dy = Math.Abs(ry - y), dz = Math.Abs(rz - z);
+            if (dx > dy && dx > dz) rx = -ry - rz;
+            else if (dy > dz) ry = -rx - rz;
+            else rz = -rx - ry;
+            return (rx, ry, rz);
+        }
+    }
+
+    /// <summary>Parses a "q12_r7" hex key. Public so the editor can read stored paths.</summary>
+    public static (int Q, int R)? ParseHexKey(string? key) => ParseKey(key);
 
     private static (double X, double Y) Corner(double cx, double cy, int i)
     {

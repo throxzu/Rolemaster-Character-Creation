@@ -145,3 +145,50 @@
     background: rgba(220,170,40,0.10);
     border-color: rgba(220,170,40,0.55);
 }
+
+/* ── Map editing ─────────────────────────────────────────────────────────── */
+
+/* The hex overlay does double duty. For fog it is shaded; for map editing it is only a hit
+   target, so it stays invisible and lets the terrain underneath show through. */
+::deep .wm-fc-edit {
+    fill: transparent;
+    stroke: none;
+    cursor: crosshair;
+}
+
+/* The hexes picked out so far while tracing a road or river. */
+::deep .wm-fc-trace {
+    fill: rgba(240, 173, 78, 0.45);
+    stroke: #f0ad4e;
+    stroke-width: 1.5;
+}
+
+::deep .wm-path-sel {
+    stroke: #f0ad4e !important;
+    stroke-width: 5 !important;
+}
+
+/* A path is a thin line; widen its hit area in edit mode so it can actually be clicked. */
+::deep .wm-road,
+::deep .wm-river,
+::deep .wm-searoute {
+    pointer-events: stroke;
+}
+
+.wm-swatch {
+    display: inline-block;
+    width: .75rem;
+    height: .75rem;
+    border: 1px solid rgba(0, 0, 0, .35);
+    border-radius: 2px;
+    vertical-align: -1px;
+}
+
+/* Invisible, generously thick click targets for the paths, drawn above the hex overlay. */
+::deep .wm-path-hit {
+    fill: none;
+    stroke: transparent;
+    stroke-width: 9;
+    pointer-events: stroke;
+    cursor: pointer;
+}

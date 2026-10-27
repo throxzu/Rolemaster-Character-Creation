@@ -2362,6 +2362,9 @@ namespace RolemasterCharacterCreation.Data.Migrations
                         .HasMaxLength(120)
                         .HasColumnType("nvarchar(120)");
 
+                    b.Property<string>("OriginalJson")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("RawJson")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
