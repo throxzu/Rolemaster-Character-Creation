@@ -2019,6 +2019,9 @@ namespace RolemasterCharacterCreation.Data.Migrations
                         .HasMaxLength(120)
                         .HasColumnType("nvarchar(120)");
 
+                    b.Property<string>("OriginalJson")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("RawJson")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -2035,6 +2038,9 @@ namespace RolemasterCharacterCreation.Data.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("FeatureId")
+                        .HasColumnType("int");
 
                     b.Property<int>("FeatureIndex")
                         .HasColumnType("int");
@@ -2128,6 +2134,9 @@ namespace RolemasterCharacterCreation.Data.Migrations
                         .HasMaxLength(120)
                         .HasColumnType("nvarchar(120)");
 
+                    b.Property<string>("OriginalJson")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("RawJson")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -2196,6 +2205,9 @@ namespace RolemasterCharacterCreation.Data.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("FeatureId")
+                        .HasColumnType("int");
 
                     b.Property<int>("FeatureIndex")
                         .HasColumnType("int");

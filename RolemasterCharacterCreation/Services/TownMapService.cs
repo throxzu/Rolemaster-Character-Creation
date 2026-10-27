@@ -11,15 +11,18 @@ public class TownMapService
     // A closed polygon outline (outer ring only) as an SVG "points" string.
     public sealed record Poly(string Points);
 
-    // An open or closed line drawn as a stroke, with its world-space width.
-    public sealed record Line(string Points, double Width);
+    // An open or closed line drawn as a stroke, with its world-space width. Id is the
+    // layer-stable identity from TownMapEditor, used by the map editor to say which wall or
+    // road a drag changed.
+    public sealed record Line(int Id, string Points, double Width);
 
     // A named district region (subtle background fill) plus the centroid where its
     // name label is drawn.
     public sealed record District(string Points, string? Name, double Cx, double Cy);
 
-    // A clickable feature; Index is its position within its layer's coordinate array.
-    public sealed record Feature(int Index, string Points);
+    // A clickable feature. Id is stable across insertion and deletion (see TownMapEditor);
+    // it is what a place mark stores, and it equals the array position until the map is edited.
+    public sealed record Feature(int Id, string Points);
 
     public sealed class TownRender
     {
@@ -141,20 +144,38 @@ public class TownMapService
                     break;
 
                 case "roads":
+                {
+                    int ri = 0;
                     foreach (var (geom, _) in GeometryCollection(f))
-                        render.Roads.Add(new Line(LineString(geom, track: false, Track), Width(geom, 8)));
+                    {
+                        render.Roads.Add(new Line(IdAt(f, ri), LineString(geom, track: false, Track), Width(geom, 8)));
+                        ri++;
+                    }
                     break;
+                }
 
                 case "planks":
+                {
+                    int pi = 0;
                     foreach (var (geom, _) in GeometryCollection(f))
-                        render.Planks.Add(new Line(LineString(geom, track: false, Track), Width(geom, 4)));
+                    {
+                        render.Planks.Add(new Line(IdAt(f, pi), LineString(geom, track: false, Track), Width(geom, 4)));
+                        pi++;
+                    }
                     break;
+                }
 
                 case "walls":
+                {
+                    int wi = 0;
                     foreach (var (geom, _) in GeometryCollection(f))
+                    {
                         foreach (var ring in OuterRings(geom, "coordinates", multi: false))
-                            render.Walls.Add(new Line(Ring(ring, track: true, Track), Width(geom, 7)));
+                            render.Walls.Add(new Line(IdAt(f, wi), Ring(ring, track: true, Track), Width(geom, 7)));
+                        wi++;
+                    }
                     break;
+                }
 
                 case "districts":
                     foreach (var (geom, name) in GeometryCollection(f))
@@ -192,13 +213,30 @@ public class TownMapService
         return render;
     }
 
-    // Adds each top-level polygon of a MultiPolygon as a clickable feature, preserving
-    // its index so a click maps back to TownLocation.FeatureIndex.
+    // Adds each top-level polygon of a MultiPolygon as a clickable feature, carrying the
+    // layer's stable id so a click maps back to TownLocation.FeatureId.
     private static void AddFeatures(JsonElement feature, List<Feature> target, Action<double, double> track)
     {
         int i = 0;
         foreach (var poly in OuterRings(feature, "coordinates", multi: true))
-            target.Add(new Feature(i++, Ring(poly, track: true, track)));
+        {
+            target.Add(new Feature(IdAt(feature, i), Ring(poly, track: true, track)));
+            i++;
+        }
+    }
+
+    // The id a layer gives the feature at this position. Falls back to the position itself,
+    // which is what an unedited export has anyway — ids are first handed out in array order.
+    private static int IdAt(JsonElement layer, int index)
+    {
+        if (layer.TryGetProperty(TownMapEditor.IdsProperty, out var ids)
+            && ids.ValueKind == JsonValueKind.Array
+            && index < ids.GetArrayLength()
+            && ids[index].ValueKind == JsonValueKind.Number)
+        {
+            return ids[index].GetInt32();
+        }
+        return index;
     }
 
     // Yields each polygon's outer ring element. For a MultiPolygon, coordinates is

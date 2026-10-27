@@ -12,8 +12,17 @@ public class VillageLocation
     // Which feature layer the index points into: "buildings", "squares" or "prisms".
     public required string FeatureKind { get; set; }
 
-    // Zero-based index of the polygon within that layer's coordinate array.
+    // Zero-based index of the polygon within that layer's coordinate array. Superseded by
+    // FeatureId and no longer read: a position moves when a feature before it is deleted,
+    // which would silently walk every mark onto the wrong building. Kept so the one-time
+    // backfill into FeatureId can be re-run if it ever needs to be.
     public int FeatureIndex { get; set; }
+
+    // Stable identity of the feature within its layer, assigned by TownMapService and
+    // unaffected by anything being inserted or removed around it. Null until the village has
+    // been opened once since the map editor shipped, at which point it is filled from
+    // FeatureIndex — correct because ids are first handed out in array order.
+    public int? FeatureId { get; set; }
 
     public int VillageCategoryId { get; set; }
     public VillageCategory? VillageCategory { get; set; }

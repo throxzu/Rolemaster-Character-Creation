@@ -2,7 +2,10 @@
 @rendermode InteractiveServer
 @attribute [Authorize]
 @using System.Security.Claims
+@using System.Text.Json.Nodes
 @using RolemasterCharacterCreation.Data
+@using RolemasterCharacterCreation.Services
+@implements IDisposable
 @inject AppDbContext Db
 @inject TownMapService Maps
 @inject AuthenticationStateProvider AuthState
@@ -30,7 +33,7 @@ else
 
     <div class="row g-3">
         <div class="col-lg-9">
-            <div class="town-map-frame" @ref="_frame">
+            <div class="town-map-frame @(_editMode ? "town-editing" : null)" @ref="_frame">
                 <div class="town-zoom-controls" @onpointerdown:stopPropagation="true">
                     <button class="btn btn-sm btn-light" title="Zoom in" @onclick="() => ZoomAsync(1.25)">+</button>
                     <button class="btn btn-sm btn-light" title="Zoom out" @onclick="() => ZoomAsync(0.8)">−</button>
@@ -69,7 +72,7 @@ else
                     }
                     @foreach (var r in _render.Roads)
                     {
-                        <polyline points="@r.Points" class="town-road" style="stroke-width:@Num(r.Width)" />
+                        <polyline points="@r.Points" class="town-road" style="stroke-width:@Num(r.Width)" data-layer="roads" data-id="@r.Id" />
                     }
                     @foreach (var r in _render.Planks)
                     {
@@ -77,40 +80,43 @@ else
                     }
                     @foreach (var w in _render.Walls)
                     {
-                        <polygon points="@w.Points" class="town-wall" style="stroke-width:@Num(w.Width)" />
+                        <polygon points="@w.Points" class="town-wall" style="stroke-width:@Num(w.Width)" data-layer="walls" data-id="@w.Id" />
                     }
                     @foreach (var f in _render.Squares)
                     {
-                        var mark = Mark("squares", f.Index);
+                        var mark = Mark("squares", f.Id);
                         <polygon points="@f.Points" class="town-square @(mark is null ? null : "town-marked") @(mark?.LinkedBuildingId is not null ? "town-linked" : null)"
+                                 data-layer="squares" data-id="@f.Id"
                                  style="@FillStyle(mark)"
-                                 @onclick='e => OnFeatureClick("squares", f.Index, e)'
-                                 @ondblclick='() => OnFeatureDblClick("squares", f.Index)'
-                                 @oncontextmenu='e => OnFeatureContext("squares", f.Index, e)'
+                                 @onclick='e => OnFeatureClick("squares", f.Id, e)'
+                                 @ondblclick='() => OnFeatureDblClick("squares", f.Id)'
+                                 @oncontextmenu='e => OnFeatureContext("squares", f.Id, e)'
                                  @oncontextmenu:preventDefault="true">
                             @if (mark is not null) { <title>@TitleFor(mark)</title> }
                         </polygon>
                     }
                     @foreach (var f in _render.Buildings)
                     {
-                        var mark = Mark("buildings", f.Index);
+                        var mark = Mark("buildings", f.Id);
                         <polygon points="@f.Points" class="town-building @(mark is null ? null : "town-marked") @(mark?.LinkedBuildingId is not null ? "town-linked" : null)"
+                                 data-layer="buildings" data-id="@f.Id"
                                  style="@FillStyle(mark)"
-                                 @onclick='e => OnFeatureClick("buildings", f.Index, e)'
-                                 @ondblclick='() => OnFeatureDblClick("buildings", f.Index)'
-                                 @oncontextmenu='e => OnFeatureContext("buildings", f.Index, e)'
+                                 @onclick='e => OnFeatureClick("buildings", f.Id, e)'
+                                 @ondblclick='() => OnFeatureDblClick("buildings", f.Id)'
+                                 @oncontextmenu='e => OnFeatureContext("buildings", f.Id, e)'
                                  @oncontextmenu:preventDefault="true">
                             @if (mark is not null) { <title>@TitleFor(mark)</title> }
                         </polygon>
                     }
                     @foreach (var f in _render.Prisms)
                     {
-                        var mark = Mark("prisms", f.Index);
+                        var mark = Mark("prisms", f.Id);
                         <polygon points="@f.Points" class="town-prism @(mark is null ? null : "town-marked") @(mark?.LinkedBuildingId is not null ? "town-linked" : null)"
+                                 data-layer="prisms" data-id="@f.Id"
                                  style="@FillStyle(mark)"
-                                 @onclick='e => OnFeatureClick("prisms", f.Index, e)'
-                                 @ondblclick='() => OnFeatureDblClick("prisms", f.Index)'
-                                 @oncontextmenu='e => OnFeatureContext("prisms", f.Index, e)'
+                                 @onclick='e => OnFeatureClick("prisms", f.Id, e)'
+                                 @ondblclick='() => OnFeatureDblClick("prisms", f.Id)'
+                                 @oncontextmenu='e => OnFeatureContext("prisms", f.Id, e)'
                                  @oncontextmenu:preventDefault="true">
                             @if (mark is not null) { <title>@TitleFor(mark)</title> }
                         </polygon>
@@ -127,6 +133,49 @@ else
 
         <div class="col-lg-3">
             @if (_isGm)
+            {
+                @* Marking and reshaping both want a left-click on a building, so they are
+                   separate modes rather than two meanings for one gesture. *@
+                <div class="card mb-3">
+                    <div class="card-body py-2 d-flex gap-2">
+                        <button class="btn btn-sm flex-fill @(_editMode ? "btn-outline-secondary" : "btn-primary")"
+                                @onclick="() => { if (_editMode) ToggleEditModeAsync(); }">Mark places</button>
+                        <button class="btn btn-sm flex-fill @(_editMode ? "btn-warning" : "btn-outline-secondary")"
+                                @onclick="() => { if (!_editMode) ToggleEditModeAsync(); }">Edit map</button>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(_editMessage))
+                {
+                    <div class="alert alert-info py-2 small">@_editMessage</div>
+                }
+            }
+
+            @if (_isGm && _editMode)
+            {
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h6 class="card-title">Editing the map</h6>
+                        <ul class="small text-muted mb-2 ps-3">
+                            <li><strong>Click</strong> a building, wall or road to select it.</li>
+                            <li><strong>Drag a corner</strong> to reshape; <strong>drag the middle</strong> to move it.</li>
+                            <li><strong>Double-click an edge</strong> to add a corner.</li>
+                            <li><strong>Click empty ground</strong> to drop a new building.</li>
+                            <li><strong>Delete</strong> removes the selected shape or corner.</li>
+                        </ul>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-outline-secondary" disabled="@(_undo.Count == 0)"
+                                    @onclick="UndoAsync">↶ Undo@(_undo.Count > 0 ? $" ({_undo.Count})" : "")</button>
+                            <button class="btn btn-sm btn-outline-danger" @onclick="RevertToOriginalAsync"
+                                    title="Restore the map exactly as it was imported. Place marks are kept.">
+                                Revert to original
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            @if (_isGm && !_editMode)
             {
                 <div class="card mb-3">
                     <div class="card-body">
@@ -309,6 +358,7 @@ else
 
         if (_village is not null)
         {
+            await PrepareForEditingAsync();
             _render = Maps.Build(_village.RawJson);
             _hasDistrictNames = _render.Districts.Any(d => !string.IsNullOrWhiteSpace(d.Name));
             // Scale the field hatch to the map so the furrows stay a sensible size at any zoom.
@@ -326,6 +376,10 @@ else
             await JS.InvokeVoidAsync("townMap.attach", _frame);
         }
 
+        // Re-asserted on every render: the markup is rebuilt around the editor, and the
+        // handlers have to follow it.
+        if (_editMode != _editAttached) await SyncEditorAsync();
+
         if (_editor is not null)
             await JS.InvokeVoidAsync("clampPopup", ".ctx-editor");
         else if (_menu is not null)
@@ -338,8 +392,42 @@ else
     private async Task ResetZoomAsync() =>
         await JS.InvokeVoidAsync("townMap.reset", _frame);
 
+    // Keyed on the stable FeatureId, never on a position: a position means a different
+    // building the moment one before it is deleted. A mark whose feature has been deleted
+    // simply finds nothing. GroupBy guards against two marks claiming one feature.
     private void RebuildMarks() =>
-        _marks = _village!.Locations.ToDictionary(l => (l.FeatureKind, l.FeatureIndex));
+        _marks = _village!.Locations
+            .Where(l => l.FeatureId is not null)
+            .GroupBy(l => (l.FeatureKind, Id: l.FeatureId!.Value))
+            .ToDictionary(g => g.Key, g => g.First());
+
+    // One-time setup, safe to run on every load: EnsureFeatureIds does nothing once ids are
+    // present, and the snapshot is only taken when there isn't one.
+    private async Task PrepareForEditingAsync()
+    {
+        var doc = TownMapEditor.Parse(_village!.RawJson);
+        bool idsAdded = TownMapEditor.EnsureFeatureIds(doc);
+        if (idsAdded) _village.RawJson = TownMapEditor.Serialize(doc);
+
+        bool snapshotTaken = false;
+        if (_village.OriginalJson is null)
+        {
+            _village.OriginalJson = _village.RawJson;
+            snapshotTaken = true;
+        }
+
+        // Ids were handed out in array order, so for a village that has never been edited the
+        // old position IS the id, and the backfill is exact.
+        bool backfilled = false;
+        foreach (var loc in _village.Locations.Where(l => l.FeatureId is null))
+        {
+            loc.FeatureId = loc.FeatureIndex;
+            backfilled = true;
+        }
+
+        if (idsAdded || snapshotTaken || backfilled) await Db.SaveChangesAsync();
+        _doc = doc;
+    }
 
     private VillageLocation? Mark(string kind, int index) =>
         _marks.TryGetValue((kind, index), out var loc) ? loc : null;
@@ -392,9 +480,10 @@ else
     }
 
     // Left-click opens the type→name picker (GM only).
+    // In edit mode the same click reshapes rather than marks, and the JS editor owns it.
     private void OnFeatureClick(string kind, int index, MouseEventArgs e)
     {
-        if (!_isGm) return;
+        if (!_isGm || _editMode) return;
         _editor = null;
         _menu = new Target(kind, index, e.ClientX, e.ClientY);
     }
@@ -402,6 +491,7 @@ else
     // Double-click a building linked to a building map opens that floor plan (anyone).
     private void OnFeatureDblClick(string kind, int index)
     {
+        if (_editMode) return;   // a double-click adds a corner instead
         if (Mark(kind, index)?.LinkedBuildingId is int buildingId)
             Nav.NavigateTo($"/campaign/buildings/{buildingId}");
     }
@@ -409,7 +499,7 @@ else
     // Right-click opens the name/notes editor pre-filled with current values (GM only).
     private void OnFeatureContext(string kind, int index, MouseEventArgs e)
     {
-        if (!_isGm) return;
+        if (!_isGm || _editMode) return;
         _menu = null;
         var mark = Mark(kind, index);
         _editCategoryId = mark?.VillageCategoryId ?? 0;
@@ -459,7 +549,7 @@ else
 
     private async Task ClearAsync(string kind, int index)
     {
-        var existing = _village!.Locations.FirstOrDefault(l => l.FeatureKind == kind && l.FeatureIndex == index);
+        var existing = _village!.Locations.FirstOrDefault(l => l.FeatureKind == kind && l.FeatureId == index);
         if (existing is not null)
         {
             Db.VillageLocations.Remove(existing);
@@ -472,14 +562,15 @@ else
     // Finds the existing mark or creates+tracks a new one for this feature.
     private VillageLocation GetOrCreate(string kind, int index, int categoryId)
     {
-        var existing = _village!.Locations.FirstOrDefault(l => l.FeatureKind == kind && l.FeatureIndex == index);
+        var existing = _village!.Locations.FirstOrDefault(l => l.FeatureKind == kind && l.FeatureId == index);
         if (existing is not null) return existing;
 
         var created = new VillageLocation
         {
             VillageId = _village.Id,
             FeatureKind = kind,
-            FeatureIndex = index,
+            FeatureId = index,
+            FeatureIndex = index,   // legacy column, written so an old build could still read it
             VillageCategoryId = categoryId,
         };
         _village.Locations.Add(created);
@@ -493,6 +584,176 @@ else
         await Db.SaveChangesAsync();
         RebuildMarks();
     }
+
+    // ── Map editing (GM only) ────────────────────────────────────────────────
+    // A village export is the same format as a town's, so this is the town editor's wiring
+    // over the same TownMapEditor and the same townEdit.js.
+
+    private bool _editMode;
+    private JsonNode? _doc;                                   // parsed once, mutated in place
+    private readonly Stack<TownMapEditor.Op> _undo = new();
+    private DotNetObjectReference<VillageMap>? _dotNetRef;
+    private bool _editAttached;
+    private string? _editMessage;
+
+    private bool CanEdit => _isGm && _village is not null && _doc is not null;
+
+    private async Task ToggleEditModeAsync()
+    {
+        if (!CanEdit) return;
+        _editMode = !_editMode;
+        _editMessage = null;
+        CloseMenus();
+        await SyncEditorAsync();
+    }
+
+    private async Task SyncEditorAsync()
+    {
+        if (_editMode)
+        {
+            _dotNetRef ??= DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("townEdit.attach", _frame, _dotNetRef);
+            _editAttached = true;
+        }
+        else if (_editAttached)
+        {
+            await JS.InvokeVoidAsync("townEdit.detach", _frame);
+            _editAttached = false;
+        }
+    }
+
+    /// <summary>
+    /// A finished gesture: the browser has already drawn the new shape, so this records it in
+    /// the document and keeps the in-memory render in step. Only the changed feature travels.
+    /// </summary>
+    [JSInvokable]
+    public async Task<bool> EditSetPoints(string layer, int id, double[][] points)
+    {
+        if (!CanEdit || !_editMode || points.Length < 2) return false;
+
+        var inverse = TownMapEditor.SetPoints(_doc!, layer, id, points);
+        if (inverse is null) return false;
+
+        _undo.Push(inverse);
+        UpdateRendered(layer, id, TownMapEditor.ToSvgPoints(points));
+        await PersistAsync();
+        return true;
+    }
+
+    [JSInvokable]
+    public async Task<int> EditCreateBuilding(double[][] points)
+    {
+        if (!CanEdit || !_editMode || points.Length < 3) return -1;
+
+        var inverse = TownMapEditor.CreateFeature(_doc!, "buildings", points, out int newId);
+        if (inverse is null) return -1;
+
+        _undo.Push(inverse);
+        _render!.Buildings.Add(new TownMapService.Feature(newId, TownMapEditor.ToSvgPoints(points)));
+        await PersistAsync();
+        StateHasChanged();
+        return newId;
+    }
+
+    [JSInvokable]
+    public async Task<bool> EditDelete(string layer, int id)
+    {
+        if (!CanEdit || !_editMode) return false;
+
+        var inverse = TownMapEditor.DeleteFeature(_doc!, layer, id);
+        if (inverse is null) return false;
+
+        _undo.Push(inverse);
+        RemoveRendered(layer, id);
+        await PersistAsync();
+        StateHasChanged();
+        return true;
+    }
+
+    private async Task UndoAsync()
+    {
+        if (!CanEdit || _undo.Count == 0) return;
+
+        var op = _undo.Pop();
+        if (TownMapEditor.Apply(_doc!, op) is null)
+        {
+            _editMessage = "That change could not be undone.";
+            return;
+        }
+
+        // The undone operation can have added or removed a feature, so unlike a live drag
+        // there is no DOM already holding the answer — rebuild from the document.
+        _village!.RawJson = TownMapEditor.Serialize(_doc!);
+        await Db.SaveChangesAsync();
+        _render = Maps.Build(_village.RawJson);
+        RebuildMarks();
+        await JS.InvokeVoidAsync("townEdit.clearSelection", _frame);
+        _editMessage = null;
+    }
+
+    private async Task RevertToOriginalAsync()
+    {
+        if (!CanEdit || _village!.OriginalJson is null) return;
+
+        _village.RawJson = _village.OriginalJson;
+        await Db.SaveChangesAsync();
+
+        _doc = TownMapEditor.Parse(_village.RawJson);
+        TownMapEditor.EnsureFeatureIds(_doc);
+        _undo.Clear();
+        _render = Maps.Build(_village.RawJson);
+        RebuildMarks();
+        await JS.InvokeVoidAsync("townEdit.clearSelection", _frame);
+        _editMessage = "Reverted to the map as it was imported. Place marks were left alone.";
+    }
+
+    private async Task PersistAsync()
+    {
+        _village!.RawJson = TownMapEditor.Serialize(_doc!);
+        await Db.SaveChangesAsync();
+    }
+
+    // Keeps the in-memory render in step with the document so Blazor's next render agrees
+    // with what the browser is already showing, instead of snapping the shape back.
+    private void UpdateRendered(string layer, int id, string points)
+    {
+        switch (layer)
+        {
+            case "buildings": Replace(_render!.Buildings); break;
+            case "squares":   Replace(_render!.Squares); break;
+            case "prisms":    Replace(_render!.Prisms); break;
+            case "walls":     ReplaceLine(_render!.Walls); break;
+            case "roads":     ReplaceLine(_render!.Roads); break;
+            case "planks":    ReplaceLine(_render!.Planks); break;
+        }
+
+        void Replace(List<TownMapService.Feature> list)
+        {
+            int i = list.FindIndex(f => f.Id == id);
+            if (i >= 0) list[i] = list[i] with { Points = points };
+        }
+
+        void ReplaceLine(List<TownMapService.Line> list)
+        {
+            int i = list.FindIndex(f => f.Id == id);
+            if (i >= 0) list[i] = list[i] with { Points = points };
+        }
+    }
+
+    private void RemoveRendered(string layer, int id)
+    {
+        switch (layer)
+        {
+            case "buildings": _render!.Buildings.RemoveAll(f => f.Id == id); break;
+            case "squares":   _render!.Squares.RemoveAll(f => f.Id == id); break;
+            case "prisms":    _render!.Prisms.RemoveAll(f => f.Id == id); break;
+            case "walls":     _render!.Walls.RemoveAll(f => f.Id == id); break;
+            case "roads":     _render!.Roads.RemoveAll(f => f.Id == id); break;
+            case "planks":    _render!.Planks.RemoveAll(f => f.Id == id); break;
+        }
+    }
+
+    public void Dispose() => _dotNetRef?.Dispose();
 
     private string CategoryColor(int id) =>
         _categories.FirstOrDefault(c => c.Id == id)?.ColorHex ?? "#999999";

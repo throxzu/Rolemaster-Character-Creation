@@ -189,3 +189,44 @@
     background: rgba(220,170,40,0.10);
     border-color: rgba(220,170,40,0.55);
 }
+
+/* ── Map editing ─────────────────────────────────────────────────────────── */
+
+/* Dragging a shape must not start a text selection. preventDefault on pointerdown would
+   also stop it, but that suppresses the dblclick that adds a corner. */
+.town-editing {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* In edit mode a shape is a thing you grab, not a place you mark. */
+.town-editing .town-building,
+.town-editing .town-square,
+.town-editing .town-prism,
+.town-editing .town-wall,
+.town-editing .town-road {
+    cursor: move;
+}
+
+.town-editing .town-building:hover,
+.town-editing .town-square:hover,
+.town-editing .town-prism:hover {
+    stroke: #f0ad4e;
+    stroke-width: 1.5;
+}
+
+::deep .te-selected {
+    stroke: #f0ad4e !important;
+    stroke-width: 2 !important;
+}
+
+::deep .te-handle {
+    fill: #fff;
+    stroke: #f0ad4e;
+    stroke-width: 1;
+    cursor: grab;
+}
+
+::deep .te-handle:hover {
+    fill: #f0ad4e;
+}
