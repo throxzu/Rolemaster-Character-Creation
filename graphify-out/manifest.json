@@ -220,9 +220,9 @@
     "semantic_hash": "4884ca5c1ff7b4f39c0a118db8792a50"
   },
   "RolemasterCharacterCreation/Components/App.razor": {
-    "mtime": 1781990872.4791741,
-    "ast_hash": "b2657326112a84747a5a885f8363bd28",
-    "semantic_hash": "b2657326112a84747a5a885f8363bd28"
+    "mtime": 1793120543.5783298,
+    "ast_hash": "f59dad6ef19ab40ea2c6f07d77f12a0a",
+    "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Components/Pages/AttackTables.razor": {
     "mtime": 1781813561.9803858,
@@ -235,9 +235,9 @@
     "semantic_hash": "5e82248a3caa63a29229e9a676e18178"
   },
   "RolemasterCharacterCreation/Components/Pages/Campaign/BuildingMapView.razor": {
-    "mtime": 1781948755.6434407,
-    "ast_hash": "e6ff6a47cbc87e568f52e783e5d74ed2",
-    "semantic_hash": "e6ff6a47cbc87e568f52e783e5d74ed2"
+    "mtime": 1793114834.05272,
+    "ast_hash": "0eb896dfb70d72faca40e69626bb153a",
+    "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Components/Pages/Campaign/Buildings.razor": {
     "mtime": 1782066474.886033,
@@ -250,9 +250,9 @@
     "semantic_hash": "658e69fdf2ae0aa2b6049fa76194b2e4"
   },
   "RolemasterCharacterCreation/Components/Pages/Campaign/CaveMapView.razor": {
-    "mtime": 1781946569.1118226,
-    "ast_hash": "fb87352183303b742e0da880371c6ac5",
-    "semantic_hash": "fb87352183303b742e0da880371c6ac5"
+    "mtime": 1793114834.0547233,
+    "ast_hash": "dc6b3aa0ab1a4e40a08871689fdd64c8",
+    "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Components/Pages/Campaign/Caves.razor": {
     "mtime": 1782066474.886033,
@@ -280,9 +280,9 @@
     "semantic_hash": "f5b72e5cc525bfdb985fb3b7064cc939"
   },
   "RolemasterCharacterCreation/Components/Pages/Campaign/TownMap.razor": {
-    "mtime": 1781966977.1520474,
-    "ast_hash": "9ff60925e22dc1a2c63b0d1bcf466549",
-    "semantic_hash": "9ff60925e22dc1a2c63b0d1bcf466549"
+    "mtime": 1793117921.1364515,
+    "ast_hash": "118240c02cfea126b48f051305b6796f",
+    "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Components/Pages/Campaign/Towns.razor": {
     "mtime": 1782066474.8882556,
@@ -295,9 +295,9 @@
     "semantic_hash": "e331dee57bdfef49f35ce323a0bc5cc8"
   },
   "RolemasterCharacterCreation/Components/Pages/Campaign/VillageMap.razor": {
-    "mtime": 1781967103.6751947,
-    "ast_hash": "f230841718aaaa405468bddee22515c6",
-    "semantic_hash": "f230841718aaaa405468bddee22515c6"
+    "mtime": 1793119452.5171313,
+    "ast_hash": "7a62ef7dab4d450994669f1711883103",
+    "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Components/Pages/Campaign/Villages.razor": {
     "mtime": 1782066474.8882556,
@@ -310,9 +310,9 @@
     "semantic_hash": "fd97945f3b03b658d3c4c3d762243cd4"
   },
   "RolemasterCharacterCreation/Components/Pages/Campaign/WorldMapView.razor": {
-    "mtime": 1781948720.7691412,
-    "ast_hash": "aa48f275ecc9f16b00dc818c213de196",
-    "semantic_hash": "aa48f275ecc9f16b00dc818c213de196"
+    "mtime": 1793121044.160379,
+    "ast_hash": "1b75d0cb916ce8f9214112082c21a16b",
+    "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Components/Pages/Campaign/WorldMaps.razor": {
     "mtime": 1782066474.8882556,
@@ -395,9 +395,9 @@
     "semantic_hash": "22daeb63abc8c86beb04b6585ff7cf02"
   },
   "RolemasterCharacterCreation/Components/Pages/GM/SessionNotes.razor": {
-    "mtime": 1782149882.2092986,
-    "ast_hash": "fecc60f8c84fba0ca82d2e9afa64e396",
-    "semantic_hash": "fecc60f8c84fba0ca82d2e9afa64e396"
+    "mtime": 1793115105.0634549,
+    "ast_hash": "176ad5e0f241486eb3404f9c6059f7ec",
+    "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Components/Pages/GM/SmsTest.razor": {
     "mtime": 1782545749.3172593,
@@ -420,9 +420,9 @@
     "semantic_hash": "d8b1c39b2d8064a12483e2280381ecb2"
   },
   "RolemasterCharacterCreation/Components/Pages/SessionNotes.razor": {
-    "mtime": 1782149903.081197,
-    "ast_hash": "4cec4aca6bcc40ab3166285f6683ce07",
-    "semantic_hash": "4cec4aca6bcc40ab3166285f6683ce07"
+    "mtime": 1793115124.5459144,
+    "ast_hash": "ff3bca514d2d273074f6e570dbe445d4",
+    "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Components/Pages/Sessions.razor": {
     "mtime": 1782153761.7912624,
@@ -470,8 +470,8 @@
     "semantic_hash": "4f67fb2aa18769d3e9f465ea5ef3a0e5"
   },
   "RolemasterCharacterCreation/Data/AppDbContext.cs": {
-    "mtime": 1789657624.9269364,
-    "ast_hash": "474de951804b135b48af7e0da8e3d43e",
+    "mtime": 1793114886.7279882,
+    "ast_hash": "c793394d2966335832d8a5cad64033ed",
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Data/Migrations/20260527175403_InitialCreate.Designer.cs": {
@@ -900,8 +900,8 @@
     "semantic_hash": "1ad820ebf406172d9a9835eda496158d"
   },
   "RolemasterCharacterCreation/Data/Migrations/AppDbContextModelSnapshot.cs": {
-    "mtime": 1792220968.246931,
-    "ast_hash": "84ac8b59e662c631d9ff7bb45f21838a",
+    "mtime": 1793120508.7533937,
+    "ast_hash": "dd70a359c767753f3079d6c644527f3e",
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Identity/CountryDialCodes.cs": {
@@ -1145,9 +1145,9 @@
     "semantic_hash": "1075278556c5b72911c6af6c4af9a8ec"
   },
   "RolemasterCharacterCreation/Models/SessionNote.cs": {
-    "mtime": 1782149836.2120123,
-    "ast_hash": "832f7ead402257b5a7fdd133bc6b64ce",
-    "semantic_hash": "832f7ead402257b5a7fdd133bc6b64ce"
+    "mtime": 1793114854.7554693,
+    "ast_hash": "9ba4a131644a649421a07ad2d1556256",
+    "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Models/Spell.cs": {
     "mtime": 1781810088.075849,
@@ -1175,14 +1175,14 @@
     "semantic_hash": "f937eff47d8bd03e265fd13751527636"
   },
   "RolemasterCharacterCreation/Models/Town.cs": {
-    "mtime": 1781882506.4742703,
-    "ast_hash": "25de1bf1a26016bd28bc329dc61c2fdc",
-    "semantic_hash": "25de1bf1a26016bd28bc329dc61c2fdc"
+    "mtime": 1793117425.3464289,
+    "ast_hash": "66c633f6b77c444e58f5e5ed3dcf9be5",
+    "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Models/TownLocation.cs": {
-    "mtime": 1781966860.4346344,
-    "ast_hash": "635dd04a5da1b73e0e6520c6b01afdfe",
-    "semantic_hash": "635dd04a5da1b73e0e6520c6b01afdfe"
+    "mtime": 1793117431.3751276,
+    "ast_hash": "baf7899aa9798ada4ce72576176521cc",
+    "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Models/UsefulLink.cs": {
     "mtime": 1781897809.3940842,
@@ -1190,9 +1190,9 @@
     "semantic_hash": "55a25cd7e850a8f6c57faf59f9a67965"
   },
   "RolemasterCharacterCreation/Models/Village.cs": {
-    "mtime": 1781898515.0946412,
-    "ast_hash": "830042cf3eae54ab2d6340e263d96a4c",
-    "semantic_hash": "830042cf3eae54ab2d6340e263d96a4c"
+    "mtime": 1793119271.6446273,
+    "ast_hash": "7652daa02d2fcc927f1a5dec52b2ccc3",
+    "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Models/VillageCategory.cs": {
     "mtime": 1781898529.82628,
@@ -1205,9 +1205,9 @@
     "semantic_hash": "7dbddfaca727dc92f121ae12618ba739"
   },
   "RolemasterCharacterCreation/Models/VillageLocation.cs": {
-    "mtime": 1781966866.8266828,
-    "ast_hash": "39c14c33d12e164d143efd2a69468270",
-    "semantic_hash": "39c14c33d12e164d143efd2a69468270"
+    "mtime": 1793119265.3144743,
+    "ast_hash": "4a5f83b77b34741b2f3da6934e4d0e01",
+    "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Models/WorldCategory.cs": {
     "mtime": 1781893848.3832805,
@@ -1220,9 +1220,9 @@
     "semantic_hash": "feb62cc4111422326e337a7deb0034de"
   },
   "RolemasterCharacterCreation/Models/WorldMap.cs": {
-    "mtime": 1781893836.3611038,
-    "ast_hash": "274284f338bcd786ab3b6a9015ed43f4",
-    "semantic_hash": "274284f338bcd786ab3b6a9015ed43f4"
+    "mtime": 1793120205.315954,
+    "ast_hash": "fc410898c2133ed4771263e091fc3e98",
+    "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Models/WorldReveal.cs": {
     "mtime": 1781895814.9409785,
@@ -1230,8 +1230,8 @@
     "semantic_hash": "de7c7e39921894fa8e2331a132f89f04"
   },
   "RolemasterCharacterCreation/Program.cs": {
-    "mtime": 1788597519.9377742,
-    "ast_hash": "44b17714d0670607fd2fd751126fca4d",
+    "mtime": 1793115402.331658,
+    "ast_hash": "5d6b643a43f43a591bb3a73df73d8b7a",
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Properties/launchSettings.json": {
@@ -1240,9 +1240,9 @@
     "semantic_hash": "27b9993c8a2fa6a8b436dd9ddd2ea874"
   },
   "RolemasterCharacterCreation/RolemasterCharacterCreation.csproj": {
-    "mtime": 1781985984.2158713,
-    "ast_hash": "531ff24303c90505e2fccba72ecfb9ee",
-    "semantic_hash": "531ff24303c90505e2fccba72ecfb9ee"
+    "mtime": 1793114352.2652402,
+    "ast_hash": "e6dcbf9bc309653fda04caf43ed017be",
+    "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Rules/Character/CultureRules.cs": {
     "mtime": 1779908727.4848661,
@@ -1420,9 +1420,9 @@
     "semantic_hash": "28069acfad2364f9736754f5cfd4ef21"
   },
   "RolemasterCharacterCreation/Services/TownMapService.cs": {
-    "mtime": 1781899162.2507145,
-    "ast_hash": "7f993400ee2cc96d4ffaeeebc5a91024",
-    "semantic_hash": "7f993400ee2cc96d4ffaeeebc5a91024"
+    "mtime": 1793117519.1674292,
+    "ast_hash": "a95d6b5ed524c11323389a35887740fb",
+    "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Services/VoyageEmbeddingClient.cs": {
     "mtime": 1781974648.4891849,
@@ -1430,9 +1430,9 @@
     "semantic_hash": "6a15c14a8ea6c1443163355ed157f1b6"
   },
   "RolemasterCharacterCreation/Services/WorldMapService.cs": {
-    "mtime": 1781895854.1599922,
-    "ast_hash": "1a4b14b2016b2222a785d810b59ed156",
-    "semantic_hash": "1a4b14b2016b2222a785d810b59ed156"
+    "mtime": 1793120307.7551594,
+    "ast_hash": "adb1c441ba8a9422ff5e86589c590ff3",
+    "semantic_hash": ""
   },
   "RolemasterCharacterCreation/appsettings.json": {
     "mtime": 1782066474.9039774,
@@ -1440,8 +1440,8 @@
     "semantic_hash": "3a95c0f40e645b181215b0b29defceac"
   },
   "RolemasterCharacterCreation/wwwroot/app.js": {
-    "mtime": 1788599895.9044516,
-    "ast_hash": "67fd130fb6b4ca77d7e13570eb30068d",
+    "mtime": 1793115386.9279468,
+    "ast_hash": "01de35e8bb26776a173d1c802503bb2d",
     "semantic_hash": ""
   },
   "docs/game-data/attack-tables.json": {
@@ -2147,6 +2147,86 @@
   "RolemasterCharacterCreation/Rules/Character/OldStatGainRules.cs": {
     "mtime": 1792220938.252587,
     "ast_hash": "088ccbcf7bbb38bfc19affeb76bce39b",
+    "semantic_hash": ""
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20261027152830_AddRichSessionNotes.Designer.cs": {
+    "mtime": 1793114910.9396622,
+    "ast_hash": "60de194f77f6ebd3d3a9c03d396029ae",
+    "semantic_hash": ""
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20261027152830_AddRichSessionNotes.cs": {
+    "mtime": 1793114910.9396622,
+    "ast_hash": "4e939f11b9a8a6492d94ee9b49aacd8f",
+    "semantic_hash": ""
+  },
+  "RolemasterCharacterCreation/Endpoints/SessionNoteImageEndpoints.cs": {
+    "mtime": 1793115587.2592397,
+    "ast_hash": "9202a3ff8fcd5c362e70e35d0e0ab844",
+    "semantic_hash": ""
+  },
+  "RolemasterCharacterCreation/Models/SessionNoteImage.cs": {
+    "mtime": 1793114844.5012317,
+    "ast_hash": "4cd03cb85d968f7b9d4a7b33ecac2a48",
+    "semantic_hash": ""
+  },
+  "RolemasterCharacterCreation/Services/HtmlSanitizing.cs": {
+    "mtime": 1793115951.9567113,
+    "ast_hash": "3e2fbe786fbc611bfabde0a0f5249e6f",
+    "semantic_hash": ""
+  },
+  "RolemasterCharacterCreation/wwwroot/lib/quill/quill.js": {
+    "mtime": 1793114362.4213257,
+    "ast_hash": "cda744273ed7e32de5379e83724d8b4d",
+    "semantic_hash": ""
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20261027161542_AddTownMapEditing.Designer.cs": {
+    "mtime": 1793117742.7630193,
+    "ast_hash": "746da3de8c4c17c8aed4de59027e3be4",
+    "semantic_hash": ""
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20261027161542_AddTownMapEditing.cs": {
+    "mtime": 1793117742.7620192,
+    "ast_hash": "d32f23b921c571e34b78cf1365cd313a",
+    "semantic_hash": ""
+  },
+  "RolemasterCharacterCreation/Services/TownMapEditor.cs": {
+    "mtime": 1793117481.731943,
+    "ast_hash": "c8cb45c2481d994f2b32035f96082e02",
+    "semantic_hash": ""
+  },
+  "RolemasterCharacterCreation/wwwroot/town-edit.js": {
+    "mtime": 1793118461.2589924,
+    "ast_hash": "3e1c2658dbde998b3d1dde56f1e3f9d0",
+    "semantic_hash": ""
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20261027164213_AddVillageMapEditing.Designer.cs": {
+    "mtime": 1793119333.8115299,
+    "ast_hash": "13cd44952a1eb2c36768d587bc976442",
+    "semantic_hash": ""
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20261027164213_AddVillageMapEditing.cs": {
+    "mtime": 1793119333.8105254,
+    "ast_hash": "db7eb5225acdb74a37873a0d5d979a39",
+    "semantic_hash": ""
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20261027170148_AddWorldMapEditing.Designer.cs": {
+    "mtime": 1793120508.7533937,
+    "ast_hash": "747bbe59e4d2cbb2bf9c286550491eaa",
+    "semantic_hash": ""
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20261027170148_AddWorldMapEditing.cs": {
+    "mtime": 1793120508.752395,
+    "ast_hash": "1d679d9531cf9f71f1c59b50b50f1c73",
+    "semantic_hash": ""
+  },
+  "RolemasterCharacterCreation/Services/WorldMapEditor.cs": {
+    "mtime": 1793120241.6860824,
+    "ast_hash": "eaa8e0fcd58d3c6864e2a8a2c4f03cba",
+    "semantic_hash": ""
+  },
+  "RolemasterCharacterCreation/wwwroot/world-edit.js": {
+    "mtime": 1793120536.4974084,
+    "ast_hash": "d31adb8031ad1cb7acf4ff6b3c318827",
     "semantic_hash": ""
   }
 }
