@@ -134,7 +134,8 @@
     </td>
     <td class="p1 vt" rowspan="2">
       @{
-        int _waPercent    = Math.Max(0, 15 + 2 * _stBonus);
+        int _carryPct     = _talentMods.EncumbrancePct + _racialMods.EncumbrancePct;
+        int _waPercent    = (int)Math.Round(Math.Max(0, 15 + 2 * _stBonus) * (1 + _carryPct / 100.0));
         // Armor enc% comes from the armor selection
         var _encArmorDef  = ArmorRules.ByAT.GetValueOrDefault(_char.ArmorType, ArmorRules.All[0]);
         double _armorEncPct = (_char.ArmorFullSuit ? _encArmorDef.FullEncPct
@@ -157,7 +158,7 @@
       <table class="t100 sf">
         <tr><td class="p1 bb">
           Wt Allowance: <span class="fw pos">@_waPercent%</span><br/>
-          <span class="muted">15% + 2×St(@(Fmt(_stBonus)))</span>
+          <span class="muted">15% + 2×St(@(Fmt(_stBonus)))@(_carryPct != 0 ? $" +{_carryPct}% talent" : "")</span>
         </td></tr>
         <tr><td class="p1 bb">Carried (lbs): <div class="blank-line"></div></td></tr>
         <tr><td class="p1 bb">
@@ -182,7 +183,8 @@
           int _earlyMiaRanks = _earlyMiaSk?.TotalRanks ?? 0;
           int _earlyMiaBonus = SkillRules.RankBonus(_earlyMiaRanks)
               + ((_earlyMiaSk?.IsProfessionalSkill ?? false) ? Math.Min(_earlyMiaRanks, 30) : 0)
-              + ((_earlyMiaSk?.IsKnack ?? false) ? 5 : 0);
+              + ((_earlyMiaSk?.IsKnack ?? false) ? 5 : 0)
+              + TalentSkill("Maneuvering in Armor");
           int _earlyNetManPen = Math.Min(0, _earlyRawManPen + _earlyMiaBonus);
           int _earlyEncPen    = Math.Max(0, _armorEncInt - _waPercent);
           int _earlyTotalPen  = _earlyNetManPen - _earlyEncPen;
@@ -323,8 +325,8 @@
       <table class="t100 tb mb0" style="border-bottom:0">
         <tr><td colspan="2" class="hdr">Quick Info</td></tr>
         <tr><td class="p1 bb">Base Move Rate (BMR)</td><td class="p1 bb tr fw">@_bmr</td></tr>
-        <tr><td class="p1 bb">Initiative</td><td class="p1 bb tr fw">@Fmt(_quBonus)</td></tr>
-        <tr><td class="p1 bb">Hit points</td><td class="p1 bb tr fw">@_hits</td></tr>
+        <tr><td class="p1 bb">Initiative</td><td class="p1 bb tr fw" data-tip="@InitTip">@Fmt(_quBonus + InitiativeTalent)</td></tr>
+        <tr><td class="p1 bb">Hit points</td><td class="p1 bb tr fw" data-tip="@_hitsTip">@_hits</td></tr>
         <tr><td class="p1 bb">Endurance (for Fatigue)</td><td class="p1 bb tr fw">@Fmt(_endurance)</td></tr>
         <tr><td class="p1">Power</td><td class="p1 tr fw">@(_ppBonus > 0 ? _ppBonus.ToString() : "")</td></tr>
       </table>
@@ -393,7 +395,8 @@
     int rankBonus  = SkillRules.RankBonus(totalRanks);
     int proBonus   = wsPro   ? Math.Min(totalRanks, 30) : 0;
     int knackBonus = wsKnack ? 5 : 0;
-    int skill      = catStat1 + catStat2 + wepStat + rankBonus + proBonus + knackBonus;
+    int talentOb   = TalentSkill(ws.SkillName);
+    int skill      = catStat1 + catStat2 + wepStat + rankBonus + proBonus + knackBonus + talentOb;
     int strBonus   = SkillRules.StatBonus(Temp("St")) + (sheetRace?.GetStatMod(StatName.St) ?? 0);
     int itemOb     = ItemObFor(ws.Specialization);
 
@@ -580,7 +583,8 @@
           <tr class="tr-total">
             <td class="p1 fw">Total</td>
             <td class="p1"></td>
-            <td class="p1 tc fw">@AtFmt(_armorDef.AT)</td>
+            @* Natural Armor does not stack with worn armour — the higher AT wins (4.5). *@
+            <td class="p1 tc fw" data-tip="@AtTip">@AtFmt(EffectiveAt)</td>
             <td class="p1 tr fw @(_netManPen < 0 ? "neg" : "")">
               @ManPenFmt(_netManPen)@(_miaBonus > 0 && _rawManPen < 0 ? $" (raw {_rawManPen}, MiA +{_miaBonus})" : "")
             </td>
@@ -608,17 +612,23 @@
 @if (_char.Talents.Any())
 {
 <table class="t100 tb mb1">
-  <tr><td colspan="4" class="hdr">Talents &amp; Flaws</td></tr>
+  <tr><td colspan="5" class="hdr">Talents &amp; Flaws</td></tr>
   <tr class="sh">
     <th class="tl" style="width:22%">Talent / Flaw</th>
     <th class="tl" style="width:8%">Tier</th>
     <th class="tl" style="width:10%">DP Cost</th>
+    @* Whether the sheet's numbers already include this one, so nobody has to guess. *@
+    <th class="tl" style="width:18%">Applied</th>
     <th class="tl">Effect</th>
   </tr>
   @foreach (var t in _char.Talents.OrderBy(t => TalentRules.ByName.GetValueOrDefault(t.TalentName)?.IsFlaw))
   {
     var tDef = TalentRules.ByName.GetValueOrDefault(t.TalentName);
     int tCost = TalentRules.TierCost(t.TalentName, t.Tier);
+    string? tApplied = TalentEffects.Describe(t.TalentName, t.Tier, t.Restriction);
+    bool tUnresolved = tApplied is null
+                       && TalentEffects.RestrictionUnresolved(t.TalentName, t.Restriction);
+    bool tFromRace   = TalentEffects.IsNotModelled(t.TalentName);
     string tierLabel = t.Tier > 1 && tDef?.MaxTier != 1
         ? new[]{"","I","II","III","IV","V","VI","VII","VIII","IX","X"}[Math.Min(t.Tier,10)] : "—";
     <tr class="@(tDef?.IsFlaw == true ? "neg" : "")">
@@ -627,6 +637,12 @@
       </td>
       <td class="p1 tc">@tierLabel</td>
       <td class="p1 tr @(tCost < 0 ? "neg" : "pos")">@(tCost > 0 ? $"+{tCost}" : tCost.ToString())</td>
+      <td class="p1 sf @(tApplied is not null ? "pos" : tUnresolved ? "neg" : "muted")">
+        @if (tApplied is not null)   { @tApplied }
+        else if (tUnresolved)        { <text>restriction not recognised</text> }
+        else if (tFromRace)          { <text>already in the race data</text> }
+        else                         { <text>situational</text> }
+      </td>
       <td class="p1 sf muted">@(tDef?.Effect ?? "")</td>
     </tr>
   }
@@ -634,6 +650,10 @@
 }
 
 <!-- DEFENSE | RESISTANCE ROLLS -->
+@{
+  // The race's own resistances plus anything its free traits add; talents are shown apart.
+  var _rr = RacialRr;
+}
 <table class="t100 tb mb1">
   <tr>
     <td class="hdr" style="width:38%">Defense</td>
@@ -648,7 +668,7 @@
   <tr>
     <td rowspan="5" style="padding:0; vertical-align:top; border-right:1px solid #000">
       <table class="t100 tb">
-        <tr><td class="p1 bb" style="width:50%">Quickness DB: @Fmt(_quBonus*3)</td><td class="p1 bb">Other DB: <span class="fw">@(ItemDbTotal == 0 ? "" : Fmt(ItemDbTotal))</span></td></tr>
+        <tr><td class="p1 bb" style="width:50%">Quickness DB: @Fmt(_quBonus*3)</td><td class="p1 bb">Other DB: <span class="fw" data-tip="@OtherDbTip">@(OtherDb == 0 ? "" : Fmt(OtherDb))</span></td></tr>
         <tr><td class="p1 bb">Passive Dodge: @Fmt((int)Math.Round(_quBonus*1.5))</td><td class="p1 bb">Passive Block DB: <span class="@_shDbClass">@_shPassive</span>@(_shield.PassiveCapped ? " (max)" : "")</td></tr>
         <tr><td class="p1 bb">Partial Dodge (C): @Fmt(_quBonus*2)</td><td class="p1 bb">Partial Block DB (C): <span class="@_shDbClass">@_shPartial</span></td></tr>
         <tr><td class="p1 bb">Full Dodge (4 AP): @Fmt(_quBonus*3)</td><td class="p1 bb">Full Block DB (4 AP): <span class="@_shDbClass">@_shFull</span></td></tr>
@@ -656,39 +676,59 @@
            is the bonus it is rolled with — deliberately plain, so it cannot be mistaken for
            another number to add to DB. The tooltip is the skills table's own breakdown. *@
         <tr><td class="p1 bb"></td><td class="p1 bb" data-tip="@_shManeuverTip">Block maneuver roll: <span class="fw">@_shManeuver</span>@if (_shMulti) {<span class="muted sf"> (attacks 2–@_shield.Shield.MaxAttacks)</span>}</td></tr>
-        <tr><td class="p1">Total w/o shield: <span class="fw">@Fmt(_quBonus*3 + ItemDbTotal)</span></td><td class="p1">Total w/shield (passive): <span class="fw">@Fmt(_quBonus*3 + ItemDbTotal + _shield.PassiveTotal)</span></td></tr>
+        <tr><td class="p1">Total w/o shield: <span class="fw">@Fmt(_quBonus*3 + OtherDb)</span></td><td class="p1">Total w/shield (passive): <span class="fw">@Fmt(_quBonus*3 + OtherDb + _shield.PassiveTotal)</span></td></tr>
       </table>
     </td>
     <td class="p1 bb">Channeling</td><td class="p1 bb tc">In</td>
     <td class="p1 bb tr">@Fmt(_inBonus)</td><td class="p1 bb tr">@(2*_char.Level)</td>
-    <td class="p1 bb"></td><td class="p1 bb"></td>
-    <td class="p1 bb tr fw">@Fmt(_inBonus+2*_char.Level)</td>
+    <td class="p1 bb tr">@RrCell(_rr.Ch)</td><td class="p1 bb tr">@RrCell(_talentMods.RrChanneling)</td>
+    <td class="p1 bb tr fw">@Fmt(_inBonus+2*_char.Level+_rr.Ch+_talentMods.RrChanneling)</td>
   </tr>
   <tr>
     <td class="p1 bb">Essence</td><td class="p1 bb tc">Em</td>
     <td class="p1 bb tr">@Fmt(_emBonus)</td><td class="p1 bb tr">@(2*_char.Level)</td>
-    <td class="p1 bb"></td><td class="p1 bb"></td>
-    <td class="p1 bb tr fw">@Fmt(_emBonus+2*_char.Level)</td>
+    <td class="p1 bb tr">@RrCell(_rr.Es)</td><td class="p1 bb tr">@RrCell(_talentMods.RrEssence)</td>
+    <td class="p1 bb tr fw">@Fmt(_emBonus+2*_char.Level+_rr.Es+_talentMods.RrEssence)</td>
   </tr>
   <tr>
     <td class="p1 bb">Mentalism</td><td class="p1 bb tc">Pr</td>
     <td class="p1 bb tr">@Fmt(_prBonus)</td><td class="p1 bb tr">@(2*_char.Level)</td>
-    <td class="p1 bb"></td><td class="p1 bb"></td>
-    <td class="p1 bb tr fw">@Fmt(_prBonus+2*_char.Level)</td>
+    <td class="p1 bb tr">@RrCell(_rr.Me)</td><td class="p1 bb tr">@RrCell(_talentMods.RrMentalism)</td>
+    <td class="p1 bb tr fw">@Fmt(_prBonus+2*_char.Level+_rr.Me+_talentMods.RrMentalism)</td>
   </tr>
   <tr>
     <td class="p1 bb">Physical</td><td class="p1 bb tc">Co</td>
     <td class="p1 bb tr">@Fmt(_coBonus)</td><td class="p1 bb tr">@(2*_char.Level)</td>
-    <td class="p1 bb"></td><td class="p1 bb"></td>
-    <td class="p1 bb tr fw">@Fmt(_coBonus+2*_char.Level)</td>
+    <td class="p1 bb tr">@RrCell(_rr.Ph)</td><td class="p1 bb tr">@RrCell(_talentMods.RrPhysical)</td>
+    <td class="p1 bb tr fw">@Fmt(_coBonus+2*_char.Level+_rr.Ph+_talentMods.RrPhysical)</td>
   </tr>
   <tr>
     <td class="p1">Fear</td><td class="p1 tc">SD</td>
     <td class="p1 tr">@Fmt(_sdBonus)</td><td class="p1 tr">@(2*_char.Level)</td>
-    <td class="p1"></td><td class="p1"></td>
-    <td class="p1 tr fw">@Fmt(_sdBonus+2*_char.Level)</td>
+    <td class="p1 tr">@RrCell(_rr.Fe)</td><td class="p1 tr">@RrCell(_talentMods.RrFear)</td>
+    <td class="p1 tr fw">@Fmt(_sdBonus+2*_char.Level+_rr.Fe+_talentMods.RrFear)</td>
   </tr>
 </table>
+
+@* Modifiers that apply only against something in particular. Deliberately kept out of the
+   totals above: a number on this sheet is one the character always has. *@
+@{
+  var _conditional = _talentMods.ConditionalNotes.Concat(_racialMods.ConditionalNotes).ToList();
+}
+@if (_conditional.Count > 0)
+{
+<table class="t100 tb mb1">
+  <tr>
+    <td class="hdr" style="width:38%">Situational</td>
+    <td class="p1 sf">
+      @foreach (var note in _conditional)
+      {
+        <span class="me-3">@note</span>
+      }
+    </td>
+  </tr>
+</table>
+}
 
 <!-- SPELL LISTS -->
 @{
@@ -720,7 +760,9 @@
   @foreach (var sl in _spellListRows)
   {
     int typeMod   = ListTypeMod(sl.SkillName);
-    int castBonus = sl.TotalRanks + _spellRealmBonus + typeMod;
+    // Eloquence and Mumbler move every spellcasting roll.
+    int castBonus = sl.TotalRanks + _spellRealmBonus + typeMod
+                    + _talentMods.Spellcasting + _racialMods.Spellcasting;
     int mastery   = SpellMasteryBonus(sl);
     <tr>
       <td class="p1 fw">
@@ -869,7 +911,8 @@
       skByName.TryGetValue(skd.Name, out var csk);
       var line = SkillLineFor(cat, skd, csk, catSum);
       int cult = line.Cult, tot = line.Ranks, statTotal = line.StatTotal;
-      int rkBon = line.RankBonus, proBon = line.ProfBonus, knBon = line.KnackBonus, ttlBon = line.TotalBonus;
+      int rkBon = line.RankBonus, proBon = line.ProfBonus, knBon = line.KnackBonus;
+      int talBon = line.TalentBonus, ttlBon = line.TotalBonus;
       bool isPro = line.IsPro, isKnack = line.IsKnack;
       string? skTip = line.Tip;
 
@@ -905,9 +948,9 @@
         <td class="p1 tr">@(tot > 0 ? tot.ToString() : "")</td>
         <td class="p1 tr">@(tot > 0 ? Fmt(rkBon) : "")</td>
         <td class="p1 tr">@(proBon > 0 ? Fmt(proBon) : "")</td>
-        <td class="p1 tr">@(knBon > 0 ? "+5" : "")</td>
-        <td class="p1 tr fw @(tot > 0 || isKnack ? (ttlBon >= 0 ? "pos" : "neg") : "")" data-tip="@skTip">
-          @(tot > 0 || isKnack ? Fmt(ttlBon) : "")
+        <td class="p1 tr">@(knBon + talBon != 0 ? Fmt(knBon + talBon) : "")</td>
+        <td class="p1 tr fw @(tot > 0 || isKnack || talBon != 0 ? (ttlBon >= 0 ? "pos" : "neg") : "")" data-tip="@skTip">
+          @(tot > 0 || isKnack || talBon != 0 ? Fmt(ttlBon) : "")
         </td>
         <td class="p1 tc muted">□□</td>
       </tr>
@@ -925,7 +968,7 @@
           <td class="p1 tr">@(spLine.Ranks > 0 ? spLine.Ranks.ToString() : "")</td>
           <td class="p1 tr">@(spLine.Ranks > 0 ? Fmt(spLine.RankBonus) : "")</td>
           <td class="p1 tr">@(spLine.ProfBonus > 0 ? Fmt(spLine.ProfBonus) : "")</td>
-          <td class="p1 tr">@(spLine.KnackBonus > 0 ? "+5" : "")</td>
+          <td class="p1 tr">@(spLine.KnackBonus + spLine.TalentBonus != 0 ? Fmt(spLine.KnackBonus + spLine.TalentBonus) : "")</td>
           <td class="p1 tr fw @(spLine.TotalBonus >= 0 ? "pos" : "neg")" data-tip="@spLine.Tip">
             @Fmt(spLine.TotalBonus)
           </td>
@@ -1012,6 +1055,60 @@
     int _quBonus, _coBonus, _inBonus, _emBonus, _prBonus, _sdBonus, _stBonus;
     int _bmr, _ppBonus, _hits, _endurance, _realmStatBonus;
     string? _effectiveRealm;
+    string? _hitsTip;
+
+    // Talents and racial free traits produce the same kinds of modifier and are built by the
+    // same rules; they are kept apart only so the sheet can say where a number came from —
+    // the race, or something the player paid DP for.
+    TalentEffects.TalentMods _talentMods = TalentEffects.None;
+    TalentEffects.TalentMods _racialMods = TalentEffects.None;
+
+    int TalentSkill(string? skillName) =>
+        _talentMods.SkillBonus(skillName) + _racialMods.SkillBonus(skillName);
+
+    // Natural Armor, 4.5: "use the higher AT (do not add them together), and if the worn armor
+    // is heavier add the number of tiers as DB". Holding it from both sources is not cumulative
+    // either — a tier is a tier, so the better one wins.
+    int NaturalAtTiers => Math.Max(_talentMods.NaturalAtTiers, _racialMods.NaturalAtTiers);
+    int NaturalAt      => NaturalAtTiers > 0 ? 1 + NaturalAtTiers : 0;
+    int WornAt         => _char?.ArmorType ?? 1;
+    int EffectiveAt    => Math.Max(WornAt, NaturalAt);
+    int NaturalArmorDb => NaturalAtTiers > 0 && WornAt > NaturalAt ? NaturalAtTiers : 0;
+
+    // Only what is always on. Conditional modifiers are listed under the defence table
+    // instead, so a total on this sheet is one the character always has.
+    int TalentDbTotal => _talentMods.Db + _racialMods.Db + NaturalArmorDb;
+
+    int InitiativeTalent => _talentMods.Initiative + _racialMods.Initiative;
+
+    string? InitTip => InitiativeTalent == 0 ? null
+        : $"Qu: {Fmt(_quBonus)}\nTalents: {Fmt(InitiativeTalent)}"
+          + $"\n──────────\n= {Fmt(_quBonus + InitiativeTalent)}";
+
+    string? AtTip => NaturalAtTiers == 0 ? null
+        : $"Worn: AT {WornAt}\nNatural Armor: AT {NaturalAt}"
+          + (NaturalArmorDb > 0
+              ? $"\nThe worn armour is heavier, so the tiers add {Fmt(NaturalArmorDb)} DB instead"
+              : "")
+          + $"\n──────────\n= AT {EffectiveAt}";
+
+    // Resistance rolls: the race's own modifiers and its free traits both belong in the Racial
+    // column; what the player bought goes in Special.
+    (int Ch, int Es, int Me, int Ph, int Fe) RacialRr
+    {
+        get
+        {
+            var r = _char?.Race is not null && RaceRules.ByName.TryGetValue(_char.Race, out var rd)
+                    ? rd : null;
+            return ((r?.ResistChanneling ?? 0) + _racialMods.RrChanneling,
+                    (r?.ResistEssence    ?? 0) + _racialMods.RrEssence,
+                    (r?.ResistMentalism  ?? 0) + _racialMods.RrMentalism,
+                    (r?.ResistPhysical   ?? 0) + _racialMods.RrPhysical,
+                    _racialMods.RrFear);
+        }
+    }
+
+    string RrCell(int v) => v == 0 ? "" : Fmt(v);
 
     // Equipped gear that changes combat numbers. An item's OB applies to the weapon it names
     // (or to every weapon when it names none); its DB applies whenever the item is equipped.
@@ -1024,6 +1121,14 @@
         .Sum(e => e.ObBonus);
 
     int ItemDbTotal => EquippedBonusItems.Sum(e => e.DbBonus);
+
+    // Everything that is not quickness or a shield: worn items, Defensive Aura, and the
+    // Natural Armor tiers in the case where the worn armour is the heavier of the two.
+    int OtherDb => ItemDbTotal + TalentDbTotal;
+
+    string? OtherDbTip => TalentDbTotal == 0 ? null
+        : (ItemDbTotal != 0 ? $"Items: {Fmt(ItemDbTotal)}\n" : "")
+          + $"Talents: {Fmt(TalentDbTotal)}\n──────────\n= {Fmt(OtherDb)}";
 
     // Spell Law 4.6: "Spell Mastery maneuvers are rolled using the caster's skill bonus in
     // the spell list" — the list's ordinary skill bonus, which is a different number from
@@ -1110,6 +1215,13 @@
         _currentUserId = userId;
 
         var raceBonus = _char.Race is not null && RaceRules.ByName.TryGetValue(_char.Race, out var rbd) ? rbd : null;
+
+        // Before anything derived, because hits, DB, the resistance rolls and a good part of
+        // the skills table now read them.
+        _talentMods = TalentEffects.ForTalents(_char.Talents);
+        _racialMods = TalentEffects.ForTraits(
+            _char.Race is not null ? RaceRules.GetTraits(_char.Race) : []);
+
         _quBonus = SkillRules.StatBonus(Temp("Qu")) + (raceBonus?.GetStatMod(StatName.Qu) ?? 0);
         _coBonus = SkillRules.StatBonus(Temp("Co")) + (raceBonus?.GetStatMod(StatName.Co) ?? 0);
         _stBonus = SkillRules.StatBonus(Temp("St")) + (raceBonus?.GetStatMod(StatName.St) ?? 0);
@@ -1117,7 +1229,7 @@
         _emBonus = SkillRules.StatBonus(Temp("Em")) + (raceBonus?.GetStatMod(StatName.Em) ?? 0);
         _prBonus = SkillRules.StatBonus(Temp("Pr")) + (raceBonus?.GetStatMod(StatName.Pr) ?? 0);
         _sdBonus = SkillRules.StatBonus(Temp("SD")) + (raceBonus?.GetStatMod(StatName.SD) ?? 0);
-        _bmr = 20 + (int)Math.Ceiling(_quBonus / 2.0);
+        _bmr = 20 + (int)Math.Ceiling(_quBonus / 2.0) + _talentMods.Bmr + _racialMods.Bmr;
 
         // Body Development (Brawn: Co+SD, SkillStat: Co → stat bonus = Co+SD+Co)
         var bdSk    = _char.Skills.FirstOrDefault(s => s.SkillName == "Body Development");
@@ -1125,10 +1237,24 @@
         int bdBonus = _coBonus + _sdBonus + _coBonus
                       + SkillRules.RankBonus(bdRanks)
                       + ((bdSk?.IsProfessionalSkill ?? false) ? Math.Min(bdRanks, 30) : 0)
-                      + ((bdSk?.IsKnack ?? false) ? 5 : 0);
-        int baseHits = raceBonus?.BaseHits ?? 25;
-        _hits      = (int)Math.Round((baseHits + bdBonus) * (raceBonus?.HitMultiplier ?? 1.0f));
-        _endurance = bdBonus + (raceBonus?.EnduranceBonus ?? 0);
+                      + ((bdSk?.IsKnack ?? false) ? 5 : 0)
+                      + TalentSkill("Body Development");
+        // Tough and Fragile modify *base* hits — "base hits are normally equal to 25" (4.5) —
+        // so they sit inside the size multiplier rather than being added after it.
+        int hitsTalent = _talentMods.Hits + _racialMods.Hits;
+        int baseHits   = (raceBonus?.BaseHits ?? 25) + hitsTalent;
+        float hitMult  = raceBonus?.HitMultiplier ?? 1.0f;
+        _hits      = (int)Math.Round((baseHits + bdBonus) * hitMult);
+        _endurance = bdBonus + (raceBonus?.EnduranceBonus ?? 0)
+                     + _talentMods.Endurance + _racialMods.Endurance;
+
+        _hitsTip = $"Base hits: {raceBonus?.BaseHits ?? 25}"
+                 + (hitsTalent != 0 ? $"\nTalents: {Fmt(hitsTalent)}" : "")
+                 + $"\nBody Development: {Fmt(bdBonus)}"
+                 + (hitMult != 1.0f
+                     ? $"\nSize: ×{hitMult.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)}"
+                     : "")
+                 + $"\n──────────\n= {_hits}";
 
         // Resolve effective realm: stored value, else derive from profession (Core Law §2.4)
         _effectiveRealm = _char.Realm
@@ -1140,7 +1266,8 @@
         int pdRanks = pdSk?.TotalRanks ?? 0;
         int pdBonus = SkillRules.RankBonus(pdRanks)
                       + ((pdSk?.IsProfessionalSkill ?? false) ? Math.Min(pdRanks, 30) : 0)
-                      + ((pdSk?.IsKnack ?? false) ? 5 : 0);
+                      + ((pdSk?.IsKnack ?? false) ? 5 : 0)
+                      + TalentSkill("Power Development");
         if (_effectiveRealm is not null)
         {
             int realmBonus = _realmStatBonus;
@@ -1204,7 +1331,8 @@
 
     // One line of the skills table: the skill's own row, or one of its specializations.
     private sealed record SkillLine(int Cult, int Ranks, bool IsPro, bool IsKnack, int StatTotal,
-                                    int RankBonus, int ProfBonus, int KnackBonus, int TotalBonus, string? Tip);
+                                    int RankBonus, int ProfBonus, int KnackBonus, int TalentBonus,
+                                    int TotalBonus, string? Tip);
 
     // `parent` is the unspecialized row a specialization hangs off. As in the weapon
     // table, the parent's cultural ranks count towards every specialization of it, and
@@ -1227,10 +1355,13 @@
         int rkBon  = tot > 0 ? SkillRules.RankBonus(tot) : 0;
         int proBon = isPro   ? Math.Min(tot, 30) : 0;
         int knBon  = isKnack ? 5 : 0;
-        int ttlBon = statTotal + rkBon + proBon + knBon;
+        // A talent that names a skill covers all its specializations, so the lookup is on the
+        // skill's own name whichever of its rows this is.
+        int talBon = TalentSkill(skd.Name);
+        int ttlBon = statTotal + rkBon + proBon + knBon + talBon;
 
         string? tip = null;
-        if (tot > 0 || isKnack)
+        if (tot > 0 || isKnack || talBon != 0)
         {
             var sb = new System.Text.StringBuilder();
             // A spell list's skill bonus is the Spell Mastery number, not the cast roll —
@@ -1246,11 +1377,13 @@
             if (tot > 0) sb.AppendLine($"Ranks ({tot}): {Fmt(rkBon)}");
             if (proBon != 0) sb.AppendLine($"Prof: {Fmt(proBon)}");
             if (knBon  != 0) sb.AppendLine("Knack: +5");
+            if (talBon != 0) sb.AppendLine($"Talent: {Fmt(talBon)}");
             sb.Append($"──────────\n= {Fmt(ttlBon)}");
             tip = sb.ToString();
         }
 
-        return new SkillLine(cult, tot, isPro, isKnack, statTotal, rkBon, proBon, knBon, ttlBon, tip);
+        return new SkillLine(cult, tot, isPro, isKnack, statTotal, rkBon, proBon, knBon, talBon,
+                             ttlBon, tip);
     }
 
     // Stat bonus including the racial modifier. The stat block, the weapon table and the

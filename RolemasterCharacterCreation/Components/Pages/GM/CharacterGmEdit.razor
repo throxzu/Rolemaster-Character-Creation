@@ -143,7 +143,27 @@
                         else { <span class="text-muted align-middle d-inline-block pt-1">—</span> }
                     </td>
                     <td>
-                        <input class="form-control form-control-sm" @bind="t.Restriction" placeholder="restriction" />
+                        @if (tDef is not null && tDef.Spec is not TalentRules.SpecKind.None
+                                                       and not TalentRules.SpecKind.FreeText)
+                        {
+                            <select class="form-select form-select-sm" @bind="t.Restriction">
+                                <option value="">— choose —</option>
+                                @foreach (var opt in TalentRules.SpecOptions(tDef.Spec))
+                                {
+                                    <option value="@opt">@opt</option>
+                                }
+                            </select>
+                            @if (TalentEffects.RestrictionUnresolved(t.TalentName, t.Restriction))
+                            {
+                                <span class="small text-danger">
+                                    “@t.Restriction” is not one of these, so the talent modifies nothing.
+                                </span>
+                            }
+                        }
+                        else
+                        {
+                            <input class="form-control form-control-sm" @bind="t.Restriction" placeholder="restriction" />
+                        }
                     </td>
                     <td class="text-center align-middle">
                         <button class="btn btn-sm btn-outline-danger py-0 px-1" @onclick="() => RemoveTalent(t)">×</button>
@@ -188,8 +208,22 @@
             {
                 <div class="col-auto">
                     <label class="form-label">Restriction</label>
-                    <input class="form-control form-control-sm" style="min-width:120px"
-                           placeholder="e.g. Fire" @bind="_addTalentRestriction" />
+                    @if (selTDef.Spec == TalentRules.SpecKind.FreeText)
+                    {
+                        <input class="form-control form-control-sm" style="min-width:120px"
+                               placeholder="e.g. Wolves" @bind="_addTalentRestriction" />
+                    }
+                    else
+                    {
+                        <select class="form-select form-select-sm" style="min-width:150px"
+                                @bind="_addTalentRestriction">
+                            <option value="">— choose —</option>
+                            @foreach (var opt in TalentRules.SpecOptions(selTDef.Spec))
+                            {
+                                <option value="@opt">@opt</option>
+                            }
+                        </select>
+                    }
                 </div>
             }
             <div class="col-auto">

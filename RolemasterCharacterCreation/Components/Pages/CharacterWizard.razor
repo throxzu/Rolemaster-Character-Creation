@@ -1303,9 +1303,26 @@
                     {
                         <div class="col-md-3">
                             <label class="form-label form-label-sm mb-0">Specialization</label>
-                            <input class="form-control form-control-sm" placeholder="e.g. Fire, Tracking"
-                                   value="@_talentRestriction"
-                                   @oninput="e => _talentRestriction = e.Value?.ToString() ?? string.Empty" />
+                            @* A realm talent takes a realm and an elemental one an element.
+                               Free text let the two be written down interchangeably, which
+                               reads fine and leaves the talent modifying nothing. *@
+                            @if (selectedDef.Spec == TalentRules.SpecKind.FreeText)
+                            {
+                                <input class="form-control form-control-sm" placeholder="e.g. Wolves"
+                                       value="@_talentRestriction"
+                                       @oninput="e => _talentRestriction = e.Value?.ToString() ?? string.Empty" />
+                            }
+                            else
+                            {
+                                <select class="form-select form-select-sm"
+                                        @onchange="e => _talentRestriction = e.Value?.ToString() ?? string.Empty">
+                                    <option value="">— choose —</option>
+                                    @foreach (var opt in TalentRules.SpecOptions(selectedDef.Spec))
+                                    {
+                                        <option value="@opt" selected="@(_talentRestriction == opt)">@opt</option>
+                                    }
+                                </select>
+                            }
                         </div>
                     }
                     @if (selectedDef is not null)

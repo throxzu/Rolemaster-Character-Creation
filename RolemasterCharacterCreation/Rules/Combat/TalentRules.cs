@@ -9,6 +9,13 @@ namespace RolemasterCharacterCreation.Rules;
 // TotalCost(tier) = CostTier1 + (tier - 1) * CostPerTier
 public static class TalentRules
 {
+    /// <summary>
+    /// What kind of specialization a talent needs, so the editors can offer the right list
+    /// instead of a free-text box. Free text let "Magical Resistance (Fire)" be written down,
+    /// which reads fine and means nothing — Fire is an element, and that talent takes a realm.
+    /// </summary>
+    public enum SpecKind { None, FreeText, Realm, Element, Skill }
+
     public record TalentDef(
         string Name,
         string Category,
@@ -17,9 +24,11 @@ public static class TalentRules
         int    CostTier1,     // DP cost (or return) for tier 1
         int    CostPerTier,   // DP cost (or return) per additional tier; 0 if flat
         string Effect,
-        bool   NeedsSpec = false  // player must supply a specialization (e.g. element, skill name)
+        SpecKind Spec = SpecKind.None  // player must supply a specialization (realm, element, skill…)
     )
     {
+        public bool NeedsSpec => Spec != SpecKind.None;
+
         public int TotalCost(int tier) =>
             MaxTier == 1 || tier <= 1
                 ? CostTier1
@@ -67,12 +76,12 @@ public static class TalentRules
         new("Light Sleeper",          "Discipline", false, 1, 10,  0, "+25 to Perception to awaken"),
         new("Iron Will",              "Discipline", false, 0,  4,  4, "+5 per Tier to RRs vs. mental spells"),
         new("Look of Eagles",         "Discipline", false, 0, 10, 10, "+10/Tier to Leadership; followers +2/Tier to fear RRs"),
-        new("Prodigy",                "Discipline", false, 0,  6,  6, "+5 per Tier to all specializations of one skill", true),
+        new("Prodigy",                "Discipline", false, 0,  6,  6, "+5 per Tier to all specializations of one skill", SpecKind.Skill),
         new("Multilingual",           "Discipline", false, 1,  8,  0, "10 ranks in one language OR 5 ranks in each of two"),
         new("Neutral Odor",           "Discipline", false, 1, 10,  0, "Smell-based Perception rolls against you at –50"),
         new("Distinct Odor",          "Discipline", true,  1,-10,  0, "+50 to tracking/Perception by smell against you (flaw)"),
         new("Heavy Sleeper",          "Discipline", true,  1, -5,  0, "–25 to Perception to awaken (flaw)"),
-        new("Inept",                  "Discipline", true,  0, -4, -4, "–5 per Tier to all specializations of one skill (flaw)", true),
+        new("Inept",                  "Discipline", true,  0, -4, -4, "–5 per Tier to all specializations of one skill (flaw)", SpecKind.Skill),
         new("Mute",                   "Discipline", true,  1,-10,  0, "Cannot speak (flaw)"),
         new("Math Illiterate",        "Discipline", true,  1,-10,  0, "Cannot do math beyond basic counting (flaw)"),
         new("Revulsion",              "Discipline", true,  1,-15,  0, "Must make Fear RR vs. rate of visible bleeding (flaw)"),
@@ -81,7 +90,7 @@ public static class TalentRules
 
         // ── Senses ────────────────────────────────────────────────────────────
         new("Empathy",                "Senses", false, 1, 20,  0, "Read emotions within 25'; +50 to Social Awareness"),
-        new("Animal Empathy",         "Senses", false, 0, 15,  5, "+25 to maneuvers with one animal type; empathic communication", true),
+        new("Animal Empathy",         "Senses", false, 0, 15,  5, "+25 to maneuvers with one animal type; empathic communication", SpecKind.FreeText),
         new("Direction Sense",        "Senses", false, 1, 10,  0, "+30 to Navigation"),
         new("Destiny Sense",          "Senses", false, 2, 10, 10, "T1: know direction to goal; T2: direction + distance (1×/day)"),
         new("Visions",                "Senses", false, 0, 30, 10, "Spontaneous visions from touching objects (1×/day/Tier)"),
@@ -114,8 +123,8 @@ public static class TalentRules
         new("Immune to Disease",      "Racial", false, 2, 10, 20, "T1: mundane diseases; T2: all diseases including magical"),
         new("Natural Armor",          "Racial", false, 0,  5,  5, "+1 AT per Tier; no encumbrance/maneuver penalty"),
         new("Natural Weaponry",       "Racial", false, 1,  5,  0, "Natural attack equal to character size"),
-        new("Elemental Resistance",   "Racial", false, 0,  4,  4, "+5/Tier to DBs, RRs, and Endurance vs. one element", true),
-        new("Elemental Susceptibility","Racial",true,  0, -3, -3, "–5/Tier vs. one element (flaw)", true),
+        new("Elemental Resistance",   "Racial", false, 0,  4,  4, "+5/Tier to DBs, RRs, and Endurance vs. one element", SpecKind.Element),
+        new("Elemental Susceptibility","Racial",true,  0, -3, -3, "–5/Tier vs. one element (flaw)", SpecKind.Element),
         new("Increased Size",         "Racial", false, 0, 30, 30, "+1 size per Tier"),
         new("Decreased Size",         "Racial", true,  0,-30,-30, "–1 size per Tier (flaw)"),
         new("Fast Healer (Racial)",   "Racial", false, 1, 10,  0, "Recovery times halved; +10 to recovery rolls"),
@@ -125,8 +134,8 @@ public static class TalentRules
         new("Feeble",                 "Racial", true,  0, -5, -5, "–10 per Tier to Endurance rolls (flaw)"),
         new("Light-Boned",            "Racial", true,  0,-15,-15, "Hits and attacks treated as one size smaller per Tier (flaw)"),
         new("Light Sensitivity",      "Racial", true,  0,-10,-10, "–25 per Tier in bright sunlight (flaw)"),
-        new("Magical Resistance",     "Racial", false, 0,  3,  3, "+5/Tier to RRs vs. one magical realm", true),
-        new("Magical Vulnerability",  "Racial", true,  0, -3, -3, "–5/Tier to RRs vs. one magical realm (flaw)", true),
+        new("Magical Resistance",     "Racial", false, 0,  3,  3, "+5/Tier to RRs vs. one magical realm", SpecKind.Realm),
+        new("Magical Vulnerability",  "Racial", true,  0, -3, -3, "–5/Tier to RRs vs. one magical realm (flaw)", SpecKind.Realm),
         new("Physical Resistance",    "Racial", false, 0,  3,  3, "+5/Tier to Physical RRs"),
         new("Physical Vulnerability", "Racial", true,  0, -3, -3, "–5/Tier to Physical RRs (flaw)"),
         new("Poison Injection",       "Racial", false, 1, 20,  0, "Natural attack delivers poison on critical hit"),
@@ -141,7 +150,6 @@ public static class TalentRules
         new("Golden Throat",          "Racial", false, 0,  5,  5, "+10/Tier to Charm, Singing, Leadership, etc."),
         new("Additional Limb Pair",   "Racial", false, 0, 20, 20, "One additional pair of arms per Tier"),
         new("Breath Holding",         "Racial", false, 1, 10,  0, "Hold breath 1 minute per level; doubled if inactive"),
-        new("Immune to Disease",      "Racial", false, 2, 10, 20, "T1: mundane; T2: all diseases"),
     };
 
     public static readonly IReadOnlyDictionary<string, TalentDef> ByName =
@@ -149,6 +157,19 @@ public static class TalentRules
 
     public static readonly IReadOnlyList<string> Categories =
         All.Select(t => t.Category).Distinct().ToList();
+
+    /// <summary>
+    /// What a talent's specialization should be picked from. Free text is kept only where the
+    /// book really does mean anything (an animal type), so the editors can offer a list
+    /// everywhere it matters and a realm talent cannot end up holding an element.
+    /// </summary>
+    public static IReadOnlyList<string> SpecOptions(SpecKind kind) => kind switch
+    {
+        SpecKind.Realm   => TalentEffects.Realms,
+        SpecKind.Element => TalentEffects.Elements,
+        SpecKind.Skill   => SkillRules.SkillByName.Keys.OrderBy(k => k).ToList(),
+        _                => [],
+    };
 
     public static int TierCost(string name, int tier)
     {
