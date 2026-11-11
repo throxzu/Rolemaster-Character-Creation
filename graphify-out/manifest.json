@@ -325,13 +325,13 @@
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Components/Pages/CharacterSheet.razor": {
-    "mtime": 1791531261.3230166,
-    "ast_hash": "9e994d63eec1711294369a4e50bd84ae",
+    "mtime": 1794408481.4172168,
+    "ast_hash": "ec560bc9dcc520f1f19f8289e562ce7f",
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Components/Pages/CharacterWizard.razor": {
-    "mtime": 1792224725.647726,
-    "ast_hash": "5e8875573fb169388c58d9bf23022bec",
+    "mtime": 1794408173.7339478,
+    "ast_hash": "7be6bc1cfad504f27c3e668a15c2bacf",
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Components/Pages/CharacterWizard.razor.cs": {
@@ -370,8 +370,8 @@
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Components/Pages/GM/CharacterGmEdit.razor": {
-    "mtime": 1790771608.9764135,
-    "ast_hash": "fb370d8af58c163a8696b46a44ae072a",
+    "mtime": 1794408173.7339478,
+    "ast_hash": "d7071d2b46eb49dc310f2e33dcf71b3c",
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Components/Pages/GM/Characters.razor": {
@@ -1265,8 +1265,8 @@
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Rules/Combat/TalentRules.cs": {
-    "mtime": 1790771555.610993,
-    "ast_hash": "b7e4b180d1b7097be86009d744f605e9",
+    "mtime": 1794408173.7339478,
+    "ast_hash": "0660b7a985cd1aa5cc5d1e5738ee3fc1",
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Rules/EquipmentRules.cs": {
@@ -2227,6 +2227,11 @@
   "RolemasterCharacterCreation/wwwroot/world-edit.js": {
     "mtime": 1793120536.4974084,
     "ast_hash": "d31adb8031ad1cb7acf4ff6b3c318827",
+    "semantic_hash": ""
+  },
+  "RolemasterCharacterCreation/Rules/Combat/TalentEffects.cs": {
+    "mtime": 1794407789.1879919,
+    "ast_hash": "a452b21c5882514f403592fc9f3ec9d5",
     "semantic_hash": ""
   }
 }
