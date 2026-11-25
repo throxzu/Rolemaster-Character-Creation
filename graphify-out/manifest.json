@@ -325,8 +325,8 @@
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Components/Pages/CharacterSheet.razor": {
-    "mtime": 1795607686.1029558,
-    "ast_hash": "12b650b0c322bc64c5aec9d8aac16884",
+    "mtime": 1795609140.1345994,
+    "ast_hash": "bfcb23f4787195d04909599f1dd0f0a1",
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Components/Pages/CharacterWizard.razor": {
@@ -900,8 +900,8 @@
     "semantic_hash": "1ad820ebf406172d9a9835eda496158d"
   },
   "RolemasterCharacterCreation/Data/Migrations/AppDbContextModelSnapshot.cs": {
-    "mtime": 1793120508.7533937,
-    "ast_hash": "dd70a359c767753f3079d6c644527f3e",
+    "mtime": 1795609019.4143107,
+    "ast_hash": "de1bc9d1d28b1328f9dc9dd6f9b1c695",
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Identity/CountryDialCodes.cs": {
@@ -1030,8 +1030,8 @@
     "semantic_hash": "036a5477b5cfb28355911cc87e57947d"
   },
   "RolemasterCharacterCreation/Models/CharacterEquipmentItem.cs": {
-    "mtime": 1789657622.543189,
-    "ast_hash": "cde3e431f4fff3be2b3cf51236f31ef2",
+    "mtime": 1795608991.4058805,
+    "ast_hash": "b3017f59e86fbbc6cbf1f3c6c668de2e",
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Models/CharacterFavoriteAttack.cs": {
@@ -2035,8 +2035,8 @@
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Components/CharacterItemsEditor.razor": {
-    "mtime": 1795605382.284696,
-    "ast_hash": "932a4e5343558a2bfb9f2318ef66e2b1",
+    "mtime": 1795609388.9486024,
+    "ast_hash": "067ead509f96286ad76cd66eec7980b9",
     "semantic_hash": ""
   },
   "RolemasterCharacterCreation/Components/CharacterMoneyEditor.razor": {
@@ -2232,6 +2232,16 @@
   "RolemasterCharacterCreation/Rules/Combat/TalentEffects.cs": {
     "mtime": 1794407789.1879919,
     "ast_hash": "a452b21c5882514f403592fc9f3ec9d5",
+    "semantic_hash": ""
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20261125121659_AddEquipmentItemWeight.Designer.cs": {
+    "mtime": 1795609019.4133105,
+    "ast_hash": "cd54a3c35c3556a47f9a648f8c000302",
+    "semantic_hash": ""
+  },
+  "RolemasterCharacterCreation/Data/Migrations/20261125121659_AddEquipmentItemWeight.cs": {
+    "mtime": 1795609019.4123085,
+    "ast_hash": "6c6092e55e715288253b2fc8c9403ee8",
     "semantic_hash": ""
   }
 }
