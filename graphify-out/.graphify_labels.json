@@ -362,7 +362,6 @@
   "360": "gm-assistant.md",
   "361": "20260619175739_AddTownLocationGmNotes.Designer.cs",
   "362": "AddCampaignTowns",
-  "363": "Animate Reference",
   "364": "Onboarding Principles",
   "365": "CriticalTable",
   "366": "20260619193821_AddUsefulLinks.Designer.cs",
@@ -374,7 +373,6 @@
   "372": ".Cells",
   "373": "MobileDetection",
   "374": "20260902104007_AddEncounters.Designer.cs",
-  "375": "20260618191640_AddSpellLists.Designer.cs",
   "376": "CharacterMoneyEditor.razor",
   "377": "20260620094619_AddCampaignBuildings.Designer.cs",
   "378": "VoyageEmbeddingClient.cs",
@@ -385,6 +383,7 @@
   "383": "20260919091550_AddCombatantInitiative.Designer.cs",
   "384": "20260929115418_RenameShieldTypesToRmu.Designer.cs",
   "385": "20260619201224_AddWorldLocationVillageLink.Designer.cs",
+  "386": "Village",
   "387": "SmsText",
   "388": "20260902104007_AddEncounters.Designer.cs",
   "389": "20261009073327_BackOutPreIncrementedLevelUps.Designer.cs",
@@ -416,5 +415,7 @@
   "419": "20260930123359_DeduplicateCharacterTalents.Designer.cs",
   "420": "20261027164213_AddVillageMapEditing.Designer.cs",
   "421": "20261027170148_AddWorldMapEditing.Designer.cs",
+  "422": "ApplicationUser",
+  "423": "Eight Interactive States",
   "428": "MigrationBuilder"
 }

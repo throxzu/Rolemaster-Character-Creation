@@ -1,16 +1,16 @@
 # Graph Report - Character_Creation  (2026-11-25)
 
 ## Corpus Check
-- 427 files · ~1,786,114 words
+- 427 files · ~1,786,028 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 5329 nodes · 8223 edges · 418 communities (314 shown, 104 thin omitted)
+- 5329 nodes · 8224 edges · 419 communities (311 shown, 108 thin omitted)
 - Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 406 edges (avg confidence: 0.7)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `f0f9fbe3`
+- Built from commit: `988d0de6`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -122,6 +122,7 @@
 - Color & Contrast Reference
 - Identity Lock
 - .verify · New Player / Log Out Controls
+- live-complete
 - bufferToBase64
 - ChatMessage
 - Attack Designations
@@ -373,7 +374,6 @@
 - Rolemaster_Treasure_Law_(RMU).md
 - 20260619175739_AddTownLocationGmNotes.Designer.cs
 - AddCampaignTowns
-- Animate Reference
 - Onboarding Principles
 - CriticalTable
 - 20260619193821_AddUsefulLinks.Designer.cs
@@ -385,7 +385,6 @@
 - .Cells
 - MobileDetection
 - 20260902104007_AddEncounters.Designer.cs
-- 20260618191640_AddSpellLists.Designer.cs
 - CharacterMoneyEditor.razor
 - 20260620094619_AddCampaignBuildings.Designer.cs
 - VoyageEmbeddingClient.cs
@@ -396,6 +395,7 @@
 - 20260919091550_AddCombatantInitiative.Designer.cs
 - 20260929115418_RenameShieldTypesToRmu.Designer.cs
 - 20260619201224_AddWorldLocationVillageLink.Designer.cs
+- Village
 - SmsText
 - 20260902104007_AddEncounters.Designer.cs
 - 20261009073327_BackOutPreIncrementedLevelUps.Designer.cs
@@ -427,6 +427,8 @@
 - 20260930123359_DeduplicateCharacterTalents.Designer.cs
 - 20261027164213_AddVillageMapEditing.Designer.cs
 - 20261027170148_AddWorldMapEditing.Designer.cs
+- ApplicationUser
+- Eight Interactive States
 - MigrationBuilder
 
 ## God Nodes (most connected - your core abstractions)
@@ -480,11 +482,11 @@
 - **Reference Table Browse Flow** — _verify_shot_default_table_search, _verify_shot_default_table_sidebar, _verify_shot_default_stat_bonuses_table [INFERRED 0.75]
 - **Resistance Roll Reference Lookup Flow** — _verify_shot_resistance_table_sidebar, _verify_shot_resistance_rr_formula, _verify_shot_resistance_type_stat_table [INFERRED 0.75]
 
-## Communities (418 total, 104 thin omitted)
+## Communities (419 total, 108 thin omitted)
 
 ### Community 0 - "World Map & POI Service"
-Cohesion: 0.05
-Nodes (41): Action, Line, Cx, Cy, District, Feature, Geom, Hex (+33 more)
+Cohesion: 0.23
+Nodes (9): Action, Cx, Cy, Geom, IEnumerable, JsonElement, Name, TownMapService (+1 more)
 
 ### Community 1 - "Building Map View"
 Cohesion: 0.03
@@ -516,7 +518,7 @@ Nodes (46): Arcane Magic, Bard (Essence Profession), Base Spell Lists, Casting L
 
 ### Community 9 - "Live Browser Renderer"
 Cohesion: 0.09
-Nodes (45): bufferToBase64(), buildCollapsible(), buildColorModels(), buildListHtml(), buildRadiiModels(), buildTypographyModels(), captureAndEmit(), captureElementToBlob() (+37 more)
+Nodes (43): bufferToBase64(), buildCollapsible(), buildColorModels(), buildListHtml(), buildRadiiModels(), buildTypographyModels(), captureElementToBlob(), collectFontCssText() (+35 more)
 
 ### Community 10 - "World Map View"
 Cohesion: 0.03
@@ -527,12 +529,12 @@ Cohesion: 0.11
 Nodes (38): hasGeneratedHeader(), HEADER_MARKERS, isGeneratedFile(), isGitIgnored(), acceptCli(), argVal(), deindentContent(), detectCommentSyntax() (+30 more)
 
 ### Community 12 - "Dungeon Map Service"
-Cohesion: 0.20
-Nodes (9): DungeonRender, double, H, IEnumerable, JsonElement, W, Y, DungeonMapService (+1 more)
+Cohesion: 0.16
+Nodes (11): DungeonRender, NoteSeed, double, H, IEnumerable, JsonElement, List, W (+3 more)
 
 ### Community 13 - "Impeccable Live UI Rows"
-Cohesion: 0.11
-Nodes (33): actionLabel(), buildConfigureRow(), buildConfirmedRow(), buildDots(), buildGeneratingRow(), buildSavingRow(), checkpointPayload(), clearHandled() (+25 more)
+Cohesion: 0.10
+Nodes (36): actionLabel(), buildConfigureRow(), buildConfirmedRow(), buildDots(), buildGeneratingRow(), buildSavingRow(), captureAndEmit(), checkpointPayload() (+28 more)
 
 ### Community 14 - "Design Parser"
 Cohesion: 0.16
@@ -563,12 +565,12 @@ Cohesion: 0.06
 Nodes (31): CritPart, AddFavorite, BuildSuggestionsAsync, CriticalParts, CritPart, DefaultSizeFor, FumbleType, IsFavorite (+23 more)
 
 ### Community 21 - "Impeccable Live Client"
-Cohesion: 0.14
-Nodes (30): cleanup(), closeTunePopover(), connectSSE(), desc(), handleAccept(), handleClick(), handleDiscard(), handleKeyDown() (+22 more)
+Cohesion: 0.15
+Nodes (29): cleanup(), closeTunePopover(), connectSSE(), desc(), handleAccept(), handleClick(), handleDiscard(), handleKeyDown() (+21 more)
 
 ### Community 22 - "Component Pools & State"
 Cohesion: 0.07
-Nodes (10): bool, PoolEntry, HashSet, IJSRuntime, int, IReadOnlyList, List, Random (+2 more)
+Nodes (9): bool, PoolEntry, HashSet, IJSRuntime, int, IReadOnlyList, List, string (+1 more)
 
 ### Community 23 - "Chat Service & Page"
 Cohesion: 0.07
@@ -579,12 +581,12 @@ Cohesion: 0.13
 Nodes (26): acknowledgePendingEvent(), annotRoot, args, broadcast(), CONTEXT_DIR, createRequestHandler(), { detectScript, sessionPath, livePath }, __dirname (+18 more)
 
 ### Community 25 - "Building/Cave Map Services"
-Cohesion: 0.14
-Nodes (8): RolemasterCharacterCreation.Services, DocsLocator, ItemDto, RulesChatMessage, CachedChunk, Cell, Op, System.Text
+Cohesion: 0.07
+Nodes (21): RolemasterCharacterCreation.Services, IEnumerable, Y, CaveRender, DocsLocator, ItemDto, CachedChunk, Op (+13 more)
 
 ### Community 26 - "AppDbContext & Identity"
-Cohesion: 0.14
-Nodes (13): Cards Are Not Required, Depth & Elevation, Grid Systems, Hierarchy Through Multiple Dimensions, Name Tokens Semantically, Optical Adjustments, Spacing Systems, Spatial Design (+5 more)
+Cohesion: 0.13
+Nodes (14): Content-Driven Breakpoints, Mobile-First Authoring, Cards Are Not Required, Container Queries, Depth & Elevation, Grid Systems, Hierarchy Through Multiple Dimensions, Name Tokens Semantically (+6 more)
 
 ### Community 27 - "GM Players Page"
 Cohesion: 0.07
@@ -604,7 +606,7 @@ Nodes (29): RolemasterCharacterCreation.Data, ModelBuilder, AddHeightWeight, Mod
 
 ### Community 31 - "CharacterSheet"
 Cohesion: 0.06
-Nodes (30): HeadContent, Fmt, FmtHeight, FmtWeight, ItemWeight, LevelUpAsync, ListTypeMod, OnAfterRenderAsync (+22 more)
+Nodes (30): AppDbContext, CharacterEquipmentItem, HeadContent, IJSRuntime, NavigationManager, PageTitle, RacialTrait, ReferenceTableService (+22 more)
 
 ### Community 32 - "Agents · CharacterSheet"
 Cohesion: 0.08
@@ -675,8 +677,8 @@ Cohesion: 0.12
 Nodes (19): Archetype (creature profession), Body Development, Open-ended d100 Roll (d100OE), Defensive Archetype, Defensive Bonus (DB), Discipline Archetype, Hits, Hybrid Archetype (+11 more)
 
 ### Community 49 - "RulesChunk"
-Cohesion: 0.12
-Nodes (16): CachedChunk, IAsyncEnumerable, IHostedService, IWebHostEnvironment, RulesChunk, CancellationToken, IChatClient, IConfiguration (+8 more)
+Cohesion: 0.09
+Nodes (21): CachedChunk, IAsyncEnumerable, IHostedService, IWebHostEnvironment, CancellationToken, IReadOnlyList, Task, IEmbeddingClient (+13 more)
 
 ### Community 50 - "live-resume"
 Cohesion: 0.18
@@ -691,7 +693,7 @@ Cohesion: 0.21
 Nodes (17): appendOriginToDirective(), buildTagBlock(), commentClose(), commentOpen(), CONFIG_PATH, __dirname, findCspMetaTags(), getAttr() (+9 more)
 
 ### Community 53 - "CharacterStat"
-Cohesion: 0.23
+Cohesion: 0.24
 Nodes (5): Potential, CharacterStat, StatName, StatGainEntry, Temp
 
 ### Community 54 - "Properties · launchSettings.json"
@@ -747,8 +749,8 @@ Cohesion: 0.13
 Nodes (14): CanAccessWizard, CreateAsync, OnInitializedAsync, AppDbContext, AuthenticationStateProvider, Character, NavigationManager, PageTitle (+6 more)
 
 ### Community 68 - "BuildingCategory"
-Cohesion: 0.08
-Nodes (23): append-arrays, append-string, Cleanup, Consent prompt template, CSP detection (first-time only), Drift-heal warning, Exit, First-time setup (config missing or invalid) (+15 more)
+Cohesion: 0.05
+Nodes (37): 1. Read the screenshot (if present), 2. Wrap the element, 3. Load the action's reference, 4. Plan three variants: identity first, then mode, then axes, 5. Apply the freeform prompt (if present), 6. Write all variants in a single edit, 7. Parameters (composition-sized, 0–4 per variant), 8. Signal done (+29 more)
 
 ### Community 69 - "CaveRender"
 Cohesion: 0.08
@@ -767,7 +769,7 @@ Cohesion: 0.25
 Nodes (13): RolemasterCharacterCreation.Components, AttackRowDto, AttackTableDto, AttackWeaponDto, CreatureDescriptionDto, CriticalRowDto, CriticalTableDto, Dictionary (+5 more)
 
 ### Community 73 - "SkillRules"
-Cohesion: 0.21
+Cohesion: 0.15
 Nodes (6): IReadOnlyDictionary, IReadOnlyList, string, SkillCategory, SkillDef, SkillRules
 
 ### Community 74 - "Gm · Creatures"
@@ -803,8 +805,8 @@ Cohesion: 0.30
 Nodes (11): buildTargetNames(), cleanSkillsLock(), cleanup(), DEPRECATED_NAMES, findProjectRoot(), findSkillsDirs(), HARNESS_DIRS, isImpeccableSkill() (+3 more)
 
 ### Community 82 - "Identity · InviteClaims"
-Cohesion: 0.11
-Nodes (13): RolemasterCharacterCreation.Models, List, AttackTable, AttackTableRow, AttackTableWeapon, List, BuildingCategory, BuildingCategoryName (+5 more)
+Cohesion: 0.09
+Nodes (15): RolemasterCharacterCreation.Models, List, AttackTable, AttackTableRow, AttackTableWeapon, CampaignSettings, CharacterFavoriteAttack, DateTimeOffset (+7 more)
 
 ### Community 83 - "Campaign · BuildingCategories"
 Cohesion: 0.17
@@ -871,20 +873,20 @@ Cohesion: 0.18
 Nodes (10): Dispose, OnKeyDown, OnParametersSetAsync, AuthenticationState, IJSRuntime, Microsoft.AspNetCore.Components.Authorization, RolemasterCharacterCreation.Identity, RulesChatMessage (+2 more)
 
 ### Community 99 - "MapCategory"
-Cohesion: 0.07
-Nodes (25): Brand bans (on top of the shared absolute bans), Brand permissions, Brand register, Color, Font selection procedure, Imagery, Layout, Motion (+17 more)
+Cohesion: 0.14
+Nodes (14): Brand bans (on top of the shared absolute bans), Brand permissions, Brand register, Color, Font selection procedure, Imagery, Layout, Motion (+6 more)
 
 ### Community 100 - "Village"
 Cohesion: 0.18
-Nodes (8): formula(), getBounds(), hide(), link(), qt(), rangeToNative(), St(), video()
+Nodes (3): c, path(), R()
 
 ### Community 101 - "WorldCategory"
-Cohesion: 0.04
-Nodes (44): Undo Over Confirmation, Empty States as Onboarding, Progressive Disclosure, Button Label Design, Error Message Formula, Terminology Consistency, Assess Onboarding Needs, Context Over Ceremony (+36 more)
+Cohesion: 0.05
+Nodes (41): Empty States as Onboarding, Progressive Disclosure, Error Message Formula, Assess Onboarding Needs, Context Over Ceremony, Contextual Help, Design Onboarding Experiences, Documentation & Help (+33 more)
 
 ### Community 102 - "Character · RaceRules"
-Cohesion: 0.18
-Nodes (7): RolemasterCharacterCreation.Rules, string, SpellAttackTable, IReadOnlyDictionary, IReadOnlyList, WeaponDef, WeaponRules
+Cohesion: 0.15
+Nodes (8): RolemasterCharacterCreation.Rules, Die, ArmorDef, PieceDef, ShieldDefense, ShieldEntry, string, SpellAttackTable
 
 ### Community 103 - "RulesParser"
 Cohesion: 0.27
@@ -902,9 +904,13 @@ Nodes (17): Font Selection & Replacement, Type Hierarchy & Scale, Fluid Type (cl
 Cohesion: 0.22
 Nodes (10): New Player / Log Out Controls, Dark Theme UI Pattern, Floating Help Button, GM / Tables / Spells Nav Dropdowns, Reference Tables Screen (Default Snapshot), Stat Value to Bonus Lookup, Stat Bonuses Table (2-5a, Core Law), Search Tables Input (+2 more)
 
+### Community 107 - "live-complete"
+Cohesion: 0.18
+Nodes (8): double, HashSet, int, JsonElement, StringBuilder, Y, WorldMapService, WorldRender
+
 ### Community 108 - "bufferToBase64"
-Cohesion: 0.10
-Nodes (15): IdentityUser, List, ApplicationUser, DateTime, List, Character, DateTime, CharacterAuditLog (+7 more)
+Cohesion: 0.12
+Nodes (11): DateTime, List, Character, CharacterEquipmentItem, CharacterSkill, CharacterTalent, int, LevelUpRules (+3 more)
 
 ### Community 109 - "ChatMessage"
 Cohesion: 0.20
@@ -947,16 +953,16 @@ Cohesion: 0.31
 Nodes (6): Heading, IReadOnlyList, List, StringBuilder, Text, MarkdownParser
 
 ### Community 119 - "Audit Reference"
-Cohesion: 0.15
-Nodes (14): Audit Reference, Technical Quality Audit, Bolder Reference, Bold Means Distinctive, Hierarchy Amplification, Brand Register Reference, Font Selection Procedure & Reflex-Reject List, Brand Imagery Requirement (+6 more)
+Cohesion: 0.20
+Nodes (10): Bolder Reference, Bold Means Distinctive, Hierarchy Amplification, Brand Register Reference, Font Selection Procedure & Reflex-Reject List, Brand Imagery Requirement, Brand Register (Design IS the Product), Impeccable Skill (+2 more)
 
 ### Community 120 - "Duration Rule"
-Cohesion: 0.22
-Nodes (8): Door, GridCell, Note, NoteSeed, Pt, Rect, Wall, WaterCell
+Cohesion: 0.12
+Nodes (16): Door, GridCell, Note, Pt, Rect, Door, DungeonRender, GridCell (+8 more)
 
 ### Community 121 - "Accessibility-Dependent User"
-Cohesion: 0.14
-Nodes (14): Accessibility-Dependent User (Sam), Confused First-Timer (Jordan), Distracted Mobile User (Casey), Impatient Power User (Alex), Deliberate Stress Tester (Riley), Input Method Detection, 1. Impatient Power User: "Alex", 2. Confused First-Timer: "Jordan" (+6 more)
+Cohesion: 0.12
+Nodes (17): Extraordinary Interfaces, Progressive Enhancement, Accessibility-Dependent User (Sam), Confused First-Timer (Jordan), Distracted Mobile User (Casey), Impatient Power User (Alex), Deliberate Stress Tester (Riley), Input Method Detection (+9 more)
 
 ### Community 122 - "CreatureTables"
 Cohesion: 0.22
@@ -1010,10 +1016,6 @@ Nodes (8): Hybrid Realms, Profession, Realm of Arms, Realm of Channeling, Realm 
 Cohesion: 0.07
 Nodes (26): Animal (Cost 2), Awareness (Cost 2), Battle Expertise (Cost 3), Brawn (Cost 3), Chapter 3: Skill Definitions, Combat Training, Composition & Performance Art (Cost 2), Crafting & Vocation (Cost 2) (+18 more)
 
-### Community 135 - "Identity · IdentityRevalidatingAuthentic"
-Cohesion: 0.18
-Nodes (7): List, MapCategory, MapCategoryName, DateTime, List, Town, TownLocation
-
 ### Community 136 - "Layout · ReconnectModal.razor"
 Cohesion: 0.32
 Nodes (6): handleReconnectStateChanged(), reconnectModal, resumeButton, retry(), retryButton, retryWhenDocumentBecomesVisible()
@@ -1047,8 +1049,8 @@ Cohesion: 0.27
 Nodes (5): IReadOnlyDictionary, IReadOnlyList, RaceDef, RaceRules, RacialTrait
 
 ### Community 144 - "Design System Alignment"
-Cohesion: 0.13
-Nodes (14): DESIGN.md (Visual Context), Accessibility & Inclusion, Brand & Personality, Interview mode, not confirmation mode, Minimum viable interview, Register (ask first; it shapes everything below), Step 1: Load current state, Step 2: Explore the codebase (+6 more)
+Cohesion: 0.25
+Nodes (8): Absolute Design Bans, Anti-Patterns Verdict, Audit Health Score, Detailed Findings by Severity, Executive Summary, Generate Report, Patterns & Systemic Issues, Positive Findings
 
 ### Community 145 - ".verify · RR Failure Severity Tiers"
 Cohesion: 0.38
@@ -1083,24 +1085,24 @@ Cohesion: 0.33
 Nodes (5): IReadOnlyDictionary, IReadOnlyList, ProfessionDef, ProfessionRules, ProfGroup
 
 ### Community 153 - "Combat · TalentRules"
-Cohesion: 0.15
-Nodes (8): CharacterTalent, IEnumerable, IReadOnlyDictionary, IReadOnlyList, SpecKind, TalentDef, TalentRules, SpecKind
+Cohesion: 0.18
+Nodes (7): IEnumerable, IReadOnlyDictionary, IReadOnlyList, SpecKind, TalentDef, TalentRules, SpecKind
 
 ### Community 154 - "IEmbeddingClient"
 Cohesion: 0.13
-Nodes (10): DateTime, List, Village, List, WorldCategory, WorldLocation, DateTime, List (+2 more)
+Nodes (10): DateTime, List, Town, List, WorldCategory, WorldLocation, DateTime, List (+2 more)
 
 ### Community 155 - "app"
 Cohesion: 0.17
 Nodes (16): antiforgeryToken(), cellAt(), downscale(), handleFiles(), insertImage(), onDown(), onMove(), paint() (+8 more)
 
 ### Community 157 - "Cognitive Load Reference"
-Cohesion: 0.22
-Nodes (9): Cognitive Load Reference, Progressive Disclosure, Working Memory Rule (Under 4 Items), Distill Reference, Strip to Essence, Extraneous Load: Bad Design, Germane Load: Learning Effort, Intrinsic Load: The Task Itself (+1 more)
+Cohesion: 0.15
+Nodes (12): Cognitive Load Reference, Progressive Disclosure, Working Memory Rule (Under 4 Items), Distill Reference, Strip to Essence, Cognitive Load Assessment, Cognitive Load Checklist, Extraneous Load: Bad Design (+4 more)
 
 ### Community 158 - "Critique Reference"
-Cohesion: 0.13
-Nodes (16): Critique Reference, Dual Independent Assessment, Heuristics Scoring Reference, Issue Severity P0-P3, Persona Red Flags, 10. Help and Documentation, 1. Visibility of System Status, 2. Match Between System and Real World (+8 more)
+Cohesion: 0.12
+Nodes (18): Audit Reference, Technical Quality Audit, Critique Reference, Dual Independent Assessment, Heuristics Scoring Reference, Issue Severity P0-P3, Persona Red Flags, 10. Help and Documentation (+10 more)
 
 ### Community 159 - "Document  Reference"
 Cohesion: 0.33
@@ -1111,8 +1113,8 @@ Cohesion: 0.40
 Nodes (6): Breakage, Equipment, Gamemastering, Power Level, Starting Level, Starting Wealth
 
 ### Community 162 - "Creature Talents"
-Cohesion: 0.10
-Nodes (23): applyDelta(), d(), deleteText(), detach(), formatText(), getDelta(), h(), handler() (+15 more)
+Cohesion: 0.14
+Nodes (6): h(), hasNext(), peek(), peekLength(), peekType(), rest()
 
 ### Community 163 - "Alchemical Spells"
 Cohesion: 0.33
@@ -1127,12 +1129,12 @@ Cohesion: 0.33
 Nodes (5): OnInitializedAsync, AuthenticationState, NavigationManager, PageTitle, route:/
 
 ### Community 166 - "Character · CultureRules"
-Cohesion: 0.05
-Nodes (26): appendChild(), attachUI(), c, clone(), deleteAt(), enforceAllowedChildren(), formatAt(), formatLine() (+18 more)
+Cohesion: 0.08
+Nodes (22): appendChild(), attachUI(), clone(), deleteAt(), enforceAllowedChildren(), format(), formatAt(), getHTML() (+14 more)
 
 ### Community 167 - "SpellListRules"
-Cohesion: 0.14
-Nodes (14): 1. Read the screenshot (if present), 2. Wrap the element, 3. Load the action's reference, 4. Plan three variants: identity first, then mode, then axes, 5. Apply the freeform prompt (if present), 6. Write all variants in a single edit, 7. Parameters (composition-sized, 0–4 per variant), 8. Signal done (+6 more)
+Cohesion: 0.15
+Nodes (11): Assess Current Typography, Establish Hierarchy, Fix Readability, Font Selection, Improve Typography Systematically, Live-mode signature params, Plan Typography Improvements, Refine Details (+3 more)
 
 ### Community 168 - "Brand Register Reference"
 Cohesion: 0.10
@@ -1147,8 +1149,8 @@ Cohesion: 0.40
 Nodes (4): Authorized, NavLink, AuthorizeView, RealmMenu
 
 ### Community 171 - "Die Rolls"
-Cohesion: 0.06
-Nodes (44): attribute(), Bt(), buildItem(), buildLabel(), buildOptions(), buildPicker(), close(), constructor() (+36 more)
+Cohesion: 0.05
+Nodes (55): attach(), attribute(), Bt(), buildItem(), buildLabel(), buildOptions(), buildPicker(), close() (+47 more)
 
 ### Community 172 - "Artifact Intelligence"
 Cohesion: 0.40
@@ -1160,15 +1162,11 @@ Nodes (4): FocusOnNavigate, Found, Router, RouteView
 
 ### Community 174 - ".AddWeaponAlloc"
 Cohesion: 0.09
-Nodes (8): emit(), getRange(), image(), index(), k, normalizedToRange(), normalizeNative(), s
+Nodes (7): emit(), getRange(), image(), index(), k, normalizeNative(), s
 
 ### Community 175 - "Routes"
 Cohesion: 0.40
 Nodes (4): FocusOnNavigate, Found, Router, RouteView
-
-### Community 176 - "Migrations · 20260527175403_InitialCreat"
-Cohesion: 0.20
-Nodes (9): Door, GridCell, Note, NoteSeed, Rect, List, DungeonRender, Wall (+1 more)
 
 ### Community 177 - "Migrations · 20260527190801_AddCharacter"
 Cohesion: 0.11
@@ -1176,19 +1174,19 @@ Nodes (18): Appropriate to Context, Assess Delight Opportunities, Celebration Mo
 
 ### Community 178 - "Migrations · 20260530155746_AddHeightWei"
 Cohesion: 0.05
-Nodes (5): add(), getText(), i, u, value()
+Nodes (7): add(), getText(), i, remove(), removeChild(), u, value()
 
 ### Community 179 - "Migrations · 20260530161351_AddGender"
 Cohesion: 0.13
 Nodes (9): List, DungeonCategory, DungeonCategoryName, DungeonLocation, DateTime, List, DungeonMap, DungeonNote (+1 more)
 
 ### Community 181 - "Migrations · 20260530170845_AddArmorSele"
-Cohesion: 0.08
-Nodes (19): DbSet, IdentityDbContext, ModelBuilder, AppDbContext, CampaignSettings, List, CaveCategory, CaveCategoryName (+11 more)
+Cohesion: 0.13
+Nodes (9): List, CaveCategory, CaveCategoryName, CaveLocation, DateTime, List, CaveMap, CaveNote (+1 more)
 
 ### Community 185 - "Migrations · 20260617000001_CapRaceBonus"
-Cohesion: 0.20
-Nodes (12): Eight Interactive States, Focus Rings (focus-visible), Design System Alignment, Interaction States Coverage, Final Polish Pass, Product Register, Product Slop Test, Reduce Visual Intensity (+4 more)
+Cohesion: 0.13
+Nodes (14): DESIGN.md (Visual Context), Accessibility & Inclusion, Brand & Personality, Interview mode, not confirmation mode, Minimum viable interview, Register (ask first; it shapes everything below), Step 1: Load current state, Step 2: Explore the codebase (+6 more)
 
 ### Community 186 - "Migrations · 20260617173036_AddCreatureD"
 Cohesion: 0.22
@@ -1199,8 +1197,8 @@ Cohesion: 0.25
 Nodes (5): Dictionary, List, Eff, Kind, TalentMods
 
 ### Community 189 - "Migrations · 20260618181526_AddFumbleTab"
-Cohesion: 0.29
-Nodes (5): Die, int, Random, Die, StatGainRules
+Cohesion: 0.40
+Nodes (4): Die, int, Random, StatGainRules
 
 ### Community 190 - "Migrations · 20260618182736_AddSpellFail"
 Cohesion: 0.20
@@ -1211,36 +1209,32 @@ Cohesion: 0.11
 Nodes (18): A CHARACTER & COMBAT SYSTEMA CHARACTER & COMBAT SYSTEM, Attacks Modifier, Battle Expertise, Body Discipline, Combat Expertise, Combat Training 1, Combat Training 2, Combat Training 3 (+10 more)
 
 ### Community 200 - "Migrations · 20260619204353_AddWorldLoca"
-Cohesion: 0.25
-Nodes (5): IEnumerable, Y, CaveRender, Op, System.Globalization
+Cohesion: 0.33
+Nodes (6): Line, District, Feature, Poly, List, TownRender
 
 ### Community 203 - "Migrations · 20260620065621_PruneDungeon"
-Cohesion: 0.11
-Nodes (8): b(), descendant(), Et(), f, getFormat(), handleDOM(), register(), z()
+Cohesion: 0.09
+Nodes (29): applyDelta(), b(), build(), clean(), d(), deleteText(), descendants(), detach() (+21 more)
 
 ### Community 205 - "Migrations · 20260620071206_AddDungeonNo"
-Cohesion: 0.22
-Nodes (6): RolemasterCharacterCreation.Identity, RolemasterCharacterCreation.Endpoints, string, InviteClaims, string, Roles
+Cohesion: 0.16
+Nodes (9): RolemasterCharacterCreation.Identity, RolemasterCharacterCreation.Endpoints, IReadOnlyList, CountryDialCode, CountryDialCodes, string, InviteClaims, string (+1 more)
 
 ### Community 206 - "Migrations · 20260620085233_AddCampaignC"
 Cohesion: 0.09
-Nodes (11): Migration, MigrationBuilder, AddCharacterTalents, MigrationBuilder, AddLevelUpBaseline, MigrationBuilder, AddCreatureDescriptions, MigrationBuilder (+3 more)
-
-### Community 207 - "Migrations · 20260620094619_AddCampaignB"
-Cohesion: 0.33
-Nodes (4): Entry, IReadOnlyDictionary, Entry, WeaponAttackTable
-
-### Community 208 - "Migrations · 20260620145224_LinkTownVill"
-Cohesion: 0.11
-Nodes (10): attach(), build(), clean(), find(), formats(), j, keys(), position() (+2 more)
+Nodes (11): Migration, MigrationBuilder, AddCharacterTalents, MigrationBuilder, AddLevelUpBaseline, MigrationBuilder, AddAttackTables, MigrationBuilder (+3 more)
 
 ### Community 212 - "SpellListRules"
 Cohesion: 0.40
 Nodes (3): Dictionary, string, SpellListRules
 
+### Community 213 - "AddAttackTables"
+Cohesion: 0.40
+Nodes (3): List, CriticalTable, CriticalTableRow
+
 ### Community 215 - "Identity · CountryDialCodes"
-Cohesion: 0.10
-Nodes (4): descendants(), q(), Rt(), X
+Cohesion: 0.14
+Nodes (3): q(), X, z()
 
 ### Community 216 - "CriticalTable"
 Cohesion: 0.11
@@ -1259,8 +1253,8 @@ Cohesion: 0.11
 Nodes (17): Accent Color Application, Accessibility, Assess Color Opportunity, Background & Surfaces, Balance & Refinement, Borders & Accents, Cohesion, Data Visualization (+9 more)
 
 ### Community 220 - "EquipmentRules"
-Cohesion: 0.10
-Nodes (22): Duration Rule (100/300/500), Easing Curves, Core Web Vitals, Extraordinary Interfaces, Progressive Enhancement, Responsive Images, Duration: The 100/300/500 Rule, Easing: Pick the Right Curve (+14 more)
+Cohesion: 0.40
+Nodes (4): IReadOnlyList, EquipmentRules, GeneralItem, WeaponItem
 
 ### Community 221 - "string"
 Cohesion: 0.22
@@ -1271,8 +1265,8 @@ Cohesion: 0.70
 Nodes (4): clean(), extract(), main(), Fix the remaining mis-attributed / garbage descriptions found by the content aud
 
 ### Community 224 - "Adapt Reference"
-Cohesion: 0.11
-Nodes (18): Anti-Patterns, CSS Anchor Positioning, Destructive Actions: Undo > Confirm, Dropdown & Overlay Positioning, Fixed Positioning Fallback, Focus Rings: Do Them Right, Form Design: The Non-Obvious, Gesture Discoverability (+10 more)
+Cohesion: 0.09
+Nodes (23): Eight Interactive States, Focus Rings (focus-visible), Undo Over Confirmation, Button Label Design, Terminology Consistency, Anti-Patterns, CSS Anchor Positioning, Destructive Actions: Undo > Confirm (+15 more)
 
 ### Community 225 - "RulesIndexService"
 Cohesion: 0.12
@@ -1319,15 +1313,15 @@ Cohesion: 0.15
 Nodes (12): Add, OnAddKeyDown, AppDbContext, RolemasterCharacterCreation.Data, RolemasterCharacterCreation.Rules, Remove, Rename, SetAppliesTo (+4 more)
 
 ### Community 237 - "Migrations · 20260530164854_AddAppearanc"
-Cohesion: 0.13
-Nodes (9): DateTime, List, BuildingMap, BuildingNote, BuildingReveal, List, VillageCategory, VillageCategoryName (+1 more)
+Cohesion: 0.08
+Nodes (20): DbSet, IdentityDbContext, ModelBuilder, AppDbContext, List, BuildingCategory, BuildingCategoryName, BuildingLocation (+12 more)
 
 ### Community 238 - "Migrations · 20260530165356_AddStatSpeci"
 Cohesion: 0.14
 Nodes (16): Combat, Core Mechanics, Derived Values (BMR, DB, Hits, PP, RRs), Die Rolls, Maneuvers, Resistance Rolls (RR), Armor & Shields (AT 1-10, encumbrance %), Coinage & Starting Money (by wealth) (+8 more)
 
 ### Community 241 - "Migrations · 20260616184748_AddLevelUpBa"
-Cohesion: 0.27
+Cohesion: 0.36
 Nodes (3): int, string, OldStatGainRules
 
 ### Community 243 - "Migrations · 20260618181526_AddFumbleTab"
@@ -1343,16 +1337,16 @@ Cohesion: 0.13
 Nodes (14): Apply Clarity Principles, Assess Current Copy, Button & CTA Text, Confirmation Dialogs, Empty States, Error Messages, Form Labels & Instructions, Help Text & Tooltips (+6 more)
 
 ### Community 247 - "Migrations · 20260619193821_AddUsefulLin"
-Cohesion: 0.14
-Nodes (13): 1. Accessibility (A11y), 2. Performance, 3. Theming, 4. Responsive Design, 5. Anti-Patterns (CRITICAL), Audit Health Score, Detailed Findings by Severity, Diagnostic Scan (+5 more)
+Cohesion: 0.25
+Nodes (7): 1. Accessibility (A11y), 2. Performance, 3. Theming, 4. Responsive Design, 5. Anti-Patterns (CRITICAL), Diagnostic Scan, Recommended Actions
 
 ### Community 249 - "Migrations · 20260619204353_AddWorldLoca"
-Cohesion: 0.18
-Nodes (12): Spacing System, Flexbox vs Grid Tool Choice, Visual Hierarchy & Squint Test, Visual Rhythm, Identity Lock, Live Variant Mode, Variant Parameters (Knobs), Content-Driven Breakpoints (+4 more)
+Cohesion: 0.20
+Nodes (11): Spacing System, Flexbox vs Grid Tool Choice, Visual Hierarchy & Squint Test, Visual Rhythm, Identity Lock, Live Variant Mode, Variant Parameters (Knobs), 4pt Spacing System (+3 more)
 
 ### Community 252 - "CountryDialCodes"
-Cohesion: 0.60
-Nodes (3): IReadOnlyList, CountryDialCode, CountryDialCodes
+Cohesion: 0.40
+Nodes (4): IReadOnlyDictionary, IReadOnlyList, WeaponDef, WeaponRules
 
 ### Community 253 - "Migrations · 20260620071206_AddDungeonNo"
 Cohesion: 0.17
@@ -1423,16 +1417,16 @@ Cohesion: 0.25
 Nodes (8): 5.5 Fatigue, Altitude, Concentration, Endurance Modifiers, Extended Effort, Suggested Check Intervals, Table 5-5: Endurance, Temperature
 
 ### Community 282 - "Product register"
-Cohesion: 0.20
-Nodes (9): Color, Components, Layout, Motion, Product bans (on top of the shared absolute bans), Product permissions, Product register, The product slop test (+1 more)
+Cohesion: 0.12
+Nodes (15): Color, Components, Layout, Motion, Product bans (on top of the shared absolute bans), Product permissions, Product register, The product slop test (+7 more)
 
 ### Community 283 - "Responsive Design"
 Cohesion: 0.20
 Nodes (10): Breakpoints: Content-Driven, Detect Input Method, Not Just Screen Size, Layout Adaptation Patterns, Mobile-First: Write It Right, Picture Element for Art Direction, Responsive Design, Responsive Images: Get It Right, Safe Areas: Handle the Notch (+2 more)
 
 ### Community 284 - "CreatureSpells.cs"
-Cohesion: 0.29
-Nodes (7): IReadOnlyList, List, Regex, CreatureSpellGroup, CreatureSpellInfo, CreatureSpellRef, CreatureSpells
+Cohesion: 0.16
+Nodes (11): Entry, IReadOnlyDictionary, Entry, WeaponAttackTable, IReadOnlyList, List, Regex, CreatureSpellGroup (+3 more)
 
 ### Community 285 - "graphify reference: extra exports and benchmark"
 Cohesion: 0.22
@@ -1443,8 +1437,8 @@ Cohesion: 0.14
 Nodes (9): After This File, Codex: Visual Direction & Asset Production, Four stop points before code, Step A: Explore Directions with the User, Step B: Generate the Brand Palette First, Step C: Generate 1-3 Visual Mocks Against the Palette, Step D: Approval Loop, Step E: Mock Fidelity Inventory (+1 more)
 
 ### Community 287 - "Common Cognitive Load Violations"
-Cohesion: 0.15
-Nodes (12): 1. The Wall of Options, 2. The Memory Bridge, 3. The Hidden Navigation, 4. The Jargon Barrier, 5. The Visual Noise Floor, 6. The Inconsistent Pattern, 7. The Multi-Task Demand, 8. The Context Switch (+4 more)
+Cohesion: 0.22
+Nodes (9): 1. The Wall of Options, 2. The Memory Bridge, 3. The Hidden Navigation, 4. The Jargon Barrier, 5. The Visual Noise Floor, 6. The Inconsistent Pattern, 7. The Multi-Task Demand, 8. The Context Switch (+1 more)
 
 ### Community 288 - "Generate Combined Critique Report"
 Cohesion: 0.22
@@ -1455,8 +1449,8 @@ Cohesion: 0.22
 Nodes (9): Absolute bans, Color, Copy, Layout, Motion, Shared design laws, The AI slop test, Theme (+1 more)
 
 ### Community 291 - "Extract Flow"
-Cohesion: 0.13
-Nodes (13): Extract Flow, Step 1: Discover the Design System, Step 2: Identify Patterns, Step 3: Plan Extraction, Step 4: Extract & Enrich, Step 5: Migrate, Step 6: Document, 1. Context gathering (+5 more)
+Cohesion: 0.25
+Nodes (7): Extract Flow, Step 1: Discover the Design System, Step 2: Identify Patterns, Step 3: Plan Extraction, Step 4: Extract & Enrich, Step 5: Migrate, Step 6: Document
 
 ### Community 292 - "optimize.md"
 Cohesion: 0.25
@@ -1467,8 +1461,8 @@ Cohesion: 0.16
 Nodes (14): Attack Designations, Biomes and Locations, Combat Stat Block, Critical Code (Crit), Detailed Stat Block, Encounter Balance, Encounter Circumstances (Accessibility, Terrain, Ambush), Encounter Tables (+6 more)
 
 ### Community 294 - "CriticalTable"
-Cohesion: 0.40
-Nodes (3): List, CriticalTable, CriticalTableRow
+Cohesion: 0.30
+Nodes (7): Hex, Mtn, IEnumerable, List, Q, R, WorldRender
 
 ### Community 295 - "graphify reference: query, path, explain"
 Cohesion: 0.33
@@ -1546,10 +1540,6 @@ Nodes (4): Combat Statistics, Enc., Movement Stats, Red Jaw
 Cohesion: 0.50
 Nodes (3): A MAGIC SYSTEMA MAGIC SYSTEM, of Closed Lists, of Open Lists
 
-### Community 318 - "20260530183904_AddCharacterTalents.Designer.cs"
-Cohesion: 0.40
-Nodes (3): Spell, List, SpellList
-
 ### Community 319 - "20260618191640_AddSpellLists.Designer.cs"
 Cohesion: 0.24
 Nodes (5): HtmlSanitizer, object, Regex, string, HtmlSanitizing
@@ -1563,8 +1553,8 @@ Cohesion: 0.38
 Nodes (10): attach(), clearHandles(), clearSelection(), commit(), detach(), distToSegment(), drawHandles(), select() (+2 more)
 
 ### Community 325 - "20260621174625_AddCampaignSettings.Designer.cs"
-Cohesion: 0.40
-Nodes (4): ArmorDef, PieceDef, ShieldDefense, ShieldEntry
+Cohesion: 0.11
+Nodes (20): Duration Rule (100/300/500), Easing Curves, Core Web Vitals, Responsive Images, Design Brief, Duration: The 100/300/500 Rule, Easing: Pick the Right Curve, Motion Design (+12 more)
 
 ### Community 329 - "ABDFTX"
 Cohesion: 0.67
@@ -1678,10 +1668,6 @@ Nodes (3): Combat Statistics, Creature is immune to bleeding results. Convert ev
 Cohesion: 0.67
 Nodes (3): Combat Statistics, Enc., Movement Stats
 
-### Community 363 - "Animate Reference"
-Cohesion: 0.40
-Nodes (4): IReadOnlyList, EquipmentRules, GeneralItem, WeaponItem
-
 ### Community 364 - "Onboarding Principles"
 Cohesion: 0.28
 Nodes (6): IFormFile, long, string, Task, SessionNoteImageEndpoints, WebApplication
@@ -1698,10 +1684,6 @@ Nodes (5): DateTime, List, SessionNote, DateTime, SessionNoteImage
 Cohesion: 0.25
 Nodes (6): RevalidatingServerAuthenticationStateProvider, AuthenticationState, CancellationToken, Task, TimeSpan, IdentityRevalidatingAuthenticationStateProvider
 
-### Community 375 - "20260618191640_AddSpellLists.Designer.cs"
-Cohesion: 0.38
-Nodes (4): CancellationToken, IReadOnlyList, Task, IEmbeddingClient
-
 ### Community 378 - "VoyageEmbeddingClient.cs"
 Cohesion: 0.12
 Nodes (3): create(), N, w()
@@ -1709,6 +1691,10 @@ Nodes (3): create(), N, w()
 ### Community 383 - "20260919091550_AddCombatantInitiative.Designer.cs"
 Cohesion: 0.40
 Nodes (5): Die Rolls, Feats of Strength, Maneuver Difficulty, Maneuvers, Open-ended Roll
+
+### Community 386 - "Village"
+Cohesion: 0.18
+Nodes (7): DateTime, List, Village, List, VillageCategory, VillageCategoryName, VillageLocation
 
 ### Community 387 - "SmsText"
 Cohesion: 0.47
@@ -1718,25 +1704,33 @@ Nodes (5): DateTime, List, CombatantKind, Encounter, EncounterCombatant
 Cohesion: 0.33
 Nodes (5): IReadOnlyDictionary, IReadOnlyList, CultureDef, CultureRules, CultureSkill
 
+### Community 422 - "ApplicationUser"
+Cohesion: 0.29
+Nodes (5): IdentityUser, List, ApplicationUser, DateTime, CharacterAuditLog
+
+### Community 423 - "Eight Interactive States"
+Cohesion: 0.25
+Nodes (9): Design System Alignment, Interaction States Coverage, Final Polish Pass, Product Register, Product Slop Test, Reduce Visual Intensity, Discovery Interview, PRODUCT.md (Strategic Context) (+1 more)
+
 ## Knowledge Gaps
-- **2300 isolated node(s):** `DEPRECATED_NAMES`, `HARNESS_DIRS`, `SKILL_FINGERPRINTS`, `CANONICAL_SECTIONS`, `NUXT_ROUTE_RULES_SIGNALS` (+2295 more)
+- **2300 isolated node(s):** `route:/character/{Id:int}/sheet`, `RolemasterCharacterCreation.Data`, `RolemasterCharacterCreation.Models`, `RolemasterCharacterCreation.Rules`, `RolemasterCharacterCreation.Services` (+2295 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **104 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **108 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `RolemasterCharacterCreation.Data` connect `Migrations · 20260530155746_AddHeightWei` to `20260929115418_RenameShieldTypesToRmu.Designer.cs`, `Migrations · 20260622174011_AddSessionNo`, `20260619201224_AddWorldLocationVillageLink.Designer.cs`, `20260902104007_AddEncounters.Designer.cs`, `VoyageEmbeddingClient.cs`, `EF Core Migrations`, `20260620184305_AddChat.Designer.cs`, `20261017070928_AddOldStyleStatGainHouseRule.Designer.cs`, `IJSRuntime`, `IReadOnlyList`, `string`, `20260620070535_AddDungeonLocationVisibility.Designer.cs`, `20260621141633_AddSpellListGmOnly.Designer.cs`, `20260530183904_AddCharacterTalents.Designer.cs`, `20260530165356_AddStatSpecial.Designer.cs`, `20260618161205_AddCriticalTables.Designer.cs`, `20260618191640_AddSpellLists.Designer.cs`, `20260619175739_AddTownLocationGmNotes.Designer.cs`, `20260619201224_AddWorldLocationVillageLink.Designer.cs`, `20260622184256_AddGameSessions.Designer.cs`, `20260621174625_AddCampaignSettings.Designer.cs`, `20260917151015_AddItemCombatBonuses.Designer.cs`, `20260919091550_AddCombatantInitiative.Designer.cs`, `20260930123359_DeduplicateCharacterTalents.Designer.cs`, `20261027164213_AddVillageMapEditing.Designer.cs`, `20261027170148_AddWorldMapEditing.Designer.cs`, `Improve Typography Systematically`, `.DieFor`, `20260619204026_AddCampaignDungeons.Designer.cs`, `Program`, `Migrations · 20260620071206_AddDungeonNo`, `string`, `AddCampaignTowns`, `20260530165356_AddStatSpecial.Designer.cs`, `20260618161205_AddCriticalTables.Designer.cs`, `.Cells`, `20260620094619_AddCampaignBuildings.Designer.cs`, `Migrations · 20260619210400_AddDungeonNo`, `20260621174625_AddCampaignSettings.Designer.cs`?**
-  _High betweenness centrality (0.050) - this node is a cross-community bridge._
-- **Why does `RolemasterCharacterCreation.Services` connect `Building/Cave Map Services` to `World Map & POI Service`, `CharacterWizard`, `Reference Tables Service`, `CreatureEntry`, `Program`, `Migrations · 20260619204353_AddWorldLoca`, `ChatMessage`, `SMS Sender`, `Magic Item Service`, `RulesChunk`, `MobileDetection`, `20260618191640_AddSpellLists.Designer.cs`, `Duration Rule`, `RulesAssistantOptions`, `CreatureSpells.cs`, `20260618191640_AddSpellLists.Designer.cs`?**
-  _High betweenness centrality (0.048) - this node is a cross-community bridge._
-- **Why does `RolemasterCharacterCreation.Data.Migrations` connect `.DieFor` to `EF Core Migrations`, `Migrations · 20260530155746_AddHeightWei`, `ApplicationUser`, `Animate Reference`, `Combat · ArmorRules`, `Migrations · 20260530164854_AddAppearanc`, `Migrations · 20260530183904_AddCharacter`, `Migrations · 20260616170521_AddCurrentXp`, `Migrations · 20260616184748_AddLevelUpBa`, `Migrations · 20260618150618_AddAttackTab`, `Migrations · 20260619175739_AddTownLocat`, `Migrations · 20260619183559_AddWorldMaps`, `Migrations · 20260619190743_AddWorldReve`, `Migrations · 20260619192357_AddWorldLoca`, `Migrations · 20260619193821_AddUsefulLin`, `Migrations · 20260619201224_AddWorldLoca`, `Migrations · 20260619204026_AddCampaignD`, `Migrations · 20260619210400_AddDungeonNo`, `Migrations · 20260620064728_DungeonMarks`, `Migrations · 20260620070535_AddDungeonLo`, `Migrations · 20260620085233_AddCampaignC`, `Migrations · 20260620184305_AddChat`, `Migrations · 20260621174625_AddCampaignS`, `AddAttackTables`, `Migrations · 20260622184256_AddGameSessi`, `WeaponRules`, `Migrations · 20260527175403_InitialCreat`, `Migrations · 20260530170845_AddArmorSele`, `Migrations · 20260530201050_AddEquipment`, `Migrations · 20260617173036_AddCreatureD`, `The Toolkit`, `Migrations · 20260619201224_AddWorldLoca`, `Migrations · 20260619210400_AddDungeonNo`, `Migrations · 20260620064728_DungeonMarks`, `Migrations · 20260620094619_AddCampaignB`, `Migrations · 20260622174011_AddSessionNo`, `SmsText`, `Improve Typography Systematically`, `CSP detection (first-time only)`, `AddCampaignVillages`, `AddEncounters`, `20260619160018_AddTownLocationNotesAndCategoryNames.Designer.cs`, `20260619204026_AddCampaignDungeons.Designer.cs`, `20260620085233_AddCampaignCaves.Designer.cs`, `InitialCreate`, `20260619175739_AddTownLocationGmNotes.Designer.cs`, `AddCampaignTowns`, `CriticalTable`, `20260530165356_AddStatSpecial.Designer.cs`, `20260618161205_AddCriticalTables.Designer.cs`, `20260619190743_AddWorldReveals.Designer.cs`, `.Cells`, `20260902104007_AddEncounters.Designer.cs`, `20260620094619_AddCampaignBuildings.Designer.cs`, `Generate Report`, `BuildingMapService.cs`, `20260621174625_AddCampaignSettings.Designer.cs`, `20260929115418_RenameShieldTypesToRmu.Designer.cs`, `20260619201224_AddWorldLocationVillageLink.Designer.cs`, `20260902104007_AddEncounters.Designer.cs`, `VoyageEmbeddingClient.cs`, `20260620184305_AddChat.Designer.cs`, `20261017070928_AddOldStyleStatGainHouseRule.Designer.cs`, `HashSet`, `PruneDungeonLegendNames`, `IJSRuntime`, `IReadOnlyList`, `string`, `Task`, `MigrationBuilder`, `DateTime`, `20260620070535_AddDungeonLocationVisibility.Designer.cs`, `20260621141633_AddSpellListGmOnly.Designer.cs`, `20260530161351_AddGender.Designer.cs`, `20260530183904_AddCharacterTalents.Designer.cs`, `20260530165356_AddStatSpecial.Designer.cs`, `20260618161205_AddCriticalTables.Designer.cs`, `20260618191640_AddSpellLists.Designer.cs`, `20260619175739_AddTownLocationGmNotes.Designer.cs`, `20260619201224_AddWorldLocationVillageLink.Designer.cs`, `20260622184256_AddGameSessions.Designer.cs`, `20260621174625_AddCampaignSettings.Designer.cs`, `20260917151015_AddItemCombatBonuses.Designer.cs`, `20260919091550_AddCombatantInitiative.Designer.cs`, `20260930123359_DeduplicateCharacterTalents.Designer.cs`, `20261027164213_AddVillageMapEditing.Designer.cs`, `20261027170148_AddWorldMapEditing.Designer.cs`, `MigrationBuilder`?**
+  _High betweenness centrality (0.051) - this node is a cross-community bridge._
+- **Why does `RolemasterCharacterCreation.Services` connect `Building/Cave Map Services` to `CharacterWizard`, `Reference Tables Service`, `CreatureEntry`, `Program`, `ChatMessage`, `SMS Sender`, `Magic Item Service`, `RulesChunk`, `MobileDetection`, `Duration Rule`, `RulesAssistantOptions`, `CreatureSpells.cs`, `20260618191640_AddSpellLists.Designer.cs`?**
+  _High betweenness centrality (0.049) - this node is a cross-community bridge._
+- **Why does `RolemasterCharacterCreation.Data.Migrations` connect `.DieFor` to `EF Core Migrations`, `Migrations · 20260530155746_AddHeightWei`, `ApplicationUser`, `Animate Reference`, `Combat · ArmorRules`, `Migrations · 20260530164854_AddAppearanc`, `Migrations · 20260530183904_AddCharacter`, `Migrations · 20260616170521_AddCurrentXp`, `Migrations · 20260616184748_AddLevelUpBa`, `Migrations · 20260618150618_AddAttackTab`, `Migrations · 20260619175739_AddTownLocat`, `Migrations · 20260619183559_AddWorldMaps`, `Migrations · 20260619190743_AddWorldReve`, `Migrations · 20260619192357_AddWorldLoca`, `Migrations · 20260619193821_AddUsefulLin`, `Migrations · 20260619201224_AddWorldLoca`, `Migrations · 20260619204026_AddCampaignD`, `Migrations · 20260619210400_AddDungeonNo`, `Migrations · 20260620064728_DungeonMarks`, `Migrations · 20260620070535_AddDungeonLo`, `Migrations · 20260620085233_AddCampaignC`, `Migrations · 20260620094619_AddCampaignB`, `Migrations · 20260620184305_AddChat`, `Migrations · 20260621174625_AddCampaignS`, `Migrations · 20260622184256_AddGameSessi`, `WeaponRules`, `Migrations · 20260527175403_InitialCreat`, `Migrations · 20260530170845_AddArmorSele`, `Migrations · 20260530201050_AddEquipment`, `Migrations · 20260617173036_AddCreatureD`, `The Toolkit`, `Migrations · 20260619201224_AddWorldLoca`, `Migrations · 20260619210400_AddDungeonNo`, `Migrations · 20260620064728_DungeonMarks`, `Migrations · 20260620094619_AddCampaignB`, `Migrations · 20260622174011_AddSessionNo`, `SmsText`, `Improve Typography Systematically`, `CSP detection (first-time only)`, `AddCampaignVillages`, `AddEncounters`, `20260619160018_AddTownLocationNotesAndCategoryNames.Designer.cs`, `20260619204026_AddCampaignDungeons.Designer.cs`, `20260620085233_AddCampaignCaves.Designer.cs`, `InitialCreate`, `20260619175739_AddTownLocationGmNotes.Designer.cs`, `AddCampaignTowns`, `CriticalTable`, `20260530165356_AddStatSpecial.Designer.cs`, `20260618161205_AddCriticalTables.Designer.cs`, `20260619190743_AddWorldReveals.Designer.cs`, `.Cells`, `20260902104007_AddEncounters.Designer.cs`, `20260620094619_AddCampaignBuildings.Designer.cs`, `Generate Report`, `BuildingMapService.cs`, `20260621174625_AddCampaignSettings.Designer.cs`, `20260929115418_RenameShieldTypesToRmu.Designer.cs`, `20260619201224_AddWorldLocationVillageLink.Designer.cs`, `20260902104007_AddEncounters.Designer.cs`, `VoyageEmbeddingClient.cs`, `20260620184305_AddChat.Designer.cs`, `20261017070928_AddOldStyleStatGainHouseRule.Designer.cs`, `HashSet`, `PruneDungeonLegendNames`, `IJSRuntime`, `IReadOnlyList`, `string`, `Task`, `MigrationBuilder`, `DateTime`, `20260620070535_AddDungeonLocationVisibility.Designer.cs`, `20260621141633_AddSpellListGmOnly.Designer.cs`, `20260530161351_AddGender.Designer.cs`, `20260530183904_AddCharacterTalents.Designer.cs`, `20260530165356_AddStatSpecial.Designer.cs`, `20260618161205_AddCriticalTables.Designer.cs`, `20260618191640_AddSpellLists.Designer.cs`, `20260619175739_AddTownLocationGmNotes.Designer.cs`, `20260619201224_AddWorldLocationVillageLink.Designer.cs`, `20260622184256_AddGameSessions.Designer.cs`, `20260621174625_AddCampaignSettings.Designer.cs`, `20260917151015_AddItemCombatBonuses.Designer.cs`, `20260919091550_AddCombatantInitiative.Designer.cs`, `20260930123359_DeduplicateCharacterTalents.Designer.cs`, `20261027164213_AddVillageMapEditing.Designer.cs`, `20261027170148_AddWorldMapEditing.Designer.cs`, `MigrationBuilder`?**
   _High betweenness centrality (0.038) - this node is a cross-community bridge._
 - **Are the 37 inferred relationships involving `i` (e.g. with `fe()` and `jt()`) actually correct?**
   _`i` has 37 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 35 inferred relationships involving `s` (e.g. with `loadModernScreenshot()` and `resolveFiles()`) actually correct?**
   _`s` has 35 INFERRED edges - model-reasoned connections that need verification._
-- **What connects `DEPRECATED_NAMES`, `HARNESS_DIRS`, `SKILL_FINGERPRINTS` to the rest of the system?**
+- **What connects `route:/character/{Id:int}/sheet`, `RolemasterCharacterCreation.Data`, `RolemasterCharacterCreation.Models` to the rest of the system?**
   _2300 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `World Map & POI Service` be split into smaller, more focused modules?**
-  _Cohesion score 0.052982456140350874 - nodes in this community are weakly interconnected._
+- **Should `Building Map View` be split into smaller, more focused modules?**
+  _Cohesion score 0.034482758620689655 - nodes in this community are weakly interconnected._
