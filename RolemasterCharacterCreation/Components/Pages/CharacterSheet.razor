@@ -135,17 +135,24 @@
     <td class="p1 vt" rowspan="2">
       <table class="t100 sf">
         <tr><td class="p1 bb">
-          Wt Allowance: <span class="fw pos">@_load.Allowance%</span><br/>
+          Wt Allowance: <span class="fw pos">@_load.Allowance%</span>@if (_load.Weighed)
+          {
+            <span class="muted"> (@Lbs(_load.AllowanceLbs) lb)</span>
+          }<br/>
           <span class="muted">15% + 2×St(@(Fmt(_stBonus)))@(CarryTalentPct != 0 ? $" +{CarryTalentPct}% talent" : "")</span>
         </td></tr>
-        <tr><td class="p1 bb">Carried (lbs): <div class="blank-line"></div></td></tr>
         <tr><td class="p1 bb">
-          Armor Enc: <span class="fw @(_load.EncPen > 0 ? "neg" : "pos")">@_load.EncPct%</span><br/>
-          <span class="muted">Penalty: @(_load.EncPen > 0 ? $"{_load.EncPen}%" : "none")</span>
+          Carried: <span class="fw">@Lbs(_load.CarriedLbs) lb</span><br/>
+          <span class="muted">armor @Lbs(_load.ArmorLbs)@(_load.ShieldLbs > 0 ? $" + shield {Lbs(_load.ShieldLbs)}" : "") + gear @Lbs(_load.GearLbs)</span>
         </td></tr>
         <tr><td class="p1 bb">
-          Max Pace (armor): <span class="fw">@_load.MaxPace</span><br/>
-          <span class="muted">+ carried items reduce further</span>
+          Load: <span class="fw @(_load.EncPen > 0 ? "neg" : "pos")">@_load.LoadPct%</span>
+          <span class="muted">of body weight</span><br/>
+          <span class="muted">Penalty: @(_load.EncPen > 0 ? $"−{_load.EncPen}" : "none")@(_load.Weighed ? "" : " — no body weight, so gear is not counted")</span>
+        </td></tr>
+        <tr><td class="p1 bb">
+          Max Pace: <span class="fw">@_load.MaxPace</span><br/>
+          <span class="muted">Table 5-3 load limit</span>
         </td></tr>
         <tr><td class="p1">Total Maneuver Penalty:<br/>
           <span class="fw @(_load.TotalPen < 0 ? "neg" : "")">@(_load.TotalPen != 0 ? _load.TotalPen.ToString() : "—")</span>
@@ -756,7 +763,7 @@
   <tbody>
     @foreach (var bi in _bonusItems)
     {
-      double _biWt = ItemWeight(bi.Name);
+      double _biWt = ItemWeight(bi);
       <tr>
         <td class="p1 fw">
           @bi.Name
@@ -966,11 +973,12 @@
               if (i < _eqItems.Count)
               {
                   var ei = _eqItems[i];
-                  double wt = ItemWeight(ei.Name);
+                  @* The stack's weight, not one of them: ten rations weigh ten rations. *@
+                  double wt = Math.Max(1, ei.Qty) * ItemWeight(ei);
                   <tr>
                       <td class="p1">@ei.Name</td>
                       <td class="p1 tc">@ei.Qty</td>
-                      <td class="p1 tr">@(wt > 0 ? wt.ToString("G", System.Globalization.CultureInfo.InvariantCulture) : "")</td>
+                      <td class="p1 tr">@(wt > 0 ? Lbs(wt) : "")</td>
                       <td></td>
                   </tr>
               }
@@ -988,11 +996,11 @@
               if (i < _eqItems.Count)
               {
                   var ei = _eqItems[i];
-                  double wt = ItemWeight(ei.Name);
+                  double wt = Math.Max(1, ei.Qty) * ItemWeight(ei);
                   <tr>
                       <td class="p1">@ei.Name</td>
                       <td class="p1 tc">@ei.Qty</td>
-                      <td class="p1 tr">@(wt > 0 ? wt.ToString("G", System.Globalization.CultureInfo.InvariantCulture) : "")</td>
+                      <td class="p1 tr">@(wt > 0 ? Lbs(wt) : "")</td>
                       <td></td>
                   </tr>
               }
@@ -1102,16 +1110,23 @@
     // for themselves, and had drifted apart: only two of the three counted a talent's bonus
     // to Maneuvering in Armor. One record now, built once per load.
     private sealed record ArmorLoad(
-        int RawManPen,   // every piece's maneuver penalty, before Maneuvering in Armor
+        int RawManPen,      // every piece's maneuver penalty, before Maneuvering in Armor
         int MiaBonus,
-        int NetManPen,   // after MiA, which can reduce it to zero but no further
-        int EncPct,      // the armour's encumbrance, as % of body weight
-        int Allowance,   // what may be carried before encumbrance bites
-        int EncPen,      // how far the armour exceeds that
-        int TotalPen)    // NetManPen − EncPen
+        int NetManPen,      // after MiA, which can reduce it to zero but no further
+        int EncPct,         // the armour alone, as % of body weight (Table 6-4)
+        double ArmorLbs,    // that percentage of this wearer — see "Fitted Armor", 5.4
+        double ShieldLbs,
+        double GearLbs,     // everything else carried, worn or not
+        double BodyLbs,
+        int LoadPct,        // the lot, as % of body weight
+        int Allowance,      // what may be carried before encumbrance bites, as %
+        int EncPen,         // how far the load exceeds that
+        int TotalPen)       // NetManPen − EncPen
     {
-        // From the armour alone; carried items push it down further, which the sheet says.
-        public string MaxPace => EncPct switch
+        public double CarriedLbs => ArmorLbs + ShieldLbs + GearLbs;
+
+        /// <summary>Table 5-3's Load Limit column: how fast this much weight lets you go.</summary>
+        public string MaxPace => LoadPct switch
         {
             <= 15 => "Dash",
             <= 30 => "Sprint",
@@ -1120,9 +1135,15 @@
             <= 90 => "Walk",
             _     => "Creep",
         };
+
+        /// <summary>WA (lbs) = WA (%) × body weight / 100 — the figure that is useful in play.</summary>
+        public double AllowanceLbs => Allowance / 100.0 * BodyLbs;
+
+        /// <summary>Without a body weight, pounds cannot become a percentage, so gear is left out.</summary>
+        public bool Weighed => BodyLbs > 0;
     }
 
-    ArmorLoad _load = new(0, 0, 0, 0, 0, 0, 0);
+    ArmorLoad _load = new(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
     int CarryTalentPct => _talentMods.EncumbrancePct + _racialMods.EncumbrancePct;
 
@@ -1150,13 +1171,29 @@
         double encPct = (_char.ArmorFullSuit ? def.FullEncPct
             : def.TorsoEncPct + helm.EncPct + vamb.EncPct + grv.EncPct) * 100.0;
 
+        // "Add up the weight of all gear carried and worn and divide by the characters body
+        // weight" (5.4). Armour is the exception that makes this easy: its encumbrance is
+        // already given as a percentage of the wearer, because a big character's mail is
+        // heavier than a small one's ("Fitted Armor"). Everything else is in pounds, so it
+        // needs the body weight to become comparable.
+        double bodyLbs   = _char.WeightKg.HasValue ? _char.WeightKg.Value * 2.20462 : 0;
+        double armorLbs  = encPct / 100.0 * bodyLbs;
+        double shieldLbs = ArmorRules.Shield(_char.ShieldType).Weight;
+        double gearLbs   = _char.EquipmentItems.Sum(e => Math.Max(1, e.Qty) * ItemWeight(e));
+
         int enc       = (int)Math.Round(encPct);
         int allowance = (int)Math.Round(Math.Max(0, 15 + 2 * _stBonus)
                                         * (1 + CarryTalentPct / 100.0));
+        // No body weight recorded means pounds cannot be turned into a percentage; the
+        // armour still counts, since it is a percentage already, and the sheet says so.
+        int loadPct   = bodyLbs > 0
+            ? (int)Math.Round((armorLbs + shieldLbs + gearLbs) / bodyLbs * 100.0)
+            : enc;
         int netMan    = Math.Min(0, rawMan + miaBonus);
-        int encPen    = Math.Max(0, enc - allowance);
+        int encPen    = Math.Max(0, loadPct - allowance);
 
-        return new ArmorLoad(rawMan, miaBonus, netMan, enc, allowance, encPen, netMan - encPen);
+        return new ArmorLoad(rawMan, miaBonus, netMan, enc, armorLbs, shieldLbs, gearLbs,
+                             bodyLbs, loadPct, allowance, encPen, netMan - encPen);
     }
 
     // ── Dodging (9.6) ────────────────────────────────────────────────────────
@@ -1478,6 +1515,10 @@
 
     static string Fmt(int v) => v >= 0 ? $"+{v}" : v.ToString();
 
+    // Pounds, at most one decimal, and invariant so a Danish machine does not write 12,5.
+    static string Lbs(double v) =>
+        v.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture);
+
     static string FmtHeight(int cm)
     {
         double totalIn = cm / 2.54;
@@ -1516,7 +1557,14 @@
         _ => sn.ToString()
     };
 
-    static double ItemWeight(string name) =>
+    /// <summary>
+    /// What one of these weighs. An item carries its own weight when it has been given one —
+    /// loot and oddities are not in the tables — and otherwise it is looked up by name.
+    /// </summary>
+    static double ItemWeight(CharacterEquipmentItem item) =>
+        item.WeightLbs ?? CatalogueWeight(item.Name);
+
+    static double CatalogueWeight(string name) =>
         EquipmentRules.General.FirstOrDefault(i => i.Name == name)?.WeightLbs
         ?? EquipmentRules.Weapons.FirstOrDefault(i => i.Name == name)?.WeightLbs
         ?? 0;

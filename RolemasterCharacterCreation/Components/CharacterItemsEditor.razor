@@ -19,6 +19,7 @@
             <tr>
                 <th>Item</th>
                 <th style="width:70px">Qty</th>
+                <th style="width:90px" title="Pounds, each. Blank uses the equipment tables; set it for anything they do not list, or encumbrance will not count it">Wt (lb)</th>
                 <th style="width:80px" title="Worn or wielded — only equipped gear counts">Equipped</th>
                 <th style="width:70px" title="Offensive bonus">OB</th>
                 <th style="width:170px" title="Which weapon the OB applies to">OB applies to</th>
@@ -38,6 +39,14 @@
                     <td>
                         <input type="number" class="form-control form-control-sm" min="1"
                                value="@ei.Qty" @onchange="e => SetQty(ei, e)" />
+                    </td>
+                    <td>
+                        @* Blank means "use the tables"; the placeholder shows what they say,
+                           so an item they do not list reads 0 and asks to be filled in. *@
+                        <input type="number" step="0.1" min="0" class="form-control form-control-sm"
+                               placeholder="@CatalogueWeight(ei.Name).ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)"
+                               value="@(ei.WeightLbs?.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture))"
+                               @onchange="e => SetWeight(ei, e)" />
                     </td>
                     <td class="text-center align-middle">
                         <input type="checkbox" class="form-check-input"
@@ -72,6 +81,9 @@
         </tbody>
     </table>
     <p class="text-muted small">
+        <strong>Wt</strong> is pounds each; leave it blank to use the equipment tables, and fill it
+        in for anything they do not list — encumbrance counts what a character carries as well as
+        what they wear, and an unweighed item counts as nothing.
         Leave OB and DB at 0 for ordinary gear. An <strong>OB</strong> applies only to the weapon
         you pick (a +10 broadsword does nothing for your bow); a <strong>DB</strong> applies
         whenever the item is equipped. Unequipped items are carried but change no numbers.
@@ -190,6 +202,20 @@ else
 
     private void SetQty(CharacterEquipmentItem ei, ChangeEventArgs e) =>
         ei.Qty = int.TryParse(e.Value?.ToString(), out var q) ? Math.Max(1, q) : 1;
+
+    // Pounds each. Blank clears it, so the item falls back to the tables.
+    private void SetWeight(CharacterEquipmentItem ei, ChangeEventArgs e)
+    {
+        var v = e.Value?.ToString();
+        ei.WeightLbs = double.TryParse(v, System.Globalization.NumberStyles.Float,
+                                       System.Globalization.CultureInfo.InvariantCulture, out var w)
+                       && w >= 0 ? w : null;
+    }
+
+    private static double CatalogueWeight(string name) =>
+        EquipmentRules.General.FirstOrDefault(i => i.Name == name)?.WeightLbs
+        ?? EquipmentRules.Weapons.FirstOrDefault(i => i.Name == name)?.WeightLbs
+        ?? 0;
 
     private void SetOb(CharacterEquipmentItem ei, ChangeEventArgs e) =>
         ei.ObBonus = int.TryParse(e.Value?.ToString(), out var v) ? v : 0;

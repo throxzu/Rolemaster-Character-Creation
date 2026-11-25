@@ -952,6 +952,9 @@ namespace RolemasterCharacterCreation.Data.Migrations
                     b.Property<int>("Qty")
                         .HasColumnType("int");
 
+                    b.Property<double?>("WeightLbs")
+                        .HasColumnType("float");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CharacterId", "Name")

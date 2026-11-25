@@ -25,4 +25,12 @@ public class CharacterEquipmentItem
 
     /// <summary>Worn or wielded, rather than merely carried.</summary>
     public bool IsEquipped { get; set; } = true;
+
+    /// <summary>
+    /// What one of these weighs, in pounds. Null means "look it up by name in the equipment
+    /// tables" — which is right for anything bought from them and useless for loot and
+    /// oddities, so it can be set here instead. Encumbrance counts carried gear as well as
+    /// worn (5.4), so an unweighed item is a hole in the load.
+    /// </summary>
+    public double? WeightLbs { get; set; }
 }
