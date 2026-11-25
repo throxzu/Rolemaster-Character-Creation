@@ -133,65 +133,23 @@
       </table>
     </td>
     <td class="p1 vt" rowspan="2">
-      @{
-        int _carryPct     = _talentMods.EncumbrancePct + _racialMods.EncumbrancePct;
-        int _waPercent    = (int)Math.Round(Math.Max(0, 15 + 2 * _stBonus) * (1 + _carryPct / 100.0));
-        // Armor enc% comes from the armor selection
-        var _encArmorDef  = ArmorRules.ByAT.GetValueOrDefault(_char.ArmorType, ArmorRules.All[0]);
-        double _armorEncPct = (_char.ArmorFullSuit ? _encArmorDef.FullEncPct
-            : _encArmorDef.TorsoEncPct
-              + ArmorRules.Helmet(_char.HelmetGrade).EncPct
-              + ArmorRules.Vambrace(_char.VambracesGrade).EncPct
-              + ArmorRules.Greave(_char.GreavesGrade).EncPct) * 100.0;
-        int _armorEncInt   = (int)Math.Round(_armorEncPct);
-        // Max pace from armor enc alone (items unknown)
-        string _maxPace = _armorEncInt switch
-        {
-            <= 15 => "Dash",
-            <= 30 => "Sprint",
-            <= 45 => "Run",
-            <= 60 => "Jog",
-            <= 90 => "Walk",
-            _     => "Creep",
-        };
-      }
       <table class="t100 sf">
         <tr><td class="p1 bb">
-          Wt Allowance: <span class="fw pos">@_waPercent%</span><br/>
-          <span class="muted">15% + 2×St(@(Fmt(_stBonus)))@(_carryPct != 0 ? $" +{_carryPct}% talent" : "")</span>
+          Wt Allowance: <span class="fw pos">@_load.Allowance%</span><br/>
+          <span class="muted">15% + 2×St(@(Fmt(_stBonus)))@(CarryTalentPct != 0 ? $" +{CarryTalentPct}% talent" : "")</span>
         </td></tr>
         <tr><td class="p1 bb">Carried (lbs): <div class="blank-line"></div></td></tr>
         <tr><td class="p1 bb">
-          Armor Enc: <span class="fw @(_armorEncInt > _waPercent ? "neg" : "pos")">@_armorEncInt%</span><br/>
-          <span class="muted">Penalty: @(_armorEncInt > _waPercent ? $"{_armorEncInt - _waPercent}%" : "none")</span>
+          Armor Enc: <span class="fw @(_load.EncPen > 0 ? "neg" : "pos")">@_load.EncPct%</span><br/>
+          <span class="muted">Penalty: @(_load.EncPen > 0 ? $"{_load.EncPen}%" : "none")</span>
         </td></tr>
         <tr><td class="p1 bb">
-          Max Pace (armor): <span class="fw">@_maxPace</span><br/>
+          Max Pace (armor): <span class="fw">@_load.MaxPace</span><br/>
           <span class="muted">+ carried items reduce further</span>
         </td></tr>
-        @{
-          var _earlyArmorDef2 = ArmorRules.ByAT.GetValueOrDefault(_char.ArmorType, ArmorRules.All[0]);
-          // Every piece carries a maneuver penalty (7.2); a full suit's figure already
-          // includes its helm, vambraces and greaves.
-          int _earlyRawManPen = _char.ArmorFullSuit
-              ? _earlyArmorDef2.FullManPen
-              : _earlyArmorDef2.TorsoManPen
-                + ArmorRules.Helmet(_char.HelmetGrade).ManPen
-                + ArmorRules.Vambrace(_char.VambracesGrade).ManPen
-                + ArmorRules.Greave(_char.GreavesGrade).ManPen;
-          var _earlyMiaSk    = _char.Skills.FirstOrDefault(s => s.SkillName == "Maneuvering in Armor");
-          int _earlyMiaRanks = _earlyMiaSk?.TotalRanks ?? 0;
-          int _earlyMiaBonus = SkillRules.RankBonus(_earlyMiaRanks)
-              + ((_earlyMiaSk?.IsProfessionalSkill ?? false) ? Math.Min(_earlyMiaRanks, 30) : 0)
-              + ((_earlyMiaSk?.IsKnack ?? false) ? 5 : 0)
-              + TalentSkill("Maneuvering in Armor");
-          int _earlyNetManPen = Math.Min(0, _earlyRawManPen + _earlyMiaBonus);
-          int _earlyEncPen    = Math.Max(0, _armorEncInt - _waPercent);
-          int _earlyTotalPen  = _earlyNetManPen - _earlyEncPen;
-        }
         <tr><td class="p1">Total Maneuver Penalty:<br/>
-          <span class="fw @(_earlyTotalPen < 0 ? "neg" : "")">@(_earlyTotalPen != 0 ? _earlyTotalPen.ToString() : "—")</span>
-          <span class="muted"> (armor @_earlyNetManPen + enc −@_earlyEncPen)</span>
+          <span class="fw @(_load.TotalPen < 0 ? "neg" : "")">@(_load.TotalPen != 0 ? _load.TotalPen.ToString() : "—")</span>
+          <span class="muted"> (armor @_load.NetManPen + enc −@_load.EncPen)</span>
         </td></tr>
       </table>
     </td>
@@ -498,20 +456,6 @@
     + $"= {Fmt(_shield.PassiveTotal)}"
     + (_shield.PassiveCapped ? "  (capped at +50)" : "");
 
-  // Maneuvering in Armor bonus (reduces movement manpen, but only to 0)
-  var _miaSk     = _char.Skills.FirstOrDefault(s => s.SkillName == "Maneuvering in Armor");
-  int _miaRanks  = _miaSk?.TotalRanks ?? 0;
-  // Battle Expertise: no stats, so MiA bonus = rank bonus + pro + knack only
-  int _miaBonus  = SkillRules.RankBonus(_miaRanks)
-      + ((_miaSk?.IsProfessionalSkill ?? false) ? Math.Min(_miaRanks, 30) : 0)
-      + ((_miaSk?.IsKnack ?? false) ? 5 : 0);
-
-  // Total maneuver penalty before MiA. Every piece contributes (7.2); for a full suit the
-  // piece penalties are zeroed above because the suit's own figure already includes them.
-  int _rawManPen  = _torsoManPen + _helmManPen + _vambManPen + _greaveManPen;
-  // Net manpen after MiA (cannot be positive)
-  int _netManPen  = Math.Min(0, _rawManPen + _miaBonus);
-
   int _totalWeight = _torsoWeight + _helmWeight + _vambWeight + _greaveWeight + _shield.Shield.Weight;
 
   // Table 6-4's Strength column: the minimum for wearing the piece without penalty. A full
@@ -589,8 +533,8 @@
             <td class="p1"></td>
             @* Natural Armor does not stack with worn armour — the higher AT wins (4.5). *@
             <td class="p1 tc fw" data-tip="@AtTip">@AtFmt(EffectiveAt)</td>
-            <td class="p1 tr fw @(_netManPen < 0 ? "neg" : "")">
-              @ManPenFmt(_netManPen)@(_miaBonus > 0 && _rawManPen < 0 ? $" (raw {_rawManPen}, MiA +{_miaBonus})" : "")
+            <td class="p1 tr fw @(_load.NetManPen < 0 ? "neg" : "")">
+              @ManPenFmt(_load.NetManPen)@(_load.MiaBonus > 0 && _load.RawManPen < 0 ? $" (raw {_load.RawManPen}, MiA +{_load.MiaBonus})" : "")
             </td>
             <td class="p1 tr fw">@WtFmt(_totalWeight)</td>
             <td class="p1"></td>
@@ -1153,6 +1097,68 @@
         : (ItemDbTotal != 0 ? $"Items: {Fmt(ItemDbTotal)}\n" : "")
           + $"Talents: {Fmt(TalentDbTotal)}\n──────────\n= {Fmt(OtherDb)}";
 
+    // ── What the armour costs ────────────────────────────────────────────────
+    // The encumbrance box, the armour table and the dodge rows all used to work this out
+    // for themselves, and had drifted apart: only two of the three counted a talent's bonus
+    // to Maneuvering in Armor. One record now, built once per load.
+    private sealed record ArmorLoad(
+        int RawManPen,   // every piece's maneuver penalty, before Maneuvering in Armor
+        int MiaBonus,
+        int NetManPen,   // after MiA, which can reduce it to zero but no further
+        int EncPct,      // the armour's encumbrance, as % of body weight
+        int Allowance,   // what may be carried before encumbrance bites
+        int EncPen,      // how far the armour exceeds that
+        int TotalPen)    // NetManPen − EncPen
+    {
+        // From the armour alone; carried items push it down further, which the sheet says.
+        public string MaxPace => EncPct switch
+        {
+            <= 15 => "Dash",
+            <= 30 => "Sprint",
+            <= 45 => "Run",
+            <= 60 => "Jog",
+            <= 90 => "Walk",
+            _     => "Creep",
+        };
+    }
+
+    ArmorLoad _load = new(0, 0, 0, 0, 0, 0, 0);
+
+    int CarryTalentPct => _talentMods.EncumbrancePct + _racialMods.EncumbrancePct;
+
+    ArmorLoad BuildArmorLoad()
+    {
+        var def  = ArmorRules.ByAT.GetValueOrDefault(_char!.ArmorType, ArmorRules.All[0]);
+        var helm = ArmorRules.Helmet(_char.HelmetGrade);
+        var vamb = ArmorRules.Vambrace(_char.VambracesGrade);
+        var grv  = ArmorRules.Greave(_char.GreavesGrade);
+
+        // Every piece carries a maneuver penalty (7.2); a full suit's own figure already
+        // includes its helm, vambraces and greaves.
+        int rawMan = _char.ArmorFullSuit
+            ? def.FullManPen
+            : def.TorsoManPen + helm.ManPen + vamb.ManPen + grv.ManPen;
+
+        // Battle Expertise has no category stats, so MiA is ranks + professional + knack.
+        var mia      = _char.Skills.FirstOrDefault(s => s.SkillName == "Maneuvering in Armor");
+        int miaRanks = mia?.TotalRanks ?? 0;
+        int miaBonus = SkillRules.RankBonus(miaRanks)
+            + ((mia?.IsProfessionalSkill ?? false) ? Math.Min(miaRanks, 30) : 0)
+            + ((mia?.IsKnack ?? false) ? 5 : 0)
+            + TalentSkill("Maneuvering in Armor");
+
+        double encPct = (_char.ArmorFullSuit ? def.FullEncPct
+            : def.TorsoEncPct + helm.EncPct + vamb.EncPct + grv.EncPct) * 100.0;
+
+        int enc       = (int)Math.Round(encPct);
+        int allowance = (int)Math.Round(Math.Max(0, 15 + 2 * _stBonus)
+                                        * (1 + CarryTalentPct / 100.0));
+        int netMan    = Math.Min(0, rawMan + miaBonus);
+        int encPen    = Math.Max(0, enc - allowance);
+
+        return new ArmorLoad(rawMan, miaBonus, netMan, enc, allowance, encPen, netMan - encPen);
+    }
+
     // ── Dodging (9.6) ────────────────────────────────────────────────────────
     // Dodging runs off a Movement skill — Running on land, Swimming in water, Climbing while
     // climbing — not off Quickness, which has already had its say as 3× the bonus. Passive
@@ -1175,50 +1181,17 @@
         }
     }
 
-    // Armour's maneuver penalty after Maneuvering in Armor, less the encumbrance penalty —
-    // the same figure the encumbrance box prints, and zero or negative.
-    int DodgePenalty
-    {
-        get
-        {
-            if (_char is null) return 0;
-            var def = ArmorRules.ByAT.GetValueOrDefault(_char.ArmorType, ArmorRules.All[0]);
-            int rawMan = _char.ArmorFullSuit
-                ? def.FullManPen
-                : def.TorsoManPen + ArmorRules.Helmet(_char.HelmetGrade).ManPen
-                  + ArmorRules.Vambrace(_char.VambracesGrade).ManPen
-                  + ArmorRules.Greave(_char.GreavesGrade).ManPen;
-            var mia = _char.Skills.FirstOrDefault(s => s.SkillName == "Maneuvering in Armor");
-            int miaRanks = mia?.TotalRanks ?? 0;
-            int miaBonus = SkillRules.RankBonus(miaRanks)
-                + ((mia?.IsProfessionalSkill ?? false) ? Math.Min(miaRanks, 30) : 0)
-                + ((mia?.IsKnack ?? false) ? 5 : 0)
-                + TalentSkill("Maneuvering in Armor");
-            int netMan = Math.Min(0, rawMan + miaBonus);
-
-            double encPct = (_char.ArmorFullSuit ? def.FullEncPct
-                : def.TorsoEncPct + ArmorRules.Helmet(_char.HelmetGrade).EncPct
-                  + ArmorRules.Vambrace(_char.VambracesGrade).EncPct
-                  + ArmorRules.Greave(_char.GreavesGrade).EncPct) * 100.0;
-            int carryPct  = _talentMods.EncumbrancePct + _racialMods.EncumbrancePct;
-            int allowance = (int)Math.Round(Math.Max(0, 15 + 2 * _stBonus) * (1 + carryPct / 100.0));
-            int encPen    = Math.Max(0, (int)Math.Round(encPct) - allowance);
-
-            return netMan - encPen;
-        }
-    }
-
     const int PassiveDodgeCap = 50;
     int  RunningRanks      => RunningLine?.Ranks ?? 0;
     int  RunningSkill      => RunningLine?.TotalBonus ?? 0;
     bool PassiveDodgeCapped => RunningRanks > PassiveDodgeCap;
-    int  PassiveDodge      => Math.Max(0, Math.Min(RunningRanks, PassiveDodgeCap) + DodgePenalty);
-    int  PartialDodge      => Math.Max(0, RunningSkill / 2 + DodgePenalty);
-    int  FullDodge         => Math.Max(0, RunningSkill + DodgePenalty);
+    int  PassiveDodge      => Math.Max(0, Math.Min(RunningRanks, PassiveDodgeCap) + _load.TotalPen);
+    int  PartialDodge      => Math.Max(0, RunningSkill / 2 + _load.TotalPen);
+    int  FullDodge         => Math.Max(0, RunningSkill + _load.TotalPen);
 
     string DodgeTip =>
         $"Running ranks: {RunningRanks}\nRunning skill: {Fmt(RunningSkill)}"
-        + (DodgePenalty != 0 ? $"\nArmour and encumbrance: {DodgePenalty}" : "")
+        + (_load.TotalPen != 0 ? $"\nArmour and encumbrance: {_load.TotalPen}" : "")
         + $"\n──────────\npassive {Fmt(PassiveDodge)}, partial {Fmt(PartialDodge)}, full {Fmt(FullDodge)}";
 
     // Spell Law 4.6: "Spell Mastery maneuvers are rolled using the caster's skill bonus in
@@ -1320,6 +1293,10 @@
         _emBonus = SkillRules.StatBonus(Temp("Em")) + (raceBonus?.GetStatMod(StatName.Em) ?? 0);
         _prBonus = SkillRules.StatBonus(Temp("Pr")) + (raceBonus?.GetStatMod(StatName.Pr) ?? 0);
         _sdBonus = SkillRules.StatBonus(Temp("SD")) + (raceBonus?.GetStatMod(StatName.SD) ?? 0);
+        // Needs the stat bonuses and the talent modifiers above it, and is read by the
+        // encumbrance box, the armour table and the dodge rows alike.
+        _load = BuildArmorLoad();
+
         _bmr = 20 + (int)Math.Ceiling(_quBonus / 2.0) + _talentMods.Bmr + _racialMods.Bmr;
 
         // Body Development (Brawn: Co+SD, SkillStat: Co → stat bonus = Co+SD+Co)
