@@ -332,30 +332,34 @@
       </table>
       <!-- Movement -->
       @{
-        int bmrCreep  = (int)Math.Round(_bmr * 0.75);
-        int bmrWalk   = _bmr;
-        int bmrJog    = _bmr * 2;
-        int bmrRun    = _bmr * 3;
-        int bmrSprint = _bmr * 4;
-        int bmrDash   = _bmr * 5;
-        int phCreep   = bmrCreep;
-        int phWalk    = bmrCreep;
-        int phJog     = (int)Math.Round(_bmr * 3.5);
-        int phRun     = (int)Math.Round(_bmr * 3.5);
-        int phSprint  = _bmr;
-        int phDash    = (int)Math.Round(_bmr * 1.25);
+        @* Table 5-3: per round ×½, ×1, ×2, ×3, ×4, ×5 BMR; per phase ×⅛, ×¼, ×½, ×¾, ×1,
+           ×1.25. The fractions do not land on whole feet, so they are printed as they fall
+           rather than rounded — invariant, or a Danish machine writes 11,5. *@
+        string Ft(double v) => v.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+        double bmrCreep  = _bmr * 0.5;
+        double bmrWalk   = _bmr;
+        double bmrJog    = _bmr * 2;
+        double bmrRun    = _bmr * 3;
+        double bmrSprint = _bmr * 4;
+        double bmrDash   = _bmr * 5;
+        double phCreep   = _bmr * 0.125;
+        double phWalk    = _bmr * 0.25;
+        double phJog     = _bmr * 0.5;
+        double phRun     = _bmr * 0.75;
+        double phSprint  = _bmr;
+        double phDash    = _bmr * 1.25;
       }
       <table class="t100 tb">
         <thead>
           <tr class="sh"><th>Pace</th><th>Per Round</th><th>Per Phase</th><th>Penalty/AP</th><th>Load Limit</th></tr>
         </thead>
         <tbody>
-          <tr><td class="p1">Creep</td><td class="p1 tc">@bmrCreep ft</td><td class="p1 tc">@phCreep ft</td><td class="p1 tc">--</td><td class="p1 tc">--</td></tr>
-          <tr><td class="p1">Walk</td><td class="p1 tc">@bmrWalk ft</td><td class="p1 tc">@phWalk ft</td><td class="p1 tc">-25 or 1 AP</td><td class="p1 tc">90%</td></tr>
-          <tr><td class="p1">Jog</td><td class="p1 tc">@bmrJog ft</td><td class="p1 tc">@phJog ft</td><td class="p1 tc">-50 or 2 AP</td><td class="p1 tc">60%</td></tr>
-          <tr><td class="p1">Run</td><td class="p1 tc">@bmrRun ft</td><td class="p1 tc">@phRun ft</td><td class="p1 tc">-75 or 3 AP</td><td class="p1 tc">45%</td></tr>
-          <tr><td class="p1">Sprint</td><td class="p1 tc">@bmrSprint ft</td><td class="p1 tc">@phSprint ft</td><td class="p1 tc">4 AP</td><td class="p1 tc">30%</td></tr>
-          <tr><td class="p1">Dash</td><td class="p1 tc">@bmrDash ft</td><td class="p1 tc">@phDash ft</td><td class="p1 tc">4+ AP</td><td class="p1 tc">15%</td></tr>
+          <tr><td class="p1">Creep</td><td class="p1 tc">@Ft(bmrCreep) ft</td><td class="p1 tc">@Ft(phCreep) ft</td><td class="p1 tc">--</td><td class="p1 tc">--</td></tr>
+          <tr><td class="p1">Walk</td><td class="p1 tc">@Ft(bmrWalk) ft</td><td class="p1 tc">@Ft(phWalk) ft</td><td class="p1 tc">-25 or 1 AP</td><td class="p1 tc">90%</td></tr>
+          <tr><td class="p1">Jog</td><td class="p1 tc">@Ft(bmrJog) ft</td><td class="p1 tc">@Ft(phJog) ft</td><td class="p1 tc">-50 or 2 AP</td><td class="p1 tc">60%</td></tr>
+          <tr><td class="p1">Run</td><td class="p1 tc">@Ft(bmrRun) ft</td><td class="p1 tc">@Ft(phRun) ft</td><td class="p1 tc">-75 or 3 AP</td><td class="p1 tc">45%</td></tr>
+          <tr><td class="p1">Sprint</td><td class="p1 tc">@Ft(bmrSprint) ft</td><td class="p1 tc">@Ft(phSprint) ft</td><td class="p1 tc">4 AP</td><td class="p1 tc">30%</td></tr>
+          <tr><td class="p1">Dash</td><td class="p1 tc">@Ft(bmrDash) ft</td><td class="p1 tc">@Ft(phDash) ft</td><td class="p1 tc">4+ AP</td><td class="p1 tc">15%</td></tr>
         </tbody>
       </table>
     </td>
