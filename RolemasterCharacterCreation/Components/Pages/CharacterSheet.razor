@@ -673,9 +673,15 @@
     <td rowspan="5" style="padding:0; vertical-align:top; border-right:1px solid #000">
       <table class="t100 tb">
         <tr><td class="p1 bb" style="width:50%">Quickness DB: @Fmt(_quBonus*3)</td><td class="p1 bb">Other DB: <span class="fw" data-tip="@OtherDbTip">@(OtherDb == 0 ? "" : Fmt(OtherDb))</span></td></tr>
-        <tr><td class="p1 bb">Passive Dodge: @Fmt((int)Math.Round(_quBonus*1.5))</td><td class="p1 bb">Passive Block DB: <span class="@_shDbClass">@_shPassive</span>@(_shield.PassiveCapped ? " (max)" : "")</td></tr>
-        <tr><td class="p1 bb">Partial Dodge (C): @Fmt(_quBonus*2)</td><td class="p1 bb">Partial Block DB (C): <span class="@_shDbClass">@_shPartial</span></td></tr>
-        <tr><td class="p1 bb">Full Dodge (4 AP): @Fmt(_quBonus*3)</td><td class="p1 bb">Full Block DB (4 AP): <span class="@_shDbClass">@_shFull</span></td></tr>
+        <tr><td class="p1 bb" data-tip="@DodgeTip">Passive Dodge: @Fmt(PassiveDodge)@(PassiveDodgeCapped ? " (max)" : "")</td><td class="p1 bb">Passive Block DB: <span class="@_shDbClass">@_shPassive</span>@(_shield.PassiveCapped ? " (max)" : "")</td></tr>
+        <tr><td class="p1 bb" data-tip="@DodgeTip">Partial Dodge (C): @Fmt(PartialDodge)</td><td class="p1 bb">Partial Block DB (C): <span class="@_shDbClass">@_shPartial</span></td></tr>
+        <tr><td class="p1 bb" data-tip="@DodgeTip">Full Dodge (4 AP): @Fmt(FullDodge)</td><td class="p1 bb">Full Block DB (4 AP): <span class="@_shDbClass">@_shFull</span></td></tr>
+        @* 9.6: dodging is halved against missiles, and passive dodge does not stack with a
+           shield's passive block — each is its own kind of footwork. *@
+        <tr><td class="p1 bb muted" style="font-size:6.5pt" colspan="2">
+          Dodge DB is halved against ranged attacks and does not apply to area attacks.
+          Passive dodge may not be combined with passive block.
+        </td></tr>
         @* Not a DB. Each attack after the first needs a Shield maneuver roll (9.6), and this
            is the bonus it is rolled with — deliberately plain, so it cannot be mistaken for
            another number to add to DB. The tooltip is the skills table's own breakdown. *@
@@ -1146,6 +1152,74 @@
     string? OtherDbTip => TalentDbTotal == 0 ? null
         : (ItemDbTotal != 0 ? $"Items: {Fmt(ItemDbTotal)}\n" : "")
           + $"Talents: {Fmt(TalentDbTotal)}\n──────────\n= {Fmt(OtherDb)}";
+
+    // ── Dodging (9.6) ────────────────────────────────────────────────────────
+    // Dodging runs off a Movement skill — Running on land, Swimming in water, Climbing while
+    // climbing — not off Quickness, which has already had its say as 3× the bonus. Passive
+    // adds the skill's ranks (max +50), partial half the skill, full the whole of it. Armour
+    // and encumbrance penalties "apply in full to passive, partial, and full dodging", which
+    // is usually enough to wipe out the smaller two.
+    SkillLine? RunningLine
+    {
+        get
+        {
+            if (_char is null) return null;
+            var cat = SkillRules.Categories.FirstOrDefault(c => c.Skills.Any(s => s.Name == "Running"));
+            var skd = cat?.Skills.FirstOrDefault(s => s.Name == "Running");
+            if (cat is null || skd is null) return null;
+            int csb1 = cat.NoStats ? 0 : (cat.Stat1 == "R*" ? _realmStatBonus : StatBon(cat.Stat1));
+            int csb2 = cat.NoStats ? 0 : (cat.Stat2 == "R*" ? _realmStatBonus
+                                          : (cat.Stat2 == cat.Stat1 ? csb1 : StatBon(cat.Stat2)));
+            var csk = _char.Skills.FirstOrDefault(s => s.SkillName == "Running" && s.Specialization == null);
+            return SkillLineFor(cat, skd, csk, csb1 + csb2);
+        }
+    }
+
+    // Armour's maneuver penalty after Maneuvering in Armor, less the encumbrance penalty —
+    // the same figure the encumbrance box prints, and zero or negative.
+    int DodgePenalty
+    {
+        get
+        {
+            if (_char is null) return 0;
+            var def = ArmorRules.ByAT.GetValueOrDefault(_char.ArmorType, ArmorRules.All[0]);
+            int rawMan = _char.ArmorFullSuit
+                ? def.FullManPen
+                : def.TorsoManPen + ArmorRules.Helmet(_char.HelmetGrade).ManPen
+                  + ArmorRules.Vambrace(_char.VambracesGrade).ManPen
+                  + ArmorRules.Greave(_char.GreavesGrade).ManPen;
+            var mia = _char.Skills.FirstOrDefault(s => s.SkillName == "Maneuvering in Armor");
+            int miaRanks = mia?.TotalRanks ?? 0;
+            int miaBonus = SkillRules.RankBonus(miaRanks)
+                + ((mia?.IsProfessionalSkill ?? false) ? Math.Min(miaRanks, 30) : 0)
+                + ((mia?.IsKnack ?? false) ? 5 : 0)
+                + TalentSkill("Maneuvering in Armor");
+            int netMan = Math.Min(0, rawMan + miaBonus);
+
+            double encPct = (_char.ArmorFullSuit ? def.FullEncPct
+                : def.TorsoEncPct + ArmorRules.Helmet(_char.HelmetGrade).EncPct
+                  + ArmorRules.Vambrace(_char.VambracesGrade).EncPct
+                  + ArmorRules.Greave(_char.GreavesGrade).EncPct) * 100.0;
+            int carryPct  = _talentMods.EncumbrancePct + _racialMods.EncumbrancePct;
+            int allowance = (int)Math.Round(Math.Max(0, 15 + 2 * _stBonus) * (1 + carryPct / 100.0));
+            int encPen    = Math.Max(0, (int)Math.Round(encPct) - allowance);
+
+            return netMan - encPen;
+        }
+    }
+
+    const int PassiveDodgeCap = 50;
+    int  RunningRanks      => RunningLine?.Ranks ?? 0;
+    int  RunningSkill      => RunningLine?.TotalBonus ?? 0;
+    bool PassiveDodgeCapped => RunningRanks > PassiveDodgeCap;
+    int  PassiveDodge      => Math.Max(0, Math.Min(RunningRanks, PassiveDodgeCap) + DodgePenalty);
+    int  PartialDodge      => Math.Max(0, RunningSkill / 2 + DodgePenalty);
+    int  FullDodge         => Math.Max(0, RunningSkill + DodgePenalty);
+
+    string DodgeTip =>
+        $"Running ranks: {RunningRanks}\nRunning skill: {Fmt(RunningSkill)}"
+        + (DodgePenalty != 0 ? $"\nArmour and encumbrance: {DodgePenalty}" : "")
+        + $"\n──────────\npassive {Fmt(PassiveDodge)}, partial {Fmt(PartialDodge)}, full {Fmt(FullDodge)}";
 
     // Spell Law 4.6: "Spell Mastery maneuvers are rolled using the caster's skill bonus in
     // the spell list" — the list's ordinary skill bonus, which is a different number from
