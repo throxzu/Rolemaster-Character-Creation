@@ -51,7 +51,8 @@
                         <select class="form-select form-select-sm"
                                 value="@(ei.AppliesTo ?? "")"
                                 @onchange="e => SetAppliesTo(ei, e)">
-                            <option value="">All weapons</option>
+                            @* Spelled out, because "all weapons" quietly includes unarmed. *@
+                            <option value="">All weapons (incl. unarmed)</option>
                             @foreach (var w in WeaponSpecs)
                             {
                                 <option value="@w">@w</option>
@@ -121,6 +122,17 @@ else
         .Distinct()
         .OrderBy(s => s);
 
+    /// <summary>
+    /// The weapon an item names, if it names one. "War Hammer +10" is a war hammer's bonus,
+    /// not a blanket one that also sharpens your fists — but left on "all weapons" that is
+    /// exactly what it became, quietly adding itself to Unarmed Striking as well.
+    /// The longest match wins, so a "War Hammer" is not taken for a "Hammer".
+    /// </summary>
+    private string? WeaponNamedIn(string itemName) => WeaponSpecs
+        .Where(w => itemName.Contains(w, StringComparison.OrdinalIgnoreCase))
+        .OrderByDescending(w => w.Length)
+        .FirstOrDefault();
+
     private void Add()
     {
         _note = null;
@@ -145,6 +157,7 @@ else
                 CharacterId = Character.Id,
                 Name        = name,
                 Qty         = qty,
+                AppliesTo   = WeaponNamedIn(name),
             };
             Character.EquipmentItems.Add(item);
             Db.CharacterEquipmentItems.Add(item);
@@ -164,7 +177,15 @@ else
         var name = e.Value?.ToString()?.Trim() ?? "";
         if (name.Length == 0) { _note = "An item needs a name."; return; }
         _note = null;
+
+        // Re-point the OB only while it is still whatever the old name implied. Anyone who has
+        // chosen for themselves keeps that choice through a rename — a blanket bonus left on a
+        // weapon-named item, or one weapon's bonus on an item named after another. Comparing
+        // against the old name is what tells the two apart, since "all weapons" is stored as
+        // null and is otherwise indistinguishable from never having chosen.
+        bool wasAuto = ei.AppliesTo == WeaponNamedIn(ei.Name);
         ei.Name = name;
+        if (wasAuto) ei.AppliesTo = WeaponNamedIn(name);
     }
 
     private void SetQty(CharacterEquipmentItem ei, ChangeEventArgs e) =>
