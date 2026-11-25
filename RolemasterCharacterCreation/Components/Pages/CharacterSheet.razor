@@ -883,14 +883,24 @@
   }
   @foreach (var cat in SkillRules.Categories)
   {
-    string ck = cat.Name switch
+    @* Combat Training and Spellcasting are one row here but several prices in Table 2-4a —
+       a Fighter pays 1/2 for his first weapon category and 3/4 for his fourth, 7/10 for
+       Base/Open spells and 15/20 for Arcane. Printing only the first hid the rest. *@
+    (string Label, string Key)[] dpKeys = cat.Name switch
     {
-        "Combat Training" => "Combat Training 1",
-        "Spellcasting"    => "Spells: Base/Open",
-        _                 => cat.Name
+        "Combat Training" => [("1st", "Combat Training 1"), ("2nd", "Combat Training 2"),
+                              ("3rd", "Combat Training 3"), ("4th", "Combat Training 4")],
+        "Spellcasting"    => [("Base/Open", "Spells: Base/Open"), ("Ritual", "Spells: Ritual Magic"),
+                              ("Closed", "Spells: Closed"), ("Arcane", "Spells: Arcane"),
+                              ("Restricted", "Spells: Restricted")],
+        _                 => [("", cat.Name)],
     };
-    string dp = profDef is not null && profDef.Costs.TryGetValue(ck, out var ccc)
-        ? $"{ccc.First}/{ccc.Second}" : "—";
+    string CatCost(string key) => profDef is not null && profDef.Costs.TryGetValue(key, out var c)
+        ? $"{c.First}/{c.Second}" : "—";
+    string dp = CatCost(dpKeys[0].Key);
+    string? dpExtra = dpKeys.Length > 1
+        ? string.Join("   ", dpKeys.Select(k => $"{k.Label} {CatCost(k.Key)}"))
+        : null;
     int csb1 = cat.NoStats ? 0 : (cat.Stat1 == "R*" ? _realmStatBonus : StatBon(cat.Stat1));
     int csb2 = cat.NoStats ? 0 : (cat.Stat2 == "R*" ? _realmStatBonus : (cat.Stat2 == cat.Stat1 ? csb1 : StatBon(cat.Stat2)));
     int catSum = csb1 + csb2;
@@ -898,7 +908,10 @@
 
     <tr class="sk-cat">
       <td></td>
-      <td class="p1 fw">@cat.Name</td>
+      <td class="p1 fw">@cat.Name@if (dpExtra is not null)
+        {
+          <span class="muted" style="font-weight:400; font-size:6.5pt"> — @dpExtra</span>
+        }</td>
       <td></td>
       <td></td>
       <td class="p1 tc">@catStatStr ↑</td>
